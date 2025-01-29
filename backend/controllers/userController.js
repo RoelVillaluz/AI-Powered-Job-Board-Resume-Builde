@@ -1,84 +1,83 @@
-import User from '../models/userModel.js'
-import { checkMissingFields } from '../utils.js'
+import User from '../models/userModel.js';
+import { checkMissingFields } from '../utils.js';
+import { STATUS_MESSAGES, sendResponse } from '../constants.js';
 
 export const getUsers = async (req, res) => {
     try {
-        const users = await User.find({})
-        res.status(200).json({ success: true, data: users })
+        const users = await User.find({});
+        return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.FETCH, data: users }, 'Users');
     } catch (error) {
-        console.error('Error fetching users', error)
-        res.status(500).json({ success: false, message: 'Server Error' })
+        console.error('Error fetching users:', error);
+        return sendResponse(res, { ...STATUS_MESSAGES.ERROR.SERVER, success: false });
     }
-}
+};
 
 export const getUser = async (req, res) => {
-    const { id } = req.params
+    const { id } = req.params;
     try {
-        const user = await User.findById(id)
+        const user = await User.findById(id);
         if (!user) {
-            return res.status(404).json({ success: false, message: 'User not found' })
+            return sendResponse(res, { ...STATUS_MESSAGES.ERROR.NOT_FOUND, success: false }, 'User');
         }
-
-        return res.status(200).json({ success: true, data: user, message: 'User fetched successfuly' })
+        return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.FETCH, data: user }, 'User');
     } catch (error) {
-        console.error('Error fetching user', error)
-        res.status(500).json({ success: false, message: 'Server Error' })
+        console.error('Error fetching user:', error);
+        return sendResponse(res, { ...STATUS_MESSAGES.ERROR.SERVER, success: false });
     }
-}
+};
 
 export const createUser = async (req, res) => {
     const user = req.body;
+    const requiredFields = ['name', 'email', 'role'];
 
-    const requiredFields = ['name', 'email', 'role']
-
-    // check for missing fields
-    const missingField = checkMissingFields(requiredFields, user)
-
+    // Check for missing fields
+    const missingField = checkMissingFields(requiredFields, user);
     if (missingField) {
-        return res.status(400).json({ success: false, message: `Please provide a ${missingField}` });
+        return sendResponse(res, STATUS_MESSAGES.ERROR.MISSING_FIELD(missingField), 'User');
     }
 
     try {
-        const existingEmail = await User.findOne({ email: user.email })
-
+        const existingEmail = await User.findOne({ email: user.email });
         if (existingEmail) {
-            return res.status(400).json({ success: false, message: "Email is already being used" })
+            return sendResponse(res, STATUS_MESSAGES.ERROR.EMAIL_EXISTS, 'User');
         }
 
-        const newUser = new User(user)
-        await newUser.save()
-        res.status(201).json({ success: true, data: newUser })
+        const newUser = new User(user);
+        await newUser.save();
+        return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.CREATE, data: newUser }, 'User');
     } catch (error) {
-        console.error('Error creating user', error.message);
-        res.status(500).json({ success: false, message: 'Server error' });
+        console.error('Error creating user:', error.message);
+        return sendResponse(res, { ...STATUS_MESSAGES.ERROR.SERVER, success: false });
     }
-}
+};
 
 export const updateUser = async (req, res) => {
-    const { id } = req.params
-    const user = req.body
+    const { id } = req.params;
+    const user = req.body;
 
     try {
-        const updatedUser = await User.findByIdAndUpdate(id, user, { new: true })
-
+        const updatedUser = await User.findByIdAndUpdate(id, user, { new: true });
         if (!updatedUser) {
-            return res.status(404).json({ success: false, message: 'User not found' })
+            return sendResponse(res, { ...STATUS_MESSAGES.ERROR.NOT_FOUND, success: false }, 'User');
         }
-        res.status(200).json({ success: true, data: updatedUser })
+        return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.UPDATE, data: updatedUser }, 'User');
     } catch (error) {
         console.error('Error updating user:', error);
-        res.status(500).json({ success: false, message: 'Server Error' });
+        return sendResponse(res, { ...STATUS_MESSAGES.ERROR.SERVER, success: false });
     }
-}
+};
 
 export const deleteUser = async (req, res) => {
-    const { id } = req.params
-    const user = req.body
-    
+    const { id } = req.params;
+
     try {
-        await User.findByIdAndDelete(id)
-        res.status(200).json({ success: true, message: 'User deleted successfully' })
+        const deletedUser = await User.findByIdAndDelete(id);
+        if (!deletedUser) {
+            return sendResponse(res, { ...STATUS_MESSAGES.ERROR.NOT_FOUND, success: false }, 'User');
+        }
+        return sendResponse(res, STATUS_MESSAGES.SUCCESS.DELETE, 'User');
     } catch (error) {
-        console.log(error);
+        console.error('Error deleting user:', error);
+        return sendResponse(res, { ...STATUS_MESSAGES.ERROR.SERVER, success: false });
     }
-}
+};

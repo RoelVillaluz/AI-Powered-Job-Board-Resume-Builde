@@ -1,0 +1,83 @@
+@import url('https://fonts.googleapis.com/css2?family=Karla:ital,wght@0,200..800;1,200..800&display=swap');
+
+:root {
+    font-family: "Karla", serif;
+    --primary: rgb(240, 240, 240);
+    --secondary: #493628;
+}
+
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+html {
+    font-size: 16px;
+}
+
+body {
+    height: 100%;
+    width: 100%;
+    background-color: var(--primary);
+}
+
+a {
+    text-decoration: none;
+}
+
+.hero-section {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.hero-section figure {
+    width: 100%;
+    height: 65vh;
+}
+
+.hero-section img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 0 0 50px 50px;
+}
+
+.hero-section header {
+    display: flex;
+    align-items: start;
+    gap: 3rem;
+    padding: 1rem;
+}
+
+.hero-section h1 {
+    flex: 4;
+    font-size: clamp(3rem, 7vw, 10rem);
+    line-height: clamp(3.5rem, 6.5vw, 12rem);
+}
+
+.hero-section .right {
+    flex: 2;
+}
+
+.hero-section p {
+    font-size: clamp(0.5rem, 1.1vw, 3rem);
+}
+
+.call-to-action-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: var(--secondary);
+    color: white;
+    font-size: clamp(0.6rem, 1vw, 4rem);
+    padding: clamp(0.75rem, 0.9vw, 2rem) clamp(1rem, 1.5vw, 4rem);
+    border-radius: 8px;
+    margin-top: 1rem;
+}
+
+.call-to-action-link .cta-icon {
+    font-size: (0.5vw, 0.9vw, 4rem);
+    transform: rotate(-45deg); 
+}

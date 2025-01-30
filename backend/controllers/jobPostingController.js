@@ -44,3 +44,34 @@ export const createJobPosting = async (req, res) => {
         return sendResponse(res, { ...STATUS_MESSAGES.ERROR.SERVER, success: false })
     }
 }
+
+export const updateJobPosting = async (req, res) => {
+    const { id } = req.params;
+    const jobPosting = req.body
+
+    try {
+        const updatedJobPosting = await jobPosting.findByIdAndUpdate(id, user, { new: true })
+        if (!updatedJobPosting) {
+            return sendResponse(res, { ...STATUS_MESSAGES.ERROR.NOT_FOUND, success: false}, 'Job posting')
+        }
+        return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.UPDATE, data: updatedJobPosting }, 'Job posting');
+    } catch (error) {
+        console.error('Error', error)
+        return sendResponse(res, { ...STATUS_MESSAGES.ERROR.SERVER, success: false })
+    }
+}
+
+export const deleteJobPosting = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const deletedJobPosting = await JobPosting.findByIdAndDelete(id)
+
+        if (!deletedJobPosting) {
+            return sendResponse(res, { ...STATUS_MESSAGES.ERROR.NOT_FOUND, success: false}, 'Job posting')
+        }
+        return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.DELETE }, 'Job posting')
+    } catch (error) {
+        console.error('Error deleting job posting:', error);
+        return sendResponse(res, { ...STATUS_MESSAGES.ERROR.SERVER, success: false });
+    }
+}

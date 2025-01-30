@@ -28,7 +28,7 @@ export const getUser = async (req, res) => {
 
 export const createUser = async (req, res) => {
     const user = req.body;
-    const requiredFields = ['name', 'email', 'role'];
+    const requiredFields = ['name', 'email', 'password', 'role'];
 
     // Check for missing fields
     const missingField = checkMissingFields(requiredFields, user);

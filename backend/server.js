@@ -14,7 +14,7 @@ app.use(cors());
 app.use(express.json()); 
 
 app.use('/api/users', userRoutes)
-app.use('/api/job_postings', jobPostingRoutes)
+app.use('/api/job-postings', jobPostingRoutes)
 app.use('/api/resumes', resumeRoutes)
 
 app.listen(5000, () => {

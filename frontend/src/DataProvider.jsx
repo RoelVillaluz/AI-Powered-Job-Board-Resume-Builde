@@ -43,9 +43,10 @@ export const DataProvider = ({ children }) => {
     const data = await fetchData(models);
 
     if (data) {
-      if (models.includes("users")) setUsers(data.users);
-      if (models.includes("job-postings")) setJobPostings(data.jobPostings);
-      if (models.includes("resumes")) setResumes(data.resumes);
+      console.log("Fetched data:", data);
+      if (models.includes("users")) setUsers(data["users"] || []);
+      if (models.includes("job-postings")) setJobPostings(data["job-postings"] || []); 
+      if (models.includes("resumes")) setResumes(data["resumes"] || []);
     }
   };
 

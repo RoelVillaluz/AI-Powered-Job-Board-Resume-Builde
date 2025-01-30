@@ -1,0 +1,26 @@
+.navbar {
+    position: fixed;
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    color: white;
+}
+
+.logo {
+    font-size: clamp(1.5rem, 2vw, 4rem);
+    padding: 0.5rem 1.25rem;
+}
+
+.logo img {
+    filter: brightness(0) invert(1);
+}
+
+.navbar-links {
+    list-style-type: none;
+    padding: 1rem;
+    margin-right: 2rem;
+}
+
+.navbar-links a {
+    color: white;
+}

@@ -1,6 +1,6 @@
-import Resume from "../models/resumeModel";
-import { checkMissingFields } from "../utils";
-import { sendResponse, STATUS_MESSAGES } from "../constants";
+import Resume from "../models/resumeModel.js";
+import { checkMissingFields } from "../utils.js";
+import { sendResponse, STATUS_MESSAGES } from "../constants.js";
 
 export const getResumes = async (req, res) => {
     try {

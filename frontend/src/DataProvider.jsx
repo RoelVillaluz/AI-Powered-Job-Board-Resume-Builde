@@ -40,6 +40,8 @@ export const DataProvider = ({ children }) => {
 
     const getAllData = async (models) => {
         const data = await fetchData(models)
+
+        // endpoints to add to base url to fetch
         if (data) {
             if (models.includes("users")) setUsers(data.users)
             if (models.includes("job-postings")) setJobPostings(data.jobPostings)

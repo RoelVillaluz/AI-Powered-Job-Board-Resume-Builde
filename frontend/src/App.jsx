@@ -1,4 +1,3 @@
-import './App.css'
 import { DataProvider } from './DataProvider'
 
 function App() {

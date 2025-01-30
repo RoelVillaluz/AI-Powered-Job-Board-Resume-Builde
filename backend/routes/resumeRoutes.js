@@ -1,5 +1,5 @@
 import express from "express"
-import { createResume, deleteResume, getResume, getResumes, updateResume } from "../controllers/resumeController"
+import { createResume, deleteResume, getResume, getResumes, updateResume } from "../controllers/resumeController.js"
 
 const router = express.Router()
 

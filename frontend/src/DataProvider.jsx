@@ -38,12 +38,12 @@ export const DataProvider = ({ children }) => {
         }
     })
 
-    const getAllData = async () => {
-        const data = await fetchData(["users", "job-postings", "resumes"]) // endpoints to add to base url to fetch
+    const getAllData = async (models) => {
+        const data = await fetchData(models)
         if (data) {
-            setUsers(data.users)
-            setJobPostings(data.jobPostings)
-            setResumes(data.resumes)
+            if (models.includes("users")) setUsers(data.users)
+            if (models.includes("job-postings")) setJobPostings(data.jobPostings)
+            if (models.includes("resumes")) setResumes(data.resumes)
         }
     }
 

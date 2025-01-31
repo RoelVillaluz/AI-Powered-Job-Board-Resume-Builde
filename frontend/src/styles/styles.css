@@ -1,10 +1,13 @@
 @import url('https://fonts.googleapis.com/css2?family=Karla:ital,wght@0,200..800;1,200..800&display=swap');
 
 :root {
-    font-family: "Karla", serif;
-    --primary: rgb(240, 240, 240);
-    --secondary: #493628;
+    font-family: "Karla", sans-serif;
+    --primary: #F8F8F8;
+    --secondary: #3B2B22; 
+    --secondary-light: #5B4536;
+    --tertiary: #E1CFC0;
 }
+
 
 * {
     padding: 0;
@@ -28,13 +31,14 @@ a {
 
 .hero-section {
     height: 100vh;
+    overflow-x: hidden;
     display: flex;
     flex-direction: column;
 }
 
 .hero-section figure {
     width: 100%;
-    height: 65vh;
+    height: 60vh;
 }
 
 .hero-section img {
@@ -51,18 +55,13 @@ a {
     padding: 1rem;
 }
 
-.hero-section h1 {
+.hero-section .left {
     flex: 4;
-    font-size: clamp(3rem, 7vw, 10rem);
+}
+
+.hero-section h1 {
+    font-size: clamp(3rem, 7vw, 16rem);
     line-height: clamp(3.5rem, 6.5vw, 12rem);
-}
-
-.hero-section .right {
-    flex: 2;
-}
-
-.hero-section p {
-    font-size: clamp(0.5rem, 1.1vw, 3rem);
 }
 
 .call-to-action-link {
@@ -75,9 +74,60 @@ a {
     padding: clamp(0.75rem, 0.9vw, 2rem) clamp(1rem, 1.5vw, 4rem);
     border-radius: 8px;
     margin-top: 1rem;
+    transition: 0.3s ease-in-out;
+}
+
+.call-to-action-link:hover {
+    background-color: var(--secondary-light);
 }
 
 .call-to-action-link .cta-icon {
     font-size: (0.5vw, 0.9vw, 4rem);
     transform: rotate(-45deg); 
+}
+
+.hero-section .right {
+    flex: 2;
+}
+
+.hero-section p {
+    font-size: clamp(0.5rem, 1.1vw, 3rem);
+}
+
+.hero-section .community {
+    display: flex;
+    flex-direction: column;
+    width: 100%; 
+    border-radius: 5px;
+    margin-top: 1.5rem;
+}
+
+.hero-section .people-images {
+    display: flex;
+    margin-bottom: 1.25rem;
+}
+
+.hero-section .people-images img {
+    width: clamp(1rem, 4vw, 12rem);
+    aspect-ratio: 1 / 1;
+    border-radius: 50%;
+    border: solid 2px var(--primary);
+}
+
+.hero-section .people-images img:not(:first-of-type) {
+    margin-left: -0.9rem;
+}
+
+.hero-section .community .count {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: clamp(1rem, 4vw, 12rem);
+    aspect-ratio: 1 / 1;
+    font-size: clamp(0.6rem, 1.1vw, 3rem);
+    margin-left: -0.9rem;
+    border-radius: 50%;
+    border: solid 2px rgb(20, 20, 20);
+    background-color: white;
+    z-index: 5;
 }

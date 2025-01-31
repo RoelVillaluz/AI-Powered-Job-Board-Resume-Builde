@@ -21,11 +21,27 @@
 }
 
 .navbar-links {
+    display: flex;
+    gap: 1rem;
     list-style-type: none;
     padding: 1rem;
     margin-right: 2rem;
 }
 
 .navbar-links a {
+    font-size: clamp(0.5rem, 1vw, 4rem);
     color: white;
+}
+
+.sign-in-link {
+    font-weight: 500;
+    padding: 0.5rem 1.25rem;
+    border: solid 2px white;
+    border-radius: 1000px;
+    transition: 0.3s;
+}
+
+.sign-in-link:hover {
+    background-color: white;
+    color: var(--secondary);
 }

@@ -1,12 +1,12 @@
 @import url('https://fonts.googleapis.com/css2?family=Karla:ital,wght@0,200..800;1,200..800&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+
 :root {
     font-family: "Karla", sans-serif;
     --primary: #F8F8F8;
     --secondary: #3B2B22; 
     --secondary-light: #5B4536;
-    --tertiary: #E1CFC0;
+    --tertiary: #ddd5cc;
 }
-
 
 * {
     padding: 0;
@@ -26,6 +26,10 @@ body {
 
 a {
     text-decoration: none;
+}
+
+.row {
+    display: flex;
 }
 
 .hero-section {
@@ -55,13 +59,13 @@ a {
 }
 
 .hero-section .left {
-    flex: 4;
+    flex: 3;
 }
 
 .hero-section h1 {
     font-family: 'Montserrat', sans-serif;
     font-weight: 500;
-    font-size: clamp(3rem, 7vw, 16rem);
+    font-size: clamp(3rem, 6vw, 16rem);
     line-height: clamp(3.5rem, 6.5vw, 12rem);
 }
 
@@ -95,40 +99,58 @@ a {
     font-size: clamp(0.5rem, 1.1vw, 3rem);
 }
 
-.hero-section .community {
+.hero-section .step-list {
+    list-style-type: none;
+    margin-top: 1rem;
+}
+
+.hero-section .row {
+    gap: 1rem;
+}
+
+.hero-section .step-list li {
+    position: relative;
     display: flex;
     flex-direction: column;
-    width: 100%; 
-    border-radius: 5px;
-    margin-top: 1.5rem;
-}
-
-.hero-section .people-images {
-    display: flex;
-    margin-bottom: 1.25rem;
-}
-
-.hero-section .people-images img {
-    width: clamp(1rem, 4vw, 12rem);
+    flex: 1;
     aspect-ratio: 1 / 1;
-    border-radius: 50%;
-    border: solid 2px var(--primary);
+    padding: 1rem;
+    border-radius: 4px;
+    background-color: var(--tertiary);
+    justify-content: center; 
+    align-items: center; 
 }
 
-.hero-section .people-images img:not(:first-of-type) {
-    margin-left: -0.9rem;
-}
-
-.hero-section .community .count {
+.hero-section .step-list span {
+    position: absolute;
+    top: -10%;
+    left: -5%;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: clamp(1rem, 4vw, 12rem);
+    width: clamp(0.75rem, 3vw, 8rem);
     aspect-ratio: 1 / 1;
-    font-size: clamp(0.6rem, 1.1vw, 3rem);
-    margin-left: -0.9rem;
     border-radius: 50%;
-    border: solid 2px rgb(20, 20, 20);
-    background-color: white;
-    z-index: 5;
+    font-size: clamp(0.35rem, 2vw, 7rem);
+    font-weight: 800;
+    background-color: var(--secondary);
+    color: white;
 }
+
+.hero-section .step-list i {
+    font-size: clamp(0.75rem, 2vw, 7rem);
+    text-align: center;
+    color: var(--secondary);
+}
+
+.hero-section .step-list p {
+    position: absolute;
+    bottom: 5%;
+    right: 5%;
+    text-align: right;
+    max-width: 90%; 
+    word-wrap: break-word;
+    white-space: normal;
+    font-weight: 500;
+}
+

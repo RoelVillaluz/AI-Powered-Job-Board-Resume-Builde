@@ -21,27 +21,32 @@ function Home () {
                </figure>
                <header>
                     <div className="left">
-                        <h1>Ready to Take the Next Step?</h1>
+                        <h1>Your Next Job is 3 Steps Away!</h1>
                         <Link className="call-to-action-link">
-                            Get Started
+                            Get Started Today!
                             <FontAwesomeIcon icon={faArrowRight} className="cta-icon" />
                         </Link>
                     </div>
                     <div className="right">
-                        <p>Whether you're a fresh graduate, a seasoned professional, 
-                            or looking for a career switch, explore thousands of job openings 
-                            tailored to your expertise.
-                        </p>
-                        <div className="community">
-                            <div className="people-images">
-                                <img src="/public/media/pexels-kampus-6605421.jpg" alt="" />
-                                <img src="/public/media/pexels-anthonyshkraba-production-8278885.jpg" alt="" />
-                                <img src="/public/media/pexels-alipli-15003448.jpg" alt="" />
-                                <img src="/public/media/pexels-moose-photos-170195-1587009.jpg" alt="" />
-                                <span className="count">100+</span>
+                        <ul className="step-list">
+                            <div className="row">
+                                <li>
+                                    <span>1</span>
+                                    <i className="fas fa-user-plus"></i>
+                                    <p>Sign up</p>
+                                </li>  
+                                <li>
+                                    <span>2</span>
+                                    <i className="fas fa-file-alt"></i>
+                                    <p>Choose resume template</p>
+                                </li>  
+                                <li>
+                                    <span>3</span>
+                                    <i className="fas fa-briefcase"></i>
+                                    <p>Start job hunting!</p>
+                                </li>   
                             </div>
-                            <p>Join our fast-growing community.</p>
-                        </div>
+                        </ul>
                     </div>
                </header>
             </main>

@@ -1,5 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Karla:ital,wght@0,200..800;1,200..800&display=swap');
-
+@import url('https://fonts.googleapis.com/css2?family=Karla:ital,wght@0,200..800;1,200..800&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
 :root {
     font-family: "Karla", sans-serif;
     --primary: #F8F8F8;
@@ -60,6 +59,8 @@ a {
 }
 
 .hero-section h1 {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 500;
     font-size: clamp(3rem, 7vw, 16rem);
     line-height: clamp(3.5rem, 6.5vw, 12rem);
 }

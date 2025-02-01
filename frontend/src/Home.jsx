@@ -4,11 +4,11 @@ import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowRight } from '@fortawesome/free-solid-svg-icons';
 
-function Home () {
+function LandingPage () {
     const { users = [], jobPostings = [], resumes = [], getAllData } = useData();
 
     useEffect(() => {
-        document.title = 'Home'
+        document.title = 'Landing Page'
 
         getAllData(["users", "job-postings", "resumes"])
     }, [])
@@ -54,4 +54,4 @@ function Home () {
     )
 }
 
-export default Home
+export default LandingPage

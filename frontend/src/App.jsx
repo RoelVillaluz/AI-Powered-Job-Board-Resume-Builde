@@ -1,6 +1,6 @@
 import { DataProvider } from './DataProvider'
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom"
-import Home from './Home'
+import LandingPage from './LandingPage'
 import Navbar from './components/Navbar'
 import Register from './Register'
 
@@ -11,7 +11,7 @@ function App() {
         <Navbar/>
         <DataProvider>
             <Routes>
-              <Route path={"/"} element={<Home/>}/> 
+              <Route path={"/"} element={<LandingPage/>}/> 
               <Route path={"/register"} element={<Register/>}/>
             </Routes>
         </DataProvider>

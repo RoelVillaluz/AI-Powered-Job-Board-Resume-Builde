@@ -1,6 +1,7 @@
 import User from '../models/userModel.js';
 import { checkMissingFields } from '../utils.js';
 import { STATUS_MESSAGES, sendResponse } from '../constants.js';
+import bcrypt from 'bcrypt';
 
 export const getUsers = async (req, res) => {
     try {
@@ -41,6 +42,10 @@ export const createUser = async (req, res) => {
         if (existingEmail) {
             return sendResponse(res, STATUS_MESSAGES.ERROR.EMAIL_EXISTS, 'User');
         }
+
+        // Hash the password before saving the user
+        const hashedPassword = await bcrypt.hash(user.password, 10); // 10 is the salt rounds
+        user.password = hashedPassword;
 
         const newUser = new User(user);
         await newUser.save();

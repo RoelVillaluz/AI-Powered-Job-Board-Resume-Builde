@@ -8,7 +8,7 @@ function Navbar () {
                     <img src="/public/media/icons8-opportunity-24.png" alt="" />
                 </Link>
                 <ul className="navbar-links">
-                    <li><Link path={''} className="sign-in-link">Sign In</Link></li>
+                    <li><Link to='/register' className="sign-in-link">Sign In</Link></li>
                 </ul>
             </nav>
         </>

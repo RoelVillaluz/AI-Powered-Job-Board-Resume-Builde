@@ -56,19 +56,25 @@ export const createUser = async (req, res) => {
         const hashedPassword = await bcrypt.hash(user.password, 10); // 10 is the salt rounds
         user.password = hashedPassword;
 
-        // create user but don't verify yet
-        const newUser = new User({ ...user, isVerified: false });
-        await newUser.save();
+        // create temporary user and wait for verification before registering user
+        const tempUser = {
+            name: user.name,
+            email: user.email,
+            password: user.password,
+            role: user.role,
+            isVerified: false,
+            verificationCode: Math.floor(10000 + Math.random() * 900000).toString(),
+        }
+
 
         // send randomly generated code to user email
         const verificationCode = Math.floor(10000 + Math.random() * 900000).toString();
-        newUser.verificationCode = verificationCode;
-        await newUser.save();
+        tempUser.verificationCode = verificationCode;
 
         // send verification email
-        await sendVerificationEmail(newUser, verificationCode);
+        await sendVerificationEmail(tempUser, verificationCode);
 
-        return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.CREATE, data: newUser }, 'User');
+        return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.CREATE, data: tempUser }, 'User');
     } catch (error) {
         console.error('Error creating user:', error.message);
         return sendResponse(res, { ...STATUS_MESSAGES.ERROR.SERVER, success: false });
@@ -118,7 +124,7 @@ export const verifyUser = async (req, res) => {
             return sendResponse(res, {...STATUS_MESSAGES.ERROR.NOT_FOUND, success: false}, 'User')
         }
 
-        if (!user) {
+        if (user.verificationCode !== verificationCode) {
             return sendResponse(res, { ...STATUS_MESSAGES.ERROR.INVALID_CODE, success: false})
         }
 

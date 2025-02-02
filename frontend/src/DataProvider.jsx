@@ -8,6 +8,11 @@ export const DataProvider = ({ children }) => {
   const [users, setUsers] = useState([]);
   const [jobPostings, setJobPostings] = useState([]);
   const [resumes, setResumes] = useState([]);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState(null)
+  const [isLoading, setIsLoading] = useState(true)
+
+  const [user, setUser] = useState();
 
   const baseUrl = "http://localhost:5000/api";
 
@@ -53,10 +58,15 @@ export const DataProvider = ({ children }) => {
   return (
     <DataContext.Provider
       value={{
+        baseUrl,
         users, setUsers,
         jobPostings, setJobPostings,
         resumes, setResumes,
         getAllData, 
+        user, setUser,
+        success, setSuccess,
+        error, setError,
+        isLoading, setIsLoading
       }}
     >
       {children}

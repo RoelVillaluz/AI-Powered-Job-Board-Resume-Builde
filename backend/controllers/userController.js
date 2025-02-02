@@ -1,4 +1,5 @@
 import User from '../models/userModel.js';
+import { TempUser } from '../models/tempUserModel.js';
 import { checkMissingFields, sendVerificationEmail } from '../utils.js';
 import { STATUS_MESSAGES, sendResponse } from '../constants.js';
 import bcrypt from 'bcrypt';
@@ -111,26 +112,32 @@ export const deleteUser = async (req, res) => {
 };
 
 
-
 export const verifyUser = async (req, res) => {
     const { email, verificationCode } = req.body;
 
     try {
-        const user = await User.findOne({ email })
+        const tempUser = await TempUser.findOne({ email })
 
-        if (!user) {
+        if (!tempUser) {
             return sendResponse(res, {...STATUS_MESSAGES.ERROR.NOT_FOUND, success: false}, 'User')
         }
 
-        if (user.verificationCode !== verificationCode) {
+        if (tempUser.verificationCode !== verificationCode) {
             return sendResponse(res, { ...STATUS_MESSAGES.ERROR.INVALID_CODE, success: false})
         }
 
-        user.isVerified = true
-        user.verificationCode = null; // Clear verification code after successful verification
-        await user.save();
+        const newUser = new User({
+            name: tempUser.name,
+            email: tempUser.email,
+            password: tempUser.password, // Already hashed
+            role: tempUser.role,
+            isVerified: true,
+        })
 
-        return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.CREATE, data: user }, 'User')
+        await newUser.save()
+        await TempUser.deleteOne({ email })
+
+        return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.CREATE, data: newUser }, 'User')
     } catch (error) {
         console.error('Error', error)
         return sendResponse(res, STATUS_MESSAGES.ERROR.SERVER, 'User');

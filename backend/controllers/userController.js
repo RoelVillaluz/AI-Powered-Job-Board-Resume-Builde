@@ -39,45 +39,43 @@ export const createUser = async (req, res) => {
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(user.email)) {
-        return sendResponse(res, STATUS_MESSAGES.ERROR.BAD_REQUEST, 'User')
+        return sendResponse(res, STATUS_MESSAGES.ERROR.BAD_REQUEST, 'User');
     }
 
     if (user.password.length < 8) {
-        return sendResponse(res, STATUS_MESSAGES.ERROR.BAD_REQUEST, 'User')
+        return sendResponse(res, STATUS_MESSAGES.ERROR.BAD_REQUEST, 'User');
     }
 
     try {
-        const existingEmail = await User.findOne({ email: user.email });
+        const existingEmail = await TempUser.findOne({ email: user.email }) || await User.findOne({ email: user.email });
         if (existingEmail) {
             return sendResponse(res, STATUS_MESSAGES.ERROR.EMAIL_EXISTS, 'User');
         }
 
-        // Hash the password before saving the user
-        const hashedPassword = await bcrypt.hash(user.password, 10); // 10 is the salt rounds
-        user.password = hashedPassword;
+        // Hash the password before saving
+        const hashedPassword = await bcrypt.hash(user.password, 10);
 
-        // create temporary user and wait for verification before registering user
-        const tempUser = {
+        // Generate verification code
+        const verificationCode = Math.floor(10000 + Math.random() * 900000).toString();
+
+        // Create a temp user
+        const tempUser = new TempUser({
             name: user.name,
             email: user.email,
-            password: user.password,
+            password: hashedPassword,
             role: user.role,
-            isVerified: false,
-            verificationCode: Math.floor(10000 + Math.random() * 900000).toString(),
-        }
+            verificationCode
+        });
 
+        await tempUser.save();
 
-        // send randomly generated code to user email
-        const verificationCode = Math.floor(10000 + Math.random() * 900000).toString();
-        tempUser.verificationCode = verificationCode;
-
-        // send verification email
+        // Send verification email
         await sendVerificationEmail(tempUser, verificationCode);
 
-        return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.CREATE, data: tempUser }, 'User');
+        return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.CREATE, message: "Verification code sent to email." }, 'User');
     } catch (error) {
         console.error('Error creating user:', error.message);
-        return sendResponse(res, { ...STATUS_MESSAGES.ERROR.SERVER, success: false });
+        return sendResponse(res, STATUS_MESSAGES.ERROR.SERVER, 'User');
     }
 };
 

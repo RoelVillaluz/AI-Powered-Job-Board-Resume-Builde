@@ -6,6 +6,7 @@
     --secondary: #3B2B22; 
     --secondary-light: #5B4536;
     --tertiary: #ddd5cc;
+    --gray: rgb(54, 54, 54);
 }
 
 * {
@@ -27,6 +28,10 @@ body {
 
 a {
     text-decoration: none;
+}
+
+button {
+    font-family: 'Montserrat', sans-serif;
 }
 
 .row {
@@ -323,25 +328,76 @@ a {
     right: 5%;
 }
 
-/* 
-.authentication-form-image-container .square {
+.verification-form {
     position: absolute;
-    background-color: rgba(209, 209, 209, 0.3);
-    backdrop-filter: blur(5px);
-    box-shadow: 0px 1px 8px 1px rgba(0,0,0,0.1);
-    z-index: 2;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    transform: translate(-50%, -50%);
+    top: 50%;
+    left: 50%;
+    width: 40vw;
+    aspect-ratio: 2 / 1;
+    border-radius: 5px;
+    z-index: 100;
+    background-color: white;
+    padding: 1rem;
+    box-shadow: 1px 1px 5px 0px rgba(0,0,0,0.3);
 }
 
-.authentication-form-image-container .square:nth-of-type(1) {
-    top: 5%;
-    left: 10%;
-    width: clamp(100px, 15vw, 300px);
-    aspect-ratio: 1 / 1;
+.verification-form h2 {
+    font-weight: 700;
 }
 
-.authentication-form-image-container .square:nth-of-type(2) {
-    bottom: 5%;
-    right: 10%;
-    width: clamp(50px,8vw, 175px);
-    aspect-ratio: 1 / 1;
-} */
+.verification-form p {
+    font-weight: 400;
+    color: var(--gray);
+    margin-top: 0.5rem;
+}
+
+.verification-form .digit-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
+.verification-form .digit {
+    width: 4rem;  
+    height: 4rem; 
+    font-size: 1.5rem; 
+    font-weight: 800;
+    padding: 1rem; 
+    text-align: center;
+    border: solid 1px var(--gray);
+    outline: none;
+    border-radius: 4px;
+    text-transform: uppercase;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
+.verification-form .digit.filled {
+    border: none;
+    background-color: rgba(0,0,0,0.1);
+}
+
+.verify-btn {
+    background-color: black;
+    color: white;
+    font-weight: 600;
+    border-radius: 4px;
+    border: none;
+    outline: none;
+    padding: 0.75rem 1.5rem;
+    margin-top: 1.5rem;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.verify-btn:hover {
+    background-color: rgb(45, 45, 45);
+}

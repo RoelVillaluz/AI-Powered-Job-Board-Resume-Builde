@@ -1,5 +1,5 @@
 import User from '../models/userModel.js';
-import { checkMissingFields } from '../utils.js';
+import { checkMissingFields, sendVerificationEmail } from '../utils.js';
 import { STATUS_MESSAGES, sendResponse } from '../constants.js';
 import bcrypt from 'bcrypt';
 
@@ -37,6 +37,15 @@ export const createUser = async (req, res) => {
         return sendResponse(res, STATUS_MESSAGES.ERROR.MISSING_FIELD(missingField), 'User');
     }
 
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(user.email)) {
+        return sendResponse(res, STATUS_MESSAGES.ERROR.BAD_REQUEST, 'User')
+    }
+
+    if (user.password.length < 8) {
+        return sendResponse(res, STATUS_MESSAGES.ERROR.BAD_REQUEST, 'User')
+    }
+
     try {
         const existingEmail = await User.findOne({ email: user.email });
         if (existingEmail) {
@@ -47,8 +56,18 @@ export const createUser = async (req, res) => {
         const hashedPassword = await bcrypt.hash(user.password, 10); // 10 is the salt rounds
         user.password = hashedPassword;
 
-        const newUser = new User(user);
+        // create user but don't verify yet
+        const newUser = new User({ ...user, isVerified: false });
         await newUser.save();
+
+        // send randomly generated code to user email
+        const verificationCode = Math.floor(10000 + Math.random() * 900000).toString();
+        newUser.verificationCode = verificationCode;
+        await newUser.save();
+
+        // send verification email
+        await sendVerificationEmail(newUser, verificationCode);
+
         return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.CREATE, data: newUser }, 'User');
     } catch (error) {
         console.error('Error creating user:', error.message);
@@ -86,3 +105,30 @@ export const deleteUser = async (req, res) => {
         return sendResponse(res, { ...STATUS_MESSAGES.ERROR.SERVER, success: false });
     }
 };
+
+
+
+export const verifyUser = async (req, res) => {
+    const { email, verificationCode } = req.body;
+
+    try {
+        const user = await User.findOne({ email })
+
+        if (!user) {
+            return sendResponse(res, {...STATUS_MESSAGES.ERROR.NOT_FOUND, success: false}, 'User')
+        }
+
+        if (!user) {
+            return sendResponse(res, { ...STATUS_MESSAGES.ERROR.INVALID_CODE, success: false})
+        }
+
+        user.isVerified = true
+        user.verificationCode = null; // Clear verification code after successful verification
+        await user.save();
+
+        return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.CREATE, data: user }, 'User')
+    } catch (error) {
+        console.error('Error', error)
+        return sendResponse(res, STATUS_MESSAGES.ERROR.SERVER, 'User');
+    }
+}

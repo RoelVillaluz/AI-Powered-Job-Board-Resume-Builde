@@ -10,6 +10,7 @@ export const STATUS_MESSAGES = {
         NOT_FOUND: { code: 404, message: "(model) not found" },
         BAD_REQUEST: { code: 400, message: "Invalid request" },
         EMAIL_EXISTS: { code: 400, message: "Email is already being used" },
+        INVALID_CODE: { code: 400, message: "The code you entered is incorrect"},
         MISSING_FIELD: (field) => ({ code: 400, message: `Please provide a ${field}` }),
     }
 };

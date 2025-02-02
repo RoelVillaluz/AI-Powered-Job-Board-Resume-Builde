@@ -2,8 +2,9 @@ import { useState, useEffect } from "react";
 import { useData } from "./DataProvider";
 import axios from "axios";
 import Layout from "./components/Layout";
+import VerifyUser from "./components/VerifyUser";
 
-function Register () {
+function Register() {
     const { baseUrl, setSuccess, setError } = useData();
     const [formData, setFormData] = useState({
         name: '',
@@ -11,39 +12,49 @@ function Register () {
         password: '',
         confirmPassword: '',
         role: 'jobseeker',
-        profile_picture: null,
-    })
+    });
+    const [verificationCode, setVerificationCode] = useState(''); // Store the verification code
+    const [isEmailSent, setIsEmailSent] = useState(false); // To check if the email was sent
+    const [isFormSubmitted, setIsFormSubmitted] = useState(false);
+
+    useEffect(() => {
+        document.title = 'Create an account';
+    }, []);
 
     const handleChange = (e) => {
-        setFormData({...formData, [e.target.name]: e.target.value })
-    }
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
 
     const handleFormSubmit = async (e) => {
-        e.preventDefault()
+        e.preventDefault();
+        console.log(formData);
 
         if (formData.password !== formData.confirmPassword) {
-            setError('Passwords must match')
-            setSuccess(false)
+            setError('Passwords must match');
+            setSuccess(false);
+            return;
         }
 
         try {
-            await axios.post(`${baseUrl}/users`)
-            console.log(formData)
-            setSuccess(true)
-            setError(false)
-        } catch (error) {
-            console.error('Error', error)
-            setSuccess(false)
-            setError(error.response?.data?.message || "Someting went wrong")
-        }
-        
-    }
+            const response = await axios.post(`${baseUrl}/users`, formData);
+            console.log('Backend response:', response.data); // Log the backend response
 
-    return(
+            setSuccess(true);
+            setError(false);
+            setIsEmailSent(true);
+            setVerificationCode(response.data?.data?.verificationCode || ''); // Handle undefined verificationCode
+            setIsFormSubmitted(true);
+        } catch (error) {
+            console.error('Error', error);
+            setSuccess(false);
+            setError(error.response?.data?.message || 'Something went wrong');
+        }
+    };
+
+    return (
         <>
             <div id="authentication-form-container">
-                <form className="" id="register-form" onSubmit={handleFormSubmit}>
-
+                <form id="register-form" onSubmit={handleFormSubmit}>
                     <header>
                         <h1>Create an account</h1>
                     </header>
@@ -60,21 +71,25 @@ function Register () {
                     </div>
 
                     <div className="form-group">
-                        <input type="text" onChange={handleChange} name="name" value={formData.name} placeholder="Enter your Username"/>
+                        <input type="text" onChange={handleChange} name="name" value={formData.name} placeholder="Enter your Username" />
                     </div>
                     <div className="form-group">
-                        <input type="text" onChange={handleChange} name="email" value={formData.email} placeholder="Enter your email"/>
+                        <input type="text" onChange={handleChange} name="email" value={formData.email} placeholder="Enter your email" />
                     </div>
                     <div className="form-group">
-                        <input type="password" onChange={handleChange} name="password" value={formData.password} placeholder="Create a password"/>
+                        <input type="password" onChange={handleChange} name="password" value={formData.password} placeholder="Create a password" />
                     </div>
                     <div className="form-group">
-                        <input type="password" onChange={handleChange} name="confirmPassword" value={formData.password} placeholder="Confirm password"/>
+                        <input type="password" onChange={handleChange} name="confirmPassword" value={formData.confirmPassword} placeholder="Confirm password" />
                         <span>* Must be at least 8 characters</span>
                     </div>
 
                     <button type="submit">Create account</button>
                     <span id="sign-in-link-span">Already have an account? <a href="">Sign-in instead</a></span>
+
+                    {isEmailSent && (
+                        <p>Email has been sent</p>
+                    )}
                 </form>
                 <figure className="authentication-form-image-container">
                     <img src="public/media/pexels-a-darmel-8133869.jpg" alt="" />
@@ -82,9 +97,11 @@ function Register () {
                     <span className="testimonial">"I love how user-friendly the interface is." - Prince O.</span>
                 </figure>
             </div>
+            {isEmailSent && (
+                <VerifyUser email={formData.email} verificationCode={verificationCode} />
+            )}
         </>
-    )
+    );
 }
 
-
-export default Register
+export default Register;

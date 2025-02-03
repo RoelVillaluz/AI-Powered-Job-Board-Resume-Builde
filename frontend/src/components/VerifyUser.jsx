@@ -1,13 +1,17 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useData } from "../DataProvider";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
-const VerifyUser = ({ email, verificationCode }) => {
+const VerifyUser = ({ email, password, verificationCode }) => {
     const { baseUrl } = useData();
     const [enteredCode, setEnteredCode] = useState(['', '', '', '', '', '']);
     const [localVerificationCode, setLocalVerificationCode] = useState(verificationCode); // Track verification code locally
     const [errorMessage, setErrorMessage] = useState(null)
     const [isLoading, setIsLoading] = useState(false);
+    const [isSuccess, setIsSuccess] = useState(false);
+
+    const navigate = useNavigate();
 
     const handleInputChange = (e, index) => {
         const value = e.target.value;
@@ -53,13 +57,30 @@ const VerifyUser = ({ email, verificationCode }) => {
         setErrorMessage(null) // clear message after each submission
 
         try {
-            const response = await axios.post(`${baseUrl}/users/verify`, { email, verificationCode });
-            console.log('Verification successful:', response.data);
+            // Verify the user
+            const verificationResponse = await axios.post(`${baseUrl}/users/verify`, { email, verificationCode });
+            console.log('Verification successful:', verificationResponse.data);
+
+            // Log the user in
+            const loginResponse = await axios.post(`${baseUrl}/users/login`, { email, password });
+            console.log('Login successful:', loginResponse.data);
+
+            // Store the JWT token and user data
+            const { token } = loginResponse.data.data;
+            localStorage.setItem('authToken', token);
+            localStorage.setItem('user', JSON.stringify(loginResponse.data.data.user));
+
+            // Store the JWT token 
+            localStorage.setItem('authToken', loginResponse.data.data.token);
+
+            navigate('/get-started'); // redirect to get-started page if verification is success
         } catch (error) {
             console.error('Error during verification:', error.response?.data || error.message);
             setErrorMessage(error.response?.data?.formattedMessage)
+            setIsSuccess(false)
         } finally {
             setIsLoading(false)
+            setIsSuccess(true)
         }
     };
 

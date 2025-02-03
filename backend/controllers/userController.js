@@ -3,6 +3,7 @@ import { TempUser } from '../models/tempUserModel.js';
 import { checkMissingFields, sendVerificationEmail } from '../utils.js';
 import { STATUS_MESSAGES, sendResponse } from '../constants.js';
 import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 
 export const getUsers = async (req, res) => {
     try {
@@ -173,6 +174,51 @@ export const verifyUser = async (req, res) => {
         return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.CREATE, data: newUser }, 'User')
     } catch (error) {
         console.error('Error', error)
+        return sendResponse(res, STATUS_MESSAGES.ERROR.SERVER, 'User');
+    }
+}
+
+export const loginUser = async (req, res) => {
+    const { email, password } = req.body
+
+    if (!email || !password) {
+        return sendResponse(res, STATUS_MESSAGES.ERROR.MISSING_FIELD('email or password'), 'User');
+    }
+
+    try {
+        const user = await User.findOne({ email })
+
+        if (!user) {
+            return sendResponse(res, {...STATUS_MESSAGES.ERROR.NOT_FOUND, success: false}, 'User')
+        }
+
+        console.log("Entered password:", password);
+        console.log("Stored hashed password:", user.password);
+
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return sendResponse(res, { ...STATUS_MESSAGES.ERROR.INVALID_CREDENTIALS, success: false }, 'User');
+        }
+
+        const payload = {
+            id: user._id,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+        };
+
+
+        const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '24h' });
+
+        return sendResponse(res, {
+            ...STATUS_MESSAGES.SUCCESS.LOGIN,
+            data: { 
+                token ,
+                user: { id: user._id, name: user.name, email: user.email, role: user.role }
+            },
+        }, 'User');
+    } catch (error) {
+        console.error('Error during login:', error);
         return sendResponse(res, STATUS_MESSAGES.ERROR.SERVER, 'User');
     }
 }

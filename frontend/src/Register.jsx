@@ -41,7 +41,6 @@ function Register() {
             const response = await axios.post(`${baseUrl}/users`, formData);
             console.log('Backend response:', response.data); // Log the backend response
 
-            setSuccess(true);
             setError(false);
             setErrorMessage(null)
             setIsEmailSent(true);
@@ -102,7 +101,7 @@ function Register() {
                 </figure>
             </div>
             {isEmailSent && (
-                <VerifyUser email={formData.email} verificationCode={verificationCode} />
+                <VerifyUser email={formData.email} password={formData.password} verificationCode={verificationCode} />
             )}
         </>
     );

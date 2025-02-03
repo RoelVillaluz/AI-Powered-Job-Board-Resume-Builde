@@ -3,19 +3,29 @@ import { Link, useLocation } from "react-router-dom";
 
 function Navbar () {
     const location = useLocation();
-    const hideLocation = location.pathname == '/register'
+    const hideLocation = location.pathname == '/register' || location.pathname == '/login' || location.pathname == '/get-started'
     const [user, setUser] = useState(null)
+
+    // Check if user is logged in
+    useEffect(() => {
+        const storedUser = localStorage.getItem("user"); // Fetch from localStorage
+        if (storedUser) {
+            setUser(JSON.parse(storedUser)); // Parse and set user state
+        }
+    }, []);
 
     return (
         <>
-            <nav className="navbar">
+            <nav className='navbar'>
                 <Link className="logo" to={'/'}>
                     <img src="/public/media/icons8-opportunity-24.png" alt="" />
                 </Link>
                 {!hideLocation && (
                     <ul className="navbar-links">
                         {user ? (
-                            <li className="welcome-message">Welcome, {user.name}!</li>
+                            <li className="nav-icon">
+                                <i class="fa-regular fa-user"></i>
+                            </li>
                         ) : (
                             <li>
                                 <Link to="/register" className="sign-in-link">

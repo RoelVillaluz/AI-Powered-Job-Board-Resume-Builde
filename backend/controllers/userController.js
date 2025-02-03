@@ -48,7 +48,7 @@ export const createUser = async (req, res) => {
     }
 
     try {
-        const existingEmail = await TempUser.findOne({ email: user.email }) || await User.findOne({ email: user.email });
+        const existingEmail = await User.findOne({ email: user.email });
         if (existingEmail) {
             return sendResponse(res, {...STATUS_MESSAGES.ERROR.EMAIL_EXISTS, success: false}, 'User');
         }
@@ -67,6 +67,14 @@ export const createUser = async (req, res) => {
             role: user.role,
             verificationCode
         });
+
+        const existingTempUser = await TempUser.findOne({ email: user.email })
+        if (existingTempUser) {
+            existingTempUser.verificationCode = verificationCode;
+            await existingTempUser.save();
+            await sendVerificationEmail(existingTempUser, verificationCode);
+            return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.CREATE, message: "Verification code resent to email." }, 'User');
+        }
 
         await tempUser.save();
 

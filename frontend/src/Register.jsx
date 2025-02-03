@@ -5,7 +5,8 @@ import Layout from "./components/Layout";
 import VerifyUser from "./components/VerifyUser";
 
 function Register() {
-    const { baseUrl, setSuccess, setError } = useData();
+    const { baseUrl, setSuccess, setError, setSuccessMessage } = useData();
+    const [errorMessage, setErrorMessage] = useState(null)
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -30,7 +31,8 @@ function Register() {
         console.log(formData);
 
         if (formData.password !== formData.confirmPassword) {
-            setError('Passwords must match');
+            setError(true)
+            setErrorMessage('Passwords must match');
             setSuccess(false);
             return;
         }
@@ -41,13 +43,15 @@ function Register() {
 
             setSuccess(true);
             setError(false);
+            setErrorMessage(null)
             setIsEmailSent(true);
             setVerificationCode(response.data?.data?.verificationCode || ''); // Handle undefined verificationCode
             setIsFormSubmitted(true);
         } catch (error) {
             console.error('Error', error);
             setSuccess(false);
-            setError(error.response?.data?.message || 'Something went wrong');
+            setError(true);
+            setErrorMessage(error.response?.data?.formattedMessage);
         }
     };
 
@@ -81,15 +85,15 @@ function Register() {
                     </div>
                     <div className="form-group">
                         <input type="password" onChange={handleChange} name="confirmPassword" value={formData.confirmPassword} placeholder="Confirm password" />
-                        <span>* Must be at least 8 characters</span>
+                        <span>* Password must be at least 8 characters</span>
+                        {errorMessage && (
+                            <span className="error-message">{errorMessage}</span>
+                        )}
                     </div>
 
                     <button type="submit">Create account</button>
                     <span id="sign-in-link-span">Already have an account? <a href="">Sign-in instead</a></span>
 
-                    {isEmailSent && (
-                        <p>Email has been sent</p>
-                    )}
                 </form>
                 <figure className="authentication-form-image-container">
                     <img src="public/media/pexels-a-darmel-8133869.jpg" alt="" />

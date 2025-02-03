@@ -328,6 +328,24 @@ button {
     right: 5%;
 }
 
+.error-message {
+    color: red;
+}
+
+.blurry-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+    backdrop-filter: blur(4px); /* Blurry effect */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
 .verification-form {
     position: absolute;
     display: flex;
@@ -400,4 +418,28 @@ button {
 
 .verify-btn:hover {
     background-color: rgb(45, 45, 45);
+}
+
+.setup {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    list-style-type: none;
+}
+
+.setup li {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 4rem;
+    height: 4rem;
+    background-color: blue;
+    color: white;
+    border-radius: 50%;
+}
+
+.vertical-line {
+    height: 5vh;
+    width: 1px;
+    background-color: rgba(0,0,0,0.7);
 }

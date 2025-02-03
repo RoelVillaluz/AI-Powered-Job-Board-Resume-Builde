@@ -58,31 +58,31 @@ const VerifyUser = ({ email, verificationCode }) => {
     };
 
     return (
-        <form className="verification-form" onSubmit={handleVerification}>
-            <h2>Enter verification code</h2>
-            <p>Enter the 6-digit code sent to <b>{email}</b></p>
-            <div className="digit-container">
-                {enteredCode.map((value, index) => (
-                    <input
-                        key={index}
-                        type="text"
-                        maxLength="1"
-                        className={`digit ${value ? 'filled' : ''}`}
-                        value={value}
-                        onChange={(e) => handleInputChange(e, index)}
-                        onKeyDown={(e) => {
-                            handleBackspace(e, index); // Clear input on backspace
-                        }}
-                        id={`digit-input-${index}`}
-                    />
-                ))}
-                <input type="hidden" name="email" value={email} />
-            </div>
-            <button className="verify-btn" type="submit">Verify</button>
-            {errorMessage && (
-                <span className="error-message" style={{ marginTop: '1rem' }}>{errorMessage}</span>
-            )}
-        </form>
+        <div className="blurry-overlay">
+            <form className="verification-form" onSubmit={handleVerification}>
+                <h2>Enter verification code</h2>
+                <p>Enter the 6-digit code sent to <b>{email}</b></p>
+                <div className="digit-container">
+                    {enteredCode.map((value, index) => (
+                        <input
+                            key={index}
+                            type="text"
+                            maxLength="1"
+                            className={`digit ${value ? 'filled' : ''}`}
+                            value={value}
+                            onChange={(e) => handleInputChange(e, index)}
+                            onKeyDown={(e) => handleBackspace(e, index)}
+                            id={`digit-input-${index}`}
+                        />
+                    ))}
+                    <input type="hidden" name="email" value={email} />
+                </div>
+                <button className="verify-btn" type="submit">Verify</button>
+                {errorMessage && (
+                    <span className="error-message" style={{ marginTop: '1rem' }}>{errorMessage}</span>
+                )}
+            </form>
+        </div>
     );
 };
 

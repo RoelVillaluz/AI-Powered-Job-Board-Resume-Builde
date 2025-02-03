@@ -1,10 +1,11 @@
 import { useEffect } from "react"
-import Layout from "./components/Layout"
+import Layout from "../components/Layout"
 
-function MultiStepForm() {
+function Dashboard () {
+
     useEffect(() => {
-        document.title = "Let's get started"
-    })
+        document.title = 'Dashboard'
+    }, [])
 
     return (
         <>
@@ -15,4 +16,4 @@ function MultiStepForm() {
     )
 }
 
-export default MultiStepForm
+export default Dashboard

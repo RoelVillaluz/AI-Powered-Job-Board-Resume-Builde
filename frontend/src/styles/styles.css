@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Karla:ital,wght@0,200..800;1,200..800&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
 
 :root {
-    font-family: "Karla", sans-serif;
+    font-family: 'Montserrat', sans-serif;
     --primary: #F8F8F8;
     --secondary: #3B2B22; 
     --secondary-light: #5B4536;
@@ -163,9 +163,8 @@ button {
 .content {
     width: 100%;
     min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    padding: 1rem;
+    padding-top: 6rem;
 }
 
 .line {
@@ -174,7 +173,7 @@ button {
     background-color: rgba(20, 20, 20, 0.3);
 }
 
-#authentication-form-container {
+.form-container {
     width: 100vw;
     height: 100vh;
     display: flex;
@@ -195,7 +194,6 @@ button {
 }
 
 #authentication-form-container header h1 {
-    font-family: 'Montserrat', sans-serif;
     font-size: clamp(1.5rem, 2.25vw, 4rem);
     margin-bottom: 0.75rem;
 }
@@ -206,7 +204,6 @@ button {
 }
 
 #authentication-form-container .create-with-google {
-    font-family: 'Montserrat', sans-serif;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -479,4 +476,3 @@ button {
 .verify-btn:hover {
     background-color: rgb(45, 45, 45);
 }
-

@@ -1,6 +1,7 @@
 .navbar {
     position: fixed;
     display: flex;
+    align-items: center;
     justify-content: space-between;
     width: 100%;
     color: white;
@@ -26,12 +27,28 @@
     gap: 1rem;
     list-style-type: none;
     padding: 1rem;
-    margin-right: 2rem;
+    margin-right: 1rem;
 }
 
 .navbar-links a {
     font-size: clamp(0.5rem, 1vw, 4rem);
     color: white;
+}
+
+.nav-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: clamp(0.75rem, 1.2vw, 2.25rem);
+    height: clamp(0.75rem, 1.2vw, 2.25rem);
+    font-size: clamp(0.5rem, 1vw, 1rem);
+    padding: 1rem;
+    background-color: transparent;
+    border-radius: 50%;
+    border: solid 1px rgba(20, 20, 20, 0.3);
+    cursor: pointer;
+    background-color: white;
+    color: black;
 }
 
 .sign-in-link {

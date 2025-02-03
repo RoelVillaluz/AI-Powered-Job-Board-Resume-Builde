@@ -4,7 +4,8 @@ export const STATUS_MESSAGES = {
         CREATE: { code: 201, message: "(model) created successfully" },
         UPDATE: { code: 200, message: "(model) updated successfully" },
         DELETE: { code: 200, message: "(model) deleted successfully" },
-        RESENT_CODE: { code: 200, message: "code resent successfully"}
+        RESENT_CODE: { code: 200, message: "code resent successfully"},
+        LOGIN: { code: 200, message: 'Logged in successfully'}
     },
     ERROR: {
         SERVER: { code: 500, message: "Server Error" },
@@ -12,6 +13,7 @@ export const STATUS_MESSAGES = {
         BAD_REQUEST: { code: 400, message: "Invalid request" },
         EMAIL_EXISTS: { code: 400, message: "Email is already being used" },
         INVALID_CODE: { code: 400, message: "The code you entered is incorrect"},
+        INVALID_CREDENTIALS: { code: 400, message: "Invalid credentials"},
         WEAK_PASSWORD: { code: 400, message: "Password is too weak"},
         MISSING_FIELD: (field) => ({ 
             code: 400, 

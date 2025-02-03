@@ -334,9 +334,9 @@ button {
     gap: 0.25rem;
     background-color: rgb(255, 211, 211);
     color: red;
-    padding: 10px;
+    padding: clamp(6px, 0.75vw, 0.75rem) clamp(10px, 1.5vw, 1rem);
     border-radius: 4px;
-    font-size: clamp(0.5rem, 1vw, 1.25rem);
+    font-size: clamp(0.5rem, 1vw, 1rem);
     font-weight: 600;
 }
 
@@ -452,10 +452,10 @@ button {
 
 .verification-form button {
     font-weight: 600;
-    font-size: clamp(0.5rem, 0.8vw, 1.25rem);
+    font-size: clamp(0.5rem, 0.8vw, 1rem);
     border-radius: 4px;
     outline: none;
-    padding: clamp(6px, 0.75vw, 1rem) clamp(10px, 1.5vw, 1.25rem);
+    padding: clamp(6px, 0.75vw, 0.75rem) clamp(10px, 1.5vw, 1rem);
     cursor: pointer;
     transition: 0.3s;
 }

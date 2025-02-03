@@ -44,13 +44,13 @@ export const createUser = async (req, res) => {
     }
 
     if (user.password.length < 8) {
-        return sendResponse(res, STATUS_MESSAGES.ERROR.BAD_REQUEST, 'User');
+        return sendResponse(res, STATUS_MESSAGES.ERROR.WEAK_PASSWORD, 'User');
     }
 
     try {
         const existingEmail = await TempUser.findOne({ email: user.email }) || await User.findOne({ email: user.email });
         if (existingEmail) {
-            return sendResponse(res, STATUS_MESSAGES.ERROR.EMAIL_EXISTS, 'User');
+            return sendResponse(res, {...STATUS_MESSAGES.ERROR.EMAIL_EXISTS, success: false}, 'User');
         }
 
         // Hash the password before saving

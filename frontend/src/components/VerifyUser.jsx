@@ -7,6 +7,7 @@ const VerifyUser = ({ email, verificationCode }) => {
     const [enteredCode, setEnteredCode] = useState(['', '', '', '', '', '']);
     const [localVerificationCode, setLocalVerificationCode] = useState(verificationCode); // Track verification code locally
     const [errorMessage, setErrorMessage] = useState(null)
+    const [isLoading, setIsLoading] = useState(false);
 
     const handleInputChange = (e, index) => {
         const value = e.target.value;
@@ -48,12 +49,17 @@ const VerifyUser = ({ email, verificationCode }) => {
             return;
         }
 
+        setIsLoading(true) // set to loading while attempting to post
+        setErrorMessage(null) // clear message after each submission
+
         try {
             const response = await axios.post(`${baseUrl}/users/verify`, { email, verificationCode });
             console.log('Verification successful:', response.data);
         } catch (error) {
             console.error('Error during verification:', error.response?.data || error.message);
             setErrorMessage(error.response?.data?.formattedMessage)
+        } finally {
+            setIsLoading(false)
         }
     };
 
@@ -89,13 +95,23 @@ const VerifyUser = ({ email, verificationCode }) => {
                     ))}
                     <input type="hidden" name="email" value={email} />
                 </div>
-                <div className="row" style={{ gap: '0.5rem' }} >
-                    <button type="button" className="resend-code-btn" onClick={handleResendCode}>Resend Code</button>
-                    <button type="submit" className="verify-btn">Verify</button>
+                <div className="line"></div>
+                <div className="actions">
+                    <span className="error-message">
+                        {errorMessage}
+                        {errorMessage && <i className="fa-solid fa-xmark"></i>}
+                    </span>
+                    <div className="buttons">
+                        <button type="button" className="resend-code-btn" onClick={handleResendCode}>Resend Code</button>
+                        <button type="submit" className="verify-btn" disabled={isLoading}>
+                            {isLoading ? (
+                                <div className="spinner"></div>
+                            ) : (
+                                'Verify'
+                            )}
+                        </button>
+                    </div>
                 </div>
-                {errorMessage && (
-                    <span className="error-message" style={{ marginTop: '1rem' }}>{errorMessage}</span>
-                )}
             </form>
         </div>
     );

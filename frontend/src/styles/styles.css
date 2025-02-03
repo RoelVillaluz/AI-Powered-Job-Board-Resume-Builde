@@ -346,12 +346,21 @@ button {
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
-    backdrop-filter: blur(4px); /* Blurry effect */
+    background: rgba(0, 0, 0, 0.5); 
+    backdrop-filter: blur(4px);
     display: flex;
     justify-content: center;
     align-items: center;
     z-index: 1000;
+}
+
+#close-modal-btn {
+    position: absolute;
+    top: 4%;
+    right: 2%;
+    font-size: 1rem;
+    color: var(--gray);
+    cursor: pointer;
 }
 
 .verification-form {
@@ -363,12 +372,11 @@ button {
     transform: translate(-50%, -50%);
     top: 50%;
     left: 50%;
-    width: 40vw;
     aspect-ratio: 2 / 1;
     border-radius: 5px;
     z-index: 100;
     background-color: white;
-    padding: 1rem;
+    padding: 2rem;
     box-shadow: 1px 1px 5px 0px rgba(0,0,0,0.3);
 }
 
@@ -411,15 +419,43 @@ button {
     background-color: rgba(0,0,0,0.1);
 }
 
-.verify-btn {
-    background-color: black;
-    color: white;
+.verification-form .line {
+    margin: 1.5rem 0;
+    opacity: 0.5;
+}
+
+.verification-form .actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.verification-form .buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.spinner {
+    border: 2px solid white; 
+    border-top: 2px solid gray; 
+    border-radius: 50%;
+    width: clamp(0.5rem, 1.5vw, 1.25rem);
+    aspect-ratio: 1 / 1;
+    animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.verification-form button {
     font-weight: 600;
+    font-size: clamp(0.5rem, 0.8vw, 1.25rem);
     border-radius: 4px;
-    border: none;
     outline: none;
-    padding: 0.75rem 1.5rem;
-    margin-top: 1.5rem;
+    padding: clamp(6px, 0.75vw, 1rem) clamp(10px, 1.5vw, 1.25rem);
     cursor: pointer;
     transition: 0.3s;
 }

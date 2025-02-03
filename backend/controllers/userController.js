@@ -119,6 +119,31 @@ export const deleteUser = async (req, res) => {
     }
 };
 
+export const resendVerificationCode = async (req, res) => {
+    const { email } = req.body;
+    
+    if (!email) {
+        return sendResponse(res, STATUS_MESSAGES.ERROR.MISSING_FIELD("email"), "User");
+    }
+
+    try {
+        const tempUser = await TempUser.findOne({ email })
+        if (!tempUser) {
+            return sendResponse(res, { ...STATUS_MESSAGES.ERROR.NOT_FOUND, success: false }, 'User');
+        }
+
+        const newVerificationCode = Math.floor(10000 + Math.random() * 900000).toString();
+        tempUser.verificationCode = newVerificationCode
+        await sendVerificationEmail(tempUser, newVerificationCode)
+        await tempUser.save()
+
+        return sendResponse(res, {...STATUS_MESSAGES.SUCCESS.RESENT_CODE, data: tempUser})
+    } catch (error) {
+        console.error("Error resending verification code:", error.message);
+        return sendResponse(res, STATUS_MESSAGES.ERROR.SERVER, "User");
+    }
+}
+
 
 export const verifyUser = async (req, res) => {
     const { email, verificationCode } = req.body;

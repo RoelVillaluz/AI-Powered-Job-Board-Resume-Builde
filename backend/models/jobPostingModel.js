@@ -23,7 +23,7 @@ const jobPostingSchema = new mongoose.Schema({
         default: null
     },
     requirements: {
-        type: String,
+        type: [String],
         required: true
     },
     posted_by: {

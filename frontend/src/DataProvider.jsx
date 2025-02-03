@@ -8,8 +8,13 @@ export const DataProvider = ({ children }) => {
   const [users, setUsers] = useState([]);
   const [jobPostings, setJobPostings] = useState([]);
   const [resumes, setResumes] = useState([]);
+
   const [success, setSuccess] = useState(false);
-  const [error, setError] = useState(null)
+  const [successMessage, setSuccessMessage] = useState(false);
+
+  const [error, setError] = useState('')
+  const [errorMessage, setErrorMessage] = useState('')
+
   const [isLoading, setIsLoading] = useState(true)
 
   const [user, setUser] = useState();
@@ -65,7 +70,9 @@ export const DataProvider = ({ children }) => {
         getAllData, 
         user, setUser,
         success, setSuccess,
+        successMessage, setSuccessMessage,
         error, setError,
+        errorMessage, setErrorMessage,
         isLoading, setIsLoading
       }}
     >

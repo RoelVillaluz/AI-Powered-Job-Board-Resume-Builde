@@ -26,6 +26,17 @@ const VerifyUser = ({ email, verificationCode }) => {
         }
     };
 
+    const handleResendCode = async () => {
+        try {
+            const response = await axios.post(`${baseUrl}/users/resend-verification-code`, {
+                email
+            })
+            console.log('Resent Code successfully', response.data.data )
+        } catch (error) {
+            console.error('Error', error)
+        }
+    }
+
     const handleVerification = async (e) => {
         e.preventDefault();
         const verificationCode = localVerificationCode;
@@ -60,6 +71,7 @@ const VerifyUser = ({ email, verificationCode }) => {
     return (
         <div className="blurry-overlay">
             <form className="verification-form" onSubmit={handleVerification}>
+                <i className="fa-solid fa-xmark" id="close-modal-btn"></i>
                 <h2>Enter verification code</h2>
                 <p>Enter the 6-digit code sent to <b>{email}</b></p>
                 <div className="digit-container">
@@ -77,7 +89,10 @@ const VerifyUser = ({ email, verificationCode }) => {
                     ))}
                     <input type="hidden" name="email" value={email} />
                 </div>
-                <button className="verify-btn" type="submit">Verify</button>
+                <div className="row" style={{ gap: '0.5rem' }} >
+                    <button type="button" className="resend-code-btn" onClick={handleResendCode}>Resend Code</button>
+                    <button type="submit" className="verify-btn">Verify</button>
+                </div>
                 {errorMessage && (
                     <span className="error-message" style={{ marginTop: '1rem' }}>{errorMessage}</span>
                 )}

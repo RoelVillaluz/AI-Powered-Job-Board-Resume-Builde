@@ -4,6 +4,7 @@ export const STATUS_MESSAGES = {
         CREATE: { code: 201, message: "(model) created successfully" },
         UPDATE: { code: 200, message: "(model) updated successfully" },
         DELETE: { code: 200, message: "(model) deleted successfully" },
+        RESENT_CODE: { code: 200, message: "code resent successfully"}
     },
     ERROR: {
         SERVER: { code: 500, message: "Server Error" },

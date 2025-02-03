@@ -6,6 +6,7 @@ const VerifyUser = ({ email, verificationCode }) => {
     const { baseUrl } = useData();
     const [enteredCode, setEnteredCode] = useState(['', '', '', '', '', '']);
     const [localVerificationCode, setLocalVerificationCode] = useState(verificationCode); // Track verification code locally
+    const [errorMessage, setErrorMessage] = useState(null)
 
     const handleInputChange = (e, index) => {
         const value = e.target.value;
@@ -41,6 +42,7 @@ const VerifyUser = ({ email, verificationCode }) => {
             console.log('Verification successful:', response.data);
         } catch (error) {
             console.error('Error during verification:', error.response?.data || error.message);
+            setErrorMessage(error.response?.data?.formattedMessage)
         }
     };
 
@@ -77,6 +79,9 @@ const VerifyUser = ({ email, verificationCode }) => {
                 <input type="hidden" name="email" value={email} />
             </div>
             <button className="verify-btn" type="submit">Verify</button>
+            {errorMessage && (
+                <span className="error-message" style={{ marginTop: '1rem' }}>{errorMessage}</span>
+            )}
         </form>
     );
 };

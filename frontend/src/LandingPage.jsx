@@ -22,7 +22,7 @@ function LandingPage () {
                <header>
                     <div className="left">
                         <h1>Your Next Job is 3 Steps Away!</h1>
-                        <Link className="call-to-action-link">
+                        <Link className="call-to-action-link" to={'/register'}>
                             Get Started Today!
                             <FontAwesomeIcon icon={faArrowRight} className="cta-icon" />
                         </Link>

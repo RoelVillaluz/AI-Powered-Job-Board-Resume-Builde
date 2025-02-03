@@ -329,7 +329,15 @@ button {
 }
 
 .error-message {
+    display: flex;
+    align-items: end;
+    gap: 0.25rem;
+    background-color: rgb(255, 211, 211);
     color: red;
+    padding: 10px;
+    border-radius: 4px;
+    font-size: clamp(0.5rem, 1vw, 1.25rem);
+    font-weight: 600;
 }
 
 .blurry-overlay {

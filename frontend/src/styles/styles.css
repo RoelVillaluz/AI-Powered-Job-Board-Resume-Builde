@@ -480,26 +480,3 @@ button {
     background-color: rgb(45, 45, 45);
 }
 
-.setup {
-    display: flex;
-    align-items: center;
-    flex-direction: column;
-    list-style-type: none;
-}
-
-.setup li {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 4rem;
-    height: 4rem;
-    background-color: blue;
-    color: white;
-    border-radius: 50%;
-}
-
-.vertical-line {
-    height: 5vh;
-    width: 1px;
-    background-color: rgba(0,0,0,0.7);
-}

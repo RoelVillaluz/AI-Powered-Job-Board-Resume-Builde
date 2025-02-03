@@ -11,7 +11,13 @@ export const STATUS_MESSAGES = {
         BAD_REQUEST: { code: 400, message: "Invalid request" },
         EMAIL_EXISTS: { code: 400, message: "Email is already being used" },
         INVALID_CODE: { code: 400, message: "The code you entered is incorrect"},
-        MISSING_FIELD: (field) => ({ code: 400, message: `Please provide a ${field}` }),
+        WEAK_PASSWORD: { code: 400, message: "Password is too weak"},
+        MISSING_FIELD: (field) => ({ 
+            code: 400, 
+            message: field === 'email' 
+                ? 'Please provide an email' 
+                : `Please provide a ${field}`
+        }),
     }
 };
 

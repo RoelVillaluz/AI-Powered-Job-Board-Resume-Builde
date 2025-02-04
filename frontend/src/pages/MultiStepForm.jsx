@@ -19,14 +19,14 @@ function MultiStepForm() {
                     </header>
                     <ul>
                         <li className="active">
-                            <i class="fa-solid fa-user"></i>
+                            <i class="fa-solid fa-user-tie"></i>
                             <div>
                                 <span>Choose your role.</span>
                                 <p className="supporting-text">Pick job seeker or employer to customize your experience.</p>
                             </div>
                         </li>
                         <li>
-                            <i class="fa-solid fa-info"></i>
+                            <i class="fa-solid fa-address-book"></i>
                             <div>
                                 <span>Add details.</span>
                                 <p className="supporting-text">Fill in your info to generate your resume.</p>

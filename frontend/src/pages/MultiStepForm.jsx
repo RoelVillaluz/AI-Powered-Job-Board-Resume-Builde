@@ -1,10 +1,11 @@
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import Layout from "../components/Layout"
 
 function MultiStepForm() {
     useEffect(() => {
         document.title = "Let's get started"
     })
+
     const steps = ['role', 'details', 'skills', 'resume', 'finished']
     const [currentStepIndex, setCurrentStepIndex] = useState(0)
 
@@ -19,6 +20,7 @@ function MultiStepForm() {
             setCurrentStepIndex((prev) => prev - 1)
         }
     }
+
     const addActiveClass = () => {
         const stepMarkers = document.querySelectorAll('.steps li');
         stepMarkers.forEach((marker, index) => {
@@ -47,7 +49,7 @@ function MultiStepForm() {
                         </p>
                     </header>
                     <ul>
-                        <li className="active">
+                        <li>
                             <i class="fa-solid fa-user-tie"></i>
                             <div>
                                 <span>Choose your role.</span>
@@ -76,7 +78,7 @@ function MultiStepForm() {
                             </div>
                         </li>
                         <li>
-                            <i class="fa-solid fa-door-open"></i>
+                            <i class="fa-solid fa-check"></i>
                             <div>
                                 <span>Welcome!</span>
                                 <p className="supporting-text">You're ready! Start your journey.</p>
@@ -84,8 +86,43 @@ function MultiStepForm() {
                         </li>
                     </ul>
                 </div>
-                <div className="right">
-                    
+                <div className="form-panel">
+                    {currentStepIndex === 0 && (
+                        <div id="select-role">
+                            <h2>Choose your role</h2>
+                            <div className="row">
+                                <div className="option">
+                                    <i class="fa-solid fa-magnifying-glass"></i>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                    {currentStepIndex === 1 && (
+                        <div id="details">
+                            <h2>Tell us about yourself</h2>
+                        </div>
+                    )}
+                    {currentStepIndex === 2 && (
+                        <div id="skills">
+                            <h2>What are your skills</h2>
+                        </div>
+                    )}
+                    {currentStepIndex === 3 && (
+                        <div id="resume">
+                            <h2>Choose a resume template</h2>
+                        </div>
+                    )}
+                    {currentStepIndex === 4 && (
+                        <div id="finished">
+                            <h2>Welcome, lets start job hunting</h2>
+                        </div>
+                    )}
+                    {currentStepIndex > 0 && (
+                        <button className="prev-step" onClick={prevStep}>Previous</button>
+                    )}
+                    {currentStepIndex < steps.length - 1 && (
+                        <button className="next-step" onClick={nextStep}>Next</button>
+                    )}
                 </div>
             </div>
         </>

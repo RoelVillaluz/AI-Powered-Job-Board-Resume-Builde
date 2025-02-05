@@ -6,8 +6,15 @@ function MultiStepForm() {
         document.title = "Let's get started"
     })
 
+    const steps = ['role', 'details', 'skills', 'resume', 'finished'];
+    const [currentStepIndex, setCurrentStepIndex] = useState(0);
     const [selectedRole, setSelectedRole] = useState(null);
     const [isNextAllowed, setIsNextAllowed] = useState(false);
+
+    useEffect(() => {
+        setIsNextAllowed(selectedRole !== null)
+        console.log(selectedRole)
+    }, [selectedRole])
 
     const nextStep = () => {
         if (currentStepIndex < steps.length - 1) {
@@ -31,7 +38,6 @@ function MultiStepForm() {
             } else {
                 marker.classList.remove('active')
             }
-            console.log(currentStepIndex)
         })
     }
 
@@ -50,28 +56,28 @@ function MultiStepForm() {
                     </header>
                     <ul>
                         <li>
-                            <i class="fa-solid fa-user-tie"></i>
+                            <i className="fa-solid fa-user-tie"></i>
                             <div>
                                 <span>Choose your role.</span>
                                 <p className="supporting-text">Pick job seeker or employer to customize your experience.</p>
                             </div>
                         </li>
                         <li>
-                            <i class="fa-solid fa-address-book"></i>
+                            <i className="fa-solid fa-address-book"></i>
                             <div>
                                 <span>Add details.</span>
                                 <p className="supporting-text">Fill in your info to generate your resume.</p>
                             </div>
                         </li>
                         <li>
-                            <i class="fa-solid fa-lightbulb"></i>
+                            <i className="fa-solid fa-lightbulb"></i>
                             <div>
                                 <span>Skills</span>
                                 <p className="supporting-text">Add skills to boost your resume and get job matches.</p>
                             </div>
                         </li>
                         <li>
-                            <i class="fa-solid fa-file-invoice"></i>
+                            <i className="fa-solid fa-file-invoice"></i>
                             <div>
                                 <span>Pick a resume template</span>
                                 <p className="supporting-text">Choose a template, and we'll populate it for you.</p>
@@ -115,32 +121,12 @@ function MultiStepForm() {
                             </div>
                         </section>
                     )}
-                    {currentStepIndex === 1 && (
-                        <div id="details">
-                            <h2>Tell us about yourself</h2>
-                        </div>
-                    )}
-                    {currentStepIndex === 2 && (
-                        <div id="skills">
-                            <h2>What are your skills</h2>
-                        </div>
-                    )}
-                    {currentStepIndex === 3 && (
-                        <div id="resume">
-                            <h2>Choose a resume template</h2>
-                        </div>
-                    )}
-                    {currentStepIndex === 4 && (
-                        <div id="finished">
-                            <h2>Welcome, lets start job hunting</h2>
-                        </div>
-                    )}
-                    {currentStepIndex > 0 && (
-                        <button className="prev-step" onClick={prevStep}>Previous</button>
-                    )}
-                    {currentStepIndex < steps.length - 1 && (
-                        <button className="next-step" onClick={nextStep}>Next</button>
-                    )}
+                    <div className="buttons" style={{ justifyContent: currentStepIndex > 0 ? "space-between" : "flex-end" }}>
+                        {currentStepIndex > 0 && (
+                            <button onClick={prevStep} id="prev-step-btn">Previous</button>
+                        )}
+                        {isNextAllowed && (<button onClick={nextStep} id="next-step-btn">Next</button>)}
+                    </div>
                 </div>
             </div>
         </>

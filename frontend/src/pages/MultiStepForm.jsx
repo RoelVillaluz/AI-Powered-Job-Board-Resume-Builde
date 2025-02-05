@@ -6,8 +6,8 @@ function MultiStepForm() {
         document.title = "Let's get started"
     })
 
-    const steps = ['role', 'details', 'skills', 'resume', 'finished']
-    const [currentStepIndex, setCurrentStepIndex] = useState(0)
+    const [selectedRole, setSelectedRole] = useState(null);
+    const [isNextAllowed, setIsNextAllowed] = useState(false);
 
     const nextStep = () => {
         if (currentStepIndex < steps.length - 1) {

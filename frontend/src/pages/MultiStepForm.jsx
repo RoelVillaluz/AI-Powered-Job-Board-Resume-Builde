@@ -64,34 +64,49 @@ function MultiStepForm() {
                                 <p className="supporting-text">Pick job seeker or employer to customize your experience.</p>
                             </div>
                         </li>
-                        <li>
-                            <i className="fa-solid fa-address-book"></i>
-                            <div>
-                                <span>Add details.</span>
-                                <p className="supporting-text">Fill in your info to generate your resume.</p>
-                            </div>
-                        </li>
-                        <li>
-                            <i className="fa-solid fa-lightbulb"></i>
-                            <div>
-                                <span>Skills</span>
-                                <p className="supporting-text">Add skills to boost your resume and get job matches.</p>
-                            </div>
-                        </li>
-                        <li>
-                            <i className="fa-solid fa-file-invoice"></i>
-                            <div>
-                                <span>Pick a resume template</span>
-                                <p className="supporting-text">Choose a template, and we'll populate it for you.</p>
-                            </div>
-                        </li>
-                        <li>
-                            <i class="fa-solid fa-check"></i>
-                            <div>
-                                <span>Welcome!</span>
-                                <p className="supporting-text">You're ready! Start your journey.</p>
-                            </div>
-                        </li>
+                        {selectedRole !== null && (
+                            <>
+                                <li>
+                                    <i className="fa-solid fa-address-book"></i>
+                                    <div>
+                                        <span>Add details.</span>
+                                        <p className="supporting-text">
+                                            {selectedRole === 'jobseeker' 
+                                            ? 'Fill in your info to generate your resume.' 
+                                            : "Provide the details of your company."}
+                                        </p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <i className="fa-solid fa-lightbulb"></i>
+                                    <div>
+                                        <span>Skills</span>
+                                        <p className="supporting-text">
+                                            {selectedRole === 'jobseeker'
+                                            ? 'Add skills to boost your resume and get job matches.'
+                                            : 'List the skills required for the job.'
+                                            }
+                                        </p>
+                                    </div>
+                                </li>
+                                {selectedRole === 'jobseeker' && (
+                                    <li>
+                                        <i className="fa-solid fa-file-invoice"></i>
+                                        <div>
+                                            <span>Pick a resume template</span>
+                                            <p className="supporting-text">Choose a template, and we'll populate it for you.</p>
+                                        </div>
+                                    </li>
+                                )}
+                                <li>
+                                    <i class="fa-solid fa-check"></i>
+                                    <div>
+                                        <span>Welcome!</span>
+                                        <p className="supporting-text">You're ready! Start your journey.</p>
+                                    </div>
+                                </li>
+                            </>
+                        )}
                     </ul>
                 </div>
                 <div className="form-panel">
@@ -129,6 +144,23 @@ function MultiStepForm() {
                         )}
                         {isNextAllowed && (<button onClick={nextStep} id="next-step-btn">Next</button>)}
                     </div>
+                    {currentStepIndex === 1 && (
+                        <section className="user-details">
+                            <header>
+                                <h3>{selectedRole === 'jobseeker'
+                                    ? 'A little about you!'
+                                    : 'Tell us about your company!'
+                                    }</h3>
+                                <p>
+                                    {selectedRole === 'jobseeker'
+                                    ? 'Fill in some basic details to help employers get to know you better.'
+                                    : 'Provide key details about your organization to attract the right talent.'
+                                    }
+                                </p>
+                            </header>
+                            
+                        </section>
+                    )}
                 </div>
             </div>
         </>

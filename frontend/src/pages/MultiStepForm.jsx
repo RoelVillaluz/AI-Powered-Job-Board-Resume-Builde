@@ -19,12 +19,14 @@ function MultiStepForm() {
     const nextStep = () => {
         if (currentStepIndex < steps.length - 1) {
             setCurrentStepIndex((prev) => prev + 1)
+            setIsNextAllowed(false)
         }
     }
 
     const prevStep = () => {
         if (currentStepIndex > 0) {
             setCurrentStepIndex((prev) => prev - 1)
+            setIsNextAllowed(true)
         }
     }
 

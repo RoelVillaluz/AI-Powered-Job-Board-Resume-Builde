@@ -44,45 +44,45 @@ const VerifyUser = ({ email, password, verificationCode }) => {
 
     const handleVerification = async (e) => {
         e.preventDefault();
-        const verificationCode = localVerificationCode;
-        console.log("Email:", email);
-        console.log("Verification Code:", verificationCode);
-
-        if (!email || !verificationCode) {
+        if (!email || !localVerificationCode) {
             console.error("Invalid verification attempt!");
             return;
         }
-
-        setIsLoading(true) // set to loading while attempting to post
-        setErrorMessage(null) // clear message after each submission
-
+    
+        setIsLoading(true);
+        setErrorMessage(null);
+    
         try {
-            // Verify the user
+            // Verify user
             const verificationResponse = await axios.post(`${baseUrl}/users/verify`, { email, verificationCode });
             console.log('Verification successful:', verificationResponse.data);
-
-            // Log the user in
+    
+            // Login user
             const loginResponse = await axios.post(`${baseUrl}/users/login`, { email, password });
             console.log('Login successful:', loginResponse.data);
-
-            // Store the JWT token and user data
-            const { token } = loginResponse.data.data;
-            localStorage.setItem('authToken', token);
-            localStorage.setItem('user', JSON.stringify(loginResponse.data.data.user));
-
-            // Store the JWT token 
-            localStorage.setItem('authToken', loginResponse.data.data.token);
-
-            navigate('/get-started'); // redirect to get-started page if verification is success
+    
+            // Extract user & token
+            const { token, user } = loginResponse.data.data;
+    
+            // Ensure localStorage updates correctly
+            localStorage.removeItem("user"); // Remove old data
+            localStorage.setItem("authToken", token);
+            localStorage.setItem("user", JSON.stringify(user));
+    
+            console.log("User after login:", user); // Debugging log
+            console.log("Stored in localStorage:", localStorage.getItem("user"));
+    
+            navigate('/get-started');
         } catch (error) {
             console.error('Error during verification:', error.response?.data || error.message);
-            setErrorMessage(error.response?.data?.formattedMessage)
-            setIsSuccess(false)
+            setErrorMessage(error.response?.data?.formattedMessage);
+            setIsSuccess(false);
         } finally {
-            setIsLoading(false)
-            setIsSuccess(true)
+            setIsLoading(false);
+            setIsSuccess(true);
         }
     };
+    
 
     const handleBackspace = (e, index) => {
         if (e.key === 'Backspace') {

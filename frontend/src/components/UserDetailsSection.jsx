@@ -38,21 +38,21 @@ function UserDetailsSection ({ selectedRole }) {
                         <label>Social Media</label>
                         <div className="row">
                             <div className="wrapper">
-                                <i class="fa-brands fa-facebook"></i>
+                                <i className="fa-brands fa-facebook"></i>
                                 <input type="text" />
                             </div>
                             <div className="wrapper">
-                                <i class="fa-brands fa-linkedin"></i>
+                                <i className="fa-brands fa-linkedin"></i>
                                 <input type="text" />
                             </div>
                         </div>
                         <div className="row">
                             <div className="wrapper">
-                                <i class="fa-brands fa-github"></i>
+                                <i className="fa-brands fa-github"></i>
                                 <input type="text" />
                             </div>
                             <div className="wrapper">
-                                <i class="fa-solid fa-globe"></i>
+                                <i className="fa-solid fa-globe"></i>
                                 <input type="text" />
                             </div>
                         </div>

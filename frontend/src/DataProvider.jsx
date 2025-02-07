@@ -5,6 +5,8 @@ const DataContext = createContext();
 export const useData = () => useContext(DataContext);
 
 export const DataProvider = ({ children }) => {
+  const [user, setUser] = useState(null)
+
   const [users, setUsers] = useState([]);
   const [jobPostings, setJobPostings] = useState([]);
   const [resumes, setResumes] = useState([]);
@@ -16,8 +18,6 @@ export const DataProvider = ({ children }) => {
   const [errorMessage, setErrorMessage] = useState('')
 
   const [isLoading, setIsLoading] = useState(true)
-
-  const [user, setUser] = useState();
 
   const baseUrl = "http://localhost:5000/api";
 
@@ -59,6 +59,14 @@ export const DataProvider = ({ children }) => {
       if (models.includes("resumes")) setResumes(data["resumes"] || []);
     }
   };
+
+  // Check if user is logged in
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user"); // Fetch from localStorage
+    if (storedUser) {
+        setUser(JSON.parse(storedUser)); // Parse and set user state
+    }
+  }, []);
 
   return (
     <DataContext.Provider

@@ -27,6 +27,7 @@ function MultiStepForm() {
             if (selectedRole !== null) {
                 try {
                     const response = await axios.patch(`${baseUrl}/users/${user.id || user._id}`, { role: selectedRole })
+                    console.log(response.data)
                     setUser(response.data)
                 } catch (error) {
                     console.error()

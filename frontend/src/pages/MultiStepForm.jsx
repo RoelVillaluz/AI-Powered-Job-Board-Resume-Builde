@@ -18,10 +18,20 @@ function MultiStepForm() {
         console.log(selectedRole)
     }, [selectedRole])
 
-    const nextStep = () => {
+    const nextStep = async () => {
         if (currentStepIndex < steps.length - 1) {
             setCurrentStepIndex((prev) => prev + 1)
             setIsNextAllowed(false)
+
+            // update the user role after selecting it
+            if (selectedRole !== null) {
+                try {
+                    const response = await axios.patch(`${baseUrl}/users/${user.id || user._id}`, { role: selectedRole })
+                    setUser(response.data)
+                } catch (error) {
+                    console.error()
+                }
+            }
         }
     }
 

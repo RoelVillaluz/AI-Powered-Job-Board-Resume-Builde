@@ -38,8 +38,11 @@ const resumeSchema = new mongoose.Schema({
         end_date: String,
         responsibilities: String
     }],
-    certifications: [String],
-    links: [{
+    certifications: [{
+        name: String,
+        year: Number,
+    }],
+    social_media: [{
         facebook: { type: String, default: null },
         linkedin: { type: String, default: null },
         github: { type: String, default: null },

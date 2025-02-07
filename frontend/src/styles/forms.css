@@ -8,6 +8,12 @@
     background-color: white;
 }
 
+input,
+textarea 
+{
+    font-family: 'Montserrat', sans-serif;
+}
+
 #register-form {
     display: flex;
     justify-content: center;
@@ -502,4 +508,67 @@
 .role-choice.selected label
 {
     color: var(--secondary);
+}
+
+.form-panel .form-details {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.form-panel .row {
+    width: 100%;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.form-panel .form-group {
+    display: flex;
+    align-items: start;
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+}
+
+.form-panel .form-group input,
+.form-panel .form-group textarea
+{
+    font-size: clamp(0.5rem, 1vw, 1.5rem);
+    width: 100%;
+}
+
+.form-panel .form-group label {
+    font-size: clamp(0.5rem, 1vw, 2rem);
+    font-weight: 600;
+    margin-bottom: -0.5rem;
+}
+
+.form-panel .form-group input {
+    padding: 5px 10px;
+}
+
+.form-panel .form-group textarea {
+    height: clamp(3rem, 5vw, 5rem);
+    padding: 5px 10px;
+    resize: none;
+}
+
+.form-panel .wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+}
+
+.form-panel .wrapper i {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    top: 50%;
+    left: 6%;
+}
+
+.form-panel .wrapper input {
+    padding-left: 2rem;
 }

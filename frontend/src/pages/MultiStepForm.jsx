@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react"
 import Layout from "../components/Layout"
+import RoleSection from '../components/MultiStepForm/RoleSection'
+import UserDetailsSection from "../components/UserDetailsSection"
 
 function MultiStepForm() {
     useEffect(() => {
@@ -109,34 +111,12 @@ function MultiStepForm() {
                         )}
                     </ul>
                 </div>
-                <div className="form-panel">
+                <form className="form-panel">
                     {currentStepIndex === 0 && (
-                        <section className="select-role">
-                            <header>
-                                <h3>Let's start with your role!</h3>    
-                                <p>Tell us what position you're looking for.</p>
-                            </header>
-                            <div className="role-choices">
-                                <div className={`role-choice ${selectedRole === 'jobseeker' ? 'selected': ''}`}
-                                    onClick={() => setSelectedRole("jobseeker")}>
-                                        <i class="fa-solid fa-magnifying-glass"></i>
-                                        <label htmlFor="role-radio-btn">Jobseeker</label>
-                                        <input type="radio" name="role" id="role-radio-btn"/>
-                                        <div className="checked-indicator">
-                                            <i class="fa-solid fa-check"></i>
-                                        </div>
-                                </div>
-                                <div className={`role-choice ${selectedRole === 'employer' ? 'selected' : ''}`}
-                                    onClick={() => setSelectedRole("employer")}>
-                                        <i class="fa-solid fa-building"></i>
-                                        <label htmlFor="role-radio-btn">Employer</label>
-                                        <input type="radio" name="role" id="role-radio-btn"/>
-                                        <div className="checked-indicator">
-                                            <i class="fa-solid fa-check"></i>
-                                        </div>
-                                </div>
-                            </div>
-                        </section>
+                        <RoleSection selectedRole={selectedRole} setSelectedRole={setSelectedRole}/>
+                    )}
+                    {currentStepIndex === 1 && (
+                        <UserDetailsSection selectedRole={selectedRole}/>
                     )}
                     <div className="buttons" style={{ justifyContent: currentStepIndex > 0 ? "space-between" : "flex-end" }}>
                         {currentStepIndex > 0 && (
@@ -144,24 +124,7 @@ function MultiStepForm() {
                         )}
                         {isNextAllowed && (<button onClick={nextStep} id="next-step-btn">Next</button>)}
                     </div>
-                    {currentStepIndex === 1 && (
-                        <section className="user-details">
-                            <header>
-                                <h3>{selectedRole === 'jobseeker'
-                                    ? 'A little about you!'
-                                    : 'Tell us about your company!'
-                                    }</h3>
-                                <p>
-                                    {selectedRole === 'jobseeker'
-                                    ? 'Fill in some basic details to help employers get to know you better.'
-                                    : 'Provide key details about your organization to attract the right talent.'
-                                    }
-                                </p>
-                            </header>
-                            
-                        </section>
-                    )}
-                </div>
+                </form>
             </div>
         </>
     )

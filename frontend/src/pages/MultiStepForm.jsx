@@ -17,6 +17,9 @@ function MultiStepForm() {
         setIsNextAllowed(selectedRole !== null)
         console.log(selectedRole)
     }, [selectedRole])
+    useEffect(() => {
+        addActiveClass()
+    }, [currentStepIndex])
 
     const nextStep = async () => {
         if (currentStepIndex < steps.length - 1) {

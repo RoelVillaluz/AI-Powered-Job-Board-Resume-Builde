@@ -1,4 +1,4 @@
-function UserDetailsSection ({ selectedRole }) {
+function UserDetailsSection ({ selectedRole, formData, handleChange }) {
     return (
         <section className="user-details">
             <header>
@@ -19,47 +19,47 @@ function UserDetailsSection ({ selectedRole }) {
                     <div className="row">
                         <div className="form-group">
                             <label>First Name</label>
-                            <input type="text" />
+                            <input type="text" name="firstName" value={formData.firstName} onChange={handleChange}/>
                         </div>
                         <div className="form-group">
                             <label>Last Name</label>
-                            <input type="text" />
+                            <input type="text" name="lastName" value={formData.lastName} onChange={handleChange}/>
                         </div>
                     </div>
                     <div className="form-group">
                         <label>Phone</label>
-                        <input type="text" />
+                        <input type="text" name="phone" value={formData.phone} onChange={handleChange}/>
                     </div>
                     <div className="form-group">
                         <label>Address</label>
-                        <input type="text" />
+                        <input type="text" name="address" value={formData.address} onChange={handleChange}/>
                     </div>
                     <div className="form-group">
                         <label>Social Media</label>
                         <div className="row">
                             <div className="wrapper">
                                 <i className="fa-brands fa-facebook"></i>
-                                <input type="text" />
+                                <input type="text" name="socialMedia" value={formData.socialMedia.facebook} onChange={handleChange}/>
                             </div>
                             <div className="wrapper">
                                 <i className="fa-brands fa-linkedin"></i>
-                                <input type="text" />
+                                <input type="text" name="socialMedia" value={formData.socialMedia.linkedIn} onChange={handleChange}/>
                             </div>
                         </div>
                         <div className="row">
                             <div className="wrapper">
                                 <i className="fa-brands fa-github"></i>
-                                <input type="text" />
+                                <input type="text" name="socialMedia" value={formData.socialMedia.github} onChange={handleChange}/>
                             </div>
                             <div className="wrapper">
                                 <i className="fa-solid fa-globe"></i>
-                                <input type="text" />
+                                <input type="text" name="socialMedia" value={formData.socialMedia.website} onChange={handleChange}/>
                             </div>
                         </div>
                     </div>
                     <div className="form-group">
                         <label>Summary</label>
-                        <textarea name="" id=""></textarea>
+                        <textarea name="summary" id="" value={formData.summary} onChange={handleChange}></textarea>
                     </div>
                     </>
                 )}

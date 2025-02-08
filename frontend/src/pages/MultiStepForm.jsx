@@ -1,13 +1,12 @@
 import { useEffect, useState } from "react"
+import { useData } from "../DataProvider.jsx"
 import Layout from "../components/Layout"
+import axios from "axios"
 import RoleSection from '../components/MultiStepForm/RoleSection'
 import UserDetailsSection from "../components/UserDetailsSection"
 
 function MultiStepForm() {
-    useEffect(() => {
-        document.title = "Let's get started"
-    })
-
+    const { user, baseUrl, setSuccess, setError, setSuccessMessage } = useData();
     const steps = ['role', 'details', 'skills', 'resume', 'finished'];
     const [currentStepIndex, setCurrentStepIndex] = useState(0);
     const [selectedRole, setSelectedRole] = useState(null);
@@ -44,8 +43,9 @@ function MultiStepForm() {
 
     useEffect(() => {
         setIsNextAllowed(selectedRole !== null)
-        console.log(selectedRole)
+        console.log(`Selected Role: ${selectedRole}`)
     }, [selectedRole])
+
     useEffect(() => {
         addActiveClass()
     }, [currentStepIndex])
@@ -112,6 +112,10 @@ function MultiStepForm() {
         }
     }
 
+    const handleChange = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value })
+    }
+
     return (
         <>
             <div className="form-container" id="get-started-form">
@@ -131,6 +135,7 @@ function MultiStepForm() {
                                 <p className="supporting-text">Pick job seeker or employer to customize your experience.</p>
                             </div>
                         </li>
+                        {/* step markers  */}
                         {selectedRole !== null && (
                             <>
                                 <li>
@@ -166,7 +171,7 @@ function MultiStepForm() {
                                     </li>
                                 )}
                                 <li>
-                                    <i class="fa-solid fa-check"></i>
+                                    <i className="fa-solid fa-check"></i>
                                     <div>
                                         <span>Welcome!</span>
                                         <p className="supporting-text">You're ready! Start your journey.</p>
@@ -181,7 +186,7 @@ function MultiStepForm() {
                         <RoleSection selectedRole={selectedRole} setSelectedRole={setSelectedRole}/>
                     )}
                     {currentStepIndex === 1 && (
-                        <UserDetailsSection selectedRole={selectedRole}/>
+                        <UserDetailsSection selectedRole={selectedRole} formData={formData} onChange={handleChange}/>
                     )}
                     <div className="buttons" style={{ justifyContent: currentStepIndex > 0 ? "space-between" : "flex-end" }}>
                         {currentStepIndex > 0 && (

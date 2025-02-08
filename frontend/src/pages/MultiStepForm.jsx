@@ -12,6 +12,35 @@ function MultiStepForm() {
     const [currentStepIndex, setCurrentStepIndex] = useState(0);
     const [selectedRole, setSelectedRole] = useState(null);
     const [isNextAllowed, setIsNextAllowed] = useState(false);
+    const [formData, setFormData] = useState({
+        firstName: '',
+        lastName: '',
+        phone: '',
+        address: '',
+        summary: '',
+        skills: [],
+        workExperience: [{
+            jobTitle: '',
+            company: '',
+            startDate: '',
+            endDate: '',
+            responsibilities: ''
+        }],
+        certifications: [{
+            name: '',
+            year: ''
+        }],
+        socialMedia: [{
+            facebook: null,
+            linkedin: null,
+            github: null,
+            website: null
+        }]
+    })
+
+    useEffect(() => {
+        document.title = "Let's get started"
+    }, [])
 
     useEffect(() => {
         setIsNextAllowed(selectedRole !== null)
@@ -59,7 +88,29 @@ function MultiStepForm() {
         })
     }
 
-    addActiveClass()
+    const handleFormSubmit = async (e) => {
+        e.preventDefault();
+
+        if (!selectedRole) {
+            setError(true);
+            setErrorMessage("Please select a role before submitting.");
+            return;
+        }
+
+        console.log(formData)
+
+        try {
+            const response = await axios.post(`${baseUrl}/resumes`, formData)
+            setError(false);
+            setErrorMessage(null)
+            setSuccess(true)
+        } catch (error) {
+            console.error('Error', error);
+            setSuccess(false);
+            setError(true);
+            setErrorMessage(error.response?.data?.formattedMessage);
+        }
+    }
 
     return (
         <>

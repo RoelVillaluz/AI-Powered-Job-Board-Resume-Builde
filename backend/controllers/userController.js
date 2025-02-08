@@ -156,7 +156,7 @@ export const verifyUser = async (req, res) => {
             return sendResponse(res, {...STATUS_MESSAGES.ERROR.NOT_FOUND, success: false}, 'User')
         }
 
-        if (tempUser.verificationCode !== verificationCode) {
+        if (tempUser.verificationCode.toString() !== verificationCode.toString()) {
             return sendResponse(res, { ...STATUS_MESSAGES.ERROR.INVALID_CODE, success: false})
         }
 

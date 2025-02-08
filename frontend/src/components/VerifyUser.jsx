@@ -54,7 +54,7 @@ const VerifyUser = ({ email, password, verificationCode }) => {
     
         try {
             // Verify user
-            const verificationResponse = await axios.post(`${baseUrl}/users/verify`, { email, verificationCode });
+            const verificationResponse = await axios.post(`${baseUrl}/users/verify`, { email, verificationCode: localVerificationCode });
             console.log('Verification successful:', verificationResponse.data);
     
             // Login user

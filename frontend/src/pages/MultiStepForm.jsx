@@ -186,7 +186,7 @@ function MultiStepForm() {
                         <RoleSection selectedRole={selectedRole} setSelectedRole={setSelectedRole}/>
                     )}
                     {currentStepIndex === 1 && (
-                        <UserDetailsSection selectedRole={selectedRole} formData={formData} onChange={handleChange}/>
+                        <UserDetailsSection selectedRole={selectedRole} formData={formData} handleChange={handleChange}/>
                     )}
                     <div className="buttons" style={{ justifyContent: currentStepIndex > 0 ? "space-between" : "flex-end" }}>
                         {currentStepIndex > 0 && (

@@ -6,11 +6,11 @@ const resumeSchema = new mongoose.Schema({
         ref: 'User',
         required: true
     },
-    first_name: {
+    firsName: {
         type: String,
         required: true
     },
-    last_name: {
+    lastName: {
         type: String,
         required: true
     },
@@ -31,24 +31,24 @@ const resumeSchema = new mongoose.Schema({
         required: true
     },
     skills: [String],
-    work_experience: [{
+    workExperience: [{
         job_title: String,
         company: String,
-        start_date: String,
-        end_date: String,
+        startDate: String,
+        endDate: String,
         responsibilities: String
     }],
     certifications: [{
         name: String,
         year: Number,
     }],
-    social_media: [{
+    socialMedia: [{
         facebook: { type: String, default: null },
         linkedin: { type: String, default: null },
         github: { type: String, default: null },
         website: { type: String, default: null }
     }],
-    created_at: {
+    createdAt: {
         type: Date,
         default: Date.now
     }

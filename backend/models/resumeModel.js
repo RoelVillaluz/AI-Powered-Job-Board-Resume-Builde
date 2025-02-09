@@ -6,15 +6,11 @@ const resumeSchema = new mongoose.Schema({
         ref: 'User',
         required: true
     },
-    firsName: {
+    firstName: {
         type: String,
         required: true
     },
     lastName: {
-        type: String,
-        required: true
-    },
-    email: {
         type: String,
         required: true
     },
@@ -32,7 +28,7 @@ const resumeSchema = new mongoose.Schema({
     },
     skills: [String],
     workExperience: [{
-        job_title: String,
+        jobTitle: String,
         company: String,
         startDate: String,
         endDate: String,
@@ -40,19 +36,19 @@ const resumeSchema = new mongoose.Schema({
     }],
     certifications: [{
         name: String,
-        year: Number,
+        year: String,
     }],
-    socialMedia: [{
+    socialMedia: {  
         facebook: { type: String, default: null },
         linkedin: { type: String, default: null },
         github: { type: String, default: null },
         website: { type: String, default: null }
-    }],
+    },
     createdAt: {
         type: Date,
         default: Date.now
     }
-})
+});
 
-const Resume = mongoose.model('Resume', resumeSchema)
-export default Resume
+const Resume = mongoose.model('Resume', resumeSchema);
+export default Resume;

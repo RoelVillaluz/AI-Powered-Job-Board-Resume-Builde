@@ -1,6 +1,7 @@
 import Resume from "../models/resumeModel.js";
 import { checkMissingFields } from "../utils.js";
 import { sendResponse, STATUS_MESSAGES } from "../constants.js";
+import mongoose from "mongoose";
 
 export const getResumes = async (req, res) => {
     try {
@@ -28,24 +29,54 @@ export const getResume = async (req, res) => {
 }
 
 export const createResume = async (req, res) => {
-    const resume = req.body
-    const requiredFields = ['user', 'first_name', 'last_name', 'email', 'phone', 'address']
+    let resumeData = req.body;
+    const requiredFields = ['user', 'firstName', 'lastName', 'phone', 'address'];
 
     try {
-        const missingField = checkMissingFields(requiredFields, resume)
-
+        // Check for missing required fields
+        const missingField = checkMissingFields(requiredFields, resumeData);
         if (missingField) {
             return sendResponse(res, STATUS_MESSAGES.ERROR.MISSING_FIELD(missingField), 'Resume');
         }
 
-        const newResume = await Resume(resume)
-        newResume.save()
+        // Validate and extract user ID
+        const userId = resumeData.user?.id || resumeData.user;
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
+            console.error('Invalid user ID:', userId);
+            return res.status(400).json({ message: 'Invalid user ID format', success: false });
+        }
+
+        console.log('Creating resume for user:', userId);
+
+        // Filter out empty string values from resumeData
+        resumeData = Object.fromEntries(
+            Object.entries(resumeData).filter(([_, value]) => value !== "")
+        );
+
+        // Ensure arrays do not contain empty objects
+        resumeData.certifications = resumeData.certifications?.filter(cert => cert.name && cert.year) || [];
+        resumeData.workExperience = resumeData.workExperience?.filter(exp => exp.jobTitle && exp.company) || [];
+        resumeData.skills = resumeData.skills || [];
+
+        // Create new resume
+        const newResume = new Resume({
+            ...resumeData,
+            user: new mongoose.Types.ObjectId(userId),
+        });
+
+        console.log('Final resume data before saving:', newResume);
+
+        // Save to database
+        await newResume.save();
+
+        console.log('Resume saved:', newResume);
         return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.CREATE, data: newResume }, 'Resume');
-    } catch {
-        console.error('Error creating resume:', error.message);
-        return sendResponse(res, { ...STATUS_MESSAGES.ERROR.SERVER, success: false });
+    } catch (error) {
+        console.error('Error creating resume:', error);
+        return res.status(500).json({ message: error.message, error });
     }
-}
+};
+
 
 export const updateResume = async (req, res) => {
     const { id } = req.params

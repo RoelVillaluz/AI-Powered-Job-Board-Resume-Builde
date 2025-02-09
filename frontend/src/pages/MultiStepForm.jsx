@@ -6,36 +6,30 @@ import RoleSection from '../components/MultiStepForm/RoleSection'
 import UserDetailsSection from "../components/UserDetailsSection"
 
 function MultiStepForm() {
-    const { user, baseUrl, setSuccess, setError, setSuccessMessage } = useData();
+    const { user, baseUrl, setSuccess, setError, setErrorMessage, setSuccessMessage } = useData();
     const steps = ['role', 'details', 'skills', 'resume', 'finished'];
     const [currentStepIndex, setCurrentStepIndex] = useState(0);
     const [selectedRole, setSelectedRole] = useState(null);
     const [isNextAllowed, setIsNextAllowed] = useState(false);
     const [formData, setFormData] = useState({
+        user: user ? user.id : null, // Ensure user is set correctly
         firstName: '',
         lastName: '',
         phone: '',
         address: '',
         summary: '',
         skills: [],
-        workExperience: [{
-            jobTitle: '',
-            company: '',
-            startDate: '',
-            endDate: '',
-            responsibilities: ''
-        }],
-        certifications: [{
-            name: '',
-            year: ''
-        }],
-        socialMedia: [{
-            facebook: null,
-            linkedin: null,
-            github: null,
-            website: null
-        }]
-    })
+        workExperience: [{ jobTitle: '', company: '', startDate: '', endDate: '', responsibilities: '' }],
+        certifications: [{ name: '', year: '' }],
+        socialMedia: { facebook: '', linkedin: '', github: '', website: '' }
+    });
+    
+    useEffect(() => {
+        if (user) {
+            setFormData(prev => ({ ...prev, user: user.id }));
+        }
+    }, [user]);
+    
 
     useEffect(() => {
         document.title = "Let's get started"
@@ -91,16 +85,17 @@ function MultiStepForm() {
     const handleFormSubmit = async (e) => {
         e.preventDefault();
 
+        console.log("Form Data:", formData)
+
         if (!selectedRole) {
             setError(true);
             setErrorMessage("Please select a role before submitting.");
             return;
         }
 
-        console.log(formData)
-
         try {
-            const response = await axios.post(`${baseUrl}/resumes`, formData)
+            const response = await axios.post(`${baseUrl}/resumes`, { ...formData, user: { id: user.id } });
+            console.log('Response data:', response.data)
             setError(false);
             setErrorMessage(null)
             setSuccess(true)
@@ -113,8 +108,25 @@ function MultiStepForm() {
     }
 
     const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value })
-    }
+        const { name, value } = e.target;
+    
+        if (name.includes("socialMedia")) {
+            const key = name.split(".")[1]; // Extract 'facebook', 'linkedIn', etc.
+            setFormData((prev) => ({
+                ...prev,
+                socialMedia: {
+                    ...prev.socialMedia,
+                    [key]: value
+                }
+            }));
+        } else {
+            setFormData((prev) => ({
+                ...prev,
+                [name]: value
+            }));
+        }
+    };
+    
 
     return (
         <>
@@ -181,7 +193,7 @@ function MultiStepForm() {
                         )}
                     </ul>
                 </div>
-                <form className="form-panel">
+                <form className="form-panel" onSubmit={handleFormSubmit}>
                     {currentStepIndex === 0 && (
                         <RoleSection selectedRole={selectedRole} setSelectedRole={setSelectedRole}/>
                     )}
@@ -193,6 +205,7 @@ function MultiStepForm() {
                             <button onClick={prevStep} id="prev-step-btn">Previous</button>
                         )}
                         {isNextAllowed && (<button onClick={nextStep} id="next-step-btn">Next</button>)}
+                        <button type="submit">Submit</button>
                     </div>
                 </form>
             </div>

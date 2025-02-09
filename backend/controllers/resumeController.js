@@ -2,7 +2,6 @@ import Resume from "../models/resumeModel.js";
 import { checkMissingFields } from "../utils.js";
 import { sendResponse, STATUS_MESSAGES } from "../constants.js";
 import mongoose from "mongoose";
-import skillCategories from "../models/skillCategories.js";
 
 export const getResumes = async (req, res) => {
     try {
@@ -28,21 +27,6 @@ export const getResume = async (req, res) => {
         return sendResponse(res, { ...STATUS_MESSAGES.ERROR.SERVER, success: false })
     }
 }
-
-export const getSkills = async (req, res) => {
-    try {
-        const formattedSkills = Object.entries(skillCategories).map(([category, skills]) => ({
-            category,
-            skills,
-        }));
-
-        return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.FETCH, data: formattedSkills }, "Resume");
-    } catch (error) {
-        console.error("Error", error);
-        return sendResponse(res, { ...STATUS_MESSAGES.ERROR.SERVER, success: false });
-    }
-};
-
 
 export const createResume = async (req, res) => {
     let resumeData = req.body;

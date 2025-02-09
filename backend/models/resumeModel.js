@@ -1,4 +1,8 @@
 import mongoose from "mongoose";
+import skillCategories from "./skillCategories.js";
+
+// flatten all skills into single array for validation
+const allSkills = Object.values(skillCategories).flat();
 
 const resumeSchema = new mongoose.Schema({
     user: {
@@ -26,7 +30,10 @@ const resumeSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    skills: [String],
+    skills: [{
+        type: String,
+        enum: allSkills,
+    }],
     workExperience: [{
         jobTitle: String,
         company: String,

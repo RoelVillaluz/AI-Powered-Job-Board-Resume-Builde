@@ -36,9 +36,16 @@ function MultiStepForm() {
     }, [])
 
     useEffect(() => {
-        setIsNextAllowed(selectedRole !== null)
-        console.log(`Selected Role: ${selectedRole}`)
-    }, [selectedRole])
+        if (currentStepIndex === 0) {
+            setIsNextAllowed(selectedRole !== null)
+            console.log(`Selected Role: ${selectedRole}`)
+        } else if (currentStepIndex === 1) {
+            const areDetailsFilled = Object.entries(formData)
+                                    .filter(([key]) => ["firstName", "lastName", "phone", "address", "summary"].includes(key)) 
+                                    .every(([_, value]) => value?.trim() !== "");  
+            setIsNextAllowed(areDetailsFilled)
+        } 
+    }, [selectedRole, formData])
 
     useEffect(() => {
         addActiveClass()

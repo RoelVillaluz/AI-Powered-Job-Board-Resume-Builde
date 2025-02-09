@@ -400,6 +400,8 @@ textarea
     align-items: center; 
     justify-content: center;
     flex-direction: column;
+    overflow: scroll;
+    overflow-x: hidden;
     text-align: center;
     border-left: solid 1px rgba(0,0,0,0.1);
 }

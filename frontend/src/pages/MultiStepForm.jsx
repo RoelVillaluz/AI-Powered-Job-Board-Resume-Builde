@@ -3,11 +3,12 @@ import { useData } from "../DataProvider.jsx"
 import Layout from "../components/Layout"
 import axios from "axios"
 import RoleSection from '../components/MultiStepForm/RoleSection'
-import UserDetailsSection from "../components/UserDetailsSection"
+import UserDetailsSection from "../components/MultiStepForm/UserDetailsSection.jsx"
+import SkillsSection from "../components/MultiStepForm/SkillsSection.jsx"
 
 function MultiStepForm() {
     const { user, baseUrl, setSuccess, setError, setErrorMessage, setSuccessMessage } = useData();
-    const steps = ['role', 'details', 'skills', 'resume', 'finished'];
+    const steps = ['role', 'details', 'skills', "workExperience", 'resume', 'finished'];
     const [currentStepIndex, setCurrentStepIndex] = useState(0);
     const [selectedRole, setSelectedRole] = useState(null);
     const [isNextAllowed, setIsNextAllowed] = useState(false);
@@ -181,13 +182,21 @@ function MultiStepForm() {
                                     </div>
                                 </li>
                                 {selectedRole === 'jobseeker' && (
-                                    <li>
-                                        <i className="fa-solid fa-file-invoice"></i>
-                                        <div>
-                                            <span>Pick a resume template</span>
-                                            <p className="supporting-text">Choose a template, and we'll populate it for you.</p>
-                                        </div>
-                                    </li>
+                                    <>
+                                        <li>
+                                            <i className="fa-solid fa-briefcase"></i>                                            <div>
+                                                <span>Add work experience</span>
+                                                <p className="supporting-text">Mention your previous roles, responsibilities, and achievements to strengthen your resume.</p>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <i className="fa-solid fa-file-invoice"></i>
+                                            <div>
+                                                <span>Pick a resume template</span>
+                                                <p className="supporting-text">Choose a template, and we'll populate it for you.</p>
+                                            </div>
+                                        </li>
+                                    </>
                                 )}
                                 <li>
                                     <i className="fa-solid fa-check"></i>
@@ -207,12 +216,14 @@ function MultiStepForm() {
                     {currentStepIndex === 1 && (
                         <UserDetailsSection selectedRole={selectedRole} formData={formData} handleChange={handleChange}/>
                     )}
+                    {currentStepIndex === 2 && (
+                        <SkillsSection selectedRole={selectedRole} formData={formData} handleChange={handleChange}/>
+                    )}
                     <div className="buttons" style={{ justifyContent: currentStepIndex > 0 ? "space-between" : "flex-end" }}>
                         {currentStepIndex > 0 && (
                             <button onClick={prevStep} id="prev-step-btn">Previous</button>
                         )}
-                        {isNextAllowed && (<button onClick={nextStep} id="next-step-btn">Next</button>)}
-                        <button type="submit">Submit</button>
+                        {isNextAllowed && (<button onClick={nextStep} id="next-step-btn" type="button">Next</button>)}
                     </div>
                 </form>
             </div>

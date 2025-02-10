@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useData } from "../../DataProvider";
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 
 function SkillsSection({ selectedRole, formData, handleChange }) {
     const { baseUrl } = useData();
@@ -15,6 +16,18 @@ function SkillsSection({ selectedRole, formData, handleChange }) {
             })
             setSkillInput('');
         }
+    }
+
+    const handleDragEnd = (result) => {
+        if (!result.destination) return
+
+        const reorderedSkills = [...formData.skills]
+        const [movedSkill] = reorderedSkills.splice(result.source.index, 1)
+        reorderedSkills.splice(result.destination.index, 0, movedSkill)
+
+        handleChange({
+            target: { name: "skills", value: reorderedSkills }
+        });
     }
 
     return (
@@ -42,9 +55,31 @@ function SkillsSection({ selectedRole, formData, handleChange }) {
                         onKeyDown={handleAddSkill}
                     />
                 </div>
-                <ul className="added-skills">
-                    
-                </ul>
+                <DragDropContext onDragEnd={handleDragEnd}>
+                    <Droppable droppableId="skills-list">
+                        {(provided) => (
+                            <ul className="added-skills" 
+                                {...provided.droppableProps}
+                                ref={provided.innerRef}
+                            >   
+                                {formData.skills.map((skill, index) => (
+                                    <Draggable key={skill} draggableId={skill} index={index}>
+                                        {(provided) => (
+                                            <li 
+                                                ref={provided.innerRef}
+                                                {...provided.draggableProps}
+                                                {...provided.dragHandleProps}
+                                                className="draggable-skill"
+                                            >
+                                                {skill}
+                                            </li>
+                                        )}
+                                    </Draggable>
+                                ))}
+                            </ul>
+                        )}
+                    </Droppable>
+                </DragDropContext>
             </div>
         </section>
     );

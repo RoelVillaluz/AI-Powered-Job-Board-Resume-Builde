@@ -574,3 +574,22 @@ textarea
 .form-panel .wrapper input {
     padding-left: 2rem;
 }
+
+.user-skills {
+    max-width: 75%;
+}
+
+.added-skills {
+    display: flex;
+    list-style-type: none;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.added-skills li {
+    font-size: clamp(0.5rem, 1vw, 1.5rem);
+    padding: 10px 20px;
+    border-radius: 4px;
+    background-color: var(--tertiary);
+    cursor: pointer;
+}

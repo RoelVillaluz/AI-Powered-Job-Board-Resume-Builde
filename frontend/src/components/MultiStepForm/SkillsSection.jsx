@@ -4,6 +4,18 @@ import { useData } from "../../DataProvider";
 
 function SkillsSection({ selectedRole, formData, handleChange }) {
     const { baseUrl } = useData();
+    const [skillInput, setSkillInput] = useState('');
+
+    const handleAddSkill = (e) => {
+        if (e.key === 'Enter' && skillInput.trim()) {
+            e.preventDefault();
+
+            handleChange({
+                target: { name: "skills", value: [...formData.skills, skillInput.trim()] }
+            })
+            setSkillInput('');
+        }
+    }
 
     return (
         <section className="user-skills">
@@ -21,8 +33,14 @@ function SkillsSection({ selectedRole, formData, handleChange }) {
             </header>
             <div className="form-details">
                 <div className="form-group">
-                    <label htmlFor="skills">Skills</label>
-                    <input type="text" />
+                    <label htmlFor="skills">Skills (Minimum of 3)</label>
+                    <input 
+                        type="text" 
+                        name="skills" 
+                        value={skillInput}
+                        onChange={(e) => setSkillInput(e.target.value)} 
+                        onKeyDown={handleAddSkill}
+                    />
                 </div>
                 <ul className="added-skills">
                     

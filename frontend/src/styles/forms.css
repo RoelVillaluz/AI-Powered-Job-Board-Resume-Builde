@@ -540,6 +540,13 @@ textarea
     width: 100%;
 }
 
+.form-panel .skill-select {
+    padding: 5px 10px;
+    font-size: clamp(0.5rem, 1vw, 1.5rem);
+    border-radius: 2px;
+    cursor: pointer;
+}
+
 .form-panel .form-group label {
     font-size: clamp(0.5rem, 1vw, 2rem);
     font-weight: 600;
@@ -571,7 +578,7 @@ textarea
     left: 6%;
 }
 
-.form-panel .wrapper input {
+.form-panel .wrapper:has(i) input {
     padding-left: 2rem;
 }
 

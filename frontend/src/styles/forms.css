@@ -587,9 +587,27 @@ textarea
 }
 
 .added-skills li {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
     font-size: clamp(0.5rem, 1vw, 1.5rem);
-    padding: 10px 20px;
     border-radius: 4px;
     background-color: var(--tertiary);
     cursor: pointer;
+}
+
+.added-skills li span {
+    padding: 10px 15px;
+    padding-right: 0;
+    font-weight: 500;
+}
+
+.added-skills li i {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    padding: 10px;
+    padding-right: 15px;
+    border-radius: 0 4px 4px 0;
 }

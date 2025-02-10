@@ -134,6 +134,12 @@ function MultiStepForm() {
             }));
         }
     };
+
+    const handleKeyDown = (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault()
+        }
+    }
     
 
     return (
@@ -209,8 +215,8 @@ function MultiStepForm() {
                         )}
                     </ul>
                 </div>
-                <form className="form-panel" onSubmit={handleFormSubmit}>
-                    {currentStepIndex === 0 && (
+                <form className="form-panel" onSubmit={handleFormSubmit} onKeyDown={handleKeyDown}>
+                {currentStepIndex === 0 && (
                         <RoleSection selectedRole={selectedRole} setSelectedRole={setSelectedRole}/>
                     )}
                     {currentStepIndex === 1 && (
@@ -221,7 +227,7 @@ function MultiStepForm() {
                     )}
                     <div className="buttons" style={{ justifyContent: currentStepIndex > 0 ? "space-between" : "flex-end" }}>
                         {currentStepIndex > 0 && (
-                            <button onClick={prevStep} id="prev-step-btn">Previous</button>
+                            <button onClick={prevStep} id="prev-step-btn" type="button">Previous</button>
                         )}
                         {isNextAllowed && (<button onClick={nextStep} id="next-step-btn" type="button">Next</button>)}
                     </div>

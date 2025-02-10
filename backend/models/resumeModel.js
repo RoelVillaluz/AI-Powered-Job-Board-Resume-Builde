@@ -26,7 +26,10 @@ const resumeSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    skills: [String],
+    skills: [{
+        name: String,
+        level: String
+    }],
     workExperience: [{
         jobTitle: String,
         company: String,

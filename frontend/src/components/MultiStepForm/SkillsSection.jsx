@@ -38,6 +38,14 @@ function SkillsSection({ selectedRole, formData, handleChange }) {
         });
     };
 
+    const handleRemoveSkill = (index) => {
+        const updatedSkills = [...formData.skills]
+        updatedSkills.splice(index, 1)
+        handleChange({
+            target: { name: 'skills', value: updatedSkills}
+        })
+    }
+
     return (
         <section className="user-skills">
             <header>
@@ -86,7 +94,8 @@ function SkillsSection({ selectedRole, formData, handleChange }) {
                                                     {...provided.dragHandleProps}
                                                     className="draggable-skill"
                                                 >
-                                                    {skill.name} - {skill.level}
+                                                    <span>{skill.name} - {skill.level}</span>
+                                                    <i class="fa-solid fa-xmark" onClick={() => handleRemoveSkill(index)}></i>
                                                 </li>
                                             )}
                                         </Draggable>

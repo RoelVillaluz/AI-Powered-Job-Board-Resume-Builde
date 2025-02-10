@@ -5,6 +5,7 @@ import axios from "axios"
 import RoleSection from '../components/MultiStepForm/RoleSection'
 import UserDetailsSection from "../components/MultiStepForm/UserDetailsSection.jsx"
 import SkillsSection from "../components/MultiStepForm/SkillsSection.jsx"
+import WorkExperience from "../components/MultiStepForm/WorkExperience.jsx"
 
 function MultiStepForm() {
     const { user, baseUrl, setSuccess, setError, setErrorMessage, setSuccessMessage } = useData();
@@ -19,8 +20,8 @@ function MultiStepForm() {
         phone: '',
         address: '',
         summary: '',
-        skills: [],
-        workExperience: [{ jobTitle: '', company: '', startDate: '', endDate: '', responsibilities: '' }],
+        skills: [], // { name: '', level: '' }
+        workExperience: [], // { jobTitle: '', company: '', startDate: '', endDate: '', responsibilities: '' }
         certifications: [{ name: '', year: '' }],
         socialMedia: { facebook: '', linkedin: '', github: '', website: '' }
     });
@@ -45,7 +46,15 @@ function MultiStepForm() {
                                     .filter(([key]) => ["firstName", "lastName", "phone", "address", "summary"].includes(key)) 
                                     .every(([_, value]) => value?.trim() !== "");  
             setIsNextAllowed(areDetailsFilled)
-        } 
+        } else if (currentStepIndex === 2) {
+            if (formData.skills.length >= 3) {
+                setIsNextAllowed(true)
+            } else {
+                setIsNextAllowed(false)
+            }
+        } else if (currentStepIndex > 2 && currentStepIndex < steps.length - 1) {
+            setIsNextAllowed(true) // make the workExperience and choose resume section optional
+        }
     }, [selectedRole, formData])
 
     useEffect(() => {
@@ -71,7 +80,7 @@ function MultiStepForm() {
     }
 
     const prevStep = () => {
-        if (currentStepIndex > 0) {
+        if (currentStepIndex > 0 ) {
             setCurrentStepIndex((prev) => prev - 1)
             setIsNextAllowed(true)
         }
@@ -117,21 +126,15 @@ function MultiStepForm() {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-    
-        if (name.includes("socialMedia")) {
-            const key = name.split(".")[1]; // Extract 'facebook', 'linkedIn', etc.
-            setFormData((prev) => ({
+        const keys = name.split(".");
+
+        if (keys[0] === "socialMedia") {
+            setFormData(prev => ({
                 ...prev,
-                socialMedia: {
-                    ...prev.socialMedia,
-                    [key]: value
-                }
+                socialMedia: { ...prev.socialMedia, [keys[1]]: value }
             }));
         } else {
-            setFormData((prev) => ({
-                ...prev,
-                [name]: value
-            }));
+            setFormData(prev => ({ ...prev, [name]: value }));
         }
     };
 
@@ -216,15 +219,22 @@ function MultiStepForm() {
                     </ul>
                 </div>
                 <form className="form-panel" onSubmit={handleFormSubmit} onKeyDown={handleKeyDown}>
-                {currentStepIndex === 0 && (
+
+                    {currentStepIndex === 0 && (
                         <RoleSection selectedRole={selectedRole} setSelectedRole={setSelectedRole}/>
                     )}
+
                     {currentStepIndex === 1 && (
                         <UserDetailsSection selectedRole={selectedRole} formData={formData} handleChange={handleChange}/>
                     )}
                     {currentStepIndex === 2 && (
                         <SkillsSection selectedRole={selectedRole} formData={formData} handleChange={handleChange}/>
                     )}
+
+                    {currentStepIndex == 3 && (
+                        <WorkExperience formData={formData} setFormData={setFormData}/>
+                    )}
+
                     <div className="buttons" style={{ justifyContent: currentStepIndex > 0 ? "space-between" : "flex-end" }}>
                         {currentStepIndex > 0 && (
                             <button onClick={prevStep} id="prev-step-btn" type="button">Previous</button>

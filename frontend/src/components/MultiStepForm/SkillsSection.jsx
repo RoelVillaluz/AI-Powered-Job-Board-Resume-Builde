@@ -5,7 +5,7 @@ function SkillsSection({ selectedRole, formData, handleChange }) {
     const [skillInput, setSkillInput] = useState('');
     const [levelInput, setLevelInput] = useState('Beginner'); 
 
-    const skillLevels = ["Beginner", "Intermediate", "Advanced"];
+    const skillLevels = ["Level", "Beginner", "Intermediate", "Advanced"];
 
     const handleAddSkill = (e) => {
         if (e.key === 'Enter' && skillInput.trim()) {
@@ -21,7 +21,7 @@ function SkillsSection({ selectedRole, formData, handleChange }) {
                 });
 
                 setSkillInput('');
-                setLevelInput('Beginner'); // Reset level selection
+                setLevelInput('Level'); // Reset level selection
             }
         }
     };
@@ -72,7 +72,9 @@ function SkillsSection({ selectedRole, formData, handleChange }) {
                         />
                         <select className="skill-select" value={levelInput} onChange={(e) => setLevelInput(e.target.value)}>
                             {skillLevels.map((level) => (
-                                <option key={level} value={level}>{level}</option>
+                                <option key={level} value={level === "Level" ? "" : level}>
+                                    {level}
+                                </option>
                             ))}
                         </select>
                     </div>
@@ -94,7 +96,7 @@ function SkillsSection({ selectedRole, formData, handleChange }) {
                                                     {...provided.dragHandleProps}
                                                     className="draggable-skill"
                                                 >
-                                                    <span>{skill.name} - {skill.level}</span>
+                                                    <span>{skill.name} {skill.level === 'Level' ? '' : ` - ${skill.level}`}</span>
                                                     <i class="fa-solid fa-xmark" onClick={() => handleRemoveSkill(index)}></i>
                                                 </li>
                                             )}

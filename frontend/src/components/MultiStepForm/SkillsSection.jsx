@@ -1,34 +1,42 @@
-import axios from "axios";
-import { useEffect, useState } from "react";
-import { useData } from "../../DataProvider";
+import { useState } from "react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 
 function SkillsSection({ selectedRole, formData, handleChange }) {
-    const { baseUrl } = useData();
     const [skillInput, setSkillInput] = useState('');
+    const [levelInput, setLevelInput] = useState('Beginner'); 
+
+    const skillLevels = ["Beginner", "Intermediate", "Advanced"];
 
     const handleAddSkill = (e) => {
         if (e.key === 'Enter' && skillInput.trim()) {
             e.preventDefault();
 
-            handleChange({
-                target: { name: "skills", value: [...formData.skills, skillInput.trim()] }
-            })
-            setSkillInput('');
+            // Ensure we're not adding empty skills
+            if (skillInput.trim()) {
+                handleChange({
+                    target: { 
+                        name: "skills", 
+                        value: [...formData.skills, { name: skillInput.trim(), level: levelInput }] 
+                    }
+                });
+
+                setSkillInput('');
+                setLevelInput('Beginner'); // Reset level selection
+            }
         }
-    }
+    };
 
     const handleDragEnd = (result) => {
-        if (!result.destination) return
+        if (!result.destination) return;
 
-        const reorderedSkills = [...formData.skills]
-        const [movedSkill] = reorderedSkills.splice(result.source.index, 1)
-        reorderedSkills.splice(result.destination.index, 0, movedSkill)
+        const reorderedSkills = [...formData.skills];
+        const [movedSkill] = reorderedSkills.splice(result.source.index, 1);
+        reorderedSkills.splice(result.destination.index, 0, movedSkill);
 
         handleChange({
             target: { name: "skills", value: reorderedSkills }
         });
-    }
+    };
 
     return (
         <section className="user-skills">
@@ -47,13 +55,19 @@ function SkillsSection({ selectedRole, formData, handleChange }) {
             <div className="form-details">
                 <div className="form-group">
                     <label htmlFor="skills">Skills (Minimum of 3)</label>
-                    <input 
-                        type="text" 
-                        name="skills" 
-                        value={skillInput}
-                        onChange={(e) => setSkillInput(e.target.value)} 
-                        onKeyDown={handleAddSkill}
-                    />
+                    <div className="wrapper" style={{ alignItems: 'stretch' }}>
+                        <input 
+                            type="text" 
+                            value={skillInput}
+                            onChange={(e) => setSkillInput(e.target.value)} 
+                            onKeyDown={handleAddSkill}
+                        />
+                        <select className="skill-select" value={levelInput} onChange={(e) => setLevelInput(e.target.value)}>
+                            {skillLevels.map((level) => (
+                                <option key={level} value={level}>{level}</option>
+                            ))}
+                        </select>
+                    </div>
                 </div>
                 <DragDropContext onDragEnd={handleDragEnd}>
                     <Droppable droppableId="skills-list">
@@ -62,20 +76,25 @@ function SkillsSection({ selectedRole, formData, handleChange }) {
                                 {...provided.droppableProps}
                                 ref={provided.innerRef}
                             >   
-                                {formData.skills.map((skill, index) => (
-                                    <Draggable key={skill} draggableId={skill} index={index}>
-                                        {(provided) => (
-                                            <li 
-                                                ref={provided.innerRef}
-                                                {...provided.draggableProps}
-                                                {...provided.dragHandleProps}
-                                                className="draggable-skill"
-                                            >
-                                                {skill}
-                                            </li>
-                                        )}
-                                    </Draggable>
-                                ))}
+                                {formData.skills.length > 0 && formData.skills.some(skill => skill.name.trim()) ? (
+                                    formData.skills.map((skill, index) => (
+                                        <Draggable key={skill.name} draggableId={skill.name} index={index}>
+                                            {(provided) => (
+                                                <li 
+                                                    ref={provided.innerRef}
+                                                    {...provided.draggableProps}
+                                                    {...provided.dragHandleProps}
+                                                    className="draggable-skill"
+                                                >
+                                                    {skill.name} - {skill.level}
+                                                </li>
+                                            )}
+                                        </Draggable>
+                                    ))
+                                ) : (
+                                    <p>No skills added yet.</p>
+                                )}
+                                {provided.placeholder}
                             </ul>
                         )}
                     </Droppable>

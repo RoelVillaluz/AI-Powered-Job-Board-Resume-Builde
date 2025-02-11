@@ -624,3 +624,33 @@ textarea
     padding-right: 15px;
     border-radius: 0 4px 4px 0;
 }
+
+.work-exp-list {
+    display: flex;
+    margin-top: 1rem;
+    list-style-type: none;
+}
+
+.work-exp-list li {
+    display: flex;
+    font-size: clamp(0.5rem, 1vw, 1.5rem);
+    border-radius: 4px;
+    background-color: var(--tertiary);
+    cursor: pointer;
+}
+
+.work-exp-list li span {
+    padding: 10px 15px;
+    padding-right: 0;
+    font-weight: 500;
+}
+
+.work-exp-list li i {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    padding: 10px;
+    padding-right: 15px;
+    border-radius: 0 4px 4px 0;
+}

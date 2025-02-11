@@ -519,6 +519,12 @@ textarea
     margin-top: 2rem;
 }
 
+.form-panel .work-exp-entry {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
 .form-panel .row {
     width: 100%;
     justify-content: space-between;

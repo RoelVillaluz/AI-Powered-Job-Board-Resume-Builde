@@ -235,7 +235,7 @@ function MultiStepForm() {
                         <UserDetailsSection selectedRole={selectedRole} formData={formData} handleChange={handleChange}/>
                     )}
                     {currentStepIndex === 2 && (
-                        <SkillsSection selectedRole={selectedRole} formData={formData} handleChange={handleChange}/>
+                        <SkillsSection selectedRole={selectedRole} formData={formData} handleChange={handleChange} handleRemove={handleRemoveListItem}/>
                     )}
 
                     {currentStepIndex == 3 && (

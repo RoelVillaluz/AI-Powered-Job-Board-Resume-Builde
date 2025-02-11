@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 
-function SkillsSection({ selectedRole, formData, handleChange }) {
+function SkillsSection({ selectedRole, formData, handleChange, handleRemove  }) {
     const [skillInput, setSkillInput] = useState('');
     const [levelInput, setLevelInput] = useState('Beginner'); 
 
@@ -37,14 +37,6 @@ function SkillsSection({ selectedRole, formData, handleChange }) {
             target: { name: "skills", value: reorderedSkills }
         });
     };
-
-    const handleRemoveSkill = (index) => {
-        const updatedSkills = [...formData.skills]
-        updatedSkills.splice(index, 1)
-        handleChange({
-            target: { name: 'skills', value: updatedSkills}
-        })
-    }
 
     return (
         <section className="user-skills">
@@ -97,7 +89,7 @@ function SkillsSection({ selectedRole, formData, handleChange }) {
                                                     className="draggable-skill"
                                                 >
                                                     <span>{skill.name} {skill.level === 'Level' ? '' : ` - ${skill.level}`}</span>
-                                                    <i class="fa-solid fa-xmark" onClick={() => handleRemoveSkill(index)}></i>
+                                                    <i class="fa-solid fa-xmark" onClick={() => handleRemove("skills", index)}></i>
                                                 </li>
                                             )}
                                         </Draggable>

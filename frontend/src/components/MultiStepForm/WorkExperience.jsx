@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-function WorkExperience({ formData, setFormData }) {
+function WorkExperience({ formData, setFormData, handleRemove }) {
     const [jobTitle, setJobTitle] = useState('');
     const [company, setCompany] = useState('');
     const [startDate, setStartDate] = useState('');
@@ -95,6 +95,7 @@ function WorkExperience({ formData, setFormData }) {
                 {formData.workExperience?.map((exp, index) => (
                     <li key={index}>
                         <span>{exp.jobTitle} - {exp.company}</span>
+                        <i className="fa-solid fa-xmark" onClick={() => handleRemove("workExperience", index)}></i>
                     </li>
                 ))}
             </ul>

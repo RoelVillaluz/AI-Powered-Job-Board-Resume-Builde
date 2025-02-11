@@ -144,6 +144,13 @@ function MultiStepForm() {
         }
     }
     
+    const handleRemoveListItem = (name, index) => {
+        setFormData(prev => {
+            const updatedList = [...prev[name]]
+            updatedList.splice(index, 1)
+            return { ...prev, [name]: updatedList }
+        })
+    }
 
     return (
         <>
@@ -232,7 +239,7 @@ function MultiStepForm() {
                     )}
 
                     {currentStepIndex == 3 && (
-                        <WorkExperience formData={formData} setFormData={setFormData}/>
+                        <WorkExperience formData={formData} setFormData={setFormData} handleRemove={handleRemoveListItem}/>
                     )}
 
                     <div className="buttons" style={{ justifyContent: currentStepIndex > 0 ? "space-between" : "flex-end" }}>

@@ -1,6 +1,7 @@
 import { useState } from "react";
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 
-function WorkExperience({ formData, setFormData, handleRemove }) {
+function WorkExperience({ formData, setFormData, handleDrag, handleRemove }) {
     const [jobTitle, setJobTitle] = useState('');
     const [company, setCompany] = useState('');
     const [startDate, setStartDate] = useState('');
@@ -92,12 +93,37 @@ function WorkExperience({ formData, setFormData, handleRemove }) {
                 </div>
             </div>
             <ul className="work-exp-list">
-                {formData.workExperience?.map((exp, index) => (
-                    <li key={index}>
-                        <span>{exp.jobTitle} - {exp.company}</span>
-                        <i className="fa-solid fa-xmark" onClick={() => handleRemove("workExperience", index)}></i>
-                    </li>
-                ))}
+            <DragDropContext onDragEnd={(result) => handleDrag("workExperience", result, setFormData)}>
+                <Droppable droppableId="work-exp-list">
+                    {(provided) => (
+                        <ul className="added-work-exp" 
+                            {...provided.droppableProps}
+                            ref={provided.innerRef}
+                        >   
+                            {formData.workExperience.length > 0 && formData.workExperience.some(exp => exp.jobTitle.trim()) ? (
+                                formData.workExperience.map((exp, index) => (
+                                    <Draggable key={exp.jobTitle} draggableId={exp.jobTitle} index={index}>
+                                        {(provided) => (
+                                            <li 
+                                                ref={provided.innerRef}
+                                                {...provided.draggableProps}
+                                                {...provided.dragHandleProps}
+                                                className="draggable-work-experience"
+                                            >
+                                                <span>{exp.jobTitle} at {exp.company}</span>
+                                                <i className="fa-solid fa-xmark" onClick={() => handleRemove("workExperience", index)}></i>
+                                            </li>
+                                        )}
+                                    </Draggable>
+                                ))
+                            ) : (
+                                <p>No work experience added yet.</p>
+                            )}
+                            {provided.placeholder}
+                        </ul>
+                    )}
+                </Droppable>
+            </DragDropContext>
             </ul>
         </section>
     );

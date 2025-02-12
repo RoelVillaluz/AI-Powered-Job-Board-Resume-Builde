@@ -625,13 +625,14 @@ textarea
     border-radius: 0 4px 4px 0;
 }
 
-.work-exp-list {
+.added-work-exp {
     display: flex;
+    gap: 1rem;
     margin-top: 1rem;
     list-style-type: none;
 }
 
-.work-exp-list li {
+.added-work-exp li {
     display: flex;
     font-size: clamp(0.5rem, 1vw, 1.5rem);
     border-radius: 4px;
@@ -639,13 +640,13 @@ textarea
     cursor: pointer;
 }
 
-.work-exp-list li span {
+.added-work-exp li span {
     padding: 10px 15px;
     padding-right: 0;
     font-weight: 500;
 }
 
-.work-exp-list li i {
+.added-work-exp li i {
     display: flex;
     align-items: center;
     justify-content: center;

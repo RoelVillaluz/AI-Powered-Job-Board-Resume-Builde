@@ -152,6 +152,19 @@ function MultiStepForm() {
         })
     }
 
+    const handleDragEnd = (name, result, setFormData) => {
+        if (!result.destination) return;
+
+        setFormData(prev => {
+            const reorderedList = [...prev[name]]
+            const [movedItem] = reorderedList.splice(result.source.index, 1);
+            reorderedList.splice(result.destination.index, 0, movedItem);
+
+            return { ...prev, [name]: reorderedList }
+        })
+    };
+    
+
     return (
         <>
             <div className="form-container" id="get-started-form">
@@ -227,19 +240,36 @@ function MultiStepForm() {
                 </div>
                 <form className="form-panel" onSubmit={handleFormSubmit} onKeyDown={handleKeyDown}>
 
+                    {/* ROLE SELECTION SECTION */}
                     {currentStepIndex === 0 && (
                         <RoleSection selectedRole={selectedRole} setSelectedRole={setSelectedRole}/>
                     )}
 
+                    {/* USER DETAILS SECTION */}
                     {currentStepIndex === 1 && (
                         <UserDetailsSection selectedRole={selectedRole} formData={formData} handleChange={handleChange}/>
                     )}
+
+                    {/* SKILLS SECTION */}
                     {currentStepIndex === 2 && (
-                        <SkillsSection selectedRole={selectedRole} formData={formData} handleChange={handleChange} handleRemove={handleRemoveListItem}/>
+                        <SkillsSection 
+                            selectedRole={selectedRole} 
+                            formData={formData} 
+                            setFormData={setFormData} 
+                            handleChange={handleChange} 
+                            handleDrag={handleDragEnd}
+                            handleRemove={handleRemoveListItem}
+                        />
                     )}
 
+                    {/* WORK EXPERIENCE SECTION */}
                     {currentStepIndex == 3 && (
-                        <WorkExperience formData={formData} setFormData={setFormData} handleRemove={handleRemoveListItem}/>
+                        <WorkExperience 
+                            formData={formData} 
+                            setFormData={setFormData} 
+                            handleDrag={handleDragEnd}
+                            handleRemove={handleRemoveListItem}
+                        />
                     )}
 
                     <div className="buttons" style={{ justifyContent: currentStepIndex > 0 ? "space-between" : "flex-end" }}>

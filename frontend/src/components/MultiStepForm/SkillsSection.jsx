@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 
-function SkillsSection({ selectedRole, formData, handleChange, handleRemove  }) {
+function SkillsSection({ selectedRole, setFormData, formData, handleChange, handleDrag, handleRemove  }) {
     const [skillInput, setSkillInput] = useState('');
     const [levelInput, setLevelInput] = useState('Beginner'); 
 
@@ -71,7 +71,7 @@ function SkillsSection({ selectedRole, formData, handleChange, handleRemove  }) 
                         </select>
                     </div>
                 </div>
-                <DragDropContext onDragEnd={handleDragEnd}>
+                <DragDropContext onDragEnd={(result) => handleDrag("skills", result, setFormData)}>
                     <Droppable droppableId="skills-list">
                         {(provided) => (
                             <ul className="added-skills" 

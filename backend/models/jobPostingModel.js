@@ -5,15 +5,16 @@ const jobPostingSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    company_name: {
-        type: String,
+    company: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Company",
         required: true
     },
     location: {
         type: String,
         required: true
     },
-    job_type: {
+    jobType: {
         type: String,
         enum: ['Full-Time', 'Part-Time', 'Contract', 'Internship'],
         required: true
@@ -26,12 +27,7 @@ const jobPostingSchema = new mongoose.Schema({
         type: [String],
         required: true
     },
-    posted_by: {
-        type: mongoose.Schema.Types.ObjectId, 
-        ref: "User",
-        required: true
-    },
-    posted_at: {
+    postedAt: {
         type: Date,
         default: Date.now
     }   

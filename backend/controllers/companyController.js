@@ -1,6 +1,7 @@
 import Company from '../models/companyModel.js'
 import { checkMissingFields } from '../utils.js'
 import { STATUS_MESSAGES, sendResponse } from '../constants.js';
+import mongoose from "mongoose";
 
 export const getCompanies = async (req, res) => {
     try {
@@ -27,22 +28,39 @@ export const getCompany = async (req, res) => {
 }
 
 export const createCompany = async (req, res) => {
-    const company = req.body;
-    const requiredFields = ["name", "industry", "location", "description"]
-
-    const missingField = checkMissingFields(requiredFields, company)
-    if (missingField) {
-        return sendResponse(res, { ...STATUS_MESSAGES.ERROR.MISSING_FIELD(missingField), success: false}, 'Company')
-    }
+    const companyData = req.body;
+    const requiredFields = ["user", "name", "industry", "location", "description"]
 
     try {
-        const newCompany = new Company(company)
-        await newCompany.save()
+        const missingField = checkMissingFields(requiredFields, company)
+        if (missingField) {
+            return sendResponse(res, { ...STATUS_MESSAGES.ERROR.MISSING_FIELD(missingField), success: false}, 'Company')
+        }
+
+        // Validate and extract user ID
+        const userId = companyData.user?.id || companyData.user;
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
+            console.error('Invalid user ID:', userId);
+            return res.status(400).json({ message: 'Invalid user ID format', success: false });
+        }
+
+        // create new company
+        const newCompany = new Company({
+            ...companyData,
+            user: new mongoose.Types.ObjectId(userId),
+        })
+
+        console.log('Final company data before saving:', newCompany);
+
+        // Save to database
+        await newCompany.save();
+
+        console.log('Company saved:', newCompany);
         return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.CREATE, data: newCompany }, 'Company');
     } catch (error) {
         console.error('Error', error)
-        return sendResponse(res, { ...STATUS_MESSAGES.ERROR.SERVER, success: false })
-    }
+        return sendResponse(res, { ...STATUS_MESSAGES.ERROR.SERVER, success: false})
+    }    
 }
 
 export const updateCompany = async (req, res) => {

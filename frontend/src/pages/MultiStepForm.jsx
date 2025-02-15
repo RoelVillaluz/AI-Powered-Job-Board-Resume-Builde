@@ -23,7 +23,7 @@ function MultiStepForm({ role }) {
                   phone: '',
                   address: '',
                   summary: '',
-                  skills: [],
+                  skills: [],  
                   workExperience: [],
                   certifications: [{ name: '', year: '' }],
               }
@@ -36,8 +36,7 @@ function MultiStepForm({ role }) {
                   description: '',
                   logo: '',
               }),
-    };    
-    const [formData, setFormData] = useState(initialFormData);
+    const [formData, setFormData] = useState(initialFormData || { skills: [], workExperience: [] });
     
     useEffect(() => {
         if (user) {

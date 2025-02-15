@@ -38,6 +38,8 @@ function MultiStepForm({ role }) {
                   description: '',
                   logo: '',
               }),
+    };
+    
     const [formData, setFormData] = useState(initialFormData || { skills: [], workExperience: [] });
     
     useEffect(() => {
@@ -212,22 +214,23 @@ function MultiStepForm({ role }) {
                                         </p>
                                     </div>
                                 </li>
-                                <li>
-                                    <i className="fa-solid fa-lightbulb"></i>
-                                    <div>
-                                        <span>Skills</span>
-                                        <p className="supporting-text">
-                                            {selectedRole === 'jobseeker'
-                                            ? 'Add skills to boost your resume and get job matches.'
-                                            : 'List the skills required for the job.'
-                                            }
-                                        </p>
-                                    </div>
-                                </li>
-                                {selectedRole === 'jobseeker' && (
+                                {selectedRole === 'jobseeker' ? (
                                     <>
                                         <li>
-                                            <i className="fa-solid fa-briefcase"></i>                                            <div>
+                                            <i className="fa-solid fa-lightbulb"></i>
+                                            <div>
+                                                <span>Skills</span>
+                                                <p className="supporting-text">
+                                                    {selectedRole === 'jobseeker'
+                                                    ? 'Add skills to boost your resume and get job matches.'
+                                                    : 'List the skills required for the job.'
+                                                    }
+                                                </p>
+                                            </div>
+                                        </li>
+                                        <li>
+                                            <i className="fa-solid fa-briefcase"></i>   
+                                            <div>
                                                 <span>Add work experience</span>
                                                 <p className="supporting-text">Mention your previous roles, responsibilities, and achievements to strengthen your resume.</p>
                                             </div>
@@ -240,6 +243,14 @@ function MultiStepForm({ role }) {
                                             </div>
                                         </li>
                                     </>
+                                ) : (
+                                    <li>
+                                        <i className="fa-solid fa-briefcase"></i>
+                                        <div>
+                                            <span>Create a Job Listing</span>
+                                            <p className="supporting-text">Provide job details and requirements to attract the right candidates.</p>
+                                        </div>
+                                    </li>
                                 )}
                                 <li>
                                     <i className="fa-solid fa-check"></i>
@@ -264,26 +275,38 @@ function MultiStepForm({ role }) {
                         <UserDetailsSection selectedRole={selectedRole} formData={formData} handleChange={handleChange}/>
                     )}
 
-                    {/* SKILLS SECTION */}
-                    {currentStepIndex === 2 && (
-                        <SkillsSection 
-                            selectedRole={selectedRole} 
-                            formData={formData} 
-                            setFormData={setFormData} 
-                            handleChange={handleChange} 
-                            handleDrag={handleDragEnd}
-                            handleRemove={handleRemoveListItem}
-                        />
-                    )}
+                    {selectedRole === "jobseeker" ? (
+                        <>
+                            {/* SKILLS SECTION */}
+                            {currentStepIndex === 2 && (
+                                <SkillsSection 
+                                    selectedRole={selectedRole} 
+                                    formData={formData} 
+                                    setFormData={setFormData} 
+                                    handleChange={handleChange} 
+                                    handleDrag={handleDragEnd}
+                                    handleRemove={handleRemoveListItem}
+                                />
+                            )}
 
-                    {/* WORK EXPERIENCE SECTION */}
-                    {currentStepIndex == 3 && (
-                        <WorkExperience 
-                            formData={formData} 
-                            setFormData={setFormData} 
-                            handleDrag={handleDragEnd}
-                            handleRemove={handleRemoveListItem}
-                        />
+                            {/* WORK EXPERIENCE SECTION */}
+                            {currentStepIndex == 3 && (
+                                <WorkExperience 
+                                    formData={formData} 
+                                    setFormData={setFormData} 
+                                    handleDrag={handleDragEnd}
+                                    handleRemove={handleRemoveListItem}
+                                />
+                            )}
+                        </>
+                    ) : (
+                        <>
+                            {currentStepIndex === 2 && (
+                                <>
+                                
+                                </>
+                            )}
+                        </>
                     )}
 
                     <div className="buttons" style={{ justifyContent: currentStepIndex > 0 ? "space-between" : "flex-end" }}>

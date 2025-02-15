@@ -7,24 +7,37 @@ import UserDetailsSection from "../components/MultiStepForm/UserDetailsSection.j
 import SkillsSection from "../components/MultiStepForm/SkillsSection.jsx"
 import WorkExperience from "../components/MultiStepForm/WorkExperience.jsx"
 
-function MultiStepForm() {
+function MultiStepForm({ role }) {
     const { user, baseUrl, setSuccess, setError, setErrorMessage, setSuccessMessage } = useData();
     const steps = ['role', 'details', 'skills', "workExperience", 'resume', 'finished'];
     const [currentStepIndex, setCurrentStepIndex] = useState(0);
     const [selectedRole, setSelectedRole] = useState(null);
     const [isNextAllowed, setIsNextAllowed] = useState(false);
-    const [formData, setFormData] = useState({
-        user: user ? user.id : null, // Ensure user is set correctly
-        firstName: '',
-        lastName: '',
-        phone: '',
-        address: '',
-        summary: '',
-        skills: [], // { name: '', level: '' }
-        workExperience: [], // { jobTitle: '', company: '', startDate: '', endDate: '', responsibilities: '' }
-        certifications: [{ name: '', year: '' }],
-        socialMedia: { facebook: '', linkedin: '', github: '', website: '' }
-    });
+    const initialFormData = {
+        user: user ? user.id : null,
+        socialMedia: { facebook: '', linkedin: '', github: '', website: '' },
+        ...(role === "jobseeker"
+            ? {
+                  firstName: '',
+                  lastName: '',
+                  phone: '',
+                  address: '',
+                  summary: '',
+                  skills: [],
+                  workExperience: [],
+                  certifications: [{ name: '', year: '' }],
+              }
+            : {
+                  name: '',
+                  industry: '',
+                  location: '',
+                  website: '',
+                  size: '',
+                  description: '',
+                  logo: '',
+              }),
+    };    
+    const [formData, setFormData] = useState(initialFormData);
     
     useEffect(() => {
         if (user) {

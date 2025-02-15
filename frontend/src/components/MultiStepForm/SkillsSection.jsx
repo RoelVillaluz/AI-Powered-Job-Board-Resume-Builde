@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 
-function SkillsSection({ selectedRole, setFormData, formData, handleChange, handleDrag, handleRemove  }) {
+function SkillsSection({ selectedRole, setFormData, formData, handleChange, handleRemove }) {
     const [skillInput, setSkillInput] = useState('');
     const [levelInput, setLevelInput] = useState('Beginner'); 
 
@@ -11,25 +11,26 @@ function SkillsSection({ selectedRole, setFormData, formData, handleChange, hand
         if (e.key === 'Enter' && skillInput.trim()) {
             e.preventDefault();
 
-            // Ensure we're not adding empty skills
-            if (skillInput.trim()) {
-                handleChange({
-                    target: { 
-                        name: "skills", 
-                        value: [...formData.skills, { name: skillInput.trim(), level: levelInput }] 
-                    }
-                });
+            // Ensure formData.skills exists
+            const currentSkills = formData.skills || [];
 
-                setSkillInput('');
-                setLevelInput('Level'); // Reset level selection
-            }
+            handleChange({
+                target: { 
+                    name: "skills", 
+                    value: [...currentSkills, { name: skillInput.trim(), level: levelInput }] 
+                }
+            });
+
+            setSkillInput('');
+            setLevelInput('Level'); // Reset level selection
         }
     };
 
     const handleDragEnd = (result) => {
         if (!result.destination) return;
 
-        const reorderedSkills = [...formData.skills];
+        // Ensure formData.skills exists before modifying
+        const reorderedSkills = [...(formData.skills || [])];
         const [movedSkill] = reorderedSkills.splice(result.source.index, 1);
         reorderedSkills.splice(result.destination.index, 0, movedSkill);
 
@@ -71,14 +72,14 @@ function SkillsSection({ selectedRole, setFormData, formData, handleChange, hand
                         </select>
                     </div>
                 </div>
-                <DragDropContext onDragEnd={(result) => handleDrag("skills", result, setFormData)}>
+                <DragDropContext onDragEnd={handleDragEnd}>
                     <Droppable droppableId="skills-list">
                         {(provided) => (
                             <ul className="added-skills" 
                                 {...provided.droppableProps}
                                 ref={provided.innerRef}
                             >   
-                                {formData.skills.length > 0 && formData.skills.some(skill => skill.name.trim()) ? (
+                                {formData.skills?.length > 0 ? (
                                     formData.skills.map((skill, index) => (
                                         <Draggable key={skill.name} draggableId={skill.name} index={index}>
                                             {(provided) => (
@@ -89,7 +90,7 @@ function SkillsSection({ selectedRole, setFormData, formData, handleChange, hand
                                                     className="draggable-skill"
                                                 >
                                                     <span>{skill.name} {skill.level === 'Level' ? '' : ` - ${skill.level}`}</span>
-                                                    <i class="fa-solid fa-xmark" onClick={() => handleRemove("skills", index)}></i>
+                                                    <i className="fa-solid fa-xmark" onClick={() => handleRemove("skills", index)}></i>
                                                 </li>
                                             )}
                                         </Draggable>

@@ -32,7 +32,7 @@ function WorkExperience({ formData, setFormData, handleDrag, handleRemove }) {
     const handleAddWorkExperience = (newExperience) => {
         setFormData(prev => ({
             ...prev,
-            workExperience: [...prev.workExperience, newExperience] // Append new entry
+            workExperience: [...(prev.workExperience || []), newExperience] // Append new entry
         }));
     };
 
@@ -100,7 +100,7 @@ function WorkExperience({ formData, setFormData, handleDrag, handleRemove }) {
                             {...provided.droppableProps}
                             ref={provided.innerRef}
                         >   
-                            {formData.workExperience.length > 0 && formData.workExperience.some(exp => exp.jobTitle.trim()) ? (
+                            {(formData.workExperience ?? []).length > 0 && (formData.workExperience ?? []).some(exp => exp.jobTitle.trim()) ? (
                                 formData.workExperience.map((exp, index) => (
                                     <Draggable key={exp.jobTitle} draggableId={exp.jobTitle} index={index}>
                                         {(provided) => (

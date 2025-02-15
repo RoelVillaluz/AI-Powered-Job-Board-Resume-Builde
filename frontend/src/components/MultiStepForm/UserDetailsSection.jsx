@@ -67,30 +67,30 @@ function UserDetailsSection ({ selectedRole, formData, handleChange }) {
                         <div className="row">
                             <div className="form-group">
                                 <label htmlFor="">Company Name</label>
-                                <input type="text" value={formData.name}/>
+                                <input type="text" name="name" value={formData.name} onChange={handleChange}/>
                             </div>
                             <div className="form-group">
                                 <label htmlFor="">Industry</label>
-                                <input type="text" value={formData.industry}/>
+                                <input type="text" name="industry" value={formData.industry} onChange={handleChange}/>
                             </div>
                         </div>
                         <div className="form-group">
                             <label htmlFor="">Location</label>
-                            <input type="text" value={formData.location}/>
+                            <input type="text" name="location" value={formData.location} onChange={handleChange}/>
                         </div>
                         <div className="row">
                             <div className="form-group">
                                 <label htmlFor="">Website</label>
-                                <input type="text" value={formData.value}/>
+                                <input type="text" name="website" value={formData.value} onChange={handleChange}/>
                             </div>
                             <div className="form-group">
                                 <label htmlFor="">Size</label>
-                                <input type="number" name="" id="" />
+                                <input type="number" name="size" value={formData.size} onChange={handleChange}/>
                             </div>
                         </div>
                         <div className="form-group">
                             <label htmlFor="">Description</label>
-                            <textarea name="" id=""></textarea>
+                            <textarea name="description" value={formData.description} onChange={handleChange}></textarea>
                         </div>
                     </>
                 )}

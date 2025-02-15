@@ -14,7 +14,7 @@ function UserDetailsSection ({ selectedRole, formData, handleChange }) {
                 </p>
             </header>
             <div className="form-details">
-                {selectedRole === 'jobseeker' && (
+                {selectedRole === 'jobseeker' ? (
                     <>
                     <div className="row">
                         <div className="form-group">
@@ -61,6 +61,37 @@ function UserDetailsSection ({ selectedRole, formData, handleChange }) {
                         <label>Summary</label>
                         <textarea name="summary" id="" value={formData.summary} onChange={handleChange}></textarea>
                     </div>
+                    </>
+                ) : (
+                    <>
+                        <div className="row">
+                            <div className="form-group">
+                                <label htmlFor="">Company Name</label>
+                                <input type="text" value={formData.name}/>
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="">Industry</label>
+                                <input type="text" value={formData.industry}/>
+                            </div>
+                        </div>
+                        <div className="form-group">
+                            <label htmlFor="">Location</label>
+                            <input type="text" value={formData.location}/>
+                        </div>
+                        <div className="row">
+                            <div className="form-group">
+                                <label htmlFor="">Website</label>
+                                <input type="text" value={formData.value}/>
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="">Size</label>
+                                <input type="number" name="" id="" />
+                            </div>
+                        </div>
+                        <div className="form-group">
+                            <label htmlFor="">Description</label>
+                            <textarea name="" id=""></textarea>
+                        </div>
                     </>
                 )}
             </div>

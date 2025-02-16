@@ -27,6 +27,7 @@ function MultiStepForm({ role }) {
                   summary: '',
                   skills: [],  
                   workExperience: [],
+                  socialMedia: { facebook: '', linkedin: '', github: '', website: '' },
                   certifications: [{ name: '', year: '' }],
               }
             : {

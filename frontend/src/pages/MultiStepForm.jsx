@@ -7,14 +7,22 @@ import UserDetailsSection from "../components/MultiStepForm/UserDetailsSection.j
 import SkillsSection from "../components/MultiStepForm/SkillsSection.jsx"
 import WorkExperience from "../components/MultiStepForm/WorkExperience.jsx"
 import JobPostingSection from "../components/MultiStepForm/JobPostingSection.jsx"
+import WelcomeSection from "../components/MultiStepForm/WelcomeSection.jsx"
 
 function MultiStepForm({ role }) {
     const { user, baseUrl, setSuccess, setError, setErrorMessage, setSuccessMessage } = useData();
-    const steps = ['role', 'details', 
-        ...(role === 'jobseeker' ? ['skills', 'workExperience', 'resume'] : ['jobPosting']), 'finished'];
+    const [selectedRole, setSelectedRole] = useState(null);
+    const steps = [
+        'role',
+        'details',
+        ...(selectedRole === 'jobseeker'
+            ? ['skills', 'workExperience', 'resume']
+            : ['jobPosting']),
+        'finished' 
+    ];
+    
 
     const [currentStepIndex, setCurrentStepIndex] = useState(0);
-    const [selectedRole, setSelectedRole] = useState(null);
     const [isNextAllowed, setIsNextAllowed] = useState(false);
     const initialFormData = {
         user: user ? user.id : null,
@@ -49,6 +57,9 @@ function MultiStepForm({ role }) {
         }
     }, [user]);
     
+    useEffect(() => {
+        console.log(currentStepIndex, steps[currentStepIndex]);
+    }, [currentStepIndex])
 
     useEffect(() => {
         document.title = "Let's get started"
@@ -335,6 +346,12 @@ function MultiStepForm({ role }) {
                         </>
                     )}
 
+                    {/* FINISHED */}
+                    {steps[currentStepIndex] === 'finished' && (
+                        <WelcomeSection selectedRole={selectedRole} />
+                    )}
+
+
                     <div className="buttons" style={{ justifyContent: currentStepIndex > 0 ? "space-between" : "flex-end" }}>
                         {currentStepIndex > 0 && (
                             <button onClick={prevStep} id="prev-step-btn" type="button">Previous</button>
@@ -357,6 +374,7 @@ function MultiStepForm({ role }) {
                                 </button>
                             )
                         )}
+
                     </div>
                 </form>
             </div>

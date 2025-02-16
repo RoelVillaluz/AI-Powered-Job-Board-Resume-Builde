@@ -328,7 +328,7 @@ function MultiStepForm({ role }) {
                         <>
                             {currentStepIndex === 2 && (
                                 <>
-                                
+                                    <JobPostingSection/>
                                 </>
                             )}
                         </>

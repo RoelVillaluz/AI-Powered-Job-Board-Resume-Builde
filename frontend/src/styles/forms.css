@@ -414,6 +414,8 @@ textarea
 
 .form-panel p {
     font-size: clamp(1rem, 1vw, 3rem);
+    max-width: 90%;
+    margin: 0 auto;
 }
 
 .form-panel .buttons {

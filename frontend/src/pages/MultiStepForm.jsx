@@ -55,24 +55,48 @@ function MultiStepForm({ role }) {
     }, [])
 
     useEffect(() => {
-        if (currentStepIndex === 0) {
-            setIsNextAllowed(selectedRole !== null)
-            console.log(`Selected Role: ${selectedRole}`)
-        } else if (currentStepIndex === 1) {
-            const areDetailsFilled = Object.entries(formData)
-                                    .filter(([key]) => ["firstName", "lastName", "phone", "address", "summary"].includes(key)) 
-                                    .every(([_, value]) => value?.trim() !== "");  
-            setIsNextAllowed(areDetailsFilled)
-        } else if (currentStepIndex === 2) {
-            if (formData.skills.length >= 3) {
-                setIsNextAllowed(true)
-            } else {
-                setIsNextAllowed(false)
-            }
-        } else if (currentStepIndex > 2 && currentStepIndex < steps.length - 1) {
-            setIsNextAllowed(true) // make the workExperience and choose resume section optional
+        // First, ensure formData has required properties
+        if (!formData) return;
+    
+        switch (currentStepIndex) {
+            case 0:
+                setIsNextAllowed(selectedRole !== null);
+                break;
+            case 1:
+                    const requiredFields = selectedRole === 'jobseeker' ? (
+                        ["firstName", "lastName", "phone", "address", "summary"]
+                    ) : (
+                        ["name", "industry", "location", "description"]
+                    );
+                    const areDetailsFilled = requiredFields.every(field => 
+                        formData[field]?.trim() !== "" && formData[field] !== undefined
+                    );
+                    setIsNextAllowed(areDetailsFilled);
+                    break;
+            case 2:
+                if (selectedRole === 'jobseeker') {
+                    setIsNextAllowed(formData.skills?.length >= 3);
+                } else {
+                    // Handle employer job posting validation here
+                    setIsNextAllowed(true); // Adjust based on your requirements
+                }
+                break;
+            case 3:
+                if (selectedRole === 'jobseeker') {
+                    // Work Experience section (optional)
+                    setIsNextAllowed(true);
+                }
+                break;
+            case 4:
+                if (selectedRole === 'jobseeker') {
+                    // Resume section (optional)
+                    setIsNextAllowed(true);
+                }
+                break;
+            default:
+                setIsNextAllowed(false);
         }
-    }, [selectedRole, formData])
+    }, [currentStepIndex, selectedRole, formData]);
 
     useEffect(() => {
         addActiveClass()

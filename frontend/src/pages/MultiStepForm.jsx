@@ -6,6 +6,7 @@ import RoleSection from '../components/MultiStepForm/RoleSection'
 import UserDetailsSection from "../components/MultiStepForm/UserDetailsSection.jsx"
 import SkillsSection from "../components/MultiStepForm/SkillsSection.jsx"
 import WorkExperience from "../components/MultiStepForm/WorkExperience.jsx"
+import JobPostingSection from "../components/MultiStepForm/JobPostingSection.jsx"
 
 function MultiStepForm({ role }) {
     const { user, baseUrl, setSuccess, setError, setErrorMessage, setSuccessMessage } = useData();
@@ -17,7 +18,6 @@ function MultiStepForm({ role }) {
     const [isNextAllowed, setIsNextAllowed] = useState(false);
     const initialFormData = {
         user: user ? user.id : null,
-        socialMedia: { facebook: '', linkedin: '', github: '', website: '' },
         ...(role === "jobseeker"
             ? {
                   firstName: '',
@@ -97,6 +97,7 @@ function MultiStepForm({ role }) {
                 setIsNextAllowed(false);
         }
     }, [currentStepIndex, selectedRole, formData]);
+    
 
     useEffect(() => {
         addActiveClass()
@@ -152,7 +153,8 @@ function MultiStepForm({ role }) {
         }
 
         try {
-            const response = await axios.post(`${baseUrl}/resumes`, { ...formData, user: { id: user.id } });
+            const endpoint = selectedRole === 'jobseeker' ? 'resumes' : 'companies'
+            const response = await axios.post(`${baseUrl}/${endpoint}`, { ...formData, user: { id: user.id } });
             console.log('Response data:', response.data)
             setError(false);
             setErrorMessage(null)
@@ -204,7 +206,6 @@ function MultiStepForm({ role }) {
             return { ...prev, [name]: reorderedList }
         })
     };
-    
 
     return (
         <>
@@ -272,7 +273,7 @@ function MultiStepForm({ role }) {
                                     <li>
                                         <i className="fa-solid fa-briefcase"></i>
                                         <div>
-                                            <span>Create a Job Listing</span>
+                                            <span>Create a job listing</span>
                                             <p className="supporting-text">Provide job details and requirements to attract the right candidates.</p>
                                         </div>
                                     </li>

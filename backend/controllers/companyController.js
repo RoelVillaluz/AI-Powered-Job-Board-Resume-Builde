@@ -32,7 +32,7 @@ export const createCompany = async (req, res) => {
     const requiredFields = ["user", "name", "industry", "location", "description"]
 
     try {
-        const missingField = checkMissingFields(requiredFields, company)
+        const missingField = checkMissingFields(requiredFields, companyData)
         if (missingField) {
             return sendResponse(res, { ...STATUS_MESSAGES.ERROR.MISSING_FIELD(missingField), success: false}, 'Company')
         }

@@ -39,21 +39,21 @@ function UserDetailsSection ({ selectedRole, formData, handleChange }) {
                         <div className="row">
                             <div className="wrapper">
                                 <i className="fa-brands fa-facebook"></i>
-                                <input type="text" name="socialMedia.facebook" value={formData.socialMedia.facebook} onChange={handleChange}/>
+                                <input type="text" name="socialMedia.facebook" value={formData.socialMedia?.facebook || ''} onChange={handleChange}/>
                             </div>
                             <div className="wrapper">
                                 <i className="fa-brands fa-linkedin"></i>
-                                <input type="text" name="socialMedia.linkedin" value={formData.socialMedia.linkedIn} onChange={handleChange}/>
+                                <input type="text" name="socialMedia.linkedin" value={formData.socialMedia?.linkedIn || ''} onChange={handleChange}/>
                             </div>
                         </div>
                         <div className="row">
                             <div className="wrapper">
                                 <i className="fa-brands fa-github"></i>
-                                <input type="text" name="socialMedia.github" value={formData.socialMedia.github} onChange={handleChange}/>
+                                <input type="text" name="socialMedia.github" value={formData.socialMedia?.github || ''} onChange={handleChange}/>
                             </div>
                             <div className="wrapper">
                                 <i className="fa-solid fa-globe"></i>
-                                <input type="text" name="socialMedia.website" value={formData.socialMedia.website} onChange={handleChange}/>
+                                <input type="text" name="socialMedia.website" value={formData.socialMedia?.website || ''} onChange={handleChange}/>
                             </div>
                         </div>
                     </div>

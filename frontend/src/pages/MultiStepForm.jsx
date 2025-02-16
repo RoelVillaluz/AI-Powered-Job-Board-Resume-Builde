@@ -338,7 +338,17 @@ function MultiStepForm({ role }) {
                         {currentStepIndex > 0 && (
                             <button onClick={prevStep} id="prev-step-btn" type="button">Previous</button>
                         )}
-                        {isNextAllowed && (<button onClick={nextStep} id="next-step-btn" type="button">Next</button>)}
+                        {currentStepIndex !== steps.length - 1 ? (
+                            isNextAllowed && (
+                                <button onClick={nextStep} id="next-step-btn" type="button">
+                                    Next
+                                </button>
+                            )
+                        ) : (
+                            <button id="submit-btn" type="submit">
+                                Submit
+                            </button>
+                        )}
                     </div>
                 </form>
             </div>

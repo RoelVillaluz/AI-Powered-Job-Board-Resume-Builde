@@ -10,7 +10,7 @@ import WorkExperience from "../components/MultiStepForm/WorkExperience.jsx"
 function MultiStepForm({ role }) {
     const { user, baseUrl, setSuccess, setError, setErrorMessage, setSuccessMessage } = useData();
     const steps = ['role', 'details', 
-        ...(role === 'jobseeker' ? ['skills', 'workExperience', 'resume'] : []), 'finished'];
+        ...(role === 'jobseeker' ? ['skills', 'workExperience', 'resume'] : ['jobPosting']), 'finished'];
 
     const [currentStepIndex, setCurrentStepIndex] = useState(0);
     const [selectedRole, setSelectedRole] = useState(null);

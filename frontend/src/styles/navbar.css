@@ -66,18 +66,30 @@
 }
 
 nav .dropdown {
+    display: flex;
+    flex-wrap: wrap;
     position: absolute;
     top: 115%;
     right: 50%;
-    display: flex;
     gap: 1rem;
-    flex-wrap: wrap;
     list-style-type: none;
     background-color: var(--secondary);
     color: white;
     padding: 10px;
     width: max-content;
     border-radius: 4px;
+}
+
+nav .dropdown.visible {
+    visibility: visible;
+    opacity: 1;
+    animation: fadeOutAndDown 0.15s forwards;
+}
+
+nav .dropdown.hidden {
+    visibility: hidden;
+    opacity: 0;
+    animation: fadeInAndUp 0.15s forwards;
 }
 
 nav .dropdown li {
@@ -97,3 +109,26 @@ nav .dropdown li span {
     font-size: clamp(0.5rem, 0.65vw, 1rem);
 }
 
+@keyframes fadeInAndUp {
+    0% {
+        opacity: 1;
+        transform: translateY(0);
+        visibility: visible;
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-10px);
+        visibility: hidden;
+    }
+}
+
+@keyframes fadeOutAndDown {
+    0% {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

@@ -95,7 +95,8 @@ nav .dropdown.hidden {
 nav .dropdown li {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    transition: 0.3s;
+    border-radius: 4px;
 }
 
 nav .dropdown li i {
@@ -107,4 +108,9 @@ nav .dropdown li i {
 
 nav .dropdown li span {
     font-size: clamp(0.5rem, 0.65vw, 1rem);
+    padding: 10px;
+}
+
+nav .dropdown li:hover {
+    background-color: var(--secondary-light);
 }

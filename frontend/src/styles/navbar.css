@@ -36,6 +36,7 @@
 }
 
 .nav-icon {
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -63,3 +64,36 @@
     background-color: white;
     color: var(--secondary);
 }
+
+nav .dropdown {
+    position: absolute;
+    top: 115%;
+    right: 50%;
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    list-style-type: none;
+    background-color: var(--secondary);
+    color: white;
+    padding: 10px;
+    width: max-content;
+    border-radius: 4px;
+}
+
+nav .dropdown li {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+nav .dropdown li i {
+    background-color: var(--secondary-light);
+    padding: 10px;
+    border-radius: 4px;
+    font-size: clamp(0.5rem, 0.65vw, 1rem);
+}
+
+nav .dropdown li span {
+    font-size: clamp(0.5rem, 0.65vw, 1rem);
+}
+

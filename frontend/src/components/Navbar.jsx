@@ -25,6 +25,16 @@ function Navbar () {
                         {user ? (
                             <li className="nav-icon">
                                 <i class="fa-regular fa-user"></i>
+                                <ul className="dropdown">
+                                    <li>
+                                        <i className="fa-solid fa-user"></i>
+                                        <span>My Profile</span>
+                                    </li>
+                                    <li>
+                                        <i className="fa-solid fa-right-from-bracket"></i>
+                                        <span>Sign Out</span>
+                                    </li>
+                                </ul>
                             </li>
                         ) : (
                             <li>

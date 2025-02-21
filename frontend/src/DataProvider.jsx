@@ -5,7 +5,6 @@ const DataContext = createContext();
 export const useData = () => useContext(DataContext);
 
 export const DataProvider = ({ children }) => {
-  const [user, setUser] = useState(null)
 
   const [users, setUsers] = useState([]);
   const [jobPostings, setJobPostings] = useState([]);
@@ -60,14 +59,6 @@ export const DataProvider = ({ children }) => {
     }
   };
 
-  // Check if user is logged in
-  useEffect(() => {
-    const storedUser = localStorage.getItem("user"); // Fetch from localStorage
-    if (storedUser) {
-        setUser(JSON.parse(storedUser)); // Parse and set user state
-    }
-  }, []);
-
   return (
     <DataContext.Provider
       value={{
@@ -76,7 +67,6 @@ export const DataProvider = ({ children }) => {
         jobPostings, setJobPostings,
         resumes, setResumes,
         getAllData, 
-        user, setUser,
         success, setSuccess,
         successMessage, setSuccessMessage,
         error, setError,

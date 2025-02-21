@@ -5,6 +5,7 @@ function Navbar () {
     const location = useLocation();
     const hideLocation = location.pathname == '/register' || location.pathname == '/login' || location.pathname == '/get-started'
     const [user, setUser] = useState(null)
+    const [isVisible, setIsVisible] = useState(false);
 
     // Check if user is logged in
     useEffect(() => {
@@ -23,9 +24,9 @@ function Navbar () {
                 {!hideLocation && (
                     <ul className="navbar-links">
                         {user ? (
-                            <li className="nav-icon">
+                            <li className="nav-icon" onClick={() => setIsVisible(!isVisible)}>
                                 <i class="fa-regular fa-user"></i>
-                                <ul className="dropdown">
+                                <ul className={`dropdown ${isVisible ? 'visible': 'hidden'}`}>
                                     <li>
                                         <i className="fa-solid fa-user"></i>
                                         <span>My Profile</span>

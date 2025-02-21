@@ -43,7 +43,7 @@ function UserDetailsSection ({ selectedRole, formData, handleChange }) {
                             </div>
                             <div className="wrapper">
                                 <i className="fa-brands fa-linkedin"></i>
-                                <input type="text" name="socialMedia.linkedin" value={formData.socialMedia?.linkedIn || ''} onChange={handleChange}/>
+                                <input type="text" name="socialMedia.linkedIn" value={formData.socialMedia?.linkedIn || ''} onChange={handleChange}/>
                             </div>
                         </div>
                         <div className="row">

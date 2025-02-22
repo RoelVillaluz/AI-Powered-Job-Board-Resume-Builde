@@ -3,6 +3,7 @@ import { useData } from "../DataProvider";
 import axios from "axios";
 import Layout from "../components/Layout";
 import VerifyUser from "../components/VerifyUser";
+import { Link } from "react-router-dom";
 
 function Register() {
     const { baseUrl, setSuccess, setError, setSuccessMessage } = useData();
@@ -91,7 +92,7 @@ function Register() {
                     </div>
 
                     <button type="submit">Create account</button>
-                    <span id="sign-in-link-span">Already have an account? <a href="">Sign-in instead</a></span>
+                    <span id="sign-in-link-span">Already have an account? <Link to={'/sign-in'}>Sign-in instead</Link></span>
 
                 </form>
                 <figure className="authentication-form-image-container">

@@ -5,6 +5,7 @@ import  userRoutes  from "./routes/userRoutes.js"
 import jobPostingRoutes from "./routes/jobPostingRoutes.js"
 import resumeRoutes from "./routes/resumeRoutes.js"
 import companyRoutes from "./routes/companyRoutes.js"
+import aiRoutes from './routes/aiRoutes.js'
 
 import { connectDB } from "./config/db.js";
 
@@ -18,6 +19,7 @@ app.use('/api/users', userRoutes)
 app.use('/api/job-postings', jobPostingRoutes)
 app.use('/api/resumes', resumeRoutes)
 app.use('/api/companies', companyRoutes)
+app.use('/api/ai', aiRoutes)
 
 app.listen(5000, () => {
     connectDB();

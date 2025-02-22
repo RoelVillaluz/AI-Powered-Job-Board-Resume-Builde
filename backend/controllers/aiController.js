@@ -48,7 +48,7 @@ export const getJobRecommendations = async (req, res) => {
             return { ...job.toObject(), similarity }
         }).filter(Boolean); // Remove null values if any jobs had missing skills
 
-        const recommendedJobs = jobScores.sort((a, b) => b.similarity - a.similarity).slice(0, 10)
+        const recommendedJobs = jobScores.filter(job => job.similarity >= 0.5).sort((a, b) => b.similarity - a.similarity).slice(0, 10)
 
         return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.FETCH, data: recommendedJobs }, "Recommended Jobs");
     } catch (error) {

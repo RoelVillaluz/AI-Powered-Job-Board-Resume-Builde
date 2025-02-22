@@ -1,19 +1,19 @@
 import { useEffect, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "./AuthProvider";
 
 function Navbar () {
     const location = useLocation();
-    const hideLocation = location.pathname == '/register' || location.pathname == '/login' || location.pathname == '/get-started'
-    const [user, setUser] = useState(null)
+    const navigate = useNavigate();
+    const hideLocation = location.pathname == '/register' || location.pathname == '/login' || location.pathname == '/get-started' || location.pathname == '/sign-in'
+    const { user, setUser } = useAuth();
     const [isVisible, setIsVisible] = useState(false);
 
-    // Check if user is logged in
-    useEffect(() => {
-        const storedUser = localStorage.getItem("user"); // Fetch from localStorage
-        if (storedUser) {
-            setUser(JSON.parse(storedUser)); // Parse and set user state
-        }
-    }, []);
+    const handleLogout = () => {
+        localStorage.removeItem("user");
+        setUser(null);
+        navigate('')
+    }
 
     return (
         <>
@@ -28,18 +28,22 @@ function Navbar () {
                                 <i class="fa-regular fa-user"></i>
                                 <ul className={`dropdown ${isVisible ? 'visible': 'hidden'}`}>
                                     <li>
-                                        <i className="fa-solid fa-user"></i>
-                                        <span>My Profile</span>
+                                        <Link>
+                                            <i className="fa-solid fa-user"></i>
+                                            <span>My Profile</span>
+                                        </Link>
                                     </li>
-                                    <li>
-                                        <i className="fa-solid fa-right-from-bracket"></i>
-                                        <span>Sign Out</span>
+                                    <li onClick={handleLogout}>
+                                        <Link>
+                                            <i className="fa-solid fa-right-from-bracket"></i>
+                                            <span>Sign Out</span>
+                                        </Link>
                                     </li>
                                 </ul>
                             </li>
                         ) : (
                             <li>
-                                <Link to="/register" className="sign-in-link">
+                                <Link to="/sign-in" className="sign-in-link">
                                     Sign In
                                 </Link>
                             </li>

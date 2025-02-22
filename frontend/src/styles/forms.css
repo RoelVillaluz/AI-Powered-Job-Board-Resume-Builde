@@ -14,7 +14,9 @@ textarea
     font-family: 'Montserrat', sans-serif;
 }
 
-#register-form {
+#register-form,
+#sign-in-form
+{
     display: flex;
     justify-content: center;
     flex-direction: column;

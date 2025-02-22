@@ -19,7 +19,7 @@ const jobPostingSchema = new mongoose.Schema({
         enum: ['Full-Time', 'Part-Time', 'Contract', 'Internship'],
         required: true
     },
-    experience_level: {
+    experienceLevel: {
         type: String,
         enum: ['Intern', 'Entry', 'Mid-Level', 'Senior'],
         required: false,
@@ -29,6 +29,10 @@ const jobPostingSchema = new mongoose.Schema({
         default: null
     },
     requirements: {
+        type: [String],
+        required: true
+    },
+    skills: {
         type: [String],
         required: true
     },

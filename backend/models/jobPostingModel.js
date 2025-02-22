@@ -19,6 +19,11 @@ const jobPostingSchema = new mongoose.Schema({
         enum: ['Full-Time', 'Part-Time', 'Contract', 'Internship'],
         required: true
     },
+    experience_level: {
+        type: String,
+        enum: ['Intern', 'Entry', 'Mid-Level', 'Senior'],
+        required: false,
+    },  
     salary: {
         type: String,
         default: null

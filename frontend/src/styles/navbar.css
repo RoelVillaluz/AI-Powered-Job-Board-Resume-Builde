@@ -5,6 +5,8 @@
     justify-content: space-between;
     width: 100%;
     color: white;
+    z-index: 1000;
+
 }
 
 .logo {

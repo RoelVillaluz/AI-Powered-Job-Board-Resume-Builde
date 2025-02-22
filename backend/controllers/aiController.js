@@ -20,25 +20,33 @@ export const getJobRecommendations = async (req, res) => {
 
         const tokenizer = new natural.WordTokenizer() 
 
-        const resumeText = resume.skills.map(skill => skill.name).join(" ").toLowerCase()
-        const resumeTokens = tokenizer.tokenize(resumeText)
+        const resumeSkillSet = new Set(resume.skills.map(skill => skill.name.toLowerCase()))
 
         const jobScores = jobs.map(job => {
-            const jobText = job.skills.map(skill => skill.name).join(" ").toLowerCase()
-            const jobTokens = tokenizer.tokenize(jobText)
+            if (!Array.isArray(job.skills) || job.skills.length === 0) return null;
 
-            // term frequency vectors
-            const allTokens = new Set([...resumeTokens, ...jobTokens])
+            // extract only names from job.skills
+            const jobSkillNames = job.skills.map(skill => skill.name.toLowerCase())
+
+            // Only keep resume skills that match the job's required skills
+            const relevantResumeSkills = [...resumeSkillSet].filter(skill => jobSkillNames.includes(skill))
+
+            const resumeTokens = tokenizer.tokenize(relevantResumeSkills.join(" "));
+            const jobTokens = tokenizer.tokenize(jobSkillNames.join(" "));
+
+            const allTokens = new Set([...jobTokens]) // Only job tokens matter
             const resumeVector = [...allTokens].map(token => resumeTokens.includes(token) ? 1 : 0)
-            const jobVector = [...allTokens].map(token => jobTokens.includes(token) ? 1 : 0)
+            const jobVector = [...allTokens].map(() => 1) // All job skills are relevant
+
+            console.log("Resume tokens:", resumeTokens)
+            console.log("Job tokens:", jobTokens)
 
             console.log("Resume Vector:", resumeVector); // Debugging
             console.log("Job Vector:", jobVector); // Debugging
 
-            // compute similarity
             const similarity = cosineSimilarity(resumeVector, jobVector).toFixed(2) || 0
             return { ...job.toObject(), similarity }
-        });
+        }).filter(Boolean); // Remove null values if any jobs had missing skills
 
         const recommendedJobs = jobScores.sort((a, b) => b.similarity - a.similarity).slice(0, 10)
 

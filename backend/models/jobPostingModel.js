@@ -33,9 +33,8 @@ const jobPostingSchema = new mongoose.Schema({
         required: true
     },
     skills: [{
-        name: String,
-        required: true
-    }],
+        name: { type: String, required: true }
+    }],  
     postedAt: {
         type: Date,
         default: Date.now

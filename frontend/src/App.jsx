@@ -7,6 +7,7 @@ import SignIn from "./pages/SignIn";
 import MultiStepForm from "./pages/MultiStepForm";
 import Dashboard from "./pages/Dashboard";
 import { AuthProvider, useAuth } from "./components/AuthProvider";
+import CreateJobPosting from "./pages/CreateJob";
 
 function App() {
   return (
@@ -15,12 +16,16 @@ function App() {
         <Navbar />
         <DataProvider>
           <Routes>
+            
             <Route path="/" element={<AppRoutes />} />
 
             <Route path="/register" element={<Register />} />
             <Route path="/sign-in" element={<SignIn />} />
 
             <Route path="/get-started" element={<MultiStepForm />} />
+
+            <Route path="/create-job-posting" element={<CreateJobPosting/>} />
+
           </Routes>
         </DataProvider>
       </AuthProvider>

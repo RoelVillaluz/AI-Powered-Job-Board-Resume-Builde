@@ -15,8 +15,6 @@ function Navbar () {
         navigate('')
     }
 
-    console.log("Stored User in Local Storage:", localStorage.getItem("user"));
-
     return (
         <>
             <nav className='navbar'>
@@ -37,9 +35,9 @@ function Navbar () {
                                     </li>
                                     {user.role === 'employer' && (
                                         <li>
-                                            <Link>
+                                            <Link to={'/create-job-posting'}>
                                                 <i className="fa-solid fa-briefcase"></i>
-                                                <span>Manage Jobs</span>
+                                                <span>Create Job</span>
                                             </Link>
                                         </li>
                                     )}

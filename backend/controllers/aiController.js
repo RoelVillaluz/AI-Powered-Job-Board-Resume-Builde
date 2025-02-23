@@ -2,56 +2,79 @@ import Resume from "../models/resumeModel.js";
 import JobPosting from "../models/jobPostingModel.js";
 import { STATUS_MESSAGES, sendResponse } from '../constants.js';
 import natural from "natural";
+import { kmeans } from "ml-kmeans";
 import cosineSimilarity from "compute-cosine-similarity";
+
+// Helper function: Convert skills into numerical vectors
+const skillToVector = (skills, allSkills) => {
+    return allSkills.map(skill => (skills.includes(skill) ? 1 : 0));
+};
 
 export const getJobRecommendations = async (req, res) => {
     const { id } = req.params;
 
     try {
-        const resume = await Resume.findById(id)
+        const resume = await Resume.findById(id);
         if (!resume) {
-            return sendResponse(res, {...STATUS_MESSAGES.ERROR.NOT_FOUND, success: false}, 'Resume')
+            return sendResponse(res, { ...STATUS_MESSAGES.ERROR.NOT_FOUND, success: false }, 'Resume');
         }
 
-        const jobs = await JobPosting.find({})
+        const jobs = await JobPosting.find({});
         if (!jobs.length) {
-            return sendResponse(res, {...STATUS_MESSAGES.ERROR.NOT_FOUND, success: false}, 'Jobs')
+            return sendResponse(res, { ...STATUS_MESSAGES.ERROR.NOT_FOUND, success: false }, 'Jobs');
         }
 
-        const tokenizer = new natural.WordTokenizer() 
+        const tokenizer = new natural.WordTokenizer();
 
-        const resumeSkillSet = new Set(resume.skills.map(skill => skill.name.toLowerCase()))
+        // Extract unique skills across all jobs
+        const allSkills = Array.from(new Set(jobs.flatMap(job => job.skills.map(skill => skill.name.toLowerCase()))));
 
-        const jobScores = jobs.map(job => {
-            if (!Array.isArray(job.skills) || job.skills.length === 0) return null;
+        // Convert jobs into numerical vectors
+        const jobVectors = jobs.map(job => skillToVector(job.skills.map(skill => skill.name.toLowerCase()), allSkills));
 
-            // extract only names from job.skills
-            const jobSkillNames = job.skills.map(skill => skill.name.toLowerCase())
+        // Apply K-Means clustering
+        const k = Math.min(5, jobs.length); // Ensure k isn't greater than job count
+        const clusters = kmeans(jobVectors, k);
 
-            // Only keep resume skills that match the job's required skills
-            const relevantResumeSkills = [...resumeSkillSet].filter(skill => jobSkillNames.includes(skill))
+        // Convert resume skills into a vector
+        const resumeSkills = resume.skills.map(skill => skill.name.toLowerCase());
+        const resumeVector = skillToVector(resumeSkills, allSkills);
 
-            const resumeTokens = tokenizer.tokenize(relevantResumeSkills.join(" "));
-            const jobTokens = tokenizer.tokenize(jobSkillNames.join(" "));
+        // Determine the best-matching cluster for the resume
+        let bestClusterIndex = 0;
+        let bestSimilarity = 0;
 
-            const allTokens = new Set([...jobTokens]) // Only job tokens matter
-            const resumeVector = [...allTokens].map(token => resumeTokens.includes(token) ? 1 : 0)
-            const jobVector = [...allTokens].map(() => 1) // All job skills are relevant
+        clusters.centroids.forEach((centroid, index) => {
+            const similarity = cosineSimilarity(resumeVector, centroid) || 0;
+            if (similarity > bestSimilarity) {
+                bestSimilarity = similarity;
+                bestClusterIndex = index;
+            }
+        });
 
-            console.log("Resume tokens:", resumeTokens)
-            console.log("Job tokens:", jobTokens)
+        // Get jobs from the best cluster
+        const clusterJobIndices = clusters.clusters
+            .map((cluster, index) => ({ index, cluster }))
+            .filter(({ cluster }) => cluster === bestClusterIndex)
+            .map(({ index }) => index);
 
-            console.log("Resume Vector:", resumeVector); // Debugging
-            console.log("Job Vector:", jobVector); // Debugging
+        let recommendedJobs = clusterJobIndices.map(index => {
+            const job = jobs[index];
+            const jobVector = jobVectors[index];
+            const similarity = cosineSimilarity(resumeVector, jobVector).toFixed(2) || 0;
 
-            const similarity = cosineSimilarity(resumeVector, jobVector).toFixed(2) || 0
-            return { ...job.toObject(), similarity }
-        }).filter(Boolean); // Remove null values if any jobs had missing skills
+            return { ...job.toObject(), similarity };
+        });
 
-        const recommendedJobs = jobScores.filter(job => job.similarity >= 0.5).sort((a, b) => b.similarity - a.similarity).slice(0, 10)
+        // Filter jobs by similarity threshold and sort
+        recommendedJobs = recommendedJobs
+            .filter(job => job.similarity >= 0.5)
+            .sort((a, b) => b.similarity - a.similarity)
+            .slice(0, 10);
 
         return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.FETCH, data: recommendedJobs }, "Recommended Jobs");
     } catch (error) {
-        console.error(error)
+        console.error(error);
+        return sendResponse(res, { ...STATUS_MESSAGES.ERROR.SERVER_ERROR, success: false }, "Error fetching jobs");
     }
-}
+};

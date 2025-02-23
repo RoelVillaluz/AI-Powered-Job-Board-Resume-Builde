@@ -23,6 +23,7 @@
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
+    "ml-kmeans": "^6.0.0",
     "mongoose": "^8.9.5",
     "natural": "^8.0.1",
     "nodemailer": "^6.10.0",

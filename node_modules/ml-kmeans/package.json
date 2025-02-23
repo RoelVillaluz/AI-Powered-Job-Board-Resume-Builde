@@ -1,0 +1,66 @@
+{
+  "name": "ml-kmeans",
+  "version": "6.0.0",
+  "description": "K-Means clustering",
+  "main": "./lib/kmeans.js",
+  "module": "./lib-esm/kmeans.js",
+  "types": "./lib/kmeans.d.ts",
+  "files": [
+    "src",
+    "lib",
+    "lib-esm"
+  ],
+  "scripts": {
+    "check-types": "tsc --noEmit",
+    "clean": "rimraf lib lib-esm",
+    "compile": "rollup -c",
+    "eslint": "eslint src",
+    "eslint-fix": "npm run eslint -- --fix",
+    "prepack": "npm run tsc",
+    "prettier": "prettier --check src example",
+    "prettier-write": "prettier --write src example",
+    "test": "npm run test-only && npm run eslint && npm run prettier && npm run check-types",
+    "test-only": "jest --coverage",
+    "tsc": "npm run clean && npm run tsc-cjs && npm run tsc-esm",
+    "tsc-cjs": "tsc --project tsconfig.cjs.json",
+    "tsc-esm": "tsc --project tsconfig.esm.json"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mljs/kmeans"
+  },
+  "keywords": [
+    "cluster",
+    "kmeans",
+    "data",
+    "mining",
+    "datamining",
+    "machine",
+    "learning"
+  ],
+  "author": "Miguel Asencio <maasencioh@gmail.com> (https://github.com/maasencioh)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mljs/kmeans/issues"
+  },
+  "homepage": "https://github.com/mljs/kmeans",
+  "devDependencies": {
+    "@babel/plugin-transform-modules-commonjs": "^7.20.11",
+    "@babel/preset-typescript": "^7.18.6",
+    "@types/jest": "^29.2.5",
+    "eslint": "^8.10.0",
+    "eslint-config-cheminfo-typescript": "^11.2.2",
+    "esm": "^3.2.25",
+    "jest": "^27.5.1",
+    "ml-dataset-iris": "^1.2.1",
+    "prettier": "^2.8.3",
+    "rimraf": "^3.0.2",
+    "typescript": "^4.9.4"
+  },
+  "dependencies": {
+    "ml-distance-euclidean": "^2.0.0",
+    "ml-matrix": "^6.9.0",
+    "ml-nearest-vector": "^2.0.1",
+    "ml-random": "^0.5.0"
+  }
+}

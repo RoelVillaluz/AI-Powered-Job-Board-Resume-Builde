@@ -29,6 +29,41 @@ export const getUser = async (req, res) => {
     }
 };
 
+export const getCurrentUser = async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id).select("-password"); 
+
+        if (!user) {
+            return sendResponse(res, {...STATUS_MESSAGES.ERROR.NOT_FOUND, success: false}, 'User');
+        }
+
+        return sendResponse(res, {
+            ...STATUS_MESSAGES.SUCCESS.FETCH,
+            data: { user },
+        }, 'User');
+    } catch (error) {
+        console.error('Error fetching current user:', error);
+        return sendResponse(res, STATUS_MESSAGES.ERROR.SERVER, 'User');
+    }
+};
+
+
+export const authenticateUser = async (req, res, next) => {
+    const token = req.header("Authorization")?.split(" ")[1]; // Expecting "Bearer <token>"
+
+    if (!token) {
+        return res.status(401).json({ message: "Unauthorized, no token provided" });
+    }
+
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        req.user = decoded; // Attach user payload to request
+        next();
+    } catch (error) {
+        return sendResponse(res, { ...STATUS_MESSAGES.ERROR.SERVER })
+    }
+};
+
 export const createUser = async (req, res) => {
     const user = req.body;
     const requiredFields = ['email', 'password', 'role'];

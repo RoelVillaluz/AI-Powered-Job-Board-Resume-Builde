@@ -52,21 +52,22 @@ export const getJobRecommendations = async (req, res) => {
             }
         });
 
-        // Get jobs from the best cluster
-        const clusterJobIndices = clusters.clusters
-            .map((cluster, index) => ({ index, cluster }))
-            .filter(({ cluster }) => cluster === bestClusterIndex)
-            .map(({ index }) => index);
-
-        let recommendedJobs = clusterJobIndices.map(index => {
-            const job = jobs[index];
-            const jobVector = jobVectors[index];
-            const similarity = cosineSimilarity(resumeVector, jobVector).toFixed(2) || 0;
-
-            return { ...job.toObject(), similarity };
-        });
-
-        // Filter jobs by similarity threshold and sort
+        let recommendedJobs = jobs.map(job => {
+            // Get only the skills that are present in both resume and job
+            const sharedSkills = resumeSkills.filter(skill => job.skills.some(js => js.name.toLowerCase() === skill));
+        
+            if (sharedSkills.length === 0) return null; // Skip jobs with no shared skills
+        
+            // Create vectors based on only the shared skills
+            const reducedJobVector = sharedSkills.map(skill => job.skills.some(js => js.name.toLowerCase() === skill) ? 1 : 0);
+            const reducedResumeVector = sharedSkills.map(skill => resumeSkills.includes(skill) ? 1 : 0);
+        
+            const similarity = cosineSimilarity(reducedResumeVector, reducedJobVector) || 0;
+        
+            return { ...job.toObject(), similarity: similarity.toFixed(2) };
+        }).filter(job => job !== null);
+        
+        // Filter and sort recommended jobs
         recommendedJobs = recommendedJobs
             .filter(job => job.similarity >= 0.5)
             .sort((a, b) => b.similarity - a.similarity)

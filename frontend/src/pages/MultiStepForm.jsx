@@ -17,10 +17,9 @@ function MultiStepForm({ role }) {
         'details',
         ...(selectedRole === 'jobseeker'
             ? ['skills', 'workExperience', 'resume']
-            : ['jobPosting']),
+            : []),
         'finished' 
     ];
-    
 
     const [currentStepIndex, setCurrentStepIndex] = useState(0);
     const [isNextAllowed, setIsNextAllowed] = useState(false);
@@ -251,7 +250,7 @@ function MultiStepForm({ role }) {
                                         </p>
                                     </div>
                                 </li>
-                                {selectedRole === 'jobseeker' ? (
+                                {selectedRole === 'jobseeker' && (
                                     <>
                                         <li>
                                             <i className="fa-solid fa-lightbulb"></i>
@@ -280,14 +279,6 @@ function MultiStepForm({ role }) {
                                             </div>
                                         </li>
                                     </>
-                                ) : (
-                                    <li>
-                                        <i className="fa-solid fa-briefcase"></i>
-                                        <div>
-                                            <span>Create a job listing</span>
-                                            <p className="supporting-text">Provide job details and requirements to attract the right candidates.</p>
-                                        </div>
-                                    </li>
                                 )}
                                 <li>
                                     <i className="fa-solid fa-check"></i>
@@ -312,7 +303,7 @@ function MultiStepForm({ role }) {
                         <UserDetailsSection selectedRole={selectedRole} formData={formData} handleChange={handleChange}/>
                     )}
 
-                    {selectedRole === "jobseeker" ? (
+                    {selectedRole === "jobseeker" && (
                         <>
                             {/* SKILLS SECTION */}
                             {currentStepIndex === 2 && (
@@ -334,14 +325,6 @@ function MultiStepForm({ role }) {
                                     handleDrag={handleDragEnd}
                                     handleRemove={handleRemoveListItem}
                                 />
-                            )}
-                        </>
-                    ) : (
-                        <>
-                            {currentStepIndex === 2 && (
-                                <>
-                                    <JobPostingSection/>
-                                </>
                             )}
                         </>
                     )}

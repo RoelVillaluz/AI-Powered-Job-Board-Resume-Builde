@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useData } from "../DataProvider";
+import { useAuth } from "./AuthProvider";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
@@ -10,6 +11,7 @@ const VerifyUser = ({ email, password, verificationCode }) => {
     const [errorMessage, setErrorMessage] = useState(null)
     const [isLoading, setIsLoading] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
+    const { login } = useAuth();
 
     const navigate = useNavigate();
 
@@ -64,13 +66,7 @@ const VerifyUser = ({ email, password, verificationCode }) => {
             // Extract user & token
             const { token, user } = loginResponse.data.data;
     
-            // Ensure localStorage updates correctly
-            localStorage.removeItem("user"); // Remove old data
-            localStorage.setItem("authToken", token);
-            localStorage.setItem("user", JSON.stringify(user));
-    
-            console.log("User after login:", user); // Debugging log
-            console.log("Stored in localStorage:", localStorage.getItem("user"));
+            login(user, token)
     
             navigate('/get-started');
         } catch (error) {

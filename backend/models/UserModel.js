@@ -16,7 +16,7 @@ const userSchema = new mongoose.Schema({
         enum: ['jobseeker', 'employer'],
         required: true
     },
-    profile_picture: {
+    profilePicture: {
         type: String,
         required: false
     },
@@ -29,6 +29,28 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: false
     },
+    company: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Company",
+        validate: {
+            validator: function () {
+                // Only allow companies field if the role is 'employer'
+                return this.role === "employer";
+            },
+            message: "Only employers can have associated companies."
+        }
+    },
+    resumes: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Resume",
+        validate: {
+            validator: function () {
+                // Only allow resumes field if the role is 'jobseeker'
+                return this.role === "jobseeker";
+            },
+            message: "Only jobseekers can have associated resumes."
+        }
+    }],
     createdAt: {
         type: Date,
         default: Date.now

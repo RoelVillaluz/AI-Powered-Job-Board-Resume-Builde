@@ -9,7 +9,6 @@ function Register() {
     const { baseUrl, setSuccess, setError, setSuccessMessage } = useData();
     const [errorMessage, setErrorMessage] = useState(null)
     const [formData, setFormData] = useState({
-        name: '',
         email: '',
         password: '',
         confirmPassword: '',
@@ -74,9 +73,6 @@ function Register() {
                         <div className="line"></div>
                     </div>
 
-                    <div className="form-group">
-                        <input type="text" onChange={handleChange} name="name" value={formData.name} placeholder="Enter your Username" />
-                    </div>
                     <div className="form-group">
                         <input type="text" onChange={handleChange} name="email" value={formData.email} placeholder="Enter your email" />
                     </div>

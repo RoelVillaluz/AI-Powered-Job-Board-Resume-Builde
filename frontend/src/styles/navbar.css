@@ -97,6 +97,7 @@ nav .dropdown.hidden {
 nav .dropdown li {
     display: flex;
     align-items: center;
+    flex: 0 0 calc(50% - 0.5rem);
     transition: 0.3s;
     border-radius: 4px;
 }

@@ -28,7 +28,7 @@ export const getJobPosting = async (req, res) => {
 
 export const createJobPosting = async (req, res) => {
     const jobPosting = req.body
-    const requiredFields = ['title', 'company', 'location', 'jobType', 'requirements']
+    const requiredFields = ['title', 'company', 'location', 'jobType', 'requirements', 'skills']
 
     const missingField = checkMissingFields(requiredFields, jobPosting)
     if (missingField) {

@@ -10,6 +10,7 @@ function WelcomeSection({ selectedRole }) {
                     }
                 </p>
             </header>
+            <i class="fa-solid fa-hands-clapping" id="welcome-icon"></i>
         </section>
     )
 }

@@ -31,7 +31,7 @@ export const getUser = async (req, res) => {
 
 export const createUser = async (req, res) => {
     const user = req.body;
-    const requiredFields = ['name', 'email', 'password', 'role'];
+    const requiredFields = ['email', 'password', 'role'];
 
     // Check for missing fields
     const missingField = checkMissingFields(requiredFields, user);
@@ -62,7 +62,6 @@ export const createUser = async (req, res) => {
 
         // Create a temp user
         const tempUser = new TempUser({
-            name: user.name,
             email: user.email,
             password: hashedPassword,
             role: user.role,
@@ -161,7 +160,6 @@ export const verifyUser = async (req, res) => {
         }
 
         const newUser = new User({
-            name: tempUser.name,
             email: tempUser.email,
             password: tempUser.password, // Already hashed
             role: tempUser.role,
@@ -202,7 +200,6 @@ export const loginUser = async (req, res) => {
 
         const payload = {
             id: user._id,
-            name: user.name,
             email: user.email,
             role: user.role,
         };
@@ -214,7 +211,7 @@ export const loginUser = async (req, res) => {
             ...STATUS_MESSAGES.SUCCESS.LOGIN,
             data: { 
                 token ,
-                user: { id: user._id, name: user.name, email: user.email, role: user.role }
+                user: { id: user._id, email: user.email, role: user.role }
             },
         }, 'User');
     } catch (error) {

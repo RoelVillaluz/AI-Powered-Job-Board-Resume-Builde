@@ -15,6 +15,8 @@ function Navbar () {
         navigate('')
     }
 
+    console.log("Stored User in Local Storage:", localStorage.getItem("user"));
+
     return (
         <>
             <nav className='navbar'>
@@ -25,7 +27,7 @@ function Navbar () {
                     <ul className="navbar-links">
                         {user ? (
                             <li className="nav-icon" onClick={() => setIsVisible(!isVisible)}>
-                                <i class="fa-regular fa-user"></i>
+                                <i className="fa-regular fa-user"></i>
                                 <ul className={`dropdown ${isVisible ? 'visible': 'hidden'}`}>
                                     <li>
                                         <Link>
@@ -33,6 +35,14 @@ function Navbar () {
                                             <span>My Profile</span>
                                         </Link>
                                     </li>
+                                    {user.role === 'employer' && (
+                                        <li>
+                                            <Link>
+                                                <i className="fa-solid fa-briefcase"></i>
+                                                <span>Manage Jobs</span>
+                                            </Link>
+                                        </li>
+                                    )}
                                     <li onClick={handleLogout}>
                                         <Link>
                                             <i className="fa-solid fa-right-from-bracket"></i>

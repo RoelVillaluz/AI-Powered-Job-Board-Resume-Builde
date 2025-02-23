@@ -1,16 +1,19 @@
 import { useEffect, useState } from "react"
 import { useData } from "../DataProvider.jsx"
+import { useNavigate } from "react-router-dom"
 import Layout from "../components/Layout"
 import axios from "axios"
 import RoleSection from '../components/MultiStepForm/RoleSection'
 import UserDetailsSection from "../components/MultiStepForm/UserDetailsSection.jsx"
 import SkillsSection from "../components/MultiStepForm/SkillsSection.jsx"
 import WorkExperience from "../components/MultiStepForm/WorkExperience.jsx"
-import JobPostingSection from "../components/MultiStepForm/JobPostingSection.jsx"
 import WelcomeSection from "../components/MultiStepForm/WelcomeSection.jsx"
+import { useAuth } from "../components/AuthProvider.jsx"
 
 function MultiStepForm({ role }) {
-    const { user, baseUrl, setSuccess, setError, setErrorMessage, setSuccessMessage } = useData();
+    const { baseUrl, setSuccess, setError, setErrorMessage, setSuccessMessage } = useData();
+    const { user } = useAuth();
+    const navigate = useNavigate();
     const [selectedRole, setSelectedRole] = useState(null);
     const steps = [
         'role',
@@ -169,6 +172,8 @@ function MultiStepForm({ role }) {
             setError(false);
             setErrorMessage(null)
             setSuccess(true)
+
+            navigate('/')
         } catch (error) {
             console.error('Error', error);
             setSuccess(false);

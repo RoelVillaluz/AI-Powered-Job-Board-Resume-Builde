@@ -27,7 +27,7 @@ function MultiStepForm({ role }) {
     const [currentStepIndex, setCurrentStepIndex] = useState(0);
     const [isNextAllowed, setIsNextAllowed] = useState(false);
     const initialFormData = {
-        user: user ? user.id : null,
+        user: user ? { id: user.id || user._id } : null,
         ...(role === "jobseeker"
             ? {
                   firstName: '',
@@ -55,9 +55,9 @@ function MultiStepForm({ role }) {
     
     useEffect(() => {
         if (user) {
-            setFormData(prev => ({ ...prev, user: user.id }));
+            setFormData(prev => ({ ...prev, user: { id: user.id || user._id } }));
         }
-    }, [user]);
+    }, [user]);    
     
     useEffect(() => {
         console.log(currentStepIndex, steps[currentStepIndex]);
@@ -167,7 +167,14 @@ function MultiStepForm({ role }) {
 
         try {
             const endpoint = selectedRole === 'jobseeker' ? 'resumes' : 'companies'
-            const response = await axios.post(`${baseUrl}/${endpoint}`, { ...formData, user: { id: user.id } });
+            const responseUser = user.id || user._id
+            const response = await axios.post(`${baseUrl}/${endpoint}`, { ...formData, user: responseUser });
+
+            if (selectedRole === 'employer') {
+                console.log('Updating user with:', { company: response.data.data._id });
+                await axios.patch(`${baseUrl}/users/${responseUser}`, { company: response.data.data._id });
+            }
+
             console.log('Response data:', response.data)
             setError(false);
             setErrorMessage(null)

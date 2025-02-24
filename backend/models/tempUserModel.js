@@ -12,7 +12,6 @@ const TempUserSchema = new mongoose.Schema({
     },
     role: { 
         type: String, 
-        required: true 
     },
     verificationCode: { 
         type: String, 

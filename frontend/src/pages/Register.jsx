@@ -12,7 +12,6 @@ function Register() {
         email: '',
         password: '',
         confirmPassword: '',
-        role: 'jobseeker',
     });
     const [verificationCode, setVerificationCode] = useState(''); // Store the verification code
     const [isEmailSent, setIsEmailSent] = useState(false); // To check if the email was sent

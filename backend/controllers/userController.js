@@ -66,7 +66,7 @@ export const authenticateUser = async (req, res, next) => {
 
 export const createUser = async (req, res) => {
     const user = req.body;
-    const requiredFields = ['email', 'password', 'role'];
+    const requiredFields = ['email', 'password'];
 
     // Check for missing fields
     const missingField = checkMissingFields(requiredFields, user);
@@ -99,7 +99,6 @@ export const createUser = async (req, res) => {
         const tempUser = new TempUser({
             email: user.email,
             password: hashedPassword,
-            role: user.role,
             verificationCode
         });
 
@@ -179,37 +178,44 @@ export const resendVerificationCode = async (req, res) => {
     }
 }
 
-
 export const verifyUser = async (req, res) => {
     const { email, verificationCode } = req.body;
 
     try {
-        const tempUser = await TempUser.findOne({ email })
+        const tempUser = await TempUser.findOne({ email });
 
         if (!tempUser) {
-            return sendResponse(res, {...STATUS_MESSAGES.ERROR.NOT_FOUND, success: false}, 'User')
+            return sendResponse(res, {...STATUS_MESSAGES.ERROR.NOT_FOUND, success: false}, 'User');
         }
 
         if (tempUser.verificationCode.toString() !== verificationCode.toString()) {
-            return sendResponse(res, { ...STATUS_MESSAGES.ERROR.INVALID_CODE, success: false})
+            return sendResponse(res, { ...STATUS_MESSAGES.ERROR.INVALID_CODE, success: false});
         }
 
         const newUser = new User({
             email: tempUser.email,
             password: tempUser.password, // Already hashed
-            role: tempUser.role,
             isVerified: true,
-        })
+        });
 
-        await newUser.save()
-        await TempUser.deleteOne({ email })
+        // Ensure only the correct field exists before saving
+        if (newUser.role !== "jobseeker") {
+            delete newUser.resumes; // Ensure resumes is removed
+        }
+        if (newUser.role !== "employer") {
+            delete newUser.company; // Ensure company is removed
+        }
 
-        return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.CREATE, data: newUser }, 'User')
+        await newUser.save();
+        await TempUser.deleteOne({ email });
+
+        return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.CREATE, data: newUser }, 'User');
     } catch (error) {
-        console.error('Error', error)
+        console.error('Error', error);
         return sendResponse(res, STATUS_MESSAGES.ERROR.SERVER, 'User');
     }
-}
+};
+
 
 export const loginUser = async (req, res) => {
     const { email, password } = req.body

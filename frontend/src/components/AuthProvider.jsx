@@ -38,10 +38,33 @@ export const AuthProvider = ({ children }) => {
         fetchUser();
     }, []);
 
-    const login = (userData, token) => {
+    const refreshUser = async () => {
+        const token = localStorage.getItem("authToken");
+        if (!token) return;
+    
+        try {
+            const response = await axios.get('http://localhost:5000/api/users/me', {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+    
+            if (response.data.success) {
+                setUser(response.data.data.user);
+                localStorage.setItem("user", JSON.stringify(response.data.data.user));
+            } else {
+                logout();
+            }
+        } catch (error) {
+            console.error("Error refreshing user:", error);
+            logout();
+        }
+    };    
+
+    const login = async (userData, token) => {
         localStorage.setItem("authToken", token);
         localStorage.setItem("user", JSON.stringify(userData));
         setUser(userData);
+
+        refreshUser();
     };
 
     const logout = () => {
@@ -51,7 +74,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ user, setUser, login, logout, loading }}>
+        <AuthContext.Provider value={{ user, setUser, login, logout, loading, refreshUser }}>
             {!loading && children} {/* Prevent rendering until done checking auth */}
         </AuthContext.Provider>
     );

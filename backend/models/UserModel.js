@@ -1,5 +1,7 @@
 import mongoose from "mongoose";
 import bcrypt from 'bcrypt';
+import Company from "./companyModel.js"
+import Resume from "./resumeModel.js"
 
 const userSchema = new mongoose.Schema({
     email: {
@@ -58,6 +60,15 @@ const userSchema = new mongoose.Schema({
         default: Date.now
     }
 })
+
+userSchema.pre("deleteOne", { document: true, query: false }, async function (next) {
+    if (this.role === 'jobseeker') {
+        await Resume.deleteMany({ _id: { $in: this.resumes }})
+    } else if (this.role === 'employer') {
+        await Company.deleteOne({ _id: this.company })
+    }
+    next();
+}) 
 
 const User = mongoose.model('User', userSchema)
 export default User

@@ -196,3 +196,106 @@ button {
     font-size: clamp(2rem, 7.5vw, 8rem);
     margin-top: 1rem;
 }
+
+.dashboard {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding: 1rem;
+}
+
+.grid-item {
+    flex: 0 0 25%;
+    border-radius: 12px;
+    padding: 1rem;
+    border: solid 1px rgba(0, 0, 0, 0.1);
+}
+
+.grid-item header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;   
+    border-bottom: solid 1px rgba(0, 0, 0, 0.1);
+    padding-bottom: 1rem;
+}
+
+.grid-item header i {
+    margin-right: 0.5rem;
+}
+
+.grid-item .fa-angle-right {
+    font-size: clamp(0.75rem, 0.65vw, 1rem);
+}
+
+.grid-item h3 {
+    font-weight: 700;
+}
+
+#my-jobs {
+    background-color: var(--primary);
+}
+
+#my-jobs ul {
+    display: flex;
+    flex-direction: column;
+    list-style-type: none;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+#my-jobs a {
+    color: black;
+}
+
+#my-jobs li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    border-radius: 1000px;
+    padding: 0.5rem;
+    transition: 0.3s;
+}
+
+#my-jobs li .row {
+    align-items: center;
+    gap: 0.75rem;
+}
+
+#my-jobs li .row i {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: clamp(1rem, 1.25vw, 2rem);
+    height: clamp(1rem, 1.25vw, 2rem);
+    border-radius: 50%;
+    border: solid 1px rgba(0, 0, 0, 0.1);
+    background-color: white;
+    padding: 1.5rem;
+    cursor: pointer;
+}
+
+#my-jobs strong {
+    font-size: clamp(0.75rem, 0.75vw, 1.75rem);
+    margin-left: 2px;
+}
+
+#my-jobs p {
+    color: gray;
+    font-size: clamp(0.75rem, 0.75vw, 1.75rem);
+}
+
+#my-jobs li:hover {
+    background-color: black;
+}
+
+#my-jobs li:hover strong {
+    color: white;
+}
+
+#my-jobs li:hover p,
+#my-jobs li:hover .fa-angle-right
+{
+    color: rgb(170, 170, 170);
+}

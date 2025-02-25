@@ -1,11 +1,29 @@
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import Layout from "../components/Layout"
 import { Link } from "react-router-dom"
+import axios from "axios"
+import { useData } from "../DataProvider"
+import { useAuth } from "../components/AuthProvider"
 
 function Dashboard () {
+    const { baseUrl } = useData();
+    const { user } = useAuth();
+    const [resumes, setResumes] = useState([]);
 
     useEffect(() => {
         document.title = 'Dashboard'
+    }, [])
+    useEffect(() => {
+        const fetchResumes = async () => {
+            try {
+                const response = await axios.get(`${baseUrl}/resumes/user/${user._id}`)
+                console.log('Resumes:', response.data)
+                setResumes(response.data.data)
+            } catch (error) {
+                console.error('Error', error)
+            }
+        }
+        fetchResumes()
     }, [])
 
     return (

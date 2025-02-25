@@ -28,6 +28,20 @@ export const getResume = async (req, res) => {
     }
 }
 
+export const getResumesByUser = async (req, res) => {
+    const { userId } = req.params;
+    try {
+        const resumes = await Resume.find({ user: userId })
+        if (!resumes.length) {
+            return sendResponse(res, { ...STATUS_MESSAGES.ERROR.NOT_FOUND, success: false}, 'Resumes')
+        }
+        return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.FETCH, data: resumes}, 'Resume' )
+    } catch (error) {
+        console.error('Error', error)
+        return sendResponse(res, { ...STATUS_MESSAGES.ERROR.SERVER, success: false })
+    }
+}
+
 export const createResume = async (req, res) => {
     let resumeData = req.body;
     const requiredFields = ['user', 'firstName', 'lastName', 'phone', 'address'];

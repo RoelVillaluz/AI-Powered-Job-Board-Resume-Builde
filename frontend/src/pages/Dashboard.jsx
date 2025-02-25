@@ -20,7 +20,7 @@ function Dashboard () {
                             </Link>
                         </header>
                         <ul>
-                            <Link>
+                            <Link to={'/my-jobs/saved'}>
                                 <li>
                                     <div className="row">
                                         <i className="fa-solid fa-bookmark"></i>
@@ -32,7 +32,7 @@ function Dashboard () {
                                     <i className="fa-solid fa-angle-right"></i>
                                 </li>
                             </Link>
-                            <Link>
+                            <Link to={'/my-jobs/applied'}>
                                 <li>
                                     <div className="row">
                                         <i className="fa-solid fa-file-invoice"></i>
@@ -44,7 +44,7 @@ function Dashboard () {
                                     <i className="fa-solid fa-angle-right"></i>
                                 </li>
                             </Link>
-                            <Link>
+                            <Link to={'/my-jobs/interviews'}>
                                 <li>
                                     <div className="row">
                                         <i className="fa-solid fa-clipboard-question"></i>
@@ -56,7 +56,7 @@ function Dashboard () {
                                     <i className="fa-solid fa-angle-right"></i>
                                 </li>
                             </Link>
-                            <Link>
+                            <Link to={'/my-jobs/offers'}>
                                 <li>
                                     <div className="row">
                                         <i className="fa-solid fa-briefcase"></i>

@@ -9,10 +9,12 @@ function Dashboard () {
     const { baseUrl } = useData();
     const { user } = useAuth();
     const [resumes, setResumes] = useState([]);
+    const [jobRecommendations, setJobRecommendations] = useState([]);
 
     useEffect(() => {
         document.title = 'Dashboard'
     }, [])
+
     useEffect(() => {
         const fetchResumes = async () => {
             try {
@@ -25,6 +27,24 @@ function Dashboard () {
         }
         fetchResumes()
     }, [])
+
+    useEffect(() => {        
+        const fetchJobRecommendations = async () => {
+            try {
+                const responses = await Promise.all(
+                    resumes.map(resume => 
+                        axios.get(`${baseUrl}/ai/job-recommendations/${resume._id}`)
+                    )
+                )
+                const recommendations = responses.flatMap(response => response.data.data);
+                console.log('Recommendations:', recommendations)
+                setJobRecommendations(recommendations)
+            } catch (error) {
+                console.error('Error', error)
+            }
+        }
+        fetchJobRecommendations()
+    }, [resumes])
 
     return (
         <>
@@ -88,6 +108,16 @@ function Dashboard () {
                             </Link>
                         </ul>
                     </section>  
+                    <section className="grid-item" id="job-recommendations">
+                        <header>
+                            <h3>Recommended Jobs ({jobRecommendations.length})</h3>
+                        </header>
+                        <ul>
+                            {jobRecommendations.map((job, index) => (
+                                <li key={index}>{job.title} - {job.similarity}%</li>
+                            ))}
+                        </ul>
+                    </section>
                 </main>
             </Layout>
         </>

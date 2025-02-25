@@ -252,7 +252,7 @@ export const loginUser = async (req, res) => {
             ...STATUS_MESSAGES.SUCCESS.LOGIN,
             data: { 
                 token ,
-                user: { id: user._id, email: user.email, role: user.role }
+                user: { _id: user._id, email: user.email, role: user.role }
             },
         }, 'User');
     } catch (error) {

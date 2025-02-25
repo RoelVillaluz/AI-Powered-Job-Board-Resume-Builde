@@ -9,7 +9,7 @@ const companySchema = new mongoose.Schema({
     name: {
         type: String,
         unique: true,
-        requried: true
+        required: true
     },
     industry: {
         type: String,
@@ -37,6 +37,13 @@ const companySchema = new mongoose.Schema({
         ref: "JobPosting"
     }]
 }, { timestamps: true })
+
+
+// Middleware to delete related jobs when a company is deleted
+companySchema.pre("deleteOne", { document: true, query: false }, async function (next) {
+    await JobPosting.deleteMany({ _id: { $in: this.job } })
+    next();
+})
 
 
 export default mongoose.model("Company", companySchema);

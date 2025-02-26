@@ -37,8 +37,12 @@ export const getJobRecommendations = async (req, res) => {
             const resumeVector = skillToVector(filteredResumeSkills, jobSkills); // Ensure same length
 
             const similarity = ((cosineSimilarity(resumeVector, jobVector) || 0) * 100).toFixed(2);
+            const matchedSkills =  resume.skills
+                                        .map(skill => skill.name) 
+                                        .filter(skill => jobSkills.includes(skill.toLowerCase())); 
 
-            return { ...job.toObject(), similarity: similarity };
+
+            return { ...job.toObject(), similarity: similarity, matchedSkills: matchedSkills };
         }).filter(job => job.similarity > 0);
 
         // Sort and return top 10 jobs
@@ -52,3 +56,7 @@ export const getJobRecommendations = async (req, res) => {
         return sendResponse(res, { ...STATUS_MESSAGES.ERROR.SERVER_ERROR, success: false }, "Error fetching jobs");
     }
 };
+
+export const getPredictedSalary = async (req, res) => {
+    
+}

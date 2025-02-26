@@ -197,10 +197,17 @@ button {
 }
 
 .dashboard {
+    padding: 1rem;
+}
+
+.dashboard header {
+    margin: 1rem 0;
+}
+
+.grid-container {
     display: flex;
     flex-wrap: wrap;
     gap: 1rem;
-    padding: 1rem;
 }
 
 .grid-item {

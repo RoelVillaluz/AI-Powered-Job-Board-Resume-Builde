@@ -4,6 +4,7 @@ import { Link } from "react-router-dom"
 import axios from "axios"
 import { useData } from "../DataProvider"
 import { useAuth } from "../components/AuthProvider"
+import similarity from "compute-cosine-similarity"
 
 function Dashboard () {
     const { baseUrl } = useData();
@@ -124,9 +125,29 @@ function Dashboard () {
                         <header>
                             <h3>Recommended Jobs ({jobRecommendations.length})</h3>
                         </header>
-                        <ul>
+                        <ul className="job-list">
                             {jobRecommendations.map((job, index) => (
-                                <li key={index}>{job.title} - {job.similarity}%</li>
+                                <li key={index}>
+                                    <div className="row">
+                                        {job.company.logo 
+                                        ? (
+                                            <img></img>
+                                        ) : (
+                                            <i className="fa-solid fa-building"></i>
+                                        )}
+                                        <div className="details">
+                                            <strong>{job.title} - {job.company.name}</strong>
+                                            <ul className="tags">
+                                                <li>{job.experienceLevel}</li>
+                                                <li>{job.jobType}</li>
+                                                <li>{job.location}</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <span className={`match-percentage ${getMatchClass(job.similarity)}`}>
+                                        {job.similarity}%
+                                    </span>
+                                </li>
                             ))}
                         </ul>
                     </section>

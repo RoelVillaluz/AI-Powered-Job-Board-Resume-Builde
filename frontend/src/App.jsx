@@ -1,7 +1,7 @@
 import { DataProvider } from "./DataProvider";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import LandingPage from "./pages/LandingPage";
-import Navbar from "./components/Navbar";
+import SideNavbar from "./components/SideNavbar";
 import Register from "./pages/Register";
 import SignIn from "./pages/SignIn";
 import MultiStepForm from "./pages/MultiStepForm";
@@ -13,7 +13,7 @@ function App() {
   return (
     <Router>
       <AuthProvider>
-        <Navbar />
+        <SideNavbar />
         <DataProvider>
           <Routes>
             

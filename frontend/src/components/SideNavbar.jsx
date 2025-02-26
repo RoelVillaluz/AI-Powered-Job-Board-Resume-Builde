@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "./AuthProvider";
 
-function Navbar () {
+function SideNavbar () {
     const { user } = useAuth();
     const location = useLocation();
     const navigate = useNavigate();
@@ -52,4 +52,4 @@ function Navbar () {
     )
 }
 
-export default Navbar
+export default SideNavbar

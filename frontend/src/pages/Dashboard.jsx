@@ -70,7 +70,7 @@ function Dashboard () {
             <Layout>
                 <main className="dashboard">
                     <header>
-                        <h1>Welcome back, {name}</h1>
+                        <h1>Welcome Back, {name}</h1>
                     </header>
                     <section className="grid-container">
                         <section className="grid-item" id="my-jobs">
@@ -136,27 +136,33 @@ function Dashboard () {
                                 <h3>Recommended Jobs ({jobRecommendations.length})</h3>
                             </header>
                             <ul className="job-list">
-                                {jobRecommendations.map((job, index) => (
-                                    <li key={index}>
-                                        <div className="row">
-                                            {job.company.logo 
-                                            ? (
-                                                <img></img>
-                                            ) : (
-                                                <i className="fa-solid fa-building" id="company-logo"></i>
-                                            )}
-                                            <div className="details">
-                                                <strong>{job.title} - {job.company.name}</strong>
-                                                <ul className="tags">
-                                                    <li>{job.experienceLevel}</li>
-                                                    <li>{job.jobType}</li>
-                                                    <li>{job.location}</li>
-                                                </ul>
+                                {jobRecommendations.map((job) => (
+                                    <li key={job._id} className="recommended-job">
+                                        <Link to={`/jobs/${job._id}`}>
+                                            <div className="row">
+                                                <div className="wrapper">
+                                                    {job.company.logo 
+                                                        ? (
+                                                            <img></img>
+                                                        ) : (
+                                                            <i className="fa-solid fa-building" id="company-logo"></i>
+                                                    )}
+                                                    <div className="details">
+                                                        <strong>{job.title}</strong>
+                                                        <p>{job.company.name}</p>
+                                                    </div>
+                                                </div>
+                                                <i className="fa-regular fa-bookmark" id="save-job-btn"></i>
                                             </div>
-                                        </div>
-                                        <span className={`match-percentage ${getMatchClass(job.similarity)}`}>
-                                            {job.similarity}%
-                                        </span>
+                                            <ul className="tags">
+                                                {job.matchedSkills.slice(0, 3).map((skill) => (
+                                                    <li className="matched">{skill}</li>
+                                                ))}
+                                                {job.matchedSkills.length > 3 && (
+                                                    <li className="matched">+{job.matchedSkills.length - 3}</li>
+                                                )}
+                                            </ul>
+                                        </Link>
                                     </li>
                                 ))}
                             </ul>

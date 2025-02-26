@@ -19,7 +19,7 @@ export const getJobRecommendations = async (req, res) => {
             return sendResponse(res, { ...STATUS_MESSAGES.ERROR.NOT_FOUND, success: false }, 'Resume');
         }
 
-        const jobs = await JobPosting.find({});
+        const jobs = await JobPosting.find({}).populate("company", "name logo");
         if (!jobs.length) {
             return sendResponse(res, { ...STATUS_MESSAGES.ERROR.NOT_FOUND, success: false }, 'Jobs');
         }

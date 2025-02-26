@@ -52,11 +52,18 @@
     height: clamp(2rem, 1vw, 1.5rem);
     padding: 0.75rem;
     border-radius: 4px;
+    cursor: pointer;
+    transition: 0.3s;
 }
 
 .sidebar-navbar li.active i {
     background-color: white;
     color: var(--secondary);
+}
+
+.sidebar-navbar li:not(.active):hover i {
+    background-color: var(--secondary-light);
+
 }
 
 .sidebar-navbar a {

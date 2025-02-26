@@ -41,22 +41,22 @@
 }
 
 .sidebar-navbar li {
-    position: relative;
     width: 100%; 
+}
+
+.sidebar-navbar li i {
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: 2rem;
+    width: clamp(2rem, 1vw, 1.5rem);
+    height: clamp(2rem, 1vw, 1.5rem);
+    padding: 0.75rem;
+    border-radius: 4px;
 }
 
-.sidebar-navbar li.active::before {
-    position: absolute;
-    content: '';
-    top: 0;
-    left: -105%;
-    width: 4px;
-    height: 100%;
+.sidebar-navbar li.active i {
     background-color: white;
+    color: var(--secondary);
 }
 
 .sidebar-navbar a {

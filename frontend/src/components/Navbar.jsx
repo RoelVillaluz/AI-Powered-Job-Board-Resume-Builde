@@ -17,7 +17,7 @@ function Navbar () {
 
     return (
         <>
-            <nav className='navbar'>
+            {/* <nav className='navbar'>
                 <Link className="logo" to={'/'}>
                     <img src="/public/media/icons8-opportunity-24.png" alt="" />
                 </Link>
@@ -58,7 +58,39 @@ function Navbar () {
                         )}
                     </ul>
                 )}
-            </nav>
+            </nav> */}
+            <aside className="sidebar-navbar">
+                <nav>
+                    <Link className="logo" to={'/'}>
+                        <img src="/public/media/icons8-opportunity-24.png" alt="" />
+                    </Link>
+                    <ul>
+                        <li>
+                            <Link to={'/'}>
+                                <i className="fa-solid fa-house"></i>
+                            </Link>
+                        </li>
+                        <li>
+                            <Link to={'/jobs'}>
+                                <i className="fa-solid fa-briefcase"></i>
+                            </Link>
+                        </li>
+                        <li>
+                            <Link to={'/messages'}>
+                                <i className="fa-solid fa-envelope"></i>
+                            </Link>
+                        </li>
+                        <li>
+                            <Link to={'/resumes'}>
+                                <i className="fa-solid fa-file-invoice"></i>
+                            </Link>
+                        </li>
+                    </ul>
+                    <Link to={'/settings'}>
+                        <i class="fa-solid fa-gear"></i>
+                    </Link>
+                </nav>
+            </aside>
         </>
     )
 }

@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "./AuthProvider";
 
 function Navbar () {
+    const { user } = useAuth();
     const location = useLocation();
     const navigate = useNavigate();
     const hideNavbarLocations = ['/register', '/login', '/get-started', '/sign-in']
@@ -24,7 +25,7 @@ function Navbar () {
 
     return (
         <>
-            {!hideLocation && (
+            {!hideLocation && user && (
                 <aside className="sidebar-navbar">
                     <nav>
                         <Link className="logo" to={'/'}>

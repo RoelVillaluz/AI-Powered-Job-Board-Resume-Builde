@@ -1,4 +1,4 @@
-.navbar {
+/* .navbar {
     position: fixed;
     display: flex;
     align-items: center;
@@ -116,4 +116,53 @@ nav .dropdown li span {
 
 nav .dropdown li:hover {
     background-color: var(--secondary-light);
+} */
+
+.sidebar-navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-color: var(--secondary);
+    color: white;
+    padding: 1rem;
+    margin: 0.5rem;
+    height: calc(100vh - 1rem);
+    border-radius: 12px;
+}
+
+.sidebar-navbar nav {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    height: 100%;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(1.5rem, 2vw, 4rem);
+    border-radius: 5px;
+    background-color: var(--secondary);
+}
+
+.logo img {
+    filter: brightness(0) invert(1);
+}
+
+.sidebar-navbar ul {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    list-style-type: none;
+    gap: 2rem;
+}
+
+.sidebar-navbar a {
+    color: white;
+}
+
+.sidebar-navbar i {
+    transition: 0.3s;
 }

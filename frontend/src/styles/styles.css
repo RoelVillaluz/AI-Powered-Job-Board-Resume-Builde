@@ -164,7 +164,7 @@ button {
 .content {
     width: 100%;
     min-height: 100vh;
-    padding-left: 4rem;
+    padding-left: 4.5rem;
 }
 
 .line {
@@ -332,15 +332,16 @@ button {
     justify-content: space-between;
 }
 
-#job-recommendations .job-list i {
+#job-recommendations #company-logo {
     display: flex;
     align-items: center;
     justify-content: center;
     width: clamp(1rem, 1.25vw, 2rem);
     height: clamp(1rem, 1.25vw, 2rem);
-    border-radius: 50%;
-    border: solid 1px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
     padding: 1.5rem;
+    background-color: var(--secondary);
+    color: white;
 }
 
 #job-recommendations .row {

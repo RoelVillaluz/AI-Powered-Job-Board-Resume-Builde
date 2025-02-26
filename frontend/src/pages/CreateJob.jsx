@@ -19,6 +19,9 @@ function CreateJobPosting() {
     })
     const [skillInput, setSkillInput] = useState('');
     const [requirementInput, setRequirementInput] = useState('');
+
+    const jobTypeOptions = ['Full-Time', 'Part-Time', 'Contract', 'Internship']
+    const experienceLevelOptions = ['Intern', 'Entry', 'Mid-Level', 'Senior']
     
     useEffect(() => {
         document.title = 'Create Job Posting'

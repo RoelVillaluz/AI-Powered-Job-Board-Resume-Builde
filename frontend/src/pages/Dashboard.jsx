@@ -46,6 +46,18 @@ function Dashboard () {
         fetchJobRecommendations()
     }, [resumes])
 
+    const getMatchClass = (similarity) => {
+        if (similarity <= 25) {
+            return 'very-low'
+        } else if (similarity <= 50 && similarity > 25) {
+            return 'low'
+        } else if (similarity <= 75 && similarity > 50) {
+            return 'average'
+        } else {
+            return 'high'
+        }
+    }
+
     return (
         <>
             <Layout>

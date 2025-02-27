@@ -55,6 +55,16 @@ const userSchema = new mongoose.Schema({
             message: "Only jobseekers can have associated resumes."
         }
     }],
+    savedJobs: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "JobPosting",
+        validate: {
+            validator: function () {
+                return this.role === "jobseeker";
+            },
+            message: "Only jobseekers can save jobs."
+        }
+    }],
     createdAt: {
         type: Date,
         default: Date.now

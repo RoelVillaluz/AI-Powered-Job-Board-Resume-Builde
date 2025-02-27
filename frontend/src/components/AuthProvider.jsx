@@ -73,9 +73,48 @@ export const AuthProvider = ({ children }) => {
         setUser(null);
     };
 
+    const toggleSaveJob = async (e, jobId) => {
+        try {
+            e.preventDefault();
+            e.stopPropagation();
+    
+            if (!user) {
+                console.error("User not authenticated");
+                return;
+            }
+    
+            const token = localStorage.getItem("authToken"); // Get token from localStorage
+            if (!token) {
+                console.error("No token found");
+                return;
+            }
+    
+            const response = await axios.post(
+                `http://localhost:5000/api/job-postings/${jobId}/save-job`,
+                {}, // No request body needed
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`, // Attach token
+                    },
+                }
+            );
+    
+            console.log(response.data); // Check response
+
+            setUser((prevUser) => ({
+                ...prevUser,
+                savedJobs : prevUser.savedJobs.includes(jobId)
+                        ? prevUser.savedJobs.filter((id) => id !== jobId) // remove if already saved
+                        : [...prevUser.savedJobs, jobId] // add if not saved
+            }))
+        } catch (error) {
+            console.error("Error saving job:", error.response?.data || error.message);
+        }
+    };
+
     return (
-        <AuthContext.Provider value={{ user, setUser, login, logout, loading, refreshUser }}>
-            {!loading && children} {/* Prevent rendering until done checking auth */}
+        <AuthContext.Provider value={{ user, setUser, login, logout, loading, refreshUser, toggleSaveJob }}>
+            {!loading && children}
         </AuthContext.Provider>
     );
 };

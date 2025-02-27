@@ -4,7 +4,6 @@ import { Link } from "react-router-dom"
 import axios from "axios"
 import { useData } from "../DataProvider"
 import { useAuth } from "../components/AuthProvider"
-import similarity from "compute-cosine-similarity"
 
 function Dashboard () {
     const { baseUrl } = useData();
@@ -71,7 +70,7 @@ function Dashboard () {
                 <main className="dashboard">
                     <header id="dashboard-header">
                         <h1>Welcome Back, {name}</h1>
-<p>Let's find your next opportunity.</p>
+                        <p>Let's find your next opportunity.</p>
                     </header>
                     <section className="grid-container">
                         <section className="grid-item" id="my-jobs">
@@ -153,11 +152,15 @@ function Dashboard () {
                                                         <p>{job.company.name}</p>
                                                     </div>
                                                 </div>
-                                                <i className="fa-regular fa-bookmark" id="save-job-btn"></i>
+                                                <button id="save-job-btn" onClick={(e) => toggleSaveJob(e, job._id)}>
+                                                    <i className={
+                                                        `fa-${user.savedJobs.includes(job._id) ? 'solid' : 'regular'} fa-bookmark`}>
+                                                    </i>
+                                                </button>
                                             </div>
                                             <ul className="tags">
-                                                {job.matchedSkills.slice(0, 3).map((skill) => (
-                                                    <li className="matched">{skill}</li>
+                                                {job.matchedSkills.slice(0, 3).map((skill, index) => (
+                                                    <li key={index} className="matched">{skill}</li>
                                                 ))}
                                                 {job.matchedSkills.length > 3 && (
                                                     <li className="matched">+{job.matchedSkills.length - 3}</li>

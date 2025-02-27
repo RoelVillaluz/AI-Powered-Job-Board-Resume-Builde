@@ -29,6 +29,7 @@ body {
 
 a {
     text-decoration: none;
+    color: black;
 }
 
 button {
@@ -359,10 +360,6 @@ button {
     transition: 0.3s;
 }
 
-.recommended-job a {
-    color: black;
-}
-
 .recommended-job:hover {
     background-color: #f0f0f0;
 }
@@ -379,14 +376,22 @@ button {
 }
 
 #job-recommendations #save-job-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: transparent;
     color: var(--gray);
-    padding: 0.5rem;
+    width: clamp(0.5rem, 0.5vw, 1rem);
+    height: clamp(0.5rem, 0.5vw, 1rem);
+    padding: 1rem;
+    border: solid 1px rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
     cursor: pointer;
     transition: 0.3s;
 }
 
 #job-recommendations #save-job-btn:hover {
-    color: var(--secondary);
+    background-color: white;
 }
 
 .tags {

@@ -8,7 +8,7 @@ import similarity from "compute-cosine-similarity"
 
 function Dashboard () {
     const { baseUrl } = useData();
-    const { user } = useAuth();
+    const { user, toggleSaveJob } = useAuth();
     const [resumes, setResumes] = useState([]);
     const [name, setName] = useState(null);
     const [jobRecommendations, setJobRecommendations] = useState([]);

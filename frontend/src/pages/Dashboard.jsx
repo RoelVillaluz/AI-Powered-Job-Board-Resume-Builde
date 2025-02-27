@@ -69,8 +69,9 @@ function Dashboard () {
         <>
             <Layout>
                 <main className="dashboard">
-                    <header>
+                    <header id="dashboard-header">
                         <h1>Welcome Back, {name}</h1>
+<p>Let's find your next opportunity.</p>
                     </header>
                     <section className="grid-container">
                         <section className="grid-item" id="my-jobs">

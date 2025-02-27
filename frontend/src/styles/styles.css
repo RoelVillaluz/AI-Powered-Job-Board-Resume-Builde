@@ -204,8 +204,12 @@ button {
     padding: 1rem;
 }
 
-.dashboard header:not(.grid-item header) {
+#dashboard-header {
     margin: 1rem 0;
+}
+
+#dashboard-header p {
+    color: gray;
 }
 
 .grid-container {

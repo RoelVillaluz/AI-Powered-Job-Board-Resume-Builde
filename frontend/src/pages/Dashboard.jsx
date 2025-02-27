@@ -4,6 +4,8 @@ import { Link } from "react-router-dom"
 import axios from "axios"
 import { useData } from "../DataProvider"
 import { useAuth } from "../components/AuthProvider"
+import MyJobsSection from "../components/Dashboard/MyJobsSection"
+import JobRecommendationsSection from "../components/Dashboard/JobRecommendationsSection"
 
 function Dashboard () {
     const { baseUrl } = useData();
@@ -52,18 +54,6 @@ function Dashboard () {
         fetchJobRecommendations()
     }, [resumes])
 
-    const getMatchClass = (similarity) => {
-        if (similarity <= 25) {
-            return 'very-low'
-        } else if (similarity <= 50 && similarity > 25) {
-            return 'low'
-        } else if (similarity <= 75 && similarity > 50) {
-            return 'average'
-        } else {
-            return 'high'
-        }
-    }
-
     return (
         <>
             <Layout>
@@ -73,104 +63,8 @@ function Dashboard () {
                         <p>Let's find your next opportunity.</p>
                     </header>
                     <section className="grid-container">
-                        <section className="grid-item" id="my-jobs">
-                            <header>
-                                <h3>My Jobs</h3>
-                                <Link>
-                                    <i className="fa-solid fa-angle-right"></i>
-                                </Link>
-                            </header>
-                            <ul>
-                                <Link to={'/my-jobs/saved'}>
-                                    <li>
-                                        <div className="row">
-                                            <i className="fa-solid fa-bookmark"></i>
-                                            <div>
-                                                <strong>Saved</strong>
-                                                <p>(0) jobs</p>
-                                            </div>
-                                        </div>
-                                        <i className="fa-solid fa-angle-right"></i>
-                                    </li>
-                                </Link>
-                                <Link to={'/my-jobs/applied'}>
-                                    <li>
-                                        <div className="row">
-                                            <i className="fa-solid fa-file-invoice"></i>
-                                            <div>
-                                                <strong>Applied</strong>
-                                                <p>(0) jobs</p>
-                                            </div>
-                                        </div>
-                                        <i className="fa-solid fa-angle-right"></i>
-                                    </li>
-                                </Link>
-                                <Link to={'/my-jobs/interviews'}>
-                                    <li>
-                                        <div className="row">
-                                            <i className="fa-solid fa-clipboard-question"></i>
-                                            <div>
-                                                <strong>Interviews</strong>
-                                                <p>(0) jobs</p>
-                                            </div>
-                                        </div>
-                                        <i className="fa-solid fa-angle-right"></i>
-                                    </li>
-                                </Link>
-                                <Link to={'/my-jobs/offers'}>
-                                    <li>
-                                        <div className="row">
-                                            <i className="fa-solid fa-briefcase"></i>
-                                            <div>
-                                                <strong>Offers</strong>
-                                                <p>(0) jobs</p>
-                                            </div>
-                                        </div>
-                                        <i className="fa-solid fa-angle-right"></i>
-                                    </li>
-                                </Link>
-                            </ul>
-                        </section>  
-                        <section className="grid-item" id="job-recommendations">
-                            <header>
-                                <h3>Recommended Jobs ({jobRecommendations.length})</h3>
-                            </header>
-                            <ul className="job-list">
-                                {jobRecommendations.map((job) => (
-                                    <li key={job._id} className="recommended-job">
-                                        <Link to={`/jobs/${job._id}`}>
-                                            <div className="row">
-                                                <div className="wrapper">
-                                                    {job.company.logo 
-                                                        ? (
-                                                            <img></img>
-                                                        ) : (
-                                                            <i className="fa-solid fa-building" id="company-logo"></i>
-                                                    )}
-                                                    <div className="details">
-                                                        <strong>{job.title}</strong>
-                                                        <p>{job.company.name}</p>
-                                                    </div>
-                                                </div>
-                                                <button id="save-job-btn" onClick={(e) => toggleSaveJob(e, job._id)}>
-                                                    <i className={
-                                                        `fa-${user.savedJobs.includes(job._id) ? 'solid' : 'regular'} fa-bookmark`}>
-                                                    </i>
-                                                </button>
-                                            </div>
-                                            <ul className="tags">
-                                                {job.matchedSkills.slice(0, 3).map((skill, index) => (
-                                                    <li key={index} className="matched">{skill}</li>
-                                                ))}
-                                                {job.matchedSkills.length > 3 && (
-                                                    <li className="matched">+{job.matchedSkills.length - 3}</li>
-                                                )}
-                                            </ul>
-                                        </Link>
-                                    </li>
-                                ))}
-                            </ul>
-                        </section>
+                        <MyJobsSection/>
+                        <JobRecommendationsSection jobRecommendations={jobRecommendations} user={user} toggleSaveJob={toggleSaveJob}/>
                     </section>
                 </main>
             </Layout>

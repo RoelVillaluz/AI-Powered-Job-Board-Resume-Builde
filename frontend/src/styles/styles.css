@@ -414,3 +414,87 @@ button {
     background-color: rgb(223, 255, 223);
     color: green;
 }
+#my-jobs {
+    flex: 0 0 25%;
+    background-color: rgb(40, 40, 40);
+}
+
+#my-jobs header {
+    border-bottom: none;
+}
+
+#my-jobs header h3 {
+    color: rgb(230, 230, 230);
+}
+
+#my-jobs ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    list-style-type: none;
+}
+
+#my-jobs li {
+    flex: 1 1 calc(50% - 0.5rem);
+    background-color: rgb(50, 50, 50);
+    padding: 1rem;
+    border-radius: 12px;
+    transition: 0.3s;
+}
+
+#my-jobs li .row {
+    align-items: center;
+    gap: 0.5rem;
+}
+
+#my-jobs li .row i {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: clamp(1rem, 1.75vw, 2rem);
+    height: clamp(1rem, 1.75vw, 2rem);
+    font-size: clamp(1rem, 0.75vw, 1.5rem);
+    padding: 1.5rem;
+    border-radius: 50%;
+    background-color: rgb(70, 70, 70);
+    color: rgb(230, 230, 230);
+    transition: 0.3s;
+}
+
+#my-jobs li .wrapper {
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 1rem;
+}
+
+#my-jobs li span {
+    color: rgb(230, 230, 230);
+    font-size: clamp(0.75rem, 0.9vw, 1.5rem);
+}
+
+#my-jobs li p {
+    font-weight: 500;
+    font-size: clamp(1.5rem, 3vw, 3rem);
+    color: rgb(110, 110, 110);
+    margin-left: 0.25rem;
+    transition: 0.3s;
+}
+
+#my-jobs li .fa-angle-right {
+    visibility: hidden;
+    font-size: clamp(0.75rem, 0.9vw, 1.5rem);
+    color: rgb(110, 110, 110);
+}
+
+#my-jobs li:hover {
+    background-color: rgb(60, 60, 60);
+}
+
+#my-jobs li:hover .row i {
+    background-color: white;
+    color: black;
+}
+
+#my-jobs li:hover .fa-angle-right {
+    animation: fadeInRight 0.3s forwards;
+}

@@ -64,7 +64,7 @@ function Dashboard () {
                     </header>
                     <section className="grid-container">
                         <MyJobsSection/>
-                        <JobRecommendationsSection jobRecommendations={jobRecommendations} user={user} toggleSaveJob={toggleSaveJob}/>
+                        {/* <JobRecommendationsSection jobRecommendations={jobRecommendations} user={user} toggleSaveJob={toggleSaveJob}/>         */}
                     </section>
                 </main>
             </Layout>

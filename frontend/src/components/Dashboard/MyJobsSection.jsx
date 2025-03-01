@@ -32,7 +32,6 @@ function MyJobsSection() {
                         </div>
                     </Link>
                 </li>
-
                 <li>
                     <Link to={'/my-jobs/accepted'}>
                         <div className="row">

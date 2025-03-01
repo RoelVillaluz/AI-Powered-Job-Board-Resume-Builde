@@ -420,7 +420,7 @@ button {
     color: green;
 }
 #my-jobs {
-    flex: 0 0 25%;
+    flex: 1;
     background-color: rgb(40, 40, 40);
 }
 

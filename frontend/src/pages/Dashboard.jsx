@@ -6,6 +6,7 @@ import { useData } from "../DataProvider"
 import { useAuth } from "../components/AuthProvider"
 import MyJobsSection from "../components/Dashboard/MyJobsSection"
 import JobRecommendationsSection from "../components/Dashboard/JobRecommendationsSection"
+import UpcomingInterviewsSection from "../components/Dashboard/UpcomingInterviewsSection"
 
 function Dashboard () {
     const { baseUrl } = useData();
@@ -60,9 +61,13 @@ function Dashboard () {
                 <main className="dashboard">
                     <header id="dashboard-header">
                         <h1>Welcome Back, {name}</h1>
-                        <p>Let's find your next opportunity.</p>
+                        <p>Let's make this day productive.</p>
                     </header>
                     <section className="grid-container">
+                        <section className="grid-item" id="profile">
+
+                        </section>
+                        <UpcomingInterviewsSection/>
                         <MyJobsSection/>
                         {/* <JobRecommendationsSection jobRecommendations={jobRecommendations} user={user} toggleSaveJob={toggleSaveJob}/>         */}
                     </section>

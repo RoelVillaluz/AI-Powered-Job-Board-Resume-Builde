@@ -25,6 +25,12 @@ function UpcomingInterviewsSection() {
                     <h3>Upcoming Interviews</h3>
                     <span className="current-month">{month}</span>
                 </header>
+                <div className="interview-details">
+                    <div className="interviewer">
+                        <img src="public/media/pexels-kooldark-17050921.jpg" alt="" />
+                        <span>Joe Murray | 4:00 PM</span>
+                    </div>
+                </div>
                 <div>
                     <ul className="date-list">
                         {getFutureDates().map((date, index) => (

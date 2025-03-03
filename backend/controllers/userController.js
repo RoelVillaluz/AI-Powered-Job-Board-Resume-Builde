@@ -22,6 +22,14 @@ export const getUser = async (req, res) => {
         if (!user) {
             return sendResponse(res, { ...STATUS_MESSAGES.ERROR.NOT_FOUND, success: false }, 'User');
         }
+
+        if (user.profilePicture) {
+            console.log("Original user profile picture", user.profilePicture) // Debugging: Check original profile picture
+            user.profilePicture = user.profilePicture.replace(/\\/g, '/');
+            user.profilePicture = `profile_pictures/${user.profilePicture.split('/').pop()}`
+            console.log("Normalized user profile picture:", user.profilePicture); // Debugging: Check normalized path
+        }
+
         return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.FETCH, data: user }, 'User');
     } catch (error) {
         console.error('Error fetching user:', error);
@@ -131,6 +139,12 @@ export const updateUser = async (req, res) => {
         if (!updatedUser) {
             return sendResponse(res, { ...STATUS_MESSAGES.ERROR.NOT_FOUND, success: false }, 'User');
         }
+
+        if (req.file) {
+            const imagePath = `profile_pictures/${req.file.file_name}`;
+            const image = imagePath;
+        }
+
         return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.UPDATE, data: updatedUser }, 'User');
     } catch (error) {
         console.error('Error updating user:', error);

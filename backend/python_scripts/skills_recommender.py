@@ -92,7 +92,7 @@ def recommend_skills(user_id):
     X_train = torch.tensor(skill_vectors, dtype=torch.float32)
 
     # Train model
-    epochs = 100
+    epochs = 10
     for epoch in range(epochs):
         optimizer.zero_grad()
         outputs = model(X_train).squeeze()

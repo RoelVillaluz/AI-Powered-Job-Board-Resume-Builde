@@ -1,4 +1,5 @@
 import json
+import sys
 import pymongo
 import os
 import numpy as np
@@ -106,5 +107,10 @@ def recommend_skills(user_id):
 
     return json.dumps({"recommended_skills": recommended_skills})
 
-user_id = "67b82060b7e03a1b30fd0940"
-print(recommend_skills(user_id))
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        print(json.dumps({"error": "Missing user_id"}))
+        sys.exit(1)
+
+    user_id = sys.argv[1]
+    print(recommend_skills(user_id))

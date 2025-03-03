@@ -4,6 +4,7 @@ import { STATUS_MESSAGES, sendResponse } from '../constants.js';
 import natural from "natural";
 import { kmeans } from "ml-kmeans";
 import cosineSimilarity from "compute-cosine-similarity";
+import { spawn } from "child_process";
 
 // Helper function: Convert skills into numerical vectors
 const skillToVector = (skills, allSkills) => {
@@ -57,6 +58,39 @@ export const getJobRecommendations = async (req, res) => {
     }
 };
 
-export const getPredictedSalary = async (req, res) => {
-    
+export const getRecommendedSkills = async (req, res) => {
+    try {
+        const { userId } = req.params;
+
+        if (!userId) {
+            return sendResponse(res, { ...STATUS_MESSAGES.ERROR.NOT_FOUND }, "User")
+        }
+        const pythonProcess = spawn("py", ["backend/python_scripts/skills_recommender.py", userId]);
+
+        let result = ""
+        let errorOutput = ""
+
+        pythonProcess.stdout.on("data", (data) => {
+            result += data.toString()
+        })
+
+        pythonProcess.stderr.on("data", (data) => {
+            errorOutput += data.toString()
+        })
+
+        pythonProcess.on("close", (code) => {
+            if (code === 0) {
+                try {
+                    const jsonResponse = JSON.parse(result);
+                    res.status(200).json(jsonResponse)
+                } catch (error) {
+                    res.status(500).json({ error: "Failed to parse Python response", details: error.message });
+                }
+            } else {
+                res.status(500).json({ error: "Python script error", details: errorOutput });
+            }
+        })
+    } catch (error) {
+        return sendResponse(res, { ...STATUS_MESSAGES.ERROR.SERVER_ERROR, success: false })
+    }
 }

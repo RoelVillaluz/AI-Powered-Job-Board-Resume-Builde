@@ -7,6 +7,8 @@ import { useAuth } from "../components/AuthProvider"
 import MyJobsSection from "../components/Dashboard/MyJobsSection"
 import JobRecommendationsSection from "../components/Dashboard/JobRecommendationsSection"
 import UpcomingInterviewsSection from "../components/Dashboard/UpcomingInterviewsSection"
+import UserProfileSection from "../components/Dashboard/UserProfileSection"
+import MessagesSection from "../components/Dashboard/MessagesSection"
 
 function Dashboard () {
     const { baseUrl } = useData();
@@ -19,6 +21,8 @@ function Dashboard () {
         document.title = 'Dashboard'
     }, [])
 
+    console.log(user)
+
     useEffect(() => {
         const fetchResumes = async () => {
             try {
@@ -28,7 +32,7 @@ function Dashboard () {
 
                 // Assuming the user is populated in the first resume
                 if (response.data.data.length > 0) {
-                    setName(response.data.data[0].firstName);
+                    setName(response.data.data[0].firstName + ' ' + response.data.data[0].lastName);
                 }
             } catch (error) {
                 console.error('Error', error)
@@ -64,12 +68,11 @@ function Dashboard () {
                         <p>Let's make this day productive.</p>
                     </header>
                     <section className="grid-container">
-                        <section className="grid-item" id="profile">
-
-                        </section>
+                        <UserProfileSection user={user} name={name}/>
                         <UpcomingInterviewsSection/>
                         <MyJobsSection/>
-                        {/* <JobRecommendationsSection jobRecommendations={jobRecommendations} user={user} toggleSaveJob={toggleSaveJob}/>         */}
+                        <MessagesSection/>
+                        <JobRecommendationsSection jobRecommendations={jobRecommendations} user={user} toggleSaveJob={toggleSaveJob}/>        
                     </section>
                 </main>
             </Layout>

@@ -17,9 +17,18 @@ export const getCompany = async (req, res) => {
     const { id } = req.params;
     try {
         const company = await Company.findById(id)
+
         if (!company) {
             return sendResponse(res, { ...STATUS_MESSAGES.ERROR.NOT_FOUND, success: false}, 'Company')
         }
+
+        if (company.logo) {
+            console.log("Original user company logo", company.logo) // Debugging: Check original logo
+            company.logo = company.logo.replace(/\\/g, '/');
+            company.logo = `company_logos/${company.logo.split('/').pop()}`
+            console.log("Normalized user company logo:", company.logo); // Debugging: Check normalized path
+        }
+
         return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.FETCH, data: company}, 'Company')
     } catch (error) {
         console.error(error)
@@ -69,6 +78,10 @@ export const updateCompany = async (req, res) => {
         const updatedCompany = await Company.findByIdAndUpdate(id, { new: true })
         if (!updatedCompany) {
             return sendResponse(res, { ...STATUS_MESSAGES.ERROR.NOT_FOUND, success: false}, 'Company')
+        }
+        if (req.file) {
+            const imagePath = `company_logos/${req.file.file_name}`;
+            const image = imagePath;
         }
         return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.UPDATE, data: updatedCompany }, 'Company');
     } catch (error) {

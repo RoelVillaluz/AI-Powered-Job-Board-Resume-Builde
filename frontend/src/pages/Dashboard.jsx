@@ -9,6 +9,7 @@ import JobRecommendationsSection from "../components/Dashboard/JobRecommendation
 import UpcomingInterviewsSection from "../components/Dashboard/UpcomingInterviewsSection"
 import UserProfileSection from "../components/Dashboard/UserProfileSection"
 import MessagesSection from "../components/Dashboard/MessagesSection"
+import ViewsSection from "../components/Dashboard/ViewsSection"
 
 function Dashboard () {
     const { baseUrl } = useData();
@@ -62,7 +63,23 @@ function Dashboard () {
     return (
         <>
             <Layout>
-                <main className="dashboard">
+                <div className="dashboard">
+                    <header id="dashboard-header">
+                        <h1>Welcome Back, {name}</h1>
+                        <p>Let's make this day productive.</p>
+                    </header>
+                    <div className="grid-container">
+                        <UserProfileSection user={user} name={name}/>
+                        <section className="grid-item"></section>
+                        <ViewsSection/>
+                        <section className="grid-item"></section>
+                        <section className="grid-item"></section>
+                        <section className="grid-item"></section>
+                        <section className="grid-item"></section>
+                        <section className="grid-item"></section>
+                    </div>
+                </div>
+                {/* <main className="dashboard">
                     <header id="dashboard-header">
                         <h1>Welcome Back, {name}</h1>
                         <p>Let's make this day productive.</p>

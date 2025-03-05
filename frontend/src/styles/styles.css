@@ -290,8 +290,6 @@ background-color: var(--light-gray);
 }
 
 .grid-item:nth-of-type(3) {
-background-color: transparent;
-    padding: 1rem;
     grid-column: span 2;
     grid-row: span 6;
 }
@@ -329,6 +327,8 @@ background-color: transparent;
     flex-direction: column;
     box-shadow: none;
     border-radius: 0;
+background-color: transparent;
+    padding: 1rem;
 }
 
 #views header {

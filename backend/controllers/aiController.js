@@ -37,7 +37,7 @@ export const getJobRecommendations = async (req, res) => {
             const jobVector = skillToVector(jobSkills, jobSkills);  // Use jobSkills as reference
             const resumeVector = skillToVector(filteredResumeSkills, jobSkills); // Ensure same length
 
-            const similarity = ((cosineSimilarity(resumeVector, jobVector) || 0) * 100).toFixed(2);
+            const similarity = Math.round((cosineSimilarity(resumeVector, jobVector) || 0) * 100);
             const matchedSkills =  resume.skills
                                         .map(skill => skill.name) 
                                         .filter(skill => jobSkills.includes(skill.toLowerCase())); 

@@ -291,6 +291,8 @@ background-color: var(--light-gray);
 }
 
 .grid-item:nth-of-type(2) {
+background-color: transparent;
+    box-shadow: none;
     grid-column: span 3;
     grid-row: 8 / span 5;
 }
@@ -302,7 +304,7 @@ background-color: var(--light-gray);
 
 .grid-item:nth-of-type(4) {
     grid-column: span 4;
-    grid-row: span 6;
+    grid-row: span 5;
 }
 
 .grid-item:nth-of-type(5) {
@@ -312,7 +314,7 @@ background-color: var(--light-gray);
 
 .grid-item:nth-of-type(6) {
     grid-column: span 4;
-    grid-row: span 6;
+    grid-row: span 7;
 }
 
 .grid-item:nth-of-type(7) {

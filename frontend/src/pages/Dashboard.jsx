@@ -10,6 +10,7 @@ import UpcomingInterviewsSection from "../components/Dashboard/UpcomingInterview
 import UserProfileSection from "../components/Dashboard/UserProfileSection"
 import MessagesSection from "../components/Dashboard/MessagesSection"
 import ViewsSection from "../components/Dashboard/ViewsSection"
+import TopJobSection from "../components/Dashboard/TopJobSection"
 
 function Dashboard () {
     const { baseUrl } = useData();
@@ -53,6 +54,7 @@ function Dashboard () {
                 const recommendations = responses.flatMap(response => response.data.data);
                 console.log('Recommendations:', recommendations)
                 setJobRecommendations(recommendations)
+                setTopJob(recommendations[0])
             } catch (error) {
                 console.error('Error', error)
             }
@@ -72,7 +74,7 @@ function Dashboard () {
                         <UserProfileSection user={user} name={name}/>
                         <section className="grid-item"></section>
                         <ViewsSection/>
-                        <section className="grid-item"></section>
+                        <TopJobSection job={topJob}/>
                         <JobRecommendationsSection jobRecommendations={jobRecommendations} user={user} toggleSaveJob={toggleSaveJob}/>
                         <section className="grid-item"></section>
                         <section className="grid-item"></section>

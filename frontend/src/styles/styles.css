@@ -495,6 +495,109 @@ background-color: transparent;
     font-weight: 400;
 }
 
+#top-job {
+    display: flex;
+    flex-direction: column;
+    background-color: transparent;
+    padding: 0;
+}
+
+#top-job .banner {
+    flex: 0 0 30%;
+    background-color: var(--light-gray);
+    border-radius: 30px 30px 0 0;
+    padding: 1rem;
+}
+
+#top-job header {
+    display: flex;
+    align-items: start;
+    flex-direction: column;
+    padding: 1.25rem;
+    padding-bottom: 0;
+    margin-top: -5rem;
+}
+
+#top-job header h3 {
+    font-weight: 600;
+}
+
+#top-job header .wrapper {
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+#top-job .company-logo {
+    width: 72px;
+    height: 72px;
+    border-radius: 16px;
+    border: solid 2px white;
+    margin-bottom: 0.5rem;
+    object-fit: cover;
+}
+
+#top-job .details {
+    flex: 1;
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
+    height: 100%;
+    padding: 0 1.25rem;
+}
+
+#top-job .applicants-list {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem;
+}
+
+#top-job .applicants-list img {
+    width: 24px;
+    height: 24px;
+    object-fit: cover;
+    border-radius: 50%;
+    margin-left: -0.5rem;
+}
+
+#top-job .applicants-list strong {
+    font-size: clamp(0.35rem, 0.65vw, 1.25rem);
+    margin-left: 0.75rem;
+}
+
+#top-job .tags {
+    margin-top: 0.25rem;
+}
+
+#top-job .row {
+    align-items: center;
+    justify-content: space-between;
+}
+
+#top-job .match-score {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1.5rem 0;
+}
+
+#top-job .match-score span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgb(159, 255, 159);
+    width: clamp(2rem, 2vw, 5rem);
+    height: clamp(2rem, 2vw, 5rem);
+    padding: 1.75rem;
+    border-radius: 4px;
+    font-weight: 800;
+}
+
+#top-job .match-score h6 {
+    font-size: clamp(0.75rem, 0.9vw, 4rem);
+    font-weight: 600;
+}
+
 #job-recommendations {
     background-color: transparent;
     box-shadow: none;

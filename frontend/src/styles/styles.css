@@ -402,7 +402,6 @@ background-color: var(--light-gray);
     margin-top: 2px;
 }
 
-
 #views {
     position: relative;
     display: flex;
@@ -566,11 +565,11 @@ background-color: transparent;
 
 #job-recommendations .tags li {
     background-color: var(--light-gray);
-    border: solid 1px rgba(0, 0, 0, 0.1);
-    border-radius: 1000px;
+        border-radius: 1000px;
     padding: 4px 12px;
-    color: var(--gray);
+    color: rgb(20, 20, 20);
     font-size: clamp(0.35rem, 0.6vw, 1.75rem);
+font-weight: 500;
 }
 
 #job-recommendations .all-jobs-link {
@@ -666,7 +665,6 @@ font-weight: 500;
     justify-content: center;
     flex-direction: column;
     gap: 0.5rem;
-    height: clamp(100px, 7vw, 160px);
     aspect-ratio: 1 / 1.75;
     background-color: var(--light-gray);
     border-radius: 1000px;

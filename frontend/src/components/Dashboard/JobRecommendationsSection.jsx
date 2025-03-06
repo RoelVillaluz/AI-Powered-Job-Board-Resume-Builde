@@ -1,47 +1,41 @@
 import { Link } from "react-router-dom"
 
 function JobRecommendationsSection({ jobRecommendations, user, toggleSaveJob }) {
+
     return (
         <>
             <section className="grid-item" id="job-recommendations">
                 <header>
-                    <h3>Recommended Jobs ({jobRecommendations.length})</h3>
+                    <h3>Recommended Jobs</h3>
                 </header>
                 <ul className="job-list">
                     {jobRecommendations.map((job) => (
-                        <li key={job._id} className="recommended-job">
-                            <Link to={`/jobs/${job._id}`}>
+                        <li key={job._id} className="job-list-item">
+                            <Link to={`jobs/${job._id}`}>
                                 <div className="row">
                                     <div className="wrapper">
-                                        {job.company.logo 
-                                            ? (
-                                                <img></img>
-                                            ) : (
-                                                <i className="fa-solid fa-building" id="company-logo"></i>
+                                        {job.company.logo ? (
+                                            <img src={job.company.logo}></img>
+                                        ) : (
+                                            <i className="fa-solid fa-building"></i>
                                         )}
-                                        <div className="details">
-                                            <strong>{job.title}</strong>
+                                        <div>
+                                            <h4>{job.title}</h4>
                                             <p>{job.company.name}</p>
                                         </div>
                                     </div>
-                                    <button id="save-job-btn" onClick={(e) => toggleSaveJob(e, job._id)}>
-                                        <i className={
-                                            `fa-${user.savedJobs.includes(job._id) ? 'solid' : 'regular'} fa-bookmark`}>
-                                        </i>
-                                    </button>
+                                        <i className="fa-solid fa-arrow-right"></i>
                                 </div>
                                 <ul className="tags">
-                                    {job.matchedSkills.slice(0, 3).map((skill, index) => (
-                                        <li key={index} className="matched">{skill}</li>
-                                    ))}
-                                    {job.matchedSkills.length > 3 && (
-                                        <li className="matched">+{job.matchedSkills.length - 3}</li>
-                                    )}
+                                    <li>{job.jobType}</li>
+                                    <li>{job.experienceLevel}</li>
+                                    <li>{job.location}</li>
                                 </ul>
                             </Link>
                         </li>
                     ))}
                 </ul>
+                <Link className="all-jobs-link" to={'jobs'}>See all jobs <i className="fa-solid fa-angle-right"></i></Link>
             </section>
         </>
     )

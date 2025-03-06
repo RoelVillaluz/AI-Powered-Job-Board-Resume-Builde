@@ -1,6 +1,6 @@
 import { useState } from "react"
 
-function TopJobSection({ job }) {
+function TopJobSection({ job, user, toggleSaveJob }) {
     
     return (
         <>
@@ -13,7 +13,7 @@ function TopJobSection({ job }) {
                             <h3>{job.title}</h3>
                             <p>{job.company.name}</p>
                         </div>
-                        <i className="fa-regular fa-bookmark"></i>
+                        <i className={`fa-${user.savedJobs.includes(job._id) ? 'solid' : 'regular'} fa-bookmark` }onClick={(e) => toggleSaveJob(e, job._id)}></i>
                     </div>
                 </header>
                 <div className="details">
@@ -39,7 +39,7 @@ function TopJobSection({ job }) {
                             </div>
                         </div>
                         <div className="salary">
-                            <h3>${job.salary}/<span>Year</span></h3>
+                            <h3>${job.salary}/<span>year</span></h3>
                         </div>
                     </div>
                 </div>

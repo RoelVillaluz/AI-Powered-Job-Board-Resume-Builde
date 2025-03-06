@@ -18,12 +18,12 @@ function Dashboard () {
     const [resumes, setResumes] = useState([]);
     const [name, setName] = useState(null);
     const [jobRecommendations, setJobRecommendations] = useState([]);
+    const [topJob, setTopJob] = useState(null)
 
     useEffect(() => {
         document.title = 'Dashboard'
     }, [])
 
-    console.log(user)
 
     useEffect(() => {
         const fetchResumes = async () => {
@@ -74,26 +74,13 @@ function Dashboard () {
                         <UserProfileSection user={user} name={name}/>
                         <section className="grid-item"></section>
                         <ViewsSection/>
-                        <TopJobSection job={topJob}/>
+                        <TopJobSection job={topJob} user={user} toggleSaveJob={toggleSaveJob}/>
                         <JobRecommendationsSection jobRecommendations={jobRecommendations} user={user} toggleSaveJob={toggleSaveJob}/>
                         <section className="grid-item"></section>
                         <section className="grid-item"></section>
                         <section className="grid-item"></section>
                     </div>
                 </div>
-                {/* <main className="dashboard">
-                    <header id="dashboard-header">
-                        <h1>Welcome Back, {name}</h1>
-                        <p>Let's make this day productive.</p>
-                    </header>
-                    <section className="grid-container">
-                        <UserProfileSection user={user} name={name}/>
-                        <UpcomingInterviewsSection/>
-                        <MyJobsSection/>
-                        <MessagesSection/>
-                        <JobRecommendationsSection jobRecommendations={jobRecommendations} user={user} toggleSaveJob={toggleSaveJob}/>        
-                    </section>
-                </main>
             </Layout>
         </>
     )

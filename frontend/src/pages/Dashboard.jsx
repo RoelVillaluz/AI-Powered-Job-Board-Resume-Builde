@@ -75,7 +75,7 @@ function Dashboard () {
                     </header>
                     <div className="grid-container">
                         <UserProfileSection user={user} name={name}/>
-                        <section className="grid-item"></section>
+                        <MessagesSection/>
                         <ViewsSection/>
                         <TopJobSection job={topJob} user={user} toggleSaveJob={toggleSaveJob} loading={loading}/>
                         <JobRecommendationsSection jobRecommendations={jobRecommendations} loading={loading}/>

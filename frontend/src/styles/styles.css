@@ -244,6 +244,11 @@ button {
     background-color: var(--light-gray);
 }
 
+.grid-item.skeleton {
+    background-color: var(--light-gray) !important;
+    border-radius: 30px !important;
+}
+
 .grid-item header {
     display: flex;
     align-items: center;

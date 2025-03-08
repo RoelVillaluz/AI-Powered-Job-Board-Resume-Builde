@@ -78,7 +78,7 @@ function Dashboard () {
                         <section className="grid-item"></section>
                         <ViewsSection/>
                         <TopJobSection job={topJob} user={user} toggleSaveJob={toggleSaveJob} loading={loading}/>
-                        <JobRecommendationsSection jobRecommendations={jobRecommendations}/>
+                        <JobRecommendationsSection jobRecommendations={jobRecommendations} loading={loading}/>
                         <section className="grid-item"></section>
                         <section className="grid-item"></section>
                         <ApplicationProgressSection/>

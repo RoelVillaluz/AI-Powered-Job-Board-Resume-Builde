@@ -20,6 +20,7 @@ function Dashboard () {
     const [jobRecommendations, setJobRecommendations] = useState([]);
     const [topJob, setTopJob] = useState(null)
     const [loading, setLoading] = useState(true)
+    const [recommendedSkills, setRecommendedSkills] = useState([])
 
     useEffect(() => {
         document.title = 'Dashboard'
@@ -64,6 +65,20 @@ function Dashboard () {
         }
         if (resumes.length > 0 ) fetchJobRecommendations()
     }, [resumes])
+
+    useEffect(() => {
+        const fetchRecommendedSkills = async () => {
+            try {
+                const response = await axios.get(`${baseUrl}/ai/skill-recommendations/${user._id}`)
+                const responseSkills = response.data
+                console.log('Recommended Skills', responseSkills)
+                setRecommendedSkills(responseSkills)
+            } catch (error) {
+                console.error('Error', error)
+            }
+        }
+        fetchRecommendedSkills()
+    })
 
     return (
         <>

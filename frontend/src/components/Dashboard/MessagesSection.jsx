@@ -1,32 +1,41 @@
+import { Link } from "react-router-dom"
+
 function MessagesSection() {
     return(
         <>
             <section className="grid-item" id="messages">
                 <header>
-                    <h3>Messages</h3>
+                    <h4>Messages (2)</h4>
                 </header>
                 <ul className="message-list">
                     <li>
-                        <img src="public/media/pexels-alipli-15003448.jpg" alt="" />
-                        <div className="message-details">
-                            <div className="wrapper">
-                                <span>Apu Nahasapeemapetilon</span>
-                                <p>11:00 AM</p>
+                        <Link>
+                            <img src="public/media/pexels-alipli-15003448.jpg" alt="" /> 
+                            <div className="details">
+                                <div className="row">
+                                    <h5>Joe Murray</h5>
+                                    <span className="message-count">1</span>
+                                    <span>4h</span>
+                                </div>
+                                <p>Hi, I hope you are doing well, I saw your application</p>
                             </div>
-                            <p>Hello, I saw your application</p>
-                        </div>
+                        </Link>
                     </li>
                     <li>
-                        <img src="public/media/pexels-alipli-15003448.jpg" alt="" />
-                        <div className="message-details">
-                            <div className="wrapper">
-                                <span>Apu Nahasapeemapetilon</span>
-                                <p>11:00 AM</p>
+                        <Link>
+                            <img src="public/media/pexels-anthonyshkraba-production-8278885.jpg" alt="" /> 
+                            <div className="details">
+                                <div className="row">
+                                    <h5>Mr. Panda</h5>
+                                    <span className="message-count">2</span>
+                                    <span>12h</span>
+                                </div>
+                                <p>Hello, I am Mr. Panda, nice to meet you.</p>
                             </div>
-                            <p>Hello, I saw your application and i am very bababooey haha skibidi wawa wiwa</p>
-                        </div>
+                        </Link>
                     </li>
                 </ul>
+                <Link to={'/messages'} className="all-messages-link">View all messages <i className="fa-solid fa-angle-right"></i></Link>
             </section>
         </>
     )

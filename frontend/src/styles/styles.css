@@ -666,16 +666,19 @@ background-color: transparent;
     margin-top: 0.5rem;
 }
 
-#job-recommendations .tags {
+.tags {
     display: flex;
     list-style-type: none;
     gap: 0.5rem;
     margin-top: 1rem;
 }
 
-#job-recommendations .tags li {
+.tags li {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
     background-color: var(--light-gray);
-        border-radius: 1000px;
+    border-radius: 4px;
     padding: 4px 12px;
     color: rgb(20, 20, 20);
     font-size: clamp(0.35rem, 0.6vw, 1.75rem);

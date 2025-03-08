@@ -693,25 +693,25 @@ button {
     margin-left: 0.25rem;
 }
 
-#upcoming-interviews {
+#application-progress {
     background-color: rgb(20, 20, 20);
     display: flex;
     flex-direction: column;
     color: white;
 }
 
-#upcoming-interviews header h4 {
+#application-progress header h4 {
     font-size: clamp(0.5vw, 0.75vw, 1.25rem);
 }
 
-#upcoming-interviews main {
+#application-progress main {
     flex-grow: 1;
     display: flex;
     flex-direction: column;
     height: 100%;
 }
 
-#upcoming-interviews .row {
+#application-progress .row {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -720,68 +720,68 @@ button {
     border-bottom: solid 1px rgb(70, 70, 70);
 }
 
-#upcoming-interviews .job {
+#application-progress .job {
     display: flex;
     align-items: center;
     gap: 0.75rem;
 }
 
-#upcoming-interviews .job img {
+#application-progress .job img {
     width: clamp(0.5rem, 2.5vw, 4rem);
     height: clamp(0.5rem, 2.5vw, 4rem);
     object-fit: cover;
     border-radius: 4px;
 }
 
-#upcoming-interviews .job h4 {
+#application-progress .job h4 {
     color: rgb(200, 200, 200);
     font-size: clamp(0.5rem, 0.75vw, 2rem);
     font-weight: 500;
 }
 
-#upcoming-interviews .job p {
+#application-progress .job p {
     color: rgb(165, 165, 165);
     font-size: clamp(0.35rem, 0.65vw, 1.75rem);
 }
 
-#upcoming-interviews .status {
+#application-progress .status {
     display: flex;
     align-items: center;
     gap: 0.25rem;
 }
 
-#upcoming-interviews .status .circle {
+#application-progress .status .circle {
     width: clamp(0.2rem, 0.5vw, 0.7rem);
     height: clamp(0.2rem, 0.5vw, 0.7rem);
     background-color: rgb(159, 255, 159);
     border-radius: 50%;
 }
 
-#upcoming-interviews .status span {
+#application-progress .status span {
     color: rgb(230, 230, 230);
     font-size: clamp(0.25rem, 0.65vw, 1.25rem);;
 }
 
-#upcoming-interviews .stage {
+#application-progress .stage {
     margin-top: 1rem;
 }
 
-#upcoming-interviews .stage span {
+#application-progress .stage span {
     color: rgb(230, 230, 230);
     font-size: clamp(0.5rem, 0.9vw, 2rem);
 }
 
-#upcoming-interviews .stage h1 {
+#application-progress .stage h1 {
     font-size: clamp(2rem, 4vw, 8rem);
     font-weight: 500;
     margin-top: -0.5rem;
 }
 
-#upcoming-interviews .time {
+#application-progress .time {
     margin-top: 0.25rem;
 }
 
-#upcoming-interviews .status-toggle-buttons {
+#application-progress .status-toggle-buttons {
     width: 100%;
     display: flex;
     align-items: center;
@@ -792,7 +792,7 @@ button {
     border-radius: 1000px;
 }
 
-#upcoming-interviews .status-toggle-buttons button {
+#application-progress .status-toggle-buttons button {
     flex: 1;
     border: none;
     outline: none;
@@ -800,7 +800,7 @@ button {
     padding: 0.5rem 1rem;
 }
 
-#upcoming-interviews .status-toggle-buttons button:not(:first-of-type) {
+#application-progress .status-toggle-buttons button:not(:first-of-type) {
     background-color: transparent;
     color: white;
 }

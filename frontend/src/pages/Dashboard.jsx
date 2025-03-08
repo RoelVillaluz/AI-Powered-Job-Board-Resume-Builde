@@ -19,6 +19,7 @@ function Dashboard () {
     const [name, setName] = useState(null);
     const [jobRecommendations, setJobRecommendations] = useState([]);
     const [topJob, setTopJob] = useState(null)
+    const [loading, setLoading] = useState(true)
 
     useEffect(() => {
         document.title = 'Dashboard'
@@ -54,12 +55,14 @@ function Dashboard () {
                 const recommendations = responses.flatMap(response => response.data.data);
                 console.log('Recommendations:', recommendations)
                 setJobRecommendations(recommendations)
-                setTopJob(recommendations[0])
+                setTopJob(recommendations[0] || null)
             } catch (error) {
                 console.error('Error', error)
+            } finally {
+                setLoading(false)
             }
         }
-        fetchJobRecommendations()
+        if (resumes.length > 0 ) fetchJobRecommendations()
     }, [resumes])
 
     return (
@@ -74,7 +77,7 @@ function Dashboard () {
                         <UserProfileSection user={user} name={name}/>
                         <section className="grid-item"></section>
                         <ViewsSection/>
-                        <TopJobSection job={topJob} user={user} toggleSaveJob={toggleSaveJob}/>
+                        <TopJobSection job={topJob} user={user} toggleSaveJob={toggleSaveJob} loading={loading}/>
                         <JobRecommendationsSection jobRecommendations={jobRecommendations}/>
                         <section className="grid-item"></section>
                         <section className="grid-item"></section>

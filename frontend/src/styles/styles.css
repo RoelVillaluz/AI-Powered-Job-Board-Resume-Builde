@@ -499,6 +499,10 @@ button {
     padding: 0;
 }
 
+#top-job.loading {
+    background-color: var(--light-gray);
+}
+
 #top-job .banner {
     flex: 0 0 30%;
     background-color: var(--light-gray);

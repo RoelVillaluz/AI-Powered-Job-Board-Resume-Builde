@@ -537,6 +537,10 @@ background-color: transparent;
     object-fit: cover;
 }
 
+#top-job i {
+    cursor: pointer;
+}
+
 #top-job .details {
     flex: 1;
     display: flex;

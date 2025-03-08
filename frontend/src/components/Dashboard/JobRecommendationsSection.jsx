@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom"
 
-function JobRecommendationsSection({ jobRecommendations, user, toggleSaveJob }) {
+function JobRecommendationsSection({ jobRecommendations }) {
 
     return (
         <>

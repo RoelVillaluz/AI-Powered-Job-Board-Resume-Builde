@@ -74,7 +74,7 @@ function Dashboard () {
                         <UserProfileSection user={user} name={name}/>
                         <section className="grid-item"></section>
                         <ViewsSection/>
-                        <TopJobSection job={topJob} user={user} toggleSaveJob={toggleSaveJob}/>
+                        <TopJobSection job={topJob}/>
                         <JobRecommendationsSection jobRecommendations={jobRecommendations} user={user} toggleSaveJob={toggleSaveJob}/>
                         <section className="grid-item"></section>
                         <section className="grid-item"></section>

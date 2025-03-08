@@ -26,8 +26,8 @@ function TopJobSection({ job, user, toggleSaveJob, loading }) {
                                 <strong>14+ Applied</strong>
                                 </div>
                                 <div className="tags">
-                                    <li><i class="fa-solid fa-location-dot"></i>{job.location}</li>
-                                    <li><i class="fas fa-briefcase"></i>{job.jobType}</li>
+                                    <li><i className="fa-solid fa-location-dot"></i>{job.location}</li>
+                                    <li><i className="fas fa-briefcase"></i>{job.jobType}</li>
                                     <li><i className="fas fa-user-tie"></i>{job.experienceLevel}</li>
                                 </div>
                             </div>

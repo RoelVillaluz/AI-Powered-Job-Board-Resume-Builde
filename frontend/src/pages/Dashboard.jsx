@@ -11,6 +11,7 @@ import UserProfileSection from "../components/Dashboard/UserProfileSection"
 import MessagesSection from "../components/Dashboard/MessagesSection"
 import ViewsSection from "../components/Dashboard/ViewsSection"
 import TopJobSection from "../components/Dashboard/TopJobSection"
+import RecommendedSkillsSection from "../components/Dashboard/RecommendedSkillsSection"
 
 function Dashboard () {
     const { baseUrl } = useData();
@@ -20,7 +21,6 @@ function Dashboard () {
     const [jobRecommendations, setJobRecommendations] = useState([]);
     const [topJob, setTopJob] = useState(null)
     const [loading, setLoading] = useState(true)
-    const [recommendedSkills, setRecommendedSkills] = useState([])
 
     useEffect(() => {
         document.title = 'Dashboard'
@@ -37,6 +37,7 @@ function Dashboard () {
                 // Assuming the user is populated in the first resume
                 if (response.data.data.length > 0) {
                     setName(response.data.data[0].firstName + ' ' + response.data.data[0].lastName);
+                    console.log('Skills:', response.data.data[0].skills)
                 }
             } catch (error) {
                 console.error('Error', error)
@@ -66,20 +67,6 @@ function Dashboard () {
         if (resumes.length > 0 ) fetchJobRecommendations()
     }, [resumes])
 
-    useEffect(() => {
-        const fetchRecommendedSkills = async () => {
-            try {
-                const response = await axios.get(`${baseUrl}/ai/skill-recommendations/${user._id}`)
-                const responseSkills = response.data
-                console.log('Recommended Skills', responseSkills)
-                setRecommendedSkills(responseSkills)
-            } catch (error) {
-                console.error('Error', error)
-            }
-        }
-        fetchRecommendedSkills()
-    })
-
     return (
         <>
             <Layout>
@@ -97,7 +84,7 @@ function Dashboard () {
                         <section className="grid-item"></section>
                         <section className="grid-item"></section>
                         <ApplicationProgressSection/>
-                        <section className="grid-item"></section>
+                        <RecommendedSkillsSection user={user} baseUrl={baseUrl}/>
                     </div>
                 </div>
             </Layout>

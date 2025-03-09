@@ -28,7 +28,7 @@ function OnlineCoursesSection({ user, baseUrl }) {
 
     return (
         <>
-           <section className="grid-item" id="recommended-skills">
+           <section className="grid-item" id="online-courses">
                 <figure>
                     <img src="public/media/pexels-rdne-6517078.jpg" alt="Recommended Skills" />
                 </figure>

@@ -927,7 +927,7 @@ button {
     color: white;
 }
 
-#recommended-skills {
+#online-courses {
     position: relative;
     display: flex;
     flex-direction: column;
@@ -937,11 +937,11 @@ button {
     background-color: transparent;
 }
 
-#recommended-skills figure {
+#online-courses figure {
     height: 70%;
 }
 
-#recommended-skills .fa-graduation-cap {
+#online-courses .fa-graduation-cap {
     position: absolute;
     top: 3%;
     right: 2%;
@@ -952,7 +952,7 @@ button {
     box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
 }
 
-#recommended-skills ul {
+#online-courses ul {
     position: absolute;
     display: flex;
     align-items: center;
@@ -962,7 +962,7 @@ button {
     left: 3.5%;
 }
 
-#recommended-skills li {
+#online-courses li {
     white-space: nowrap;
     overflow: hidden; 
     text-overflow: ellipsis;
@@ -976,32 +976,32 @@ button {
 }
 
 
-#recommended-skills figure img {
+#online-courses figure img {
     width: 100%;
     height: 100%;
     object-fit: cover;
     border-radius: 30px;
 }
 
-#recommended-skills .details {
+#online-courses .details {
     flex: 1;
     display: flex;
     align-items: center;
     justify-content: space-between;
 }
 
-#recommended-skills .details h3 {
+#online-courses .details h3 {
     font-size: clamp(1rem, 1.25vw, 2rem);
     font-weight: 600;
 }
 
-#recommended-skills .details p {
+#online-courses .details p {
     max-width: 85%;
     margin-top: 0.25rem;
     font-size: clamp(0.35rem, 0.8vw, 1.5vw);
 }
 
-#recommended-skills .details a {
+#online-courses .details a {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1014,6 +1014,6 @@ button {
     margin-right: 0.25rem;
 }
 
-#recommended-skills .details i {
+#online-courses .details i {
     color: white;
 }

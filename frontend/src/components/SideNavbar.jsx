@@ -21,6 +21,7 @@ function SideNavbar () {
         { to: '/jobs', icon: 'fa-solid fa-briefcase'},
         { to: '/messages', icon: 'fa-solid fa-envelope'},
         { to: '/resumes', icon: 'fa-solid fa-file-invoice'},
+        { to: '/courses', icon: 'fa-solid fa-graduation-cap'}
     ]
 
     return (

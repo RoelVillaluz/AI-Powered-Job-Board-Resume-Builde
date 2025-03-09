@@ -11,7 +11,7 @@ import UserProfileSection from "../components/Dashboard/UserProfileSection"
 import MessagesSection from "../components/Dashboard/MessagesSection"
 import ViewsSection from "../components/Dashboard/ViewsSection"
 import TopJobSection from "../components/Dashboard/TopJobSection"
-import RecommendedSkillsSection from "../components/Dashboard/RecommendedSkillsSection"
+import OnlineCoursesSection from "../components/Dashboard/OnlineCoursesSection"
 
 function Dashboard () {
     const { baseUrl } = useData();
@@ -84,7 +84,7 @@ function Dashboard () {
                         <section className="grid-item"></section>
                         <section className="grid-item"></section>
                         <ApplicationProgressSection/>
-                        <RecommendedSkillsSection user={user} baseUrl={baseUrl}/>
+                        <OnlineCoursesSection user={user} baseUrl={baseUrl}/>
                     </div>
                 </div>
             </Layout>

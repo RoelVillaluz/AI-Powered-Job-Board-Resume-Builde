@@ -2,7 +2,7 @@ import axios from "axios"
 import { useState, useEffect } from "react"
 import { Link } from "react-router-dom";
 
-function RecommendedSkillsSection({ user, baseUrl }) {
+function OnlineCoursesSection({ user, baseUrl }) {
     const [recommendedSkills, setRecommendedSkills] = useState([])
 
     useEffect(() => {
@@ -53,4 +53,4 @@ function RecommendedSkillsSection({ user, baseUrl }) {
     )
 }
 
-export default RecommendedSkillsSection
+export default OnlineCoursesSection

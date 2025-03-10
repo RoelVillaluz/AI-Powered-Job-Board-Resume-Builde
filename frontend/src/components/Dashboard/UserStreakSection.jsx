@@ -32,34 +32,12 @@ const currentDate = new Date();
                         <Link to={'/login-rewards'}>See rewards <i className="fa-solid fa-angle-right"></i></Link>
                     </div>
                     <ul>
-                        <li>
-                            <div className="status"><i class="fa-solid fa-check"></i></div>
-                            <span>Mon</span>
-                        </li>
-                        <li>
+                        {getFutureDates().map((date, index) => (
+                        <li key={index}>
                             <div className="status"></div>
-                            <span>Tue</span>
+                            <span>{date.day}</span>
                         </li>
-                        <li>
-                            <div className="status"></div>
-                            <span>Wed</span>
-                        </li>
-                        <li>
-                            <div className="status"></div>
-                            <span>Thu</span>
-                        </li>
-                        <li>
-                            <div className="status"></div>
-                            <span>Fri</span>
-                        </li>
-                        <li>
-                            <div className="status"></div>
-                            <span>Sat</span>
-                        </li>
-                        <li>
-                            <div className="status"></div>
-                            <span>Sun</span>
-                        </li>
+                        ))}
                     </ul>
                 </div>
             </section>

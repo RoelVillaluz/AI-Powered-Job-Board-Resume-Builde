@@ -1,6 +1,11 @@
 import { Link } from "react-router-dom"
+import axios from "axios";
+import { useEffect, useState } from "react";
 
-const currentDate = new Date();
+function UserStreakSection({ user, baseUrl }) {
+    const [loginStreak, setLoginStreak] = useState(null)
+
+    const currentDate = new Date();
     const currentDay = currentDate.getDay()
     
     // Calculate the difference to get back to Monday (if today is Monday, diff = 0)
@@ -44,7 +49,7 @@ const currentDate = new Date();
             <section className="grid-item" id="user-streak">
                 <div className="streak-count">
                     <i className="fa-solid fa-fire"></i>
-                    <span>0 days</span>
+                    <span>{loginStreak} {loginStreak > 1 ? 'days' : 'day'}</span>
                     <p>Streak</p>
                 </div>
                 <div className="streak-days">
@@ -54,10 +59,10 @@ const currentDate = new Date();
                     </div>
                     <ul>
                         {getFutureDates().map((date, index) => (
-                        <li key={index}>
-                            <div className="status"></div>
-                            <span>{date.day}</span>
-                        </li>
+                            <li key={index}>
+                                <div className="status"></div>
+                                <span>{date.day}</span>
+                            </li>
                         ))}
                     </ul>
                 </div>

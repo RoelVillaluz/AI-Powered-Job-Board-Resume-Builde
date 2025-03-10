@@ -1,22 +1,43 @@
 import { Link } from "react-router-dom"
 
-function UserStreakSection() {
 const currentDate = new Date();
-    const date = currentDate.getDate();
-    const month = new Intl.DateTimeFormat('en-US', { month: 'long' }).format(currentDate);
-    const futureDate = new Date();
+    const currentDay = currentDate.getDay()
+    
+    // Calculate the difference to get back to Monday (if today is Monday, diff = 0)
+    const diffToMonday = currentDay === 0 ? -6 : 1 - currentDay
 
-    const getFutureDates = () => {
+    const startDate = new Date(currentDate)
+    startDate.setDate(currentDate.getDate() + diffToMonday)
+
+    const getWeekDates = () => {
         const dates = []
 
-        for (let i = 0; i <= 6; i++) {
-            futureDate.setDate(date + i);
-            const dayNumber = futureDate.getDate();
-            const dayName = futureDate.toLocaleDateString("en-US", {weekday: "short"})
-            dates.push({ number: dayNumber, day: dayName })
+        for (let i = 0; i < 7; i++) {
+            const futureDate = new Date(startDate)
+            futureDate.setDate(startDate.getDate() + i)
+
+            const dayName = futureDate.toLocaleDateString("en-US", { weekday: 'short' })
+
+            dates.push(dayName)
         }
         return dates
     }
+
+    useEffect(() => {
+        const trackUserLogin = async () => {
+            if (!user?._id) return; // Ensure user is valid
+    
+            try {
+                const response = await axios.post(`${baseUrl}/users/track-login/${user._id}`, { userId: user._id });
+                console.log(response.data)
+                setLoginStreak(response.data.streak)
+            } catch (error) {
+                console.error("Error tracking login:", error);
+            }
+        };
+    
+        trackUserLogin();
+    }, [user, baseUrl]);
 
     return (
         <>

@@ -82,7 +82,7 @@ function Dashboard () {
                         <ViewsSection/>
                         <TopJobSection job={topJob} user={user} toggleSaveJob={toggleSaveJob} loading={loading}/>
                         <JobRecommendationsSection jobRecommendations={jobRecommendations} loading={loading}/>
-                        <UserStreakSection user={user}/>
+                        <UserStreakSection user={user} baseUrl={baseUrl}/>
                         <section className="grid-item"></section>
                         <ApplicationProgressSection/>
                         <OnlineCoursesSection user={user} baseUrl={baseUrl}/>

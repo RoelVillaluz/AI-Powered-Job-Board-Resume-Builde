@@ -69,10 +69,9 @@ const userSchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
-    lastLoginDate: {
-        type: Date,
-        default: null
-    },
+    loggedInDates: [
+        { type: String }
+    ],
     createdAt: {
         type: Date,
         default: Date.now

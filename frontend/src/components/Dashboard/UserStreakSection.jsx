@@ -1,41 +1,39 @@
-import { Link } from "react-router-dom"
+import { Link } from "react-router-dom";
 import axios from "axios";
 import { useEffect, useState } from "react";
 
 function UserStreakSection({ user, baseUrl }) {
-    const [loginStreak, setLoginStreak] = useState(null)
+    const [loginStreak, setLoginStreak] = useState(null);
+    const [loggedInDates, setLoggedInDates] = useState([]);
 
     const currentDate = new Date();
-    const currentDay = currentDate.getDay()
-    
-    // Calculate the difference to get back to Monday (if today is Monday, diff = 0)
-    const diffToMonday = currentDay === 0 ? -6 : 1 - currentDay
+    const currentDay = currentDate.getDay();
 
-    const startDate = new Date(currentDate)
-    startDate.setDate(currentDate.getDate() + diffToMonday)
+    const diffToMonday = currentDay === 0 ? -6 : 1 - currentDay;
+    const startDate = new Date(currentDate);
+    startDate.setDate(currentDate.getDate() + diffToMonday);
 
     const getWeekDates = () => {
-        const dates = []
+        return [...Array(7)].map((_, i) => {
+            const futureDate = new Date(startDate);
+            futureDate.setDate(startDate.getDate() + i);
+            return {
+                dayName: futureDate.toLocaleDateString("en-US", { weekday: "short" }),
+                date: futureDate.toISOString().split("T")[0], // YYYY-MM-DD
+            };
+        });
+    };
 
-        for (let i = 0; i < 7; i++) {
-            const futureDate = new Date(startDate)
-            futureDate.setDate(startDate.getDate() + i)
-
-            const dayName = futureDate.toLocaleDateString("en-US", { weekday: 'short' })
-
-            dates.push(dayName)
-        }
-        return dates
-    }
+    console.log('Logged in dates:', loggedInDates)
 
     useEffect(() => {
         const trackUserLogin = async () => {
-            if (!user?._id) return; // Ensure user is valid
+            if (!user?._id) return;
     
             try {
                 const response = await axios.post(`${baseUrl}/users/track-login/${user._id}`, { userId: user._id });
-                console.log(response.data)
-                setLoginStreak(response.data.streak)
+                setLoginStreak(response.data.streak);
+                setLoggedInDates(response.data.loggedInDates || []);
             } catch (error) {
                 console.error("Error tracking login:", error);
             }

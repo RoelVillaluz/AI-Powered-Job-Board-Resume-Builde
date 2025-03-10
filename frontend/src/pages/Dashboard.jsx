@@ -12,6 +12,7 @@ import MessagesSection from "../components/Dashboard/MessagesSection"
 import ViewsSection from "../components/Dashboard/ViewsSection"
 import TopJobSection from "../components/Dashboard/TopJobSection"
 import OnlineCoursesSection from "../components/Dashboard/OnlineCoursesSection"
+import UserStreakSection from "../components/Dashboard/UserStreakSection"
 
 function Dashboard () {
     const { baseUrl } = useData();
@@ -81,7 +82,7 @@ function Dashboard () {
                         <ViewsSection/>
                         <TopJobSection job={topJob} user={user} toggleSaveJob={toggleSaveJob} loading={loading}/>
                         <JobRecommendationsSection jobRecommendations={jobRecommendations} loading={loading}/>
-                        <section className="grid-item"></section>
+                        <UserStreakSection user={user}/>
                         <section className="grid-item"></section>
                         <ApplicationProgressSection/>
                         <OnlineCoursesSection user={user} baseUrl={baseUrl}/>

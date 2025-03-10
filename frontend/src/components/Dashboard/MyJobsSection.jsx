@@ -4,43 +4,40 @@ function MyJobsSection() {
     return (
         <>
         <section className="grid-item" id="my-jobs">
-            <header>
-                <h3>My Jobs</h3>
-            </header>
             <ul>
                 <li>
-                    <Link to={'/my-jobs/saved'}>
-                        <div className="row">
-                            <i className="fa-regular fa-bookmark"></i>
-                            <span>Saved</span>
+                    <Link to={'/my-jobs/accepted'}>
+                        <i className="fa-regular fa-handshake"></i>
+                        <div className="details">
+                            <h4>Accepted</h4>
+                            <span>0</span>
                         </div>
-                        <div className="wrapper">
-                            <p>0</p>
-                            <i className="fa-solid fa-angle-right"></i>
+                    </Link>
+                </li>
+                <li>
+                    <Link to={'/my-jobs/in-progress'}>
+                        <i className="fa-solid fa-bars-progress"></i>
+                        <div className="details">
+                            <h4>In Progress</h4>
+                            <span>0</span>
+                        </div>
+                    </Link>
+                </li>
+                <li>
+                    <Link to={'/my-jobs/saved'}>
+                        <i className="fa-regular fa-bookmark"></i>
+                        <div className="details">
+                            <h4>Saved</h4>
+                            <span>0</span>
                         </div>
                     </Link>
                 </li>
                 <li>
                     <Link to={'/my-jobs/applied'}>
-                        <div className="row">
-                            <i className="fa-solid fa-file-invoice"></i>
-                            <span>Applied</span>
-                        </div>
-                        <div className="wrapper">
-                            <p>0</p>
-                            <i className="fa-solid fa-angle-right"></i>
-                        </div>
-                    </Link>
-                </li>
-                <li>
-                    <Link to={'/my-jobs/accepted'}>
-                        <div className="row">
-                            <i className="fa-solid fa-briefcase"></i>
-                            <span>Accepted</span>
-                        </div>
-                        <div className="wrapper">
-                            <p>0</p>
-                            <i className="fa-solid fa-angle-right"></i>
+                        <i className="fa-regular fa-file-alt"></i>
+                        <div className="details">
+                            <h4>Applied</h4>
+                            <span>0</span>
                         </div>
                     </Link>
                 </li>

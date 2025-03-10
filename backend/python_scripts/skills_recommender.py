@@ -26,8 +26,17 @@ def get_resume_skills(user_id):
 
 
 
-def get_user_saved_job_skils(user_id):
+def get_user_saved_job_skills(user_id):
     """Retrieve required skills from saved job postings."""
+    pipeline = [
+        {"$match": {"_id": ObjectId(user_id)}},
+        {"$project": {"savedJobs": 1}},  # Only retrieve savedJobs field
+    ]
+
+    user_data = db.users.find_one({"_id": ObjectId(user_id)}, {"savedJobs": 1})
+    if not user_data or not user_data.get("savedJobs"):  # If no saved jobs, return None
+        return None
+
     pipeline = [
         {"$match": {"_id": ObjectId(user_id)}},
         {
@@ -38,7 +47,7 @@ def get_user_saved_job_skils(user_id):
                 "as": "savedJobDetails"
             }
         },
-        {"$unwind": "$savedJobDetails"}, # flattens job list
+        {"$unwind": "$savedJobDetails"},
         {"$project": {"_id": 0, "savedJobDetails.skills": 1}}
     ]
 
@@ -49,12 +58,16 @@ def get_user_saved_job_skils(user_id):
         if isinstance(skill, dict) and "name" in skill
     ]
 
-    return job_skills
+    return job_skills if job_skills else None
+
 
 def recommend_skills(user_id):
     """ Recommends jobseekers on what skills they might want to learn based on their saved job postings """
     resume_skills = get_resume_skills(user_id)
-    job_skills = get_user_saved_job_skils(user_id)
+    job_skills = get_user_saved_job_skills(user_id)
+
+    if not job_skills:
+        return json.dumps({"recommended skills", []})
 
     # Combine all unique skills
     all_skills = list(set(resume_skills).union(set(job_skills)))
@@ -70,9 +83,9 @@ def recommend_skills(user_id):
     class SkillRecommender(nn.Module):
         def __init__(self, input_dim):
             super(SkillRecommender, self).__init__()
-            self.fc1 = nn.Linear(input_dim, 128)
-            self.fc2 = nn.Linear(128, 64)
-            self.fc3 = nn.Linear(64, 1)
+            self.fc1 = nn.Linear(input_dim, 32)
+            self.fc2 = nn.Linear(32, 16)
+            self.fc3 = nn.Linear(16, 1)
             self.relu = nn.ReLU()
             self.sigmoid = nn.Sigmoid()
 

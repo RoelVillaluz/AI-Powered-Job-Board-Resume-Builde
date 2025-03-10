@@ -2,7 +2,7 @@ import axios from "axios"
 import { useState, useEffect } from "react"
 import { Link } from "react-router-dom";
 
-function OnlineCoursesSection({ user, baseUrl }) {
+function OnlineCoursesSection({ user, baseUrl, loading }) {
     const [recommendedSkills, setRecommendedSkills] = useState([])
 
     useEffect(() => {
@@ -28,26 +28,30 @@ function OnlineCoursesSection({ user, baseUrl }) {
 
     return (
         <>
-           <section className="grid-item" id="online-courses">
-                <figure>
-                    <img src="public/media/pexels-rdne-6517078.jpg" alt="Recommended Skills" />
-                </figure>
-                <i className="fa-solid fa-graduation-cap"></i>
-                <ul>
-                    {recommendedSkills.slice(0, 2).map((skill, index) => (
-                        <li key={index}>{skill}</li>
-                    ))}
-                    {recommendedSkills.length > 2 && <li>+{recommendedSkills.length - 2}</li>}
-                </ul>
-                <div className="details">
-                    <div>
-                        <h3>Boost Your Skills</h3>
-                        <p>Explore online courses tailored by AI-recommended skills.</p>
-                    </div>
-                    <Link to={'/courses'} aria-label="Go to courses">
-                        <i className="fa-solid fa-arrow-right"></i>
-                    </Link>
-                </div>
+           <section className={`grid-item ${loading !== true ? '' : 'skeleton'}`} id="online-courses">
+                {loading !== true && (
+                    <>
+                        <figure>
+                            <img src="public/media/pexels-rdne-6517078.jpg" alt="Recommended Skills" />
+                        </figure>
+                        <i className="fa-solid fa-graduation-cap"></i>
+                        <ul>
+                            {recommendedSkills.slice(0, 2).map((skill, index) => (
+                                <li key={index}>{skill}</li>
+                            ))}
+                            {recommendedSkills.length > 2 && <li>+{recommendedSkills.length - 2}</li>}
+                        </ul>
+                        <div className="details">
+                            <div>
+                                <h3>Boost Your Skills</h3>
+                                <p>Explore online courses tailored by AI-recommended skills.</p>
+                            </div>
+                            <Link to={'/courses'} aria-label="Go to courses">
+                                <i className="fa-solid fa-arrow-right"></i>
+                            </Link>
+                        </div>
+                    </>
+                )}
             </section>
         </>
     )

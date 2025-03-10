@@ -62,7 +62,7 @@ function Dashboard () {
             } catch (error) {
                 console.error('Error', error)
             } finally {
-                setLoading(false)
+                
             }
         }
         if (resumes.length > 0 ) fetchJobRecommendations()
@@ -77,15 +77,15 @@ function Dashboard () {
                         <p>Let's make this day productive.</p>
                     </header>
                     <div className="grid-container">
-                        <UserProfileSection user={user} name={name}/>
-                        <MessagesSection/>
-                        <ViewsSection/>
+                        <UserProfileSection user={user} name={name} loading={loading}/>
+                        <MessagesSection loading={loading}/>
+                        <ViewsSection loading={loading}/>
                         <TopJobSection job={topJob} user={user} toggleSaveJob={toggleSaveJob} loading={loading}/>
                         <JobRecommendationsSection jobRecommendations={jobRecommendations} loading={loading}/>
-                        <UserStreakSection user={user} baseUrl={baseUrl}/>
+                        <UserStreakSection user={user} baseUrl={baseUrl} loading={loading}/>
                         <section className="grid-item"></section>
-                        <ApplicationProgressSection/>
-                        <OnlineCoursesSection user={user} baseUrl={baseUrl}/>
+                        <ApplicationProgressSection loading={loading}/>
+                        <OnlineCoursesSection user={user} baseUrl={baseUrl} loading={loading}/>
                     </div>
                 </div>
             </Layout>

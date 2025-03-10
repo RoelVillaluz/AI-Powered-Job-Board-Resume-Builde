@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import { useEffect, useState } from "react";
 
-function UserStreakSection({ user, baseUrl }) {
+function UserStreakSection({ user, baseUrl, loading }) {
     const [loginStreak, setLoginStreak] = useState(null);
     const [loggedInDates, setLoggedInDates] = useState([]);
 
@@ -43,32 +43,36 @@ function UserStreakSection({ user, baseUrl }) {
     }, [user, baseUrl]);
 
     return (
-        <section className="grid-item" id="user-streak">
-            <div className="streak-count">
-                <i className="fa-solid fa-fire"></i>
-                <span>{loginStreak} {loginStreak > 1 ? "days" : "day"}</span>
-                <p>Streak</p>
-            </div>
-            <div className="streak-days">
-                <div className="row">
-                    <h5>Log in daily to get rewards</h5>
-                    <Link to="/login-rewards">See rewards <i className="fa-solid fa-angle-right"></i></Link>
-                </div>
-                <ul>
-                    {getWeekDates().map(({ dayName, date }, index) => (
-                        <li key={index}>
-                            {loggedInDates.includes(date) ? (
-                                <div className="status logged-user sin">
-                                    <i className="fa-solid fa-check"></i>
-                                </div>
-                            ) : (
-                                <div className="status"></div>
-                            )}
-                            <span>{dayName}</span>
-                        </li>
-                    ))}
-                </ul>
-            </div>
+        <section className={`grid-item ${loading !== true ? '' : 'skeleton'}`} id="user-streak">
+            {loading !== true && (
+                <>
+                    <div className="streak-count">
+                        <i className="fa-solid fa-fire"></i>
+                        <span>{loginStreak} {loginStreak > 1 ? "days" : "day"}</span>
+                        <p>Streak</p>
+                    </div>
+                    <div className="streak-days">
+                        <div className="row">
+                            <h5>Log in daily to get rewards</h5>
+                            <Link to="/login-rewards">See rewards <i className="fa-solid fa-angle-right"></i></Link>
+                        </div>
+                        <ul>
+                            {getWeekDates().map(({ dayName, date }, index) => (
+                                <li key={index}>
+                                    {loggedInDates.includes(date) ? (
+                                        <div className="status logged-in">
+                                            <i className="fa-solid fa-check"></i>
+                                        </div>
+                                    ) : (
+                                        <div className="status"></div>
+                                    )}
+                                    <span>{dayName}</span>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                </>
+            )}
         </section>
     );
 }

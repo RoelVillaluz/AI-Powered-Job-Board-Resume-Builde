@@ -904,7 +904,7 @@ button {
     background-color: var(--disabled);
 }
 
-#user-streak li:first-of-type .status {
+#user-streak li .status.logged-in {
     background-color: rgb(20, 20, 20);
     color: white;
 }

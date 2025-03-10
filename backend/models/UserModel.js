@@ -65,6 +65,14 @@ const userSchema = new mongoose.Schema({
             message: "Only jobseekers can save jobs."
         }
     }],
+    streakCount: {
+        type: Number,
+        default: 0
+    },
+    lastLoginDate: {
+        type: Date,
+        default: null
+    },
     createdAt: {
         type: Date,
         default: Date.now

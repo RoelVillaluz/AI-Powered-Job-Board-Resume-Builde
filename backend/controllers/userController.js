@@ -276,40 +276,48 @@ export const loginUser = async (req, res) => {
 }
 
 export const trackUserLogin = async (req, res) => {
-    const { userId } = req.params; 
+    const { userId } = req.body;
 
     try {
         const user = await User.findById(userId);
         if (!user) {
-            return sendResponse(res, { ...STATUS_MESSAGES.ERROR.NOT_FOUND, success: false }, "User");
+            return res.status(404).json({ success: false, message: "User not found" });
         }
 
+        // Convert to local timezone
         const today = new Date();
-        today.setUTCHours(0, 0, 0, 0); // Ensure UTC time
+        today.setHours(0, 0, 0, 0); // Normalize to midnight
+        const localDateString = today.toLocaleDateString("en-CA"); // YYYY-MM-DD format in local time
 
-        const lastLogin = user.lastLoginDate ? new Date(user.lastLoginDate) : null;
-        lastLogin?.setUTCHours(0, 0, 0, 0); // Normalize last login to UTC midnight
-
-        if (lastLogin?.getTime() === today.getTime()) {
-            return res.json({ message: "User already logged in today", streak: user.streakCount });
+        if (!user.loggedInDates.includes(localDateString)) {
+            user.loggedInDates.push(localDateString);
         }
 
-        // Calculate the difference in whole days
-        const diffInDays = lastLogin ? Math.round((today - lastLogin) / (1000 * 60 * 60 * 24)) : null;
+        // Sort the dates in case they were stored out of order
+        user.loggedInDates.sort();
 
-        if (diffInDays === 1) {
-            user.streakCount += 1; // Increase streak if logged in yesterday
-        } else {
-            user.streakCount = 1; // Reset to 1 instead of 0 if streak is broken
+        // Determine streak based on consecutive days
+        let streak = 1;
+        for (let i = user.loggedInDates.length - 1; i > 0; i--) {
+            const prevDate = new Date(user.loggedInDates[i - 1]);
+            const currDate = new Date(user.loggedInDates[i]);
+
+            prevDate.setDate(prevDate.getDate() + 1); // Check if consecutive
+
+            if (prevDate.toLocaleDateString("en-CA") === currDate.toLocaleDateString("en-CA")) {
+                streak++;
+            } else {
+                break;
+            }
         }
 
-        user.lastLoginDate = today;
+        user.streakCount = streak;
+
         await user.save();
 
-        res.json({ message: "Login streak updated", streak: user.streakCount });
+        res.json({ message: "Login streak updated", streak: user.streakCount, loggedInDates: user.loggedInDates });
     } catch (error) {
         console.error("Error:", error);
-        return sendResponse(res, { ...STATUS_MESSAGES.ERROR.SERVER, success: false });
+        return res.status(500).json({ success: false, message: "Server error" });
     }
 };
-

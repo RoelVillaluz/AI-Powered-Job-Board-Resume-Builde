@@ -274,3 +274,42 @@ export const loginUser = async (req, res) => {
         return sendResponse(res, STATUS_MESSAGES.ERROR.SERVER, 'User');
     }
 }
+
+export const trackUserLogin = async (req, res) => {
+    const { userId } = req.params; 
+
+    try {
+        const user = await User.findById(userId);
+        if (!user) {
+            return sendResponse(res, { ...STATUS_MESSAGES.ERROR.NOT_FOUND, success: false }, "User");
+        }
+
+        const today = new Date();
+        today.setUTCHours(0, 0, 0, 0); // Ensure UTC time
+
+        const lastLogin = user.lastLoginDate ? new Date(user.lastLoginDate) : null;
+        lastLogin?.setUTCHours(0, 0, 0, 0); // Normalize last login to UTC midnight
+
+        if (lastLogin?.getTime() === today.getTime()) {
+            return res.json({ message: "User already logged in today", streak: user.streakCount });
+        }
+
+        // Calculate the difference in whole days
+        const diffInDays = lastLogin ? Math.round((today - lastLogin) / (1000 * 60 * 60 * 24)) : null;
+
+        if (diffInDays === 1) {
+            user.streakCount += 1; // Increase streak if logged in yesterday
+        } else {
+            user.streakCount = 1; // Reset to 1 instead of 0 if streak is broken
+        }
+
+        user.lastLoginDate = today;
+        await user.save();
+
+        res.json({ message: "Login streak updated", streak: user.streakCount });
+    } catch (error) {
+        console.error("Error:", error);
+        return sendResponse(res, { ...STATUS_MESSAGES.ERROR.SERVER, success: false });
+    }
+};
+

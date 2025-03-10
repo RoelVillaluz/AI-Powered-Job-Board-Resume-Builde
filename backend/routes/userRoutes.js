@@ -1,5 +1,5 @@
 import express from "express"
-import { getUsers, getUser, getCurrentUser, authenticateUser, createUser, updateUser, deleteUser, verifyUser, resendVerificationCode, loginUser } from "../controllers/userController.js"
+import { getUsers, getUser, getCurrentUser, authenticateUser, createUser, updateUser, deleteUser, verifyUser, resendVerificationCode, loginUser, trackUserLogin } from "../controllers/userController.js"
 import multer from "multer"
 import path from "path";
 
@@ -24,6 +24,7 @@ router.post('/', createUser)
 router.post('/resend-verification-code', resendVerificationCode)
 router.post('/verify', verifyUser)
 router.post('/login', loginUser)
+router.post('/track-login/:userId', trackUserLogin)
 
 router.patch('/:id', upload.single('profilePicture'), updateUser)
 

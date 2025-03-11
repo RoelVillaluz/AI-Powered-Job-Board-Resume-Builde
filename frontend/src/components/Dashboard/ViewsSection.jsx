@@ -8,17 +8,17 @@ function ViewsSection({ loading }) {
                     <>
                         <header>
                             <h4>Views</h4>
-                            <Link to={'profile/viewers'}>
+                            <Link to={'profile/viewers'} aria-label={`See who viewed your profile`}>
                                 <i className="fa-solid fa-arrow-right"></i>
                             </Link>
                         </header>
-                            <img src="/public/media/pexels-kampus-6605421.jpg" alt="" />
-                            <img src="/public/media/pexels-moose-photos-170195-1587009.jpg" alt="" />
-                            <img src="/public/media/pexels-tima-miroshnichenko-6694958.jpg" alt="" />
+                            <img src="/public/media/pexels-kampus-6605421.jpg" aria-hidden="true"/>
+                            <img src="/public/media/pexels-moose-photos-170195-1587009.jpg" aria-hidden="true"/>
+                            <img src="/public/media/pexels-tima-miroshnichenko-6694958.jpg" aria-hidden="true"/>
                         <div>
                             <div className="count">
-                                <h1>100</h1>
-                                <div className="percentage-change">
+                                <h2>100</h2>
+                                <div className="percentage-change" aria-label="Percentage of increase in views">
                                     <span>5%</span>
                                     <i className="fa-solid fa-arrow-trend-up"></i>
                                 </div>

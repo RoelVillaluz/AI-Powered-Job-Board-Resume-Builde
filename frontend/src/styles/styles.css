@@ -564,7 +564,7 @@ button {
     gap: 0.5rem;
 }
 
-#views h1 {
+#views h2 {
     font-size: clamp(2rem, 4vw, 5rem);
 }
 

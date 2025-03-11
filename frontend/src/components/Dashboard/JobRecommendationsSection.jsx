@@ -10,48 +10,53 @@ function JobRecommendationsSection({ jobRecommendations, loading }) {
                     </header>
                     {jobRecommendations.length > 0 ? (
                         <>
-                            <ul className="job-list">
+                            <ol className="job-list">
                                 {jobRecommendations.map((job) => (
                                     <li key={job._id} className="job-list-item">
-                                        <Link to={`jobs/${job._id}`}>
-                                            <div className="row">
-                                                <div className="wrapper">
-                                                    {job.company.logo ? (
-                                                        <img src={job.company.logo} alt="Company Logo" />
-                                                    ) : (
-                                                        <i className="fa-solid fa-building"></i>
-                                                    )}
-                                                    <div>
-                                                        <h4>{job.title}</h4>
-                                                        <p>{job.company.name}</p>
+                                        <article>
+                                            <Link to={`jobs/${job._id}`}>
+                                                <div className="row">
+                                                    <div className="wrapper">
+                                                        {job.company.logo ? (
+                                                            <figure>
+                                                                <img src={job.company.logo} alt="Company Logo" />
+                                                                <figcaption className="sr-only">{job.company.name} logo</figcaption>
+                                                            </figure>
+                                                        ) : (
+                                                            <i className="fa-solid fa-building"></i>
+                                                        )}
+                                                        <div>
+                                                            <h4>{job.title}</h4>
+                                                            <p>{job.company.name}</p>
+                                                        </div>
                                                     </div>
+                                                    <i className="fa-solid fa-arrow-right"></i>
                                                 </div>
-                                                <i className="fa-solid fa-arrow-right"></i>
-                                            </div>
-                                            <ul className="tags">
-                                                <li>
-                                                    <i className="fa-solid fa-location-dot"></i>
-                                                    {job.location}
-                                                </li>
-                                                <li>
-                                                    <i className="fas fa-briefcase"></i>
-                                                    {job.jobType}
-                                                </li>
-                                                <li>
-                                                    <i className="fas fa-user-tie"></i>
-                                                    {job.experienceLevel}
-                                                </li>
-                                            </ul>
-                                        </Link>
+                                                <div className="tags">
+                                                    <span>
+                                                        <i className="fa-solid fa-location-dot"></i>
+                                                        {job.location}
+                                                    </span>
+                                                    <span>
+                                                        <i className="fas fa-briefcase"></i>
+                                                        {job.jobType}
+                                                    </span>
+                                                    <span>
+                                                        <i className="fas fa-user-tie"></i>
+                                                        {job.experienceLevel}
+                                                    </span>
+                                                </div>
+                                            </Link>
+                                        </article>
                                     </li>
                                 ))}
-                            </ul>
+                            </ol>
                             <Link className="all-jobs-link" to={"jobs"}>
-                                See all jobs <i className="fa-solid fa-angle-right"></i>
+                                See all jobs <i className="fa-solid fa-angle-right" aria-hidden="true"></i>
                             </Link>
                         </>
                     ) : (
-                        <p>No jobs yet</p>
+                        <p role="alert">No jobs yet</p>
                     )}
                 </>
             )}

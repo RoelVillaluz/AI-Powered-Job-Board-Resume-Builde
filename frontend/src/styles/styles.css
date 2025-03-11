@@ -966,7 +966,12 @@ button {
     gap: 0.25rem;
 }
 
-#application-progress .status .circle {
+#application-progress .status::before {
+    position: absolute;
+    content: '';
+    transform: translate(-50%, -50%);
+    top: 50%;
+    left: -15%;
     width: clamp(0.2rem, 0.5vw, 0.7rem);
     height: clamp(0.2rem, 0.5vw, 0.7rem);
     background-color: rgb(159, 255, 159);

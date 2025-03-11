@@ -3,8 +3,8 @@ import { Link } from "react-router-dom"
 function MessagesSection({ loading }) {
     return(
         <>
-            <section className={`grid-item ${loading !== true ? '' : 'skeleton'}`} id="messages">
-                {loading !== true && (
+            <section className={`grid-item ${!loading ? '' : 'skeleton'}`} id="messages">
+                {!loading && (
                     <>
                         <header>
                             <h4>Messages (2)</h4>

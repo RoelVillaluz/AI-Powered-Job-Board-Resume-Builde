@@ -2,8 +2,8 @@ import { Link } from "react-router-dom"
 
 function UserProfileSection({ user, name, loading }) {
     return(
-        <section className={`grid-item ${loading !== true ? '' : 'skeleton'}`} id="profile">
-            {loading !== true && (
+        <section className={`grid-item ${!loading ? '' : 'skeleton'}`} id="profile">
+            {!loading && (
                 <>
                     <header>
                         <h3>Profile</h3>

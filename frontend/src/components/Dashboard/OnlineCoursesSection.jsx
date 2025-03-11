@@ -28,8 +28,8 @@ function OnlineCoursesSection({ user, baseUrl, loading }) {
 
     return (
         <>
-           <section className={`grid-item ${loading !== true ? '' : 'skeleton'}`} id="online-courses">
-                {loading !== true && (
+           <section className={`grid-item ${!loading ? '' : 'skeleton'}`} id="online-courses">
+                {!loading && (
                     <>
                         <figure>
                             <img src="public/media/pexels-rdne-6517078.jpg" alt="Recommended Skills" />

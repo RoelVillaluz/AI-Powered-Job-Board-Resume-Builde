@@ -3,7 +3,7 @@ import { Link } from "react-router-dom"
 function JobRecommendationsSection({ jobRecommendations, loading }) {
     return (
         <section className={`grid-item ${loading ? "skeleton" : ""}`} id="job-recommendations">
-            {loading !== true && (
+            {!loading && (
                 <>
                     <header>
                         <h3>Recommended Jobs</h3>

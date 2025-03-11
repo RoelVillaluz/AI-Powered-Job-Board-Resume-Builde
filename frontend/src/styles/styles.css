@@ -336,6 +336,7 @@ button {
 }
 
 #profile {
+    position: relative;
     display: flex;
     align-items: center;
     flex-direction: column;
@@ -343,7 +344,6 @@ button {
 }
 
 #profile .image-container {
-    position: relative;
     display: flex;
     flex-direction: column;
     width: 100%;

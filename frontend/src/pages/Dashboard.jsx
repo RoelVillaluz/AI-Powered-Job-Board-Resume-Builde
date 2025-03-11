@@ -62,7 +62,7 @@ function Dashboard () {
             } catch (error) {
                 console.error('Error', error)
             } finally {
-                
+                setLoading(false)
             }
         }
         if (resumes.length > 0 ) fetchJobRecommendations()

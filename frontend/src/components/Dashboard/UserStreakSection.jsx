@@ -43,8 +43,8 @@ function UserStreakSection({ user, baseUrl, loading }) {
     }, [user, baseUrl]);
 
     return (
-        <section className={`grid-item ${loading !== true ? '' : 'skeleton'}`} id="user-streak">
-            {loading !== true && (
+        <section className={`grid-item ${!loading ? '' : 'skeleton'}`} id="user-streak">
+            {!loading && (
                 <>
                     <div className="streak-count">
                         <i className="fa-solid fa-fire"></i>

@@ -3,8 +3,8 @@ import { Link } from "react-router-dom"
 function ViewsSection({ loading }) {
     return (
         <>
-            <section className={`grid-item ${loading !== true ? '' : 'skeleton'}`} id="views">
-                {loading !== true && (
+            <section className={`grid-item ${!loading ? '' : 'skeleton'}`} id="views">
+                {!loading && (
                     <>
                         <header>
                             <h4>Views</h4>

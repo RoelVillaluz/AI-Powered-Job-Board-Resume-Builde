@@ -3,8 +3,8 @@ import { useState } from "react"
 function TopJobSection({ job, user, toggleSaveJob, loading }) {
     return (
         <>
-            <section className={`grid-item ${loading !== true ? '' : 'skeleton'}`} id="top-job">
-                {loading !== true && (
+            <section className={`grid-item ${!loading ? '' : 'skeleton'}`} id="top-job">
+                {!loading && (
                     <>
                     <div className="banner"></div>
                         <header>

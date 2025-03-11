@@ -920,14 +920,14 @@ button {
     font-size: clamp(0.5vw, 0.75vw, 1.25rem);
 }
 
-#application-progress main {
+#application-progress .details {
     flex-grow: 1;
     display: flex;
     flex-direction: column;
     height: 100%;
 }
 
-#application-progress .row {
+#application-progress header {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -961,6 +961,7 @@ button {
 }
 
 #application-progress .status {
+    position: relative;
     display: flex;
     align-items: center;
     gap: 0.25rem;

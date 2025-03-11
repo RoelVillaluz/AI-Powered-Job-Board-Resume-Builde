@@ -14,34 +14,36 @@ function TopJobSection({ job, user, toggleSaveJob, loading }) {
                                     <h3>{job.title}</h3>
                                     <p>{job.company.name}</p>
                                 </div>
-                                <i className={`fa-${user.savedJobs.includes(job._id) ? 'solid' : 'regular'} fa-bookmark` }onClick={(e) => toggleSaveJob(e, job._id)}></i>
+                                <button onClick={(e) => toggleSaveJob(e, job._id)} aria-label="Save job">
+                                    <i className={`fa-${user.savedJobs.includes(job._id) ? 'solid' : 'regular'} fa-bookmark`}></i>
+                                </button>
                             </div>
                         </header>
                         <div className="details">
                             <div>
                                 <div className="applicants-list">
-                                <img src="public/media/pexels-alipli-15003448.jpg" alt="" /> 
-                                <img src="public/media/pexels-anthonyshkraba-production-8278885.jpg" alt="" />
-                                <img src="public/media/pexels-visoesdomundo-3586798.jpg" alt="" />
-                                <strong>14+ Applied</strong>
+                                <img src="public/media/pexels-alipli-15003448.jpg" alt="applicant-1"/> 
+                                <img src="public/media/pexels-anthonyshkraba-production-8278885.jpg" alt="applicant-2"/>
+                                <img src="public/media/pexels-visoesdomundo-3586798.jpg" alt="applicant-3"/>
+                                <span className="applicant-count">14+ Applied</span>
                                 </div>
                                 <div className="tags">
-                                    <li><i className="fa-solid fa-location-dot"></i>{job.location}</li>
-                                    <li><i className="fas fa-briefcase"></i>{job.jobType}</li>
-                                    <li><i className="fas fa-user-tie"></i>{job.experienceLevel}</li>
+                                    <span><i className="fa-solid fa-location-dot"></i>{job.location}</span>
+                                    <span><i className="fas fa-briefcase"></i>{job.jobType}</span>
+                                    <span><i className="fas fa-user-tie"></i>{job.experienceLevel}</span>
                                 </div>
                             </div>
                             <div className="row">
                                 <div className="match-score">
-                                    <span>{job.similarity}</span>
+                                    <strong>{job.similarity}</strong>
                                     <div>
                                         <h6>Match Score</h6>
                                         <p>You're a perfect fit</p>
                                     </div>
                                 </div>
-                                <div className="salary">
-                                    <h3>${job.salary}/<span>year</span></h3>
-                                </div>
+                                <span className="salary">
+                                    <h3>${job.salary} <span>per year</span></h3>
+                                </span>
                             </div>
                         </div>
                     </>

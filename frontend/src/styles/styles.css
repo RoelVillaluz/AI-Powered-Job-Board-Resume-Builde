@@ -655,6 +655,14 @@ button {
     object-fit: cover;
 }
 
+#top-job button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    outline: none;
+}
+
 #top-job i {
     cursor: pointer;
 }
@@ -682,9 +690,10 @@ button {
     margin-left: -0.5rem;
 }
 
-#top-job .applicants-list strong {
+#top-job .applicant-count {
     font-size: clamp(0.35rem, 0.65vw, 1.25rem);
-    margin-left: 0.75rem;
+    font-weight: 700;
+    margin-left: 0.5rem;
 }
 
 #top-job .tags {
@@ -703,7 +712,7 @@ button {
     padding: 1.5rem 0;
 }
 
-#top-job .match-score span {
+#top-job .match-score strong {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -790,7 +799,7 @@ button {
     margin-top: 1rem;
 }
 
-.tags li {
+.tags span {
     display: flex;
     align-items: center;
     gap: 0.25rem;

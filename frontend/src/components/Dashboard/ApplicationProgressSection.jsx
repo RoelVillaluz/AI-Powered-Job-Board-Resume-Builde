@@ -1,6 +1,25 @@
+import axios from "axios";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
-function ApplicationProgressSection({ loading }) {
+function ApplicationProgressSection({ user, baseUrl, loading }) {
+    const [appliedJobs, setAppliedJobs] = useState([]);
+    const [savedJobs, setSavedJobs] = useState([]);
+
+    useEffect(() => {
+        const fetchInteractedJobs = async () => {
+            try {
+                const response = await axios.get(`${baseUrl}/users/${user._id}/interacted-jobs`)
+                console.log(response.data.data)
+
+                setAppliedJobs(response.data.data.appliedJobs)
+                setSavedJobs(response.data.data.savedJobs)
+            } catch (error) {
+                console.error('Error', error)
+            }
+        }
+        fetchInteractedJobs()
+    }, [baseUrl, user])
     return(
         <>
             <section className={`grid-item ${loading !== true ? '' : 'skeleton'}`} id="application-progress">

@@ -84,7 +84,7 @@ function Dashboard () {
                         <JobRecommendationsSection jobRecommendations={jobRecommendations} loading={loading}/>
                         <UserStreakSection user={user} baseUrl={baseUrl} loading={loading}/>
                         <section className="grid-item"></section>
-                        <ApplicationProgressSection loading={loading}/>
+                        <ApplicationProgressSection user={user} baseUrl={baseUrl} loading={loading}/>
                         <OnlineCoursesSection user={user} baseUrl={baseUrl} loading={loading}/>
                     </div>
                 </div>

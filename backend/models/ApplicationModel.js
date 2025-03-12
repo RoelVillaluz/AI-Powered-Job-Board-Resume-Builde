@@ -21,14 +21,6 @@ const applicationSchema = new mongoose.Schema({
         enum: ['Pending', 'Reviewed', 'Accepted', 'Rejected'],
         default: 'Pending'
     },
-    questions: [{
-        question: {
-            type: String,
-        },
-        answer: {
-            type: String
-        }
-    }],
     appliedAt: {
         type: Date,
         default: Date.now

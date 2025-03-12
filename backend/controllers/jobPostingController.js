@@ -109,3 +109,30 @@ export const toggleSaveJob = async (req, res) => {
         console.error(error)
     }
 }
+
+export const toggleApplyJob = async (req, res) => {
+    const { id } = req.params
+    const userId = req.user.id
+
+    try {
+        const appliedJob = await JobPosting.findById(id)
+        const user = await User.findById(userId)
+
+        if (!user || user.role !== "jobseeker") {
+            return sendResponse(res, { ...STATUS_MESSAGES.ERROR.FORBIDDEN, success: false }, "Only jobseekers can save jobs.");
+        }
+        const isApplied = user.appliedJobs.includes(appliedJob)
+
+        if (isApplied) {
+            user.appliedJobs = user.appliedJobs.filter(jobId => jobId.toString() !== id)
+        } else {
+            user.savedJobs.push(id)
+        }
+
+        await user.save()
+
+        return res.json({ message: isApplied ? 'Job applied successfully' : 'Job unapplied unsuccessfully', data: isApplied, success: true })
+    } catch (error) {
+        console.error(error)
+    }
+}

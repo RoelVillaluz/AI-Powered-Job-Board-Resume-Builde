@@ -35,6 +35,10 @@ const jobPostingSchema = new mongoose.Schema({
     skills: [{
         name: { type: String, required: true }
     }],  
+    preScreeningQuestions: [{
+        question: { type: String, required: true },
+        required: { type: Boolean, default: true }, // Flag to indicate if answering the question is mandatory
+    }],
     postedAt: {
         type: Date,
         default: Date.now

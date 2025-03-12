@@ -1,9 +1,12 @@
 import User from '../models/userModel.js';
 import { TempUser } from '../models/tempUserModel.js';
+import { Application } from '../models/applicationModel.js';
+import JobPosting from "../models/jobPostingModel.js"
 import { checkMissingFields, sendVerificationEmail } from '../utils.js';
 import { STATUS_MESSAGES, sendResponse } from '../constants.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import mongoose from 'mongoose';
 
 export const getUsers = async (req, res) => {
     try {
@@ -177,6 +180,48 @@ export const createUser = async (req, res) => {
         return sendResponse(res, STATUS_MESSAGES.ERROR.SERVER, 'User');
     }
 };
+
+export const applyToJob = async (req, res) => {
+    const jobApplicationData = req.body;
+    const { jobId } = req.params;
+
+    const requiredFields = ['applicant', 'resume']
+
+    // Check for missing fields
+    const missingField = checkMissingFields(requiredFields, jobApplicationData);
+    if (missingField) {
+        return sendResponse(res, STATUS_MESSAGES.ERROR.MISSING_FIELD(missingField), 'Job Application');
+    }
+
+    try {
+        // Check if the job posting exists
+        const jobPosting = await JobPosting.findById(jobId)
+        if (!jobPosting) {
+            return sendResponse(res, { ...STATUS_MESSAGES.ERROR.NOT_FOUND, success: false }, 'Job Posting')
+        }
+
+        // Validate and extract user ID
+        const userId = req.user.id;
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
+            console.error('Invalid user ID:', userId);
+            return res.status(400).json({ message: 'Invalid user ID format', success: false });
+        }
+
+        // Create the new application and associate it with the job posting
+        const newApplication = new Application({
+            ...jobApplicationData,
+            jobPosting: new mongoose.Types.ObjectId(jobId),
+            applicant: new mongoose.Types.ObjectId(userId)
+        })
+
+        await newApplication.save()
+        
+        return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.CREATE, data: newApplication }, 'Job Application')
+    } catch (error) {
+        console.error('Error', error)
+        return sendResponse(res, { ...STATUS_MESSAGES.ERROR.SERVER, success: false }, 'Job Application')
+    }
+}
 
 export const updateUser = async (req, res) => {
     const { id } = req.params;

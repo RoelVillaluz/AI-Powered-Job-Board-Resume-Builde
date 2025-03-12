@@ -73,44 +73,59 @@ export const AuthProvider = ({ children }) => {
         setUser(null);
     };
 
-    const toggleSaveJob = async (e, jobId) => {
+    const handleJobAction = async (e, jobId, actionType) => {
         try {
-            e.preventDefault();
-            e.stopPropagation();
-    
             if (!user) {
                 console.error("User not authenticated");
                 return;
             }
-    
-            const token = localStorage.getItem("authToken"); // Get token from localStorage
+            
+            const token = localStorage.getItem("authToken")
             if (!token) {
-                console.error("No token found");
+                console.log('Token not found')
                 return;
             }
-    
+
+            const endpoints = {
+                save: `http://localhost:5000/api/job-postings/${jobId}/save-job`,
+                apply: `http://localhost:5000/api/job-postings/${jobId}/apply-to-job`,
+            }
+            
+            const userStateKeys = {
+                save: savedJobs,
+                apply: appliedJobs
+            }
+
+            if (!endpoints[actionType] || !userStateKeys[actionType]) {
+                console.error("Invalid action type");
+                return;
+            }
+
             const response = await axios.post(
-                `http://localhost:5000/api/job-postings/${jobId}/save-job`,
+                endpoints[actionType],
                 {}, // No request body needed
                 {
                     headers: {
-                        Authorization: `Bearer ${token}`, // Attach token
-                    },
+                        Authorization: `Bearer ${token}`
+                    }
                 }
-            );
-    
-            console.log(response.data); // Check response
+            )
+
+            console.log(response.data);
 
             setUser((prevUser) => ({
                 ...prevUser,
-                savedJobs : prevUser.savedJobs.includes(jobId)
-                        ? prevUser.savedJobs.filter((id) => id !== jobId) // remove if already saved
-                        : [...prevUser.savedJobs, jobId] // add if not saved
-            }))
+                [userStateKeys[actionType]]: prevUser[userStateKeys[actionType]].includes(jobId)
+                    ? prevUser[userStateKeys[actionType]].filter((id) => id !== jobId) // Remove if already added
+                    : [...prevUser[userStateKeys[actionType]], jobId] // Add if not added
+            }));
+
         } catch (error) {
-            console.error("Error saving job:", error.response?.data || error.message);
+            console.error('Error', error)
         }
-    };
+    }
+    const toggleSaveJob = (e, jobId) => handleJobAction(e, jobId, "save")
+    const toggleApplyJob = (e, jobId) => handleJobAction(e, jobId, "apply")
 
     return (
         <AuthContext.Provider value={{ user, setUser, login, logout, loading, refreshUser, toggleSaveJob }}>

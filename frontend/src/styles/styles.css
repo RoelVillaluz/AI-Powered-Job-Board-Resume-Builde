@@ -925,6 +925,25 @@ button {
     color: white;
 }
 
+#application-progress .swiper {
+    width: 100%;
+}
+
+#application-progress .swiper-slide {
+    cursor: pointer;
+}
+
+#application-progress .swiper-pagination-bullet {
+    background-color: var(--disabled); 
+    width: 10px;
+    height: 10px;
+    opacity: 1; 
+}
+
+#application-progress .swiper-pagination-bullet-active {
+    background-color: white; 
+}
+
 #application-progress header {
     display: flex;
     align-items: center;

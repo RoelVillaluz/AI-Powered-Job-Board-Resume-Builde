@@ -1,5 +1,5 @@
 import express from "express"
-import { getUsers, getUser, getCurrentUser, authenticateUser, createUser, updateUser, deleteUser, verifyUser, resendVerificationCode, loginUser, trackUserLogin } from "../controllers/userController.js"
+import { getUsers, getUser, getCurrentUser, authenticateUser, createUser, updateUser, deleteUser, verifyUser, resendVerificationCode, loginUser, trackUserLogin, getUserInteractedJobs } from "../controllers/userController.js"
 import multer from "multer"
 import path from "path";
 
@@ -19,6 +19,7 @@ const router = express.Router();
 router.get('/', getUsers)
 router.get("/me", authenticateUser, getCurrentUser)
 router.get('/:id', getUser)
+router.get('/:id/interacted-jobs/:jobActionType?', getUserInteractedJobs);
 
 router.post('/', createUser)
 router.post('/resend-verification-code', resendVerificationCode)

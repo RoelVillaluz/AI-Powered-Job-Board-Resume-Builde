@@ -55,6 +55,54 @@ export const getCurrentUser = async (req, res) => {
     }
 };
 
+export const getUserInteractedJobs = async (req, res) => {
+    const { id } = req.params
+    const { jobActionType } = req.params // get whether applied or saved jobs
+
+    try {
+        // Find the user by ID and populate the required fields based on jobActionType
+        let userQuery = User.findById(id)
+            .populate({
+                path: 'savedJobs',
+                populate: {
+                    path: 'company',
+                    select: 'name logo' 
+                }
+            })
+            .populate({
+                path: 'appliedJobs',
+                populate: {
+                    path: 'company',
+                    select: 'name logo' 
+                }
+            });
+
+        // execute the query
+        const user = await userQuery.exec()
+
+        if (!user) {
+            return sendResponse(res, { ...STATUS_MESSAGES.ERROR.NOT_FOUND, success: false }, 'Jobs')
+        }
+
+        if (jobActionType === 'savedJobs') {
+            return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.FETCH, data: user.savedJobs })
+        } else if (jobActionType === 'appliedJobs') {
+            return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.FETCH, data: user.appliedJobs }, 'Jobs')
+        } else {
+            // If no jobActionType, return both savedJobs and appliedJobs
+            return sendResponse(res, { 
+                ...STATUS_MESSAGES.SUCCESS.FETCH, 
+                data: {
+                    savedJobs: user.savedJobs,
+                    appliedJobs: user.appliedJobs
+            }}, 'Jobs')
+        }
+    } catch (error) {
+        console.error('Error', error)
+        return sendResponse(res, { ...STATUS_MESSAGES.ERROR.SERVER, success: false })
+    }
+}
+
 
 export const authenticateUser = async (req, res, next) => {
     const token = req.header("Authorization")?.split(" ")[1]; // Expecting "Bearer <token>"

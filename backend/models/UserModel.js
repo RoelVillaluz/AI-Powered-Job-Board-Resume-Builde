@@ -65,6 +65,10 @@ const userSchema = new mongoose.Schema({
             message: "Only jobseekers can save jobs."
         }
     }],
+    appliedJobs: [{ 
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Application",
+    }],
     streakCount: {
         type: Number,
         default: 0

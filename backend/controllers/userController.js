@@ -1,6 +1,6 @@
 import User from '../models/userModel.js';
 import { TempUser } from '../models/tempUserModel.js';
-import { Application } from '../models/applicationModel.js';
+import Application from '../models/applicationModel.js';
 import JobPosting from "../models/jobPostingModel.js"
 import { checkMissingFields, sendVerificationEmail } from '../utils.js';
 import { STATUS_MESSAGES, sendResponse } from '../constants.js';

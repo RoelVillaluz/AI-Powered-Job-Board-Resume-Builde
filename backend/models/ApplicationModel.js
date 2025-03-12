@@ -1,4 +1,5 @@
 import mongoose, { mongo } from "mongoose";
+import User from "./userModel";
 
 const applicationSchema = new mongoose.Schema({
     jobPosting: {
@@ -31,7 +32,25 @@ const applicationSchema = new mongoose.Schema({
     },
 })
 
-applicationSchema.pre('save')
+applicationSchema.pre('save', async function next() {
+    const application = this;
+
+    try {
+        const applicant = await User.findById(application.applicant);
+        
+        if (!applicant) {
+            return next(new Error("Applicant not found"));
+        }
+
+        if (applicant.role !== 'jobseeker') {
+            return next(new Error("Only jobseekers can apply for jobs"));
+        }
+
+        next(); 
+    } catch (error) {
+        return next(error); 
+    }
+})
 
 const Application = new mongoose.model("Application", applicationSchema)
 export default Application

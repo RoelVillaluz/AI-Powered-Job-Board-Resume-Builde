@@ -1058,6 +1058,17 @@ button {
     border-radius: 1000px;
 }
 
+#application-progress .status-toggle-buttons {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: auto;
+    gap: 1rem;
+    background-color: rgb(40, 40, 40);
+    border-radius: 1000px;
+}
+
 #application-progress .status-toggle-buttons button {
     flex: 1;
     border: none;
@@ -1065,11 +1076,13 @@ button {
     border-radius: 1000px;
     padding: 0.5rem 1rem;
     cursor: pointer;
-}
-
-#application-progress .status-toggle-buttons button:not(:first-of-type) {
     background-color: transparent;
     color: white;
+}
+
+#application-progress .status-toggle-buttons button.active {
+    background-color: white;
+    color: rgb(40, 40, 40);
 }
 
 #online-courses {

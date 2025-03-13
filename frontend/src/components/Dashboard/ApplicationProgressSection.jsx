@@ -39,7 +39,9 @@ function ApplicationProgressSection({ user, baseUrl, loading }) {
                                 style={{ width: "100%", height: "100%", paddingBottom: "2rem" }}
                                 loop={true}
                             >
-                                {appliedJobs.map((job, index) => (
+                                {appliedJobs
+                                        .filter(job => applicationStatuses(showOngoing).includes(job.status))
+                                        .map((job, index) => (
                                     <SwiperSlide key={index}>
                                         <header>
                                             <div className="job">

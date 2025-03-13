@@ -10,6 +10,14 @@ import "swiper/css/pagination";
 function ApplicationProgressSection({ user, baseUrl, loading }) {
     const [appliedJobs, setAppliedJobs] = useState([]);
     const [savedJobs, setSavedJobs] = useState([]);
+    const [showOngoing, setShowOngoing] = useState(true);
+
+    const statusOptions = [
+        { key: true, label: "Ongoing", statuses: ['Pending', 'Reviewed', 'Interviewing'] },
+        { key: false, label: "Completed" }
+    ]
+
+    const applicationStatuses = status => status ? ['Pending', 'Reviewed', 'Interviewing'] : ['Accepted', 'Rejected'];
 
     useEffect(() => {
         const fetchInteractedJobs = async () => {
@@ -25,6 +33,7 @@ function ApplicationProgressSection({ user, baseUrl, loading }) {
         }
         fetchInteractedJobs()
     }, [baseUrl, user])
+
     return(
         <>
             <section className={`grid-item ${loading !== true ? '' : 'skeleton'}`} id="application-progress">
@@ -73,13 +82,22 @@ function ApplicationProgressSection({ user, baseUrl, loading }) {
                                 <header aria-hidden="true" class="decorative-header"></header>
                                 <div role="alert" className="empty-status">
                                     <i className="fas fa-box-open" aria-label="No job applications"></i>
-                                    <span>No job applications yet.</span>
+                                    <span>{showOngoing ? 'No job applications yet.' : 'No completed jobs yet.'}</span>
                                 </div>
                             </>
                         )}
                         <div className="status-toggle-buttons">
-                            <button type="button" aria-label="Show ongoing">Ongoing ({appliedJobs.length})</button>
-                            <button type="button" aria-label="Show completed">Completed</button>
+                            {statusOptions.map(({ key, label }) => (
+                                <button 
+                                    type="button" 
+                                    className={showOngoing === key ? 'active' : ''} 
+                                    key={key} 
+                                    aria-label={`Show ${label}`}
+                                    onClick={() => setShowOngoing(key)}
+                                    >
+                                        {label} ({appliedJobs.filter(job => applicationStatuses(key).includes(job.status)).length})
+                                </button>
+                            ))}
                         </div>
                     </>
 

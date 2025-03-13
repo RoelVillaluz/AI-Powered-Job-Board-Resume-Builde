@@ -67,10 +67,13 @@ function ApplicationProgressSection({ user, baseUrl, loading }) {
                                 ))}
                             </Swiper>
                         ) : (
-                            <div role="alert" className="empty-status">
-                                <i className="fas fa-box-open" aria-label="No job applications"></i>
-                                <span>No job applications yet.</span>
-                            </div>
+                            <>
+                                <header aria-hidden="true" class="decorative-header"></header>
+                                <div role="alert" className="empty-status">
+                                    <i className="fas fa-box-open" aria-label="No job applications"></i>
+                                    <span>No job applications yet.</span>
+                                </div>
+                            </>
                         )}
                         <div className="status-toggle-buttons">
                             <button type="button" aria-label="Show ongoing">Ongoing ({appliedJobs.length})</button>

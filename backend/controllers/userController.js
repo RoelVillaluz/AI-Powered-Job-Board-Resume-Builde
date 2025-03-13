@@ -181,6 +181,39 @@ export const createUser = async (req, res) => {
     }
 };
 
+export const toggleSaveJob = async (req, res) => {
+    const { jobId } = req.params;
+    const userId = req.user.id;
+
+    try {
+        const savedJob = await JobPosting.findById(jobId)
+
+        if (!savedJob) {
+            return sendResponse(res, { ...STATUS_MESSAGES.ERROR.NOT_FOUND, success: false}, 'Job posting')
+        }
+
+        const user = await User.findById(userId)
+        if (!user || user.role !== "jobseeker") {
+            return sendResponse(res, { ...STATUS_MESSAGES.ERROR.FORBIDDEN, success: false }, "Only jobseekers can save jobs.");
+        }
+
+        const isSaved = user.savedJobs.includes(id)
+
+        if (isSaved) {
+            user.savedJobs = user.savedJobs.filter(jobId => jobId.toString() !== id);
+        } else {
+            user.savedJobs.push(id)
+        }
+
+        await user.save();
+
+        return res.json({ message: isSaved ? 'Job saved successfully' : 'Job unsaved successfully', data: isSaved, success: true })
+
+    } catch (error) {
+        console.error(error)
+    }
+}
+
 export const applyToJob = async (req, res) => {
     const jobApplicationData = req.body;
     const { jobId } = req.params;

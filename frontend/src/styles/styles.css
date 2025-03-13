@@ -934,7 +934,7 @@ button {
 }
 
 #application-progress .swiper-pagination-bullet {
-    background-color: var(--disabled); 
+    background-color: rgb(70, 70, 70); 
     width: 10px;
     height: 10px;
     opacity: 1; 
@@ -955,6 +955,22 @@ button {
 
 #application-progress header h3 {
     font-size: clamp(0.5vw, 0.75vw, 2rem);
+}
+
+#application-progress .empty-status {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    flex-direction: column;
+    text-align: center;
+    width: 100%;
+    height: 100%;
+    color: rgb(150, 150, 150);
+}
+
+#application-progress .empty-status i {
+    font-size: clamp(3rem, 4vw, 7rem);
 }
 
 #application-progress .details {

@@ -87,8 +87,8 @@ export const AuthProvider = ({ children }) => {
             }
 
             const endpoints = {
-                save: `http://localhost:5000/api/job-postings/${jobId}/save-job`,
-                apply: `http://localhost:5000/api/job-postings/${jobId}/apply-to-job`,
+                save: `http://localhost:5000/api/users/save-job/${jobId}`,
+                apply: `http://localhost:5000/api/users/apply-to-job/${jobId}`,
             }
             
             const userStateKeys = {

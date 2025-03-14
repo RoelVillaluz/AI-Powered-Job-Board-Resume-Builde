@@ -65,8 +65,7 @@ export const getCurrentUser = async (req, res) => {
 };
 
 export const getUserInteractedJobs = async (req, res) => {
-    const { id } = req.params
-    const { jobActionType } = req.params // get whether applied or saved jobs
+    const { id, jobActionType } = req.params // get whether applied or saved jobs
 
     try {
         // Find the user by ID and populate the required fields based on jobActionType
@@ -80,10 +79,9 @@ export const getUserInteractedJobs = async (req, res) => {
             })
             .populate({
                 path: 'appliedJobs',
-                populate: {
-                    path: 'company',
-                    select: 'name logo' 
-                }
+                populate: [
+                    { path: 'jobPosting', populate: { path: 'company', select: 'name logo' } },
+                ]
             });
 
         // execute the query
@@ -261,10 +259,10 @@ export const applyToJob = async (req, res) => {
             await newApplication.save()
 
             // add job ID to user's applied jobs 
-            await User.findByIdAndUpdate(userId, {$addToSet: { appliedJobs: jobId }})
+            await User.findByIdAndUpdate(userId, {$addToSet: { appliedJobs: newApplication._id }})
         } else {
             await Application.findByIdAndDelete(existingApplication._id);
-            await User.findByIdAndUpdate(userId, { $pull: { appliedJobs: jobId }})
+            await User.findByIdAndUpdate(userId, { $pull: { appliedJobs: newApplication._id }})
         }
 
         return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.CREATE, data: newApplication }, 'Job Application')

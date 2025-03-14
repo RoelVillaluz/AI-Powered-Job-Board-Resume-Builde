@@ -1,6 +1,9 @@
 import { useState } from "react"
+import { useAuth } from "../AuthProvider";
 
-function TopJobSection({ job, user, toggleSaveJob, loading }) {
+function TopJobSection({ job, user, resume, loading }) {
+    const { toggleApplyJob } = useAuth();
+
     return (
         <>
             <section className={`grid-item ${!loading ? '' : 'skeleton'}`} id="top-job">

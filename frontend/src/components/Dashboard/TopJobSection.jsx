@@ -17,8 +17,8 @@ function TopJobSection({ job, user, resume, loading }) {
                                     <h3>{job.title}</h3>
                                     <p>{job.company.name}</p>
                                 </div>
-                                <button onClick={(e) => toggleSaveJob(e, job._id)} aria-label="Save job">
-                                    <i className={`fa-${user.savedJobs.includes(job._id) ? 'solid' : 'regular'} fa-bookmark`}></i>
+                                <button onClick={(e) => toggleApplyJob(e, job._id, resume)} aria-label="Apply to job">
+                                    {user.appliedJobs.includes(job._id) ? 'Unapply' : 'Apply'}
                                 </button>
                             </div>
                         </header>

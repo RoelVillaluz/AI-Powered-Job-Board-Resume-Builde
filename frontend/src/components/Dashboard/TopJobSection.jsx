@@ -3,7 +3,6 @@ import { useAuth } from "../AuthProvider";
 
 function TopJobSection({ job, user, resume, loading }) {
     const { toggleApplyJob } = useAuth();
-
     return (
         <>
             <section className={`grid-item ${!loading ? '' : 'skeleton'}`} id="top-job">
@@ -18,7 +17,7 @@ function TopJobSection({ job, user, resume, loading }) {
                                     <p>{job.company.name}</p>
                                 </div>
                                 <button onClick={(e) => toggleApplyJob(e, job._id, resume)} aria-label="Apply to job">
-                                    {user.appliedJobs.includes(job._id) ? 'Unapply' : 'Apply'}
+                                    {user.appliedJobs.some(application => application.jobPosting._id === job._id) ? 'Unapply' : 'Apply'}
                                 </button>
                             </div>
                         </header>

@@ -42,7 +42,13 @@ export const getUser = async (req, res) => {
 
 export const getCurrentUser = async (req, res) => {
     try {
-        const user = await User.findById(req.user.id).select("-password"); 
+        const user = await User.findById(req.user.id).select("-password").populate({
+            path: 'appliedJobs',
+            populate: {
+                path: 'jobPosting', 
+                model: 'JobPosting' // JobPostingModel
+            }
+        }); 
 
         if (!user) {
             return sendResponse(res, {...STATUS_MESSAGES.ERROR.NOT_FOUND, success: false}, 'User');

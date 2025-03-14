@@ -16,7 +16,7 @@ import UserStreakSection from "../components/Dashboard/UserStreakSection"
 
 function Dashboard () {
     const { baseUrl } = useData();
-    const { user, toggleSaveJob } = useAuth();
+    const { user } = useAuth();
     const [resumes, setResumes] = useState([]);
     const [name, setName] = useState(null);
     const [jobRecommendations, setJobRecommendations] = useState([]);

@@ -223,7 +223,7 @@ export const applyToJob = async (req, res) => {
     // Check for missing fields
     const missingField = checkMissingFields(requiredFields, jobApplicationData);
     if (missingField) {
-        return sendResponse(res, STATUS_MESSAGES.ERROR.MISSING_FIELD(missingField), 'Job Application');
+        return sendResponse(res, {...STATUS_MESSAGES.ERROR.MISSING_FIELD(missingField), success: false }, 'Job Application');
     }
 
     try {
@@ -234,21 +234,33 @@ export const applyToJob = async (req, res) => {
         }
 
         // Validate and extract user ID
-        const userId = req.user.id;
+        const userId = jobApplicationData.applicant
         if (!mongoose.Types.ObjectId.isValid(userId)) {
             console.error('Invalid user ID:', userId);
             return res.status(400).json({ message: 'Invalid user ID format', success: false });
         }
 
-        // Create the new application and associate it with the job posting
-        const newApplication = new Application({
-            ...jobApplicationData,
-            jobPosting: new mongoose.Types.ObjectId(jobId),
-            applicant: new mongoose.Types.ObjectId(userId)
-        })
+        const existingApplication = await Application.findOne({ applicant: userId, jobPosting: jobId })
+        let newApplication = null;
 
-        await newApplication.save()
-        
+        if (!existingApplication) {
+
+            // Create the new application and associate it with the job posting
+            newApplication = new Application({
+                ...jobApplicationData,
+                jobPosting: new mongoose.Types.ObjectId(jobId),
+                applicant: new mongoose.Types.ObjectId(userId)
+            })
+
+            await newApplication.save()
+
+            // add job ID to user's applied jobs 
+            await User.findByIdAndUpdate(userId, {$addToSet: { appliedJobs: jobId }})
+        } else {
+            await Application.findByIdAndDelete(existingApplication._id);
+            await User.findByIdAndUpdate(userId, { $pull: { appliedJobs: jobId }})
+        }
+
         return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.CREATE, data: newApplication }, 'Job Application')
     } catch (error) {
         console.error('Error', error)

@@ -80,7 +80,7 @@ function Dashboard () {
                         <UserProfileSection user={user} name={name} loading={loading}/>
                         <MessagesSection loading={loading}/>
                         <ViewsSection loading={loading}/>
-                        <TopJobSection job={topJob} user={user} toggleSaveJob={toggleSaveJob} loading={loading}/>
+                        <TopJobSection job={topJob} user={user} resume={resumes[0]} loading={loading}/>
                         <JobRecommendationsSection jobRecommendations={jobRecommendations} loading={loading}/>
                         <UserStreakSection user={user} baseUrl={baseUrl} loading={loading}/>
                         <section className="grid-item"></section>

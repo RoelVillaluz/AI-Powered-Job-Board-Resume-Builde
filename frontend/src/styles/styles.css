@@ -1053,18 +1053,6 @@ button {
     align-items: center;
     justify-content: center;
     margin-top: auto;
-    gap: 1rem;
-    background-color: rgb(40, 40, 40);
-    border-radius: 1000px;
-}
-
-#application-progress .status-toggle-buttons {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-top: auto;
-    gap: 1rem;
     background-color: rgb(40, 40, 40);
     border-radius: 1000px;
 }
@@ -1078,6 +1066,7 @@ button {
     cursor: pointer;
     background-color: transparent;
     color: white;
+    transition: 0.15s;
 }
 
 #application-progress .status-toggle-buttons button.active {

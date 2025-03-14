@@ -54,10 +54,10 @@ function ApplicationProgressSection({ user, baseUrl, loading }) {
                                     <SwiperSlide key={index}>
                                         <header>
                                             <div className="job">
-                                                <img src={job.company.logo} alt={`${job.company.name} logo`} />
+                                                <img src={job.jobPosting.company.logo} alt={`${job.jobPosting.company.name} logo`} />
                                                 <div>
-                                                    <h3>{job.title}</h3>
-                                                    <p>{job.company.name}</p>
+                                                    <h3>{job.jobPosting.title}</h3>
+                                                    <p>{job.jobPosting.company.name}</p>
                                                 </div>
                                             </div>
                                             <div className="status" aria-live="polite">

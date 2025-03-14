@@ -73,13 +73,13 @@ export const AuthProvider = ({ children }) => {
         setUser(null);
     };
 
-    const handleJobAction = async (e, jobId, actionType) => {
+    const handleJobAction = async (e, jobId, resume, actionType) => {
         try {
             if (!user) {
                 console.error("User not authenticated");
                 return;
             }
-            
+
             const token = localStorage.getItem("authToken")
             if (!token) {
                 console.log('Token not found')
@@ -92,8 +92,8 @@ export const AuthProvider = ({ children }) => {
             }
             
             const userStateKeys = {
-                save: savedJobs,
-                apply: appliedJobs
+                save: "savedJobs",
+                apply: "appliedJobs"
             }
 
             if (!endpoints[actionType] || !userStateKeys[actionType]) {
@@ -103,7 +103,10 @@ export const AuthProvider = ({ children }) => {
 
             const response = await axios.post(
                 endpoints[actionType],
-                {}, // No request body needed
+                { 
+                    applicant : String(user._id),
+                    resume: resume
+                }, 
                 {
                     headers: {
                         Authorization: `Bearer ${token}`
@@ -125,10 +128,10 @@ export const AuthProvider = ({ children }) => {
         }
     }
     const toggleSaveJob = (e, jobId) => handleJobAction(e, jobId, "save")
-    const toggleApplyJob = (e, jobId) => handleJobAction(e, jobId, "apply")
+    const toggleApplyJob = (e, jobId, resume) => handleJobAction(e, jobId, resume, "apply");
 
     return (
-        <AuthContext.Provider value={{ user, setUser, login, logout, loading, refreshUser, toggleSaveJob }}>
+        <AuthContext.Provider value={{ user, setUser, login, logout, loading, refreshUser, toggleSaveJob, toggleApplyJob }}>
             {!loading && children}
         </AuthContext.Provider>
     );

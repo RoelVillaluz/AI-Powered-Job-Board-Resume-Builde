@@ -79,7 +79,7 @@ function ApplicationProgressSection({ user, baseUrl, loading }) {
                             </Swiper>
                         ) : (
                             <>
-                                <header aria-hidden="true" class="decorative-header"></header>
+                                <header aria-hidden="true" className="decorative-header"></header>
                                 <div role="alert" className="empty-status">
                                     <i className="fas fa-box-open" aria-label="No job applications"></i>
                                     <span>{showOngoing ? 'No job applications yet.' : 'No completed jobs yet.'}</span>

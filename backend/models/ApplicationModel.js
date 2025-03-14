@@ -32,7 +32,7 @@ const applicationSchema = new mongoose.Schema({
     },
 })
 
-applicationSchema.pre('save', async function next() {
+applicationSchema.pre('save', async function (next) {
     const application = this;
 
     try {
@@ -46,11 +46,12 @@ applicationSchema.pre('save', async function next() {
             return next(new Error("Only jobseekers can apply for jobs"));
         }
 
-        next(); 
+        return next();
     } catch (error) {
         return next(error); 
     }
-})
+});
+
 
 const Application = new mongoose.model("Application", applicationSchema)
 export default Application

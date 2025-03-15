@@ -44,7 +44,7 @@ export const getJobRecommendations = async (req, res) => {
 
 
             return { ...job.toObject(), similarity: similarity, matchedSkills: matchedSkills };
-        }).filter(job => job.similarity > 0);
+        }).filter(job => job.similarity >= 50);
 
         // Sort and return top 10 jobs
         const sortedJobs = recommendedJobs

@@ -18,8 +18,8 @@ function ApplicationProgressSection({ user, baseUrl, loading }) {
     ]
 
     const applicationStatuses = status => status 
-? ['Pending', 'Reviewed', 'Interviewing'] 
-: ['Accepted', 'Rejected'];
+    ? ['Pending', 'Reviewed', 'Interviewing'] 
+    : ['Accepted', 'Rejected'];
 
     useEffect(() => {
         const fetchInteractedJobs = async () => {
@@ -51,6 +51,8 @@ function ApplicationProgressSection({ user, baseUrl, loading }) {
                                 loop={true}
                             >
                                 {appliedJobs
+                                    .filter(application => applicationStatuses(showOngoing).includes(application.status))
+                                    .map((application, index) => {
                                         const statuses = applicationStatuses(showOngoing); 
                                         const totalStages = 4;
 
@@ -62,27 +64,29 @@ function ApplicationProgressSection({ user, baseUrl, loading }) {
                                         } else {
                                             stageNumber = statuses.indexOf(application.status) + 1;
                                         }
-                                    <SwiperSlide key={index}>
-                                        <header>
-                                            <div className="job">
-                                                <img src={job.jobPosting.company.logo} alt={`${job.jobPosting.company.name} logo`} />
-                                                <div>
-                                                    <h3>{job.jobPosting.title}</h3>
-                                                    <p>{job.jobPosting.company.name}</p>
-                                                </div>
-                                            </div>
-                                            <div className="status" aria-live="polite">
-                                                <span>Ongoing</span>
-                                            </div>
-                                        </header>
 
-                                        <div className="details">
-                                            <div className="stage">
-                                                <span>Stage 1/4</span>
-                                                <h1>Applied</h1>
-                                            </div>
-                                            <div className="time">
-                                                <p>
+                                        return (
+                                            <SwiperSlide key={index}>
+                                                <header>
+                                                    <div className="job">
+                                                        <img src={application.jobPosting.company.logo} alt={`${application.jobPosting.company.name} logo`} />
+                                                        <div>
+                                                            <h3>{application.jobPosting.title}</h3>
+                                                            <p>{application.jobPosting.company.name}</p>
+                                                        </div>
+                                                    </div>
+                                                    <div className="status" aria-live="polite">
+                                                        <span>Ongoing</span>
+                                                    </div>
+                                                </header>
+
+                                                <div className="details">
+                                                    <div className="stage">
+                                                        <span>Stage {stageNumber}/{totalStages}</span>
+                                                        <h1>{application.status}</h1>
+                                                    </div>
+                                                    <div className="time">
+                                                        <p>
                                                         Submitted <time dateTime={application.appliedAt}>
                                                             {new Intl.DateTimeFormat("en-US", {
                                                             year: "numeric",
@@ -93,11 +97,13 @@ function ApplicationProgressSection({ user, baseUrl, loading }) {
                                                             hour12: true,
                                                             }).format(new Date(application.appliedAt))}
                                                         </time>
-</p>
-                                            </div>
-                                        </div>
-                                    </SwiperSlide>
-                                ))}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </SwiperSlide>
+                                        );
+                                    })
+                                }
                             </Swiper>
                         ) : (
                             <>

@@ -17,7 +17,9 @@ function ApplicationProgressSection({ user, baseUrl, loading }) {
         { key: false, label: "Completed" }
     ]
 
-    const applicationStatuses = status => status ? ['Pending', 'Reviewed', 'Interviewing'] : ['Accepted', 'Rejected'];
+    const applicationStatuses = status => status 
+? ['Pending', 'Reviewed', 'Interviewing'] 
+: ['Accepted', 'Rejected'];
 
     useEffect(() => {
         const fetchInteractedJobs = async () => {
@@ -49,8 +51,17 @@ function ApplicationProgressSection({ user, baseUrl, loading }) {
                                 loop={true}
                             >
                                 {appliedJobs
-                                        .filter(job => applicationStatuses(showOngoing).includes(job.status))
-                                        .map((job, index) => (
+                                        const statuses = applicationStatuses(showOngoing); 
+                                        const totalStages = 4;
+
+                                        let stageNumber;
+                                        if (application.status === "Accepted") {
+                                            stageNumber = 4; // Final stage
+                                        } else if (application.status === "Rejected") {
+                                            stageNumber = 1; // Automatically set to first stage
+                                        } else {
+                                            stageNumber = statuses.indexOf(application.status) + 1;
+                                        }
                                     <SwiperSlide key={index}>
                                         <header>
                                             <div className="job">

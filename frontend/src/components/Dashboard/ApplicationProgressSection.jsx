@@ -71,7 +71,18 @@ function ApplicationProgressSection({ user, baseUrl, loading }) {
                                                 <h1>Applied</h1>
                                             </div>
                                             <div className="time">
-                                                <p>Submitted <time datetime="2025-03-08T11:07:00">March 8, 2025 • 11:07 AM</time></p>
+                                                <p>
+                                                        Submitted <time dateTime={application.appliedAt}>
+                                                            {new Intl.DateTimeFormat("en-US", {
+                                                            year: "numeric",
+                                                            month: "long",
+                                                            day: "numeric",
+                                                            hour: "numeric",
+                                                            minute: "2-digit",
+                                                            hour12: true,
+                                                            }).format(new Date(application.appliedAt))}
+                                                        </time>
+</p>
                                             </div>
                                         </div>
                                     </SwiperSlide>

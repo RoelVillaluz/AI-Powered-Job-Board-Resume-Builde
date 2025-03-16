@@ -1,6 +1,9 @@
+import axios from "axios"
+import { useEffect } from "react"
 import { Link } from "react-router-dom"
 
 function UserProfileSection({ user, name, loading }) {
+
     return(
         <section className={`grid-item ${!loading ? '' : 'skeleton'}`} id="profile">
             {!loading && (
@@ -8,7 +11,7 @@ function UserProfileSection({ user, name, loading }) {
                     <header>
                         <h3>Profile</h3>
                     </header>
-                    <Link to={'my-profile'} className="image-container" aria-label={`Go to ${name}'s profile`}>
+                    <Link to={`profile/${user._id}`} className="image-container" aria-label={`Go to ${name}'s profile`}>
                         <i className="fa-solid fa-arrow-right" aria-hidden="true"></i>
                         <img src={user.profilePicture} alt={`${name}'s profile picture`} />
                         <div className="details">

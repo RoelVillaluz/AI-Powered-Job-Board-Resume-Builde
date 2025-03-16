@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import bcrypt from 'bcrypt';
-import Company from "./companyModel.js"
-import Resume from "./resumeModel.js"
+import Company from "./companyModel.js";
+import Resume from "./resumeModel.js";
 
 const userSchema = new mongoose.Schema({
     email: {
@@ -33,37 +33,17 @@ const userSchema = new mongoose.Schema({
     },
     company: {
         type: mongoose.Schema.Types.ObjectId,
-        default: undefined, 
         ref: "Company",
-        validate: {
-            validator: function () {
-                return this.role === "employer";
-            },
-            message: "Only employers can have associated companies."
-        }        
+        default: undefined, 
     },
     resumes: [{
         type: mongoose.Schema.Types.ObjectId,
-        default: undefined, 
         ref: "Resume",
         select: false, 
-        validate: {
-            validator: function () {
-                // Only allow resumes field if the role is 'jobseeker'
-                return this.role === "jobseeker";
-            },
-            message: "Only jobseekers can have associated resumes."
-        }
     }],
     savedJobs: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: "JobPosting",
-        validate: {
-            validator: function () {
-                return this.role === "jobseeker";
-            },
-            message: "Only jobseekers can save jobs."
-        }
     }],
     appliedJobs: [{ 
         type: mongoose.Schema.Types.ObjectId,
@@ -76,20 +56,43 @@ const userSchema = new mongoose.Schema({
     loggedInDates: [
         { type: String }
     ],
+    totalViews: { 
+        type: Number, 
+        default: 0 
+    },
+    viewsHistory: [{
+        date: { type: String, required: true },  
+        count: { type: Number, default: 0 },  
+        viewers: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }]  
+    }],    
     createdAt: {
         type: Date,
         default: Date.now
     }
-})
+});
+
+// Helper function for role-based validation
+function validateRole(field, role) {
+    return function () {
+        if (!this.role) return true; 
+        return this.role === role;
+    };
+}
+
+// Apply role-based validation dynamically
+userSchema.path("company").validate(validateRole("company", "employer"), "Only employers can have associated companies.");
+userSchema.path("resumes").validate(validateRole("resumes", "jobseeker"), "Only jobseekers can have associated resumes.");
+userSchema.path("savedJobs").validate(validateRole("savedJobs", "jobseeker"), "Only jobseekers can save jobs.");
+userSchema.path("appliedJobs").validate(validateRole("appliedJobs", "jobseeker"), "Only jobseekers can apply to jobs.");
 
 userSchema.pre("deleteOne", { document: true, query: false }, async function (next) {
     if (this.role === 'jobseeker') {
-        await Resume.deleteMany({ _id: { $in: this.resumes }})
+        await Resume.deleteMany({ _id: { $in: this.resumes }});
     } else if (this.role === 'employer') {
-        await Company.deleteOne({ _id: this.company })
+        await Company.deleteOne({ _id: this.company });
     }
     next();
-}) 
+}); 
 
-const User = mongoose.model('User', userSchema)
-export default User
+const User = mongoose.model('User', userSchema);
+export default User;

@@ -1,5 +1,5 @@
 import express from "express"
-import { getUsers, getUser, getCurrentUser, authenticateUser, createUser, updateUser, deleteUser, verifyUser, resendVerificationCode, loginUser, trackUserLogin, getUserInteractedJobs, toggleSaveJob, applyToJob } from "../controllers/userController.js"
+import { getUsers, getUser, getCurrentUser, authenticateUser, createUser, updateUser, deleteUser, verifyUser, resendVerificationCode, loginUser, trackUserLogin, getUserInteractedJobs, toggleSaveJob, applyToJob, incrementUserViews } from "../controllers/userController.js"
 import multer from "multer"
 import path from "path";
 
@@ -30,6 +30,7 @@ router.post('save-job/:jobId', authenticateUser, toggleSaveJob)
 router.post('/apply-to-job/:jobId', authenticateUser, applyToJob)
 
 router.patch('/:id', upload.single('profilePicture'), updateUser)
+router.patch('/view-profile/:userId', authenticateUser, incrementUserViews)
 
 router.delete('/:id', deleteUser)
 

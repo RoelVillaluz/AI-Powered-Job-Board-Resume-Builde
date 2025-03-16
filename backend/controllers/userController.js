@@ -31,6 +31,8 @@ export const getUser = async (req, res) => {
             user.profilePicture = user.profilePicture.replace(/\\/g, '/');
             user.profilePicture = `profile_pictures/${user.profilePicture.split('/').pop()}`
             console.log("Normalized user profile picture:", user.profilePicture); // Debugging: Check normalized path
+} else {
+            user.profilePicture = 'profile_pictures/default.jpg'
         }
 
         return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.FETCH, data: user }, 'User');

@@ -13,6 +13,7 @@ import ViewsSection from "../components/Dashboard/ViewsSection"
 import TopJobSection from "../components/Dashboard/TopJobSection"
 import OnlineCoursesSection from "../components/Dashboard/OnlineCoursesSection"
 import UserStreakSection from "../components/Dashboard/UserStreakSection"
+import SalaryPredictionSection from "../components/Dashboard/SalaryPredictionSection"
 
 function Dashboard () {
     const { baseUrl } = useData();
@@ -79,13 +80,19 @@ function Dashboard () {
                     <div className="grid-container">
                         <UserProfileSection user={user} name={name} loading={loading}/>
                         <MessagesSection loading={loading}/>
-                        <ViewsSection loading={loading}/>
+                        <TopJobSection job={topJob} user={user} resume={resumes[0]} loading={loading}/>
+                        <ApplicationProgressSection user={user} baseUrl={baseUrl} loading={loading}/>
+                        <SalaryPredictionSection/>
+                        <section className="grid-item"></section>
+                        <section className="grid-item"></section>
+                        <OnlineCoursesSection user={user} baseUrl={baseUrl} loading={loading}/>
+                        {/* <ViewsSection user={user} loading={loading}/>
                         <TopJobSection job={topJob} user={user} resume={resumes[0]} loading={loading}/>
                         <JobRecommendationsSection jobRecommendations={jobRecommendations} loading={loading}/>
                         <UserStreakSection user={user} baseUrl={baseUrl} loading={loading}/>
                         <section className="grid-item"></section>
                         <ApplicationProgressSection user={user} baseUrl={baseUrl} loading={loading}/>
-                        <OnlineCoursesSection user={user} baseUrl={baseUrl} loading={loading}/>
+                        <OnlineCoursesSection user={user} baseUrl={baseUrl} loading={loading}/> */}
                     </div>
                 </div>
             </Layout>

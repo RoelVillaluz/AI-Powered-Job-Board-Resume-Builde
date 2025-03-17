@@ -6,7 +6,7 @@ function TopJobSection({ job, user, resume, loading }) {
     return (
         <>
             <section className={`grid-item ${!loading ? '' : 'skeleton'}`} id="top-job">
-                {!loading && (
+                {!loading && job && (
                     <>
                     <div className="banner"></div>
                         <header>

@@ -301,36 +301,31 @@ button {
 }
 
 .grid-item:nth-of-type(3) {
-    grid-column: span 2;
-    grid-row: span 6;
-}
-
-.grid-item:nth-of-type(4) {
     grid-column: span 4;
-    grid-row: span 5;
-}
-
-.grid-item:nth-of-type(5) {
-    grid-column: span 3;
     grid-row: span 7;
 }
 
+.grid-item:nth-of-type(4) {
+    grid-column: 4 / span 4;
+    grid-row: 8 / span 5;
+}
+
+.grid-item:nth-of-type(5) {
+    grid-column: span 5;
+    grid-row: span 5;
+}
+
 .grid-item:nth-of-type(6) {
-    grid-column: span 4;
+    grid-column: span 5;
     grid-row: span 2;
 }
 
 .grid-item:nth-of-type(7) {
     grid-column: span 2;
-    grid-row: span 6;
-}
-
-.grid-item:nth-of-type(8) {
-    grid-column: span 4;
     grid-row: span 5;
 }
 
-.grid-item:nth-of-type(9) {
+.grid-item:nth-of-type(8) {
     grid-column: span 3;
     grid-row: span 5;
 }

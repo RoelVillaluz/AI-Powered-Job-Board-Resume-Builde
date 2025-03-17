@@ -1,9 +1,10 @@
 import { Link } from "react-router-dom"
 
-function SalaryPredictionSection() {
+function SalaryPredictionSection({ loading }) {
     return (
-        <>
-            <section className="grid-item" id="salary-prediction">
+        <section className={`grid-item ${!loading ? '' : 'skeleton'}`} id="salary-prediction">
+            {!loading && (
+                <>
                 <header>
                     <div className="wrapper">
                         <i className="fa-solid fa-money-bill-1-wave"></i>
@@ -31,8 +32,9 @@ function SalaryPredictionSection() {
                         </div>
                     </div>
                 </div>
-            </section>
-        </>
+                </>
+            )}
+        </section>
     )
 }
 

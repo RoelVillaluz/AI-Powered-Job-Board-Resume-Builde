@@ -1069,12 +1069,77 @@ button {
     color: rgb(40, 40, 40);
 }
 
+#salary-prediction {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow: none;
+    background-color: var(--tertiary);
+}
+
+#salary-prediction header {
+    display: flex;
+    align-items: start;
+    justify-content: space-between;
+}
+
+#salary-prediction .wrapper {
+    align-items: center;
+    gap: 0.5rem;
+}
+
+#salary-prediction .fa-money-bill-1-wave {
+    background-color: var(--secondary);
+    color: white;
+    padding: 0.75rem;
+    font-size: clamp(0.5rem, 0.75vw, 1.5rem);
+    border-radius: 4px;
+}
+
+#salary-prediction .details {
+    display: flex;
+    flex-direction: column;
+}
+
+#salary-prediction .details h1 {
+    font-size: clamp(2rem, 3vw, 10rem);
+    font-weight: 500;
+    margin-left: -0.25rem;
+}
+
+#salary-prediction .stats-list {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 3rem;
+}
+
+#salary-prediction .stat {
+    position: relative;
+    padding-left: 0.5rem;
+}
+
+#salary-prediction .stat::before {
+    position: absolute;
+    content: '';
+    top: 0;
+    left: -4px;
+    width: 2px;
+    height: 100%;
+    background-color: var(--secondary);
+}
+
+#salary-prediction .stat h4 {
+    font-weight: 600;
+}
+
 #online-courses {
     position: relative;
     display: flex;
     flex-direction: column;
     padding: 0;
-    box-shadow: 0;
+    box-shadow: none;
+    border-radius: 0;
     gap: 0.5rem;
     background-color: transparent;
 }

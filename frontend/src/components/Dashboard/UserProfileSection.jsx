@@ -8,15 +8,12 @@ function UserProfileSection({ user, name, loading }) {
         <section className={`grid-item ${!loading ? '' : 'skeleton'}`} id="profile">
             {!loading && (
                 <>
-                    <header>
-                        <h3>Profile</h3>
-                    </header>
                     <Link to={`profile/${user._id}`} className="image-container" aria-label={`Go to ${name}'s profile`}>
-                        <i className="fa-solid fa-arrow-right" aria-hidden="true"></i>
                         <img src={user.profilePicture} alt={`${name}'s profile picture`} />
                         <div className="details">
-                            <h4 className="name">{name}</h4>
-                            <h5 className="job-title">Full Stack Developer</h5>
+                            <h2 className="name">{name}</h2>
+                            <h4 className="job-title">Full Stack Developer</h4>
+                            <p className="address"><i class="fa-solid fa-location-dot" aria-hidden="true"></i>Legazpi City, Philippines</p>
                         </div>
                     </Link>
                 </>

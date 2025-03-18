@@ -14,6 +14,7 @@ import TopJobSection from "../components/Dashboard/TopJobSection"
 import OnlineCoursesSection from "../components/Dashboard/OnlineCoursesSection"
 import UserStreakSection from "../components/Dashboard/UserStreakSection"
 import SalaryPredictionSection from "../components/Dashboard/SalaryPredictionSection"
+import ProfileScoreSection from "../components/Dashboard/ProfileScoreSection"
 
 function Dashboard () {
     const { baseUrl } = useData();
@@ -79,7 +80,7 @@ function Dashboard () {
                     </header>
                     <div className="grid-container">
                         <UserProfileSection user={user} name={name} loading={loading}/>
-                        <MessagesSection loading={loading}/>
+                        <ProfileScoreSection/>
                         <TopJobSection job={topJob} user={user} resume={resumes[0]} loading={loading}/>
                         <ApplicationProgressSection user={user} baseUrl={baseUrl} loading={loading}/>
                         <SalaryPredictionSection loading={loading}/>
@@ -87,6 +88,7 @@ function Dashboard () {
                         <section className="grid-item"></section>
                         <OnlineCoursesSection user={user} baseUrl={baseUrl} loading={loading}/>
                         {/* <ViewsSection user={user} loading={loading}/>
+                        <MessagesSection loading={loading}/>
                         <TopJobSection job={topJob} user={user} resume={resumes[0]} loading={loading}/>
                         <JobRecommendationsSection jobRecommendations={jobRecommendations} loading={loading}/>
                         <UserStreakSection user={user} baseUrl={baseUrl} loading={loading}/>

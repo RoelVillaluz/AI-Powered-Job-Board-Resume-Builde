@@ -82,7 +82,7 @@ function Dashboard () {
                         <MessagesSection loading={loading}/>
                         <TopJobSection job={topJob} user={user} resume={resumes[0]} loading={loading}/>
                         <ApplicationProgressSection user={user} baseUrl={baseUrl} loading={loading}/>
-                        <SalaryPredictionSection/>
+                        <SalaryPredictionSection loading={loading}/>
                         <section className="grid-item"></section>
                         <section className="grid-item"></section>
                         <OnlineCoursesSection user={user} baseUrl={baseUrl} loading={loading}/>

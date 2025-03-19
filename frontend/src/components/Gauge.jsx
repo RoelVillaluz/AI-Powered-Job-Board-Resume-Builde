@@ -36,7 +36,7 @@ function Gauge({ progress, messages }) {
                 ></div>
                 <div className="gauge-cover">
                     <h2>{Math.round(progress * 100)}<span>%</span></h2>
-                    <p>Resume score</p>
+                    <p>Effectiveness</p>
                 </div>
             </div>
             {showMessage(progress)}

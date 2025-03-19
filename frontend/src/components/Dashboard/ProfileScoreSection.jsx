@@ -34,11 +34,18 @@ function ProfileScoreSection() {
     };
 
     const showMessage = (value) => {
-        if (value <= 0.25) return 'Your resume is bad';
-        if (value > 0.25 && value <= 0.50) return 'Your resume is average';
-        if (value > 0.50 && value <= 0.75) return 'Your resume is good';
-        return 'Your resume is excellent';
+        const result = Object.entries(messages)
+            .sort(([a], [b]) => parseFloat(a) - parseFloat(b)) // Sort numerically
+            .find(([key]) => value <= parseFloat(key))?.[1] || messages[1];
+    
+        return (
+            <>
+                <h4>{result.rating}</h4>
+                <p>{result.message}</p>
+            </>
+        );
     };
+    
 
     return (
         <section className="grid-item" id="profile-score">
@@ -57,7 +64,7 @@ function ProfileScoreSection() {
                         <p>Resume score</p>
                     </div>
                 </div>
-                <p className="message">{showMessage(progress)}</p>
+                {showMessage(progress)}
             </div>
         </section>
     );

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import Gauge from "../Gauge";
 
-function ProfileScoreSection() {
+function ResumeScoreSection() {
     const [progress, setProgress] = useState(0.9); 
 
     const messages = {
@@ -28,7 +28,7 @@ function ProfileScoreSection() {
     };
 
     return (
-        <section className="grid-item" id="profile-score">
+        <section className="grid-item" id="resume-score">
             <header>
                 <h4>Resume Score</h4>
             </header>
@@ -37,4 +37,4 @@ function ProfileScoreSection() {
     );
 }
 
-export default ProfileScoreSection;
+export default ResumeScoreSection;

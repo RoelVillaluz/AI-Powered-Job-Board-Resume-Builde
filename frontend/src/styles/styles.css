@@ -385,10 +385,9 @@ button {
     margin-top: 0.15rem;
 }
 
-#profile-score {
+#resume-score {
     display: flex;
-    align-items: center;
-    justify-content: center;
+    justify-content: end;
     flex-direction: column;
     background-color: transparent;
     box-shadow: none;
@@ -397,7 +396,6 @@ button {
 
 .gauge {
     width: 100%;
-    max-width: 400px;
 }
 
 .gauge-body {
@@ -431,6 +429,7 @@ button {
     align-items: center;
     justify-content: center;
     flex-direction: column;
+    text-align: center;
     padding-bottom: 25%;
     width: 75%;
     height: 150%;
@@ -446,43 +445,6 @@ button {
     font-size: clamp(2rem, 2vw, 6rem);
     font-weight: 600;
 }
-
-/* 
-#profile-score .progress {
-    position: relative;
-    width: 50%;
-    aspect-ratio: 1 / 1;
-    border-radius: 50%;
-    background: transparent linear-gradient(to right, transparent 50%, black 0);
-}
-
-#profile-score .progress::before {
-    content: '';
-    display: block;
-    height: 100%;
-    margin-left: 50%;
-    transform-origin: left;
-    border-radius: 0 100% 100% 0/50%;
-    background-color: black;
-    transform: rotate(calc((var(--progress) - 50) * 0.01turn))
-}
-
-#profile-score .progress::after {
-    position: absolute;
-    content: '';
-    inset: 10px;
-    border-radius: 50%;
-    background-color: white;
-}
-
-#profile-score .progress h3 {
-    position: absolute;
-    transform: translate(-50%, -50%);
-    left: 50%;
-    top: 50%;
-    z-index: 3;
-    color: black;
-} */
 
 #messages {
     display: flex;

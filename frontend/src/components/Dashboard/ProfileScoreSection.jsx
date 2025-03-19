@@ -29,6 +29,9 @@ function ProfileScoreSection() {
 
     return (
         <section className="grid-item" id="profile-score">
+            <header>
+                <h4>Resume Score</h4>
+            </header>
             <Gauge progress={progress} messages={messages}/>
         </section>
     );

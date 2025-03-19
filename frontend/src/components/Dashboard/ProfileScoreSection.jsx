@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 function ProfileScoreSection() {
-    const finalProgress = 0.75; // Final progress value (0 to 1)
+    const finalProgress = 0.15; // Final progress value (0 to 1)
     const [progress, setProgress] = useState(0); // Start at 0 for animation
 
     useEffect(() => {
@@ -26,7 +26,7 @@ function ProfileScoreSection() {
                         style={{ 
                             transform: rotation, 
                             backgroundColor: 'black', 
-                            transition: "transform 1.5s ease-in-out" // Smooth rotation
+                            transition: "transform 1.5s ease-in-out"
                         }}
                     ></div>
                     <div className="gauge-cover">

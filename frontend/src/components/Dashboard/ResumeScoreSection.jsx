@@ -1,8 +1,22 @@
 import { useEffect, useState } from "react";
 import Gauge from "../Gauge";
+import axios from "axios";
 
-function ResumeScoreSection() {
-    const [progress, setProgress] = useState(0.9); 
+function ResumeScoreSection({ baseUrl, user, loading }) {
+    const [progress, setProgress] = useState(0); 
+
+    useEffect(() => {
+        const getResumeScore = async () => {
+            try {
+              const response = await axios.get(`${baseUrl}/ai/resume-score/${user._id}`)
+              console.log('Resume score:', response.data)
+              setProgress(response.data)
+            } catch (error) {
+              console.log('Error:', error)
+            }
+        }
+        getResumeScore()
+    })
 
     const messages = {
         0.25: {
@@ -28,11 +42,15 @@ function ResumeScoreSection() {
     };
 
     return (
-        <section className="grid-item" id="resume-score">
-            <header>
-                <h4>Resume Score</h4>
-            </header>
-            <Gauge progress={progress} messages={messages}/>
+        <section className={`grid-item ${!loading ? '' : 'skeleton'}`} id="resume-score">
+            {!loading && (
+                <>
+                <header>
+                    <h4>Resume Score</h4>
+                </header>
+                <Gauge progress={progress} messages={messages}/>
+                </>
+            )}
         </section>
     );
 }

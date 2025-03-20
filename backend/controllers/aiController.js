@@ -94,3 +94,42 @@ export const getRecommendedSkills = async (req, res) => {
         return sendResponse(res, { ...STATUS_MESSAGES.ERROR.SERVER_ERROR, success: false })
     }
 }
+
+export const getResumeScore = async (req, res) => {
+    try {
+        const { userId } = req.params;
+
+        if (!userId) {
+            return sendResponse(res, { ...STATUS_MESSAGES.ERROR.NOT_FOUND }, "User")
+        }
+
+        const pythonProcess = spawn("py", ["backend/python_scripts/resume_scorer.py", userId])
+
+        let result = ""
+        let errorOutput = ""
+
+        pythonProcess.stdout.on("data", (data) => {
+            result += data.toString()
+        })
+
+        pythonProcess.stderr.on("data", (data) => {
+            errorOutput += data.toString()
+        })
+
+        pythonProcess.on("close", (code) => {
+            if (code === 0) {
+                try {
+                    const jsonResponse = JSON.parse(result)
+                    res.status(200).json(jsonResponse)
+                } catch (error) {
+                    res.status(500).json({ error: "Failed to parse Python response", details: error.message });
+                }
+            } else {
+                res.status(500).json({ error: "Python script error", details: errorOutput });
+            }
+        })
+
+    } catch (error) {
+        return sendResponse(res, { ...STATUS_MESSAGES.ERROR.SERVER_ERROR, success: false })
+    }
+}

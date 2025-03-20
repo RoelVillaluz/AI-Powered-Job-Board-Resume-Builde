@@ -80,7 +80,7 @@ function Dashboard () {
                     </header>
                     <div className="grid-container">
                         <UserProfileSection user={user} name={name} loading={loading}/>
-                        <ResumeScoreSection/>
+                        <ResumeScoreSection baseUrl={baseUrl} user={user} loading={loading}/>
                         <TopJobSection job={topJob} user={user} resume={resumes[0]} loading={loading}/>
                         <ApplicationProgressSection user={user} baseUrl={baseUrl} loading={loading}/>
                         <SalaryPredictionSection loading={loading}/>

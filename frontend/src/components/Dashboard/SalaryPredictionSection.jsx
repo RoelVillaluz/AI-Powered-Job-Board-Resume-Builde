@@ -1,4 +1,33 @@
+import { useEffect } from "react"
 import { Link } from "react-router-dom"
+
+function SalaryPredictionSection({ resume, loading }) {
+    const example = {
+        workExperience: [
+            {
+                jobTitle: "Software Engineer",
+                company: "TechCorp",
+                startDate: "2015-06-01",  // Start date in YYYY-MM-DD format
+                endDate: "2018-12-31",    // End date in YYYY-MM-DD format
+                responsibilities: "Developed web applications and maintained databases."
+            },
+            {
+                jobTitle: "Senior Software Engineer",
+                company: "WebWorks",
+                startDate: "2019-01-01",
+                endDate: "2022-08-15",    // End date in YYYY-MM-DD format
+                responsibilities: "Led a team of developers to create enterprise solutions."
+            },
+            {
+                jobTitle: "Lead Developer",
+                company: "AppSolutions",
+                startDate: "2023-05-01",
+                endDate: "",              // No end date, indicating the person is currently employed
+                responsibilities: "Managing product development and ensuring timely delivery."
+            }
+        ]
+    };
+    
 
     const calculateWorkExperienceCount = () => {
         const workExperience = example.workExperience;
@@ -50,11 +79,11 @@ import { Link } from "react-router-dom"
                     <p>Please complete your resume to gain more accurate prediction.</p>
                     <div className="stats-list">
                         <div className="stat">
-                            <h4>0 Skills</h4>
+                            <h4>{resume.skills.length} Skills</h4>
                             <p>No skills yet.</p>
                         </div>
                         <div className="stat">
-                            <h4>0 years</h4>
+                            <h4>{calculateWorkExperienceCount()} years</h4>
                             <p>Work Experience</p>
                         </div>
                         <div className="stat">

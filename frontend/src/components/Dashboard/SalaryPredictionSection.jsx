@@ -1,6 +1,37 @@
 import { Link } from "react-router-dom"
 
-function SalaryPredictionSection({ loading }) {
+    const calculateWorkExperienceCount = () => {
+        const workExperience = example.workExperience;
+
+        if (workExperience.length == 0) {
+            return 0
+        }
+
+        let totalYears = 0
+
+        for (let i = 0; i < workExperience.length; i++) {
+            const startYear = new Date(workExperience[i].startDate);
+            const endYear = workExperience[i].endDate ? new Date(workExperience[i].endDate) : new Date()
+
+            // Calculate the difference in years
+            let yearsWorked = endYear.getFullYear() - startYear.getFullYear();
+
+            // Adjust for months (if the end month is before the start month, subtract 1)
+            const startMonth = startYear.getMonth();
+            const endMonth = endYear.getMonth();
+            if (endMonth < startMonth) {
+                yearsWorked--;
+            }
+
+            totalYears += yearsWorked;
+        }
+
+        return totalYears
+    }
+
+    console.log("Total Work Experience (in years):", calculateWorkExperienceCount());
+
+
     return (
         <section className={`grid-item ${!loading ? '' : 'skeleton'}`} id="salary-prediction">
             {!loading && (

@@ -316,13 +316,13 @@ button {
 }
 
 .grid-item:nth-of-type(6) {
-    grid-column: span 5;
+    grid-column: 10 / span 3;
     grid-row: span 2;
 }
 
 .grid-item:nth-of-type(7) {
-    grid-column: span 2;
-    grid-row: span 5;
+    grid-column: 8 / span 2;
+    grid-row: 6 / span 7;
 }
 
 .grid-item:nth-of-type(8) {

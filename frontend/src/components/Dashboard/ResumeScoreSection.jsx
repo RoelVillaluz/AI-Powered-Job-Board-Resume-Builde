@@ -19,6 +19,10 @@ function ResumeScoreSection({ baseUrl, user, loading }) {
     })
 
     const messages = {
+        0: {
+          rating: "No Resume yet",
+          message: "You don't have a resume yet. Please add a resume now."
+        },
         0.25: {
           rating: "Poor",
           message: "Your resume needs significant improvement. Consider adding more details about your experience and skills.",

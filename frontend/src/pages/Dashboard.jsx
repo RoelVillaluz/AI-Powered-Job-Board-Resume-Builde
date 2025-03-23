@@ -81,8 +81,8 @@ function Dashboard () {
                         <TopJobSection job={topJob} user={user} resume={resumes[0]} loading={loading}/>
                         <ApplicationProgressSection user={user} baseUrl={baseUrl} loading={loading}/>
                         <SalaryPredictionSection loading={loading}/>
-                        <section className="grid-item"></section>
-                        <section className="grid-item"></section>
+                        <GoalsSection/>
+                        <NetworkSection/>
                         <OnlineCoursesSection user={user} baseUrl={baseUrl} loading={loading}/>
                         {/* <ViewsSection user={user} loading={loading}/>
                         <MessagesSection loading={loading}/>

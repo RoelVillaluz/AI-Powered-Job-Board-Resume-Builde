@@ -30,7 +30,6 @@ router.post('save-job/:jobId', authenticateUser, toggleSaveJob)
 router.post('/apply-to-job/:jobId', authenticateUser, applyToJob)
 
 router.patch('/:id', upload.single('profilePicture'), updateUser)
-router.patch('/view-profile/:userId', authenticateUser, incrementUserViews)
 
 router.delete('/:id', deleteUser)
 

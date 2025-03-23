@@ -305,42 +305,6 @@ export const updateUser = async (req, res) => {
     }
 };
 
-export const incrementUserViews = async (req, res) => {
-    const { userId } = req.params;
-    const { viewerId } = req.body;
-    
-    try {
-        if (!viewerId || viewerId === userId) return res.status(200).end(); // Skip if viewer is missing or same as user
-
-        const user = await User.findById(userId)
-        if (!user) {
-            return sendResponse(res, { ...STATUS_MESSAGES.ERROR.NOT_FOUND, success: false }, 'User')
-        }
-        
-        const today = new Date()
-        const localDateString = today.toLocaleDateString('en-CA')
-
-        let todayEntry = user.viewsHistory.find(entry => entry.date === localDateString)
-
-        if (!todayEntry) {
-            todayEntry = { date: localDateString, count: 0, viewers: [] }
-            user.viewsHistory.push(todayEntry)
-        }
-
-        // Only increment if the viewer is unique for today
-        if (!todayEntry.viewers.some(viewer => viewer.toString() === viewerId)) {
-            todayEntry.viewers.push(new mongoose.Types.ObjectId(viewerId));
-            todayEntry.count++; // Increment only for unique viewers
-        }
-        
-        await user.save()
-        return res.status(200).end();
-    } catch (error) {
-        console.error('Error updating user:', error);
-        return sendResponse(res, { ...STATUS_MESSAGES.ERROR.SERVER, success: false });
-    }
-}
-
 export const deleteUser = async (req, res) => {
     const { id } = req.params;
 

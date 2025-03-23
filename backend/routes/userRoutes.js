@@ -1,5 +1,5 @@
 import express from "express"
-import { getUsers, getUser, getCurrentUser, authenticateUser, createUser, updateUser, deleteUser, verifyUser, resendVerificationCode, loginUser, trackUserLogin, getUserInteractedJobs, toggleSaveJob, applyToJob, incrementUserViews } from "../controllers/userController.js"
+import { getUsers, getUser, getCurrentUser, authenticateUser, createUser, updateUser, deleteUser, verifyUser, resendVerificationCode, loginUser, trackUserLogin, getUserInteractedJobs, toggleSaveJob, applyToJob } from "../controllers/userController.js"
 import multer from "multer"
 import path from "path";
 

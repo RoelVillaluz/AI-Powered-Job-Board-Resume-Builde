@@ -13,7 +13,7 @@ function UserProfileSection({ user, name, loading }) {
                         <div className="details">
                             <h2 className="name">{name}</h2>
                             <h4 className="job-title">Full Stack Developer</h4>
-                            <p className="address"><i class="fa-solid fa-location-dot" aria-hidden="true"></i>Legazpi City, Philippines</p>
+                            <p className="address"><i className="fa-solid fa-location-dot" aria-hidden="true"></i>Legazpi City, Philippines</p>
                         </div>
                     </Link>
                 </>

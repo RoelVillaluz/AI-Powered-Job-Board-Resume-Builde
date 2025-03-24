@@ -449,13 +449,14 @@ button {
 #top-job {
     display: flex;
     flex-direction: column;
+    gap: 1rem;
     background-color: transparent;
     box-shadow: none;
     border-radius: 0;
     padding: 0;
 }
 
-#top-job a {
+#top-job-link {
     display: flex;
     flex-direction: column;
     background-color: white;
@@ -535,6 +536,61 @@ button {
     border-radius: 10px;
     border: solid 1px black;
     padding: 10px;
+}
+
+#recommended-jobs-link {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background-color: white;
+    border-radius: 30px;
+    width: 100%;
+    height: 100%;
+    padding: 1rem 1.5rem;
+    box-shadow: 0px 0px 4px -1px rgba(0,0,0,0.1);
+}
+
+#recommended-jobs-link .company-images {
+    display: flex;
+    align-items: center;
+}
+
+#recommended-jobs-link .company-images img {
+    width: clamp(1rem, 3.5vw, 5rem);
+    height: clamp(1rem, 3.5vw, 5rem);
+    border-radius: 16px;
+    object-fit: cover;
+    border: solid 2px white;
+}
+
+#recommended-jobs-link img:not(:first-of-type) {
+    margin-left: -16px;
+}
+
+#recommended-jobs-link img:nth-of-type(1) {
+    z-index: 3;
+}
+
+#recommended-jobs-link img:nth-of-type(2) {
+    z-index: 2;
+}
+
+#recommended-jobs-link img:nth-of-type(3) {
+    z-index: 1;
+}
+
+#recommended-jobs-link h3 {
+    font-weight: 500;
+}
+
+#recommended-jobs-link .wrapper {
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+}
+
+#recommended-jobs-link i {
+    font-size: clamp(1rem, 1vw, 3rem);
 }
 
 .match-score {

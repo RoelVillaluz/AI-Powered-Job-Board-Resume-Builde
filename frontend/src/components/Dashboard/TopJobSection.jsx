@@ -19,7 +19,7 @@ function TopJobSection({ job, user, resume, loading }) {
             <section className={`grid-item ${!loading ? '' : 'skeleton'}`} id="top-job">
                 {!loading && (
                     <>
-                        <Link to={`jobs/${job._id}`}>
+                        <Link to={`jobs/${job._id}`} id="top-job-link">
                             <header>
                                 <div>
                                     <h1>Full Stack Developer</h1>
@@ -67,7 +67,24 @@ function TopJobSection({ job, user, resume, loading }) {
                                 </div>
                             </div>
                         </Link>
-                        More Jobs
+                        <Link id="recommended-jobs-link" to={'jobs'}>
+                            <div className="company-images">
+                                <img src="public/company_logos/apple.jpg" alt="" />
+                                <img src="public/company_logos/netflix.jpg" alt="" />
+                                <img src="public/company_logos/meta.jpg" alt="" />
+                            </div>
+                            <div className="wrapper">
+                                <div>
+                                    <h3>Recommended Jobs For You</h3>
+                                    <p>{resume.skills
+                                                    .sort(() => Math.random() - 0.5)
+                                                    .slice(0, 3)
+                                                    .map(skill => skill.name)
+                                                    .join(', ')}</p>
+                                </div>
+                                <i className="fa-solid fa-angle-right"></i>
+                            </div>
+                        </Link>
                     </>
                 )}
             </section>

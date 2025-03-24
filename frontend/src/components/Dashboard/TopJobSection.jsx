@@ -1,22 +1,33 @@
 import { useState } from "react"
 import { useAuth } from "../AuthProvider";
+import { Link } from "react-router-dom";
 
 function TopJobSection({ job, user, resume, loading }) {
     const { toggleApplyJob } = useAuth();
+
+    const formatDate = (date) => {
+        const formattedDate = date.toLocaleString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        })
+        return formattedDate
+    }
+
     return (
         <>
             <section className={`grid-item ${!loading ? '' : 'skeleton'}`} id="top-job">
                 {!loading && (
                     <>
                         <Link to={`jobs/${job._id}`}>
-                        <header>
+                            <header>
                                 <div>
                                     <h1>Full Stack Developer</h1>
                                     <h2>{job.company.name}</h2>
                                 </div>
                                 <img src={job.company.logo} alt={`${job.company.name} logo`} />
-                        </header>
-                        <div className="details">
+                            </header>
+                            <div className="details">
 
                                 <h4>${job.salary}/year</h4>
     
@@ -36,7 +47,7 @@ function TopJobSection({ job, user, resume, loading }) {
                                     <div className="tag-item">
                                         <i className="fa-solid fa-wrench" aria-hidden="true"></i>
                                         <span>{job.matchedSkills.length}/{job.skills.length} Matched Skills</span>
-                                </div>
+                                    </div>
                                 </div>
 
                                 <div className="actions">
@@ -49,7 +60,7 @@ function TopJobSection({ job, user, resume, loading }) {
                                         <i className="fa-regular fa-bookmark"></i>
                                     </button>
 
-                                <div className="match-score">
+                                    <div className="match-score">
                                         {job.similarity}% Match
                                     </div>
 

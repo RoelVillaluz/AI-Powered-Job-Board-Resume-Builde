@@ -446,510 +446,124 @@ button {
     font-weight: 600;
 }
 
-#messages {
-    display: flex;
-    flex-direction: column;
-    background-color: transparent;
-    padding: 0;
-}
-
-#messages header {
-    padding: 1.25rem;
-    padding-bottom: 0;
-}
-
-#messages .message-list {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    list-style-type: none;
-    margin-top: 0.5rem;
-}
-
-#messages .message-list li {
-    flex: 0 0 25%;
-    border-radius: 1000px;
-    padding: 0.75rem;
-    padding-right: 1.5rem;
-    margin: 0 0.5rem;
-    transition: 0.3s;
-}
-
-#messages .message-list li:hover {
-    background-color: var(--disabled);
-}
-
-#messages .message-list li a {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    transition: 0.3s;
-}
-
-#messages img {
-    flex-shrink: 0;
-    width: clamp(1.5rem, 3.25vw, 6rem);
-    height: clamp(1.5rem, 3.25vw, 6rem);
-    object-fit: cover;
-    border-radius: 50%;
-}
-
-#messages .details {
-    width: 100%;
-}
-
-#messages .row {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-    width: 100%;
-    min-width: 0; 
-}
-
-#messages .details {
-    width: 100%;
-    min-width: 0;
-}
-
-#messages .details h5 {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-#messages .details .message-count {
-    background-color: var(--secondary);
-    color: white;
-    font-size: clamp(0.25rem, 0.55vw, 1rem);
-    font-weight: 600;
-    padding: 0.15rem 0.5rem;
-    border-radius: 1000px;
-}
-
-#messages .details span:not(.message-count) {
-    flex-shrink: 0;
-    margin-left: auto;
-    color: gray;
-    font-size: clamp(0.5rem, 0.65vw, 1.25rem);
-}
-
-#messages .details p {
-    max-width: 75%;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    white-space: nowrap;
-}
-
-#messages .all-messages-link {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    background-color: black;
-    color: white;
-    border-radius: 1000px;
-    padding: 0.75rem 1.75rem;
-    margin: 1.25rem;
-    font-size: clamp(0.5rem, 0.8vw, 2rem);
-    transition: 0.3s;
-}
-
-#messages .all-messages-link:hover {
-    background-color: rgb(20, 20, 20);
-}
-
-#messages .all-messages-link i {
-    margin-top: 2px;
-}
-
-#views {
-    position: relative;
-    display: flex;
-    align-items: start;
-    justify-content: space-between;
-    flex-direction: column;
-    box-shadow: none;
-    border-radius: 0;
-    background-color: transparent;
-    padding: 1rem;
-}
-
-#views header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
-#views header i {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: clamp(1.5rem, 2vw, 4rem);
-    height: clamp(1.5rem, 2vw, 4rem);
-    padding: 1rem;
-    background-color: var(--light-gray);
-    border-radius: 50%;
-    transform: rotate(-45deg);
-}
-
-#views .count {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-#views h2 {
-    font-size: clamp(2rem, 4vw, 5rem);
-}
-
-#views img {
-    position: absolute;
-    object-fit: cover;
-    border-radius: 50%;
-    border: solid 3px var(--primary);
-    transform: translate(-50%, -50%);
-}
-
-#views img:nth-of-type(1) {
-    left: 50%;
-    top: 40%;
-    width: clamp(3rem, 7vw, 12.5rem);
-    height: clamp(3rem, 7vw, 12.5rem);
-    z-index: 1;
-}
-
-#views img:nth-of-type(2) {
-    width: clamp(2rem, 5vw, 4rem);
-    height: clamp(2rem, 5vw, 4rem);
-    left: 30%;
-    top: 30%;
-    z-index: 3;
-} 
-
-#views img:nth-of-type(3) {
-    width: clamp(2rem, 5vw, 4rem);
-    height: clamp(2rem, 5vw, 4rem);
-    right: 10%;
-    bottom: 30%;
-    z-index: 2;
-} 
-
-.percentage-change {
-    display: flex;
-    gap: 0.25rem;
-    padding: .5rem;
-    border-radius: 4px;
-    font-size: clamp(0.75rem, 0.8vw, 2rem);
-    background-color: rgb(159, 255, 159);
-}
-
-.percentage-change span {
-    font-weight: 400;
-}
-
 #top-job {
     display: flex;
     flex-direction: column;
     background-color: transparent;
+    box-shadow: none;
+    border-radius: 0;
     padding: 0;
 }
 
-#top-job .banner {
-    flex: 0 0 30%;
-    background-color: var(--light-gray);
-    border-radius: 30px 30px 0 0;
-    padding: 1rem;
+#top-job a {
+    display: flex;
+    flex-direction: column;
+    background-color: white;
+    border-radius: 30px;
+    padding: 1.5rem;
+    box-shadow: 0px 0px 4px -1px rgba(0,0,0,0.1);
 }
 
 #top-job header {
-    display: flex;
+    gap: 0.5rem;
     align-items: start;
-    flex-direction: column;
-    padding: 1.25rem;
-    padding-bottom: 0;
-    margin-top: -5rem;
+    justify-content: start;
+    padding-top: 1rem;
 }
 
-#top-job header h3 {
-    font-weight: 600;
-}
-
-#top-job header .wrapper {
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-}
-
-#top-job .company-logo {
-    width: 72px;
-    height: 72px;
-    border-radius: 16px;
-    border: solid 2px white;
-    margin-bottom: 0.5rem;
+#top-job header img {
+    width: clamp(0.5rem, 5vw, 7rem);
+    height: clamp(0.5rem, 5vw, 7rem);
     object-fit: cover;
+    border-radius: 1rem;
 }
 
-#top-job button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: none;
-    outline: none;
+#top-job header h1 {
+    font-size: clamp(2rem, 3vw, 7rem);
+    font-weight: 600;
+    line-height: clamp(2rem, 3.15vw, 7rem);
+    margin-bottom: 0.25rem;
 }
 
-#top-job i {
-    cursor: pointer;
+#top-job header h2 {
+    font-size: clamp(0.5vw, 0.9vw, 2rem);
+    font-weight: 400;
 }
 
 #top-job .details {
-    flex: 1;
     display: flex;
-    justify-content: space-between;
+    gap: 1rem;
     flex-direction: column;
     height: 100%;
-    padding: 0 1.25rem;
 }
 
-#top-job .applicants-list {
+#top-job .details h4 {
+    font-size: clamp(0.35vw, 0.75vw, 1.5rem);
+    font-weight: 400;
+}
+
+#top-job .actions {
     display: flex;
-    align-items: center;
-    padding: 0.5rem;
-}
-
-#top-job .applicants-list img {
-    width: 24px;
-    height: 24px;
-    object-fit: cover;
-    border-radius: 50%;
-    margin-left: -0.5rem;
-}
-
-#top-job .applicant-count {
-    font-size: clamp(0.35rem, 0.65vw, 1.25rem);
-    font-weight: 700;
-    margin-left: 0.5rem;
-}
-
-#top-job .tags {
-    margin-top: 0.25rem;
-}
-
-#top-job .row {
-    align-items: center;
-    justify-content: space-between;
-}
-
-#top-job .match-score {
-    display: flex;
-    align-items: center;
+    align-items: stretch;
+    justify-content: start;
     gap: 0.5rem;
-    padding: 1.5rem 0;
+    border-radius: 1000px;
+    width: 100%;
+    margin-top: 0.25rem;
+    font-size: clamp(0.5rem, 0.6vw, 1rem);
 }
 
-#top-job .match-score strong {
+#top-job .actions button {
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: 0.5rem;
+    border-radius: 10px;
+    border: none;
+    outline: none;
+    cursor: pointer;
+}
+
+#top-job #apply-btn {
+    flex: 8;
+    background-color: black;
+    color: white;
+}
+
+#top-job #save-btn {
+    flex: 1;
+    border-radius: 10px;
+    border: solid 1px black;
+    padding: 10px;
+}
+
+.match-score {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-weight: 600;
+    padding: 10px;
     background-color: rgb(159, 255, 159);
-    width: clamp(2rem, 2vw, 5rem);
-    height: clamp(2rem, 2vw, 5rem);
-    padding: 1.75rem;
-    border-radius: 4px;
-    font-weight: 800;
+    border-radius: 10px;
 }
 
-#top-job .match-score h6 {
-    font-size: clamp(0.75rem, 0.9vw, 4rem);
-    font-weight: 600;
-}
-
-#job-recommendations {
-    background-color: transparent;
-    box-shadow: none;
-    border-radius: 0;
+.tags-list {
     display: flex;
-    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
 }
 
-#job-recommendations header h3 {
-    font-weight: 600;
-}
-
-#job-recommendations .job-list {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    margin-top: 1rem;
-    list-style-type: none;
-}
-
-#job-recommendations .job-list-item {
-    flex: 1;
-    padding-bottom: 1rem;
-}
-
-#job-recommendations .job-list-item:not(:last-of-type) {
-    border-bottom: solid 1px rgba(0, 0, 0, 0.1);
-}
-
-#job-recommendations .row {
-    display: flex;
-    align-items: start;
-    justify-content: space-between;
-    width: 100%;
-}
-
-#job-recommendations .wrapper {
-    align-items: start;
-    gap: 0.5rem;
-}
-
-#job-recommendations img {
-    width: clamp(0.5rem, 2vw, 4rem);
-    height: clamp(0.5rem, 2vw, 4rem);
-    object-fit: cover;
-    border-radius: 4px;
-}
-
-#job-recommendations h4 {
-    font-size: clamp(0.5rem, 0.75vw, 3rem);
-    font-weight: 600;
-}
-
-#job-recommendations p {
-    font-size: clamp(0.35rem, 0.70vw, 1.75rem);
-}
-
-#job-recommendations .fa-arrow-right {
-    transform: rotate(-45deg);
-    margin-top: 0.5rem;
-}
-
-.tags {
-    display: flex;
-    list-style-type: none;
-    gap: 0.5rem;
-    margin-top: 1rem;
-}
-
-.tags span {
+.tag-item {
     display: flex;
     align-items: center;
     gap: 0.25rem;
     background-color: var(--light-gray);
-    border-radius: 4px;
-    padding: 4px 12px;
-    color: rgb(20, 20, 20);
-    font-size: clamp(0.35rem, 0.6vw, 1.75rem);
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: clamp(0.25rem, 0.65vw, 1rem);
     font-weight: 500;
-}
-
-#job-recommendations .all-jobs-link {
-    align-self: start;
-    color: var(--gray);
-    font-size: clamp(0.5rem, 0.65vw, 1.75rem);
-    font-weight: 500;
-    margin-top: 1rem;
-}
-
-#job-recommendations .all-jobs-link i {
-    margin-left: 0.25rem;
-}
-
-#user-streak {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 1rem;
-    background-color: transparent;
-    border-radius: 0;
-    box-shadow: none;
-    padding: 0;
-}
-
-#user-streak .streak-count {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    flex-direction: column;
-    background-color: rgb(20, 20, 20);
-    color: white;
-    height: 100%;
-    border-radius: 30px 0 0 30px;
-}
-
-#user-streak .streak-count i {
-    font-size: clamp(0.75rem, 1.2vw, 4rem);
-}
-
-#user-streak .streak-count span {
-    font-size: clamp(0.65rem, 0.9vw, 2.75rem);
-}
-
-#user-streak .streak-count p {
-    font-size: clamp(0.5rem, 0.75vw, 1.5rem);
-    margin-top: -6px;
-    color: rgb(150, 150, 150);
-}
-
-#user-streak .streak-days {
-    flex: 5;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    padding: 1.25rem;
-    padding-left: 0;
-}
-
-#user-streak .streak-days .row {
-    align-items: start;
-    justify-content: space-between;
-}
-
-#user-streak .streak-days h5 {
-    font-size: clamp(0.5rem, 0.75vw, 2rem);
-    font-weight: 600;
-}
-
-#user-streak .streak-days a {
-    color: gray;
-    font-size: clamp(0.45rem, 0.7vw, 1.9rem);
-
-}
-
-#user-streak ul {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    list-style-type: none;
-    width: 100%;
-}
-
-#user-streak li {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    gap: 0.5rem;
-    flex: 1;
-}
-
-#user-streak li .status {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    aspect-ratio: 1 / 1;
-    border-radius: 50%;
-    background-color: var(--disabled);
-}
-
-#user-streak li .status.logged-in {
-    background-color: rgb(20, 20, 20);
-    color: white;
 }
 
 #application-progress {

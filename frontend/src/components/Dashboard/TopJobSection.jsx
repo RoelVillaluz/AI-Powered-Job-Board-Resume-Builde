@@ -6,48 +6,57 @@ function TopJobSection({ job, user, resume, loading }) {
     return (
         <>
             <section className={`grid-item ${!loading ? '' : 'skeleton'}`} id="top-job">
-                {!loading && job && (
+                {!loading && (
                     <>
-                    <div className="banner"></div>
+                        <Link to={`jobs/${job._id}`}>
                         <header>
-                            <img src={job.company.logo} alt="" className="company-logo"/>
-                            <div className="wrapper">
                                 <div>
-                                    <h3>{job.title}</h3>
-                                    <p>{job.company.name}</p>
+                                    <h1>Full Stack Developer</h1>
+                                    <h2>{job.company.name}</h2>
                                 </div>
-                                <button onClick={(e) => toggleApplyJob(e, job._id, resume)} aria-label="Apply to job">
-                                    {user.appliedJobs.some(application => application.jobPosting._id === job._id) ? 'Unapply' : 'Apply'}
-                                </button>
-                            </div>
+                                <img src={job.company.logo} alt={`${job.company.name} logo`} />
                         </header>
                         <div className="details">
-                            <div>
-                                <div className="applicants-list">
-                                <img src="public/media/pexels-alipli-15003448.jpg" alt="applicant-1"/> 
-                                <img src="public/media/pexels-anthonyshkraba-production-8278885.jpg" alt="applicant-2"/>
-                                <img src="public/media/pexels-visoesdomundo-3586798.jpg" alt="applicant-3"/>
-                                <span className="applicant-count">14+ Applied</span>
-                                </div>
-                                <div className="tags">
-                                    <span><i className="fa-solid fa-location-dot"></i>{job.location}</span>
-                                    <span><i className="fas fa-briefcase"></i>{job.jobType}</span>
-                                    <span><i className="fas fa-user-tie"></i>{job.experienceLevel}</span>
-                                </div>
-                            </div>
-                            <div className="row">
-                                <div className="match-score">
-                                    <strong>{job.similarity}</strong>
-                                    <div>
-                                        <h6>Match Score</h6>
-                                        <p>You're a perfect fit</p>
+
+                                <h4>${job.salary}/year</h4>
+    
+                                <div className="tags-list">
+                                    <div className="tag-item">
+                                        <i className="fa-solid fa-location-dot" aria-hidden="true"></i>
+                                        <span>{job.location}</span>
                                     </div>
+                                    <div className="tag-item">
+                                        <i className="fa-solid fa-briefcase" aria-hidden="true"></i>
+                                        <span>{job.jobType}</span>
+                                    </div>
+                                    <div className="tag-item">
+                                        <i className="fa-solid fa-user-tie" aria-hidden="true"></i>
+                                        <span>{job.experienceLevel}</span>
+                                    </div>
+                                    <div className="tag-item">
+                                        <i className="fa-solid fa-wrench" aria-hidden="true"></i>
+                                        <span>{job.matchedSkills.length}/{job.skills.length} Matched Skills</span>
                                 </div>
-                                <span className="salary">
-                                    <h3>${job.salary} <span>per year</span></h3>
-                                </span>
+                                </div>
+
+                                <div className="actions">
+
+                                    <button id="apply-btn" onClick={(e) => toggleApplyJob(e, job._id, resume)} aria-label="Apply to job">
+                                        {user.appliedJobs.some(application => application.jobPosting._id === job._id) ? 'Unapply': 'Apply Now'}
+                                    </button>
+
+                                    <button id="save-btn" aria-label="Save job">
+                                        <i className="fa-regular fa-bookmark"></i>
+                                    </button>
+
+                                <div className="match-score">
+                                        {job.similarity}% Match
+                                    </div>
+
+                                </div>
                             </div>
-                        </div>
+                        </Link>
+                        More Jobs
                     </>
                 )}
             </section>

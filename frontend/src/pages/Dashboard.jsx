@@ -84,14 +84,6 @@ function Dashboard () {
                         <GoalsSection/>
                         <NetworkSection/>
                         <OnlineCoursesSection user={user} baseUrl={baseUrl} loading={loading}/>
-                        {/* <ViewsSection user={user} loading={loading}/>
-                        <MessagesSection loading={loading}/>
-                        <TopJobSection job={topJob} user={user} resume={resumes[0]} loading={loading}/>
-                        <JobRecommendationsSection jobRecommendations={jobRecommendations} loading={loading}/>
-                        <UserStreakSection user={user} baseUrl={baseUrl} loading={loading}/>
-                        <section className="grid-item"></section>
-                        <ApplicationProgressSection user={user} baseUrl={baseUrl} loading={loading}/>
-                        <OnlineCoursesSection user={user} baseUrl={baseUrl} loading={loading}/> */}
                     </div>
                 </div>
             </Layout>

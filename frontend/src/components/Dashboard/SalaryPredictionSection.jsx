@@ -58,9 +58,6 @@ function SalaryPredictionSection({ resume, loading }) {
         return totalYears
     }
 
-    console.log("Total Work Experience (in years):", calculateWorkExperienceCount());
-
-
     return (
         <section className={`grid-item ${!loading ? '' : 'skeleton'}`} id="salary-prediction">
             {!loading && (

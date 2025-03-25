@@ -1,16 +1,13 @@
-import datetime
 import json
 import os
 import sys
-from bson import ObjectId
 from dotenv import load_dotenv
-import numpy as np
 import pymongo
 from scipy.spatial.distance import cosine
 from sentence_transformers import SentenceTransformer
 from torch import cosine_similarity
 import torch
-from utils import get_embedding
+from utils import get_resume_by_id
 
 load_dotenv()
 
@@ -74,34 +71,66 @@ def evaluate_resume_relevance(resume):
     return round(relevance_score, 2)
 
 
+def calculate_resume_score(resume):
+    """
+    Calculates a resume score based on completeness and relevance.
+
+    Completeness measures how much of the resume is filled out.
+    Relevance measures how well the work experience aligns with skills.
+
+    Returns:
+        float: A final score (0-100).
+    """
+
+    COMPLETENESS_WEIGHT = 0.6
+    RELEVANCE_WEIGHT = 0.4
+
+    # Check completeness
+    required_fields = [
+        resume.get("firstName"),
+        resume.get("lastName"),
+        resume.get("phone"),
+        resume.get("address"),
+        resume.get("summary"),
+    ]
+    
+    key_sections = [
+        resume.get("skills"),
+        resume.get("workExperience"),
+        resume.get("certifications"),
+    ]
+
+    social_media = resume.get("socialMedia", {})
+    has_socials = any(social_media.values())  # At least one social media link
+
+    # Compute completeness score
+    filled_sections = sum(bool(field) for field in required_fields + key_sections) + has_socials
+    total_sections = len(required_fields) + len(key_sections) + 1  # +1 for social media presence
+
+    completeness_score = (filled_sections / total_sections) * 100
+
+    # Get relevance score
+    relevance_score = evaluate_resume_relevance(resume)
+
+    # Compute weighted final score
+    final_score = (completeness_score * COMPLETENESS_WEIGHT) + (relevance_score * RELEVANCE_WEIGHT)
+
+    return round(final_score, 2)
 
 
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        print(json.dumps({"error": "Missing resumeId"}))
+        sys.exit(1)
 
+    resume_id = sys.argv[1]
+    
+    # Fetch resume data (Replace with actual data retrieval)
+    resume = get_resume_by_id(resume_id)  
 
+    if not resume:
+        print(json.dumps({"error": "Resume not found"}))
+        sys.exit(1)
 
-
-
-
-# Example resumes
-resume_example = {
-    "summary": "Experienced data scientist skilled in Python and ML.",
-    "skills": [{"name": "Python"}, {"name": "Machine Learning"}],
-    "workExperience": [
-        {"jobTitle": "Data Scientist", "company": "Tech Corp", "responsibilities": "Developed ML models and data pipelines."},
-        {"jobTitle": "Software Engineer", "company": "Code Inc.", "responsibilities": "Built backend APIs using Python and Django."}
-    ],
-    "certifications": [{"name": "AWS Certified Machine Learning", "year": "2023"}]
-}
-
-resume_weak_example = {
-    "summary": "I am a hardworking individual with experience in customer service.",
-    "skills": [{"name": "JavaScript"}, {"name": "React"}, {"name": "Node.js"}],
-    "workExperience": [
-        {"jobTitle": "Barista", "company": "Coffee Haven", "responsibilities": "Prepared coffee, managed inventory, and provided customer service."},
-        {"jobTitle": "Waiter", "company": "Fine Dine Restaurant", "responsibilities": "Served customers, handled payments, and ensured customer satisfaction."}
-    ],
-    "certifications": [{"name": "Food Safety Certification", "year": "2022"}]
-}
-
-print(evaluate_resume_relevance(resume_example))  # High score
-print(evaluate_resume_relevance(resume_weak_example))  # Low score
+    score = calculate_resume_score(resume)
+    print(json.dumps({"score": score}))

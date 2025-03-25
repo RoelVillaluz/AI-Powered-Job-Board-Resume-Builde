@@ -446,6 +446,13 @@ button {
     font-weight: 600;
 }
 
+.gauge-cover i {
+    color: gray;
+    font-size: clamp(1.25rem, 1.5vw, 5rem);
+    margin-bottom: 0.5rem;
+    animation: floatUpAndDown 2s ease-in-out infinite;
+}
+
 #top-job {
     display: flex;
     flex-direction: column;

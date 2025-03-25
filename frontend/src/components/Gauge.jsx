@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-function Gauge({ progress, messages }) {
+function Gauge({ progress, messages, loading, objectName = null }) {
     const [animatedProgress, setAnimatedProgress] = useState(0); // Start at 0 for animation
 
     useEffect(() => {
@@ -33,13 +33,25 @@ function Gauge({ progress, messages }) {
                         backgroundColor: 'black', 
                         transition: "transform 1.5s ease-in-out"
                     }}
-                ></div>
-                <div className="gauge-cover">
-                    <h2>{Math.round(progress * 100)}<span>%</span></h2>
-                    <p>Effectiveness</p>
+                >
+                </div>
+                <div className={`gauge-cover ${!loading ? '' : 'skeleton'}`}>
+                    {!loading ? (
+                        <>
+                            <h2>{Math.round(progress * 100)}<span>%</span></h2>
+                            <p>Effectiveness</p>
+                        </>
+                    ) : (
+                        <>
+                            <i className="fa-solid fa-brain"></i>
+                            <p>Analyzing Data...</p>
+                        </>
+                    )}
                 </div>
             </div>
-            {showMessage(progress)}
+            {!loading && (
+                showMessage(progress)
+            )}
         </div>
     )
 }

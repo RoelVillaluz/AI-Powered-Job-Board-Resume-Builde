@@ -97,13 +97,13 @@ export const getRecommendedSkills = async (req, res) => {
 
 export const getResumeScore = async (req, res) => {
     try {
-        const { userId } = req.params;
+        const { resumeId } = req.params;
 
-        if (!userId) {
-            return sendResponse(res, { ...STATUS_MESSAGES.ERROR.NOT_FOUND }, "User")
+        if (!resumeId) {
+            return sendResponse(res, { ...STATUS_MESSAGES.ERROR.NOT_FOUND }, "Resume")
         }
 
-        const pythonProcess = spawn("py", ["backend/python_scripts/resume_scorer.py", userId])
+        const pythonProcess = spawn("py", ["backend/python_scripts/resume_scorer.py", resumeId])
 
         let result = ""
         let errorOutput = ""

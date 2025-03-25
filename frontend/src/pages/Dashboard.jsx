@@ -14,10 +14,8 @@ import GoalsSection from "../components/Dashboard/GoalsSection"
 import NetworkSection from "../components/Dashboard/NetworkSection"
 
 function Dashboard () {
-    const { baseUrl } = useData();
+    const { baseUrl, fetchResumes, name, resumes } = useData();
     const { user } = useAuth();
-    const [resumes, setResumes] = useState([]);
-    const [name, setName] = useState(null);
     const [jobRecommendations, setJobRecommendations] = useState([]);
     const [topJob, setTopJob] = useState(null)
     const [loading, setLoading] = useState(true)
@@ -26,25 +24,11 @@ function Dashboard () {
         document.title = 'Dashboard'
     }, [])
 
-
     useEffect(() => {
-        const fetchResumes = async () => {
-            try {
-                const response = await axios.get(`${baseUrl}/resumes/user/${user._id}`)
-                console.log('Resumes:', response.data)
-                setResumes(response.data.data)
-
-                // Assuming the user is populated in the first resume
-                if (response.data.data.length > 0) {
-                    setName(response.data.data[0].firstName + ' ' + response.data.data[0].lastName);
-                    console.log('Skills:', response.data.data[0].skills)
-                }
-            } catch (error) {
-                console.error('Error', error)
-            }
+        if (user?._id) {
+          fetchResumes(user._id);
         }
-        fetchResumes()
-    }, [])
+      }, [user, fetchResumes]);
 
     useEffect(() => {        
         const fetchJobRecommendations = async () => {

@@ -5,6 +5,7 @@ const DataContext = createContext();
 export const useData = () => useContext(DataContext);
 
 export const DataProvider = ({ children }) => {
+  const [name, setName] = useState(null);
 
   const [users, setUsers] = useState([]);
   const [jobPostings, setJobPostings] = useState([]);
@@ -59,14 +60,32 @@ export const DataProvider = ({ children }) => {
     }
   };
 
+  const fetchResumes = async (userId) => {
+    try {
+      const response = await axios.get(`${baseUrl}/resumes/user/${userId}`)
+
+      console.log('Resumes:', response.data);
+      setResumes(response.data.data);
+
+      if (response.data.data.length > 0) {
+        setName(response.data.data[0].firstName + ' ' + response.data.data[0].lastName);
+        console.log('Skills:', response.data.data[0].skills);
+      }
+    } catch (error) {
+      console.error('Error fetching resumes', error)
+    }
+  }
+
   return (
     <DataContext.Provider
       value={{
         baseUrl,
+        name, setName,
         users, setUsers,
         jobPostings, setJobPostings,
         resumes, setResumes,
         getAllData, 
+        fetchResumes,
         success, setSuccess,
         successMessage, setSuccessMessage,
         error, setError,

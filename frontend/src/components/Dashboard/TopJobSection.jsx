@@ -19,7 +19,7 @@ function TopJobSection({ job, user, resume, loading }) {
             <section className={`grid-item ${!loading ? '' : 'skeleton'}`} id="top-job">
                 {!loading && (
                     <>
-                        <Link to={`jobs/${job._id}`} id="top-job-link">
+                        <Link to={`job-postings/${job._id}`} id="top-job-link">
                             <header>
                                 <div>
                                     <h1>Full Stack Developer</h1>
@@ -67,7 +67,7 @@ function TopJobSection({ job, user, resume, loading }) {
                                 </div>
                             </div>
                         </Link>
-                        <Link id="recommended-jobs-link" to={'jobs'}>
+                        <Link id="recommended-jobs-link" to={'jobs-postings/'}>
                             <div className="company-images">
                                 <img src="public/company_logos/apple.jpg" alt="" />
                                 <img src="public/company_logos/netflix.jpg" alt="" />

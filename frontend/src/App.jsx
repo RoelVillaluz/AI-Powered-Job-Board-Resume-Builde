@@ -8,6 +8,7 @@ import MultiStepForm from "./pages/MultiStepForm";
 import Dashboard from "./pages/Dashboard";
 import { AuthProvider, useAuth } from "./components/AuthProvider";
 import CreateJobPosting from "./pages/CreateJob";
+import JobPostingsList from "./pages/JobPostingsList";
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
             <Route path="/get-started" element={<MultiStepForm />} />
 
             <Route path="/create-job-posting" element={<CreateJobPosting/>} />
+            <Route path="/job-postings" element={<JobPostingsList/>} />
 
           </Routes>
         </DataProvider>

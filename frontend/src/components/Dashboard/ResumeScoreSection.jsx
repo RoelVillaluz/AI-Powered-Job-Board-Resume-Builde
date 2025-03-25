@@ -2,15 +2,15 @@ import { useEffect, useState } from "react";
 import Gauge from "../Gauge";
 import axios from "axios";
 
-function ResumeScoreSection({ baseUrl, user, loading }) {
+function ResumeScoreSection({ baseUrl, resume, loading }) {
     const [progress, setProgress] = useState(0); 
 
     useEffect(() => {
         const getResumeScore = async () => {
             try {
-              const response = await axios.get(`${baseUrl}/ai/resume-score/${user._id}`)
+              const response = await axios.get(`${baseUrl}/ai/resume-score/${resume._id}`)
               console.log('Resume score:', response.data)
-              setProgress(response.data)
+              setProgress(response.data.score / 100); // convert percentage to range 0-1
             } catch (error) {
               console.log('Error:', error)
             }

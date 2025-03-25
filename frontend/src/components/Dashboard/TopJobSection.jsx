@@ -3,7 +3,7 @@ import { useAuth } from "../AuthProvider";
 import { Link } from "react-router-dom";
 
 function TopJobSection({ job, user, resume, loading }) {
-    const { toggleApplyJob } = useAuth();
+    const { toggleApplyJob, toggleSaveJob } = useAuth();
 
     const formatDate = (date) => {
         const formattedDate = date.toLocaleString('en-US', {
@@ -56,8 +56,8 @@ function TopJobSection({ job, user, resume, loading }) {
                                         {user.appliedJobs.some(application => application.jobPosting._id === job._id) ? 'Unapply': 'Apply Now'}
                                     </button>
 
-                                    <button id="save-btn" aria-label="Save job">
-                                        <i className="fa-regular fa-bookmark"></i>
+                                    <button id="save-btn" onClick={(e) => toggleSaveJob(e, job._id)} aria-label="Save job">
+                                        <i className={`fa-${user.savedJobs.includes(job._id) ? 'solid': 'regular'} fa-bookmark`}></i>
                                     </button>
 
                                     <div className="match-score">

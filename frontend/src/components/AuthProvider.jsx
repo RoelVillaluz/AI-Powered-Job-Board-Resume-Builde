@@ -74,6 +74,9 @@ export const AuthProvider = ({ children }) => {
     };
 
     const handleJobAction = async (e, jobId, resume, actionType) => {
+        e.preventDefault();
+        e.stopPropagation();
+
         try {
             if (!user) {
                 console.error("User not authenticated");
@@ -127,7 +130,7 @@ export const AuthProvider = ({ children }) => {
             console.error('Error', error)
         }
     }
-    const toggleSaveJob = (e, jobId) => handleJobAction(e, jobId, "save")
+    const toggleSaveJob = (e, jobId) => handleJobAction(e, jobId, null, "save")
     const toggleApplyJob = (e, jobId, resume) => handleJobAction(e, jobId, resume, "apply");
 
     return (

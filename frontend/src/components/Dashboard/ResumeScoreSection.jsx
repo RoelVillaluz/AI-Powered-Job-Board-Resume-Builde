@@ -24,8 +24,6 @@ function ResumeScoreSection({ baseUrl, resume }) {
         getResumeScore()
     }, [resume])
 
-    console.log(loading)
-
     const messages = {
         0: {
           rating: "No Resume yet",

@@ -212,12 +212,12 @@ export const toggleSaveJob = async (req, res) => {
             return sendResponse(res, { ...STATUS_MESSAGES.ERROR.FORBIDDEN, success: false }, "Only jobseekers can save jobs.");
         }
 
-        const isSaved = user.savedJobs.includes(id)
+        const isSaved = user.savedJobs.includes(jobId)
 
         if (isSaved) {
-            user.savedJobs = user.savedJobs.filter(jobId => jobId.toString() !== id);
+            user.savedJobs = user.savedJobs.filter(jobId => jobId.toString() !== jobId);
         } else {
-            user.savedJobs.push(id)
+            user.savedJobs.push(jobId)
         }
 
         await user.save();

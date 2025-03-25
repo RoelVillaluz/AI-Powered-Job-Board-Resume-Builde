@@ -1,4 +1,3 @@
-import datetime
 import os
 from dotenv import load_dotenv
 import numpy as np
@@ -12,7 +11,7 @@ mongo_uri = os.getenv('MONGO_URI')
 client = pymongo.MongoClient(mongo_uri)
 db = client["database"]
 
-def get_resumes_by_id(resume_id):
+def get_resume_by_id(resume_id):
     try:
         resume_data = db.resumes.find_one({"_id": ObjectId(resume_id)})
         return resume_data
@@ -48,7 +47,7 @@ def get_user_interacted_jobs(user_id):
         return []
     
 def extract_skills_features(resume_id, user_id):
-    resume_data = get_resumes_by_id(resume_id)
+    resume_data = get_resume_by_id(resume_id)
     job_data = get_user_interacted_jobs(user_id)
 
     resume_skills = [skill['name'] for skill in resume_data.get('skills', [])]

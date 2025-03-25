@@ -87,32 +87,28 @@ def calculate_resume_score(resume):
 
     # Check completeness
     required_fields = [
-        resume.get("firstName"),
-        resume.get("lastName"),
-        resume.get("phone"),
-        resume.get("address"),
-        resume.get("summary"),
-    ]
-    
-    key_sections = [
-        resume.get("skills"),
-        resume.get("workExperience"),
-        resume.get("certifications"),
+        ("firstName", 10),
+        ("lastName", 10),
+        ("address", 10),
+        ("phone", 10),
+        ("summary", 15),
     ]
 
-    social_media = resume.get("socialMedia", {})
-    has_socials = any(social_media.values())  # At least one social media link
+    key_sections = [
+        ("skills", 20),
+        ("workExperience", 20),
+        ("certifications", 10)
+    ]
+
+    social_media_weight = 5
 
     # Compute completeness score
-    filled_sections = sum(bool(field) for field in required_fields + key_sections) + has_socials
-    total_sections = len(required_fields) + len(key_sections) + 1  # +1 for social media presence
+    completeness_score = sum(weight for field, weight in required_fields if resume.get(field))
+    completeness_score += sum(weight for section, weight in key_sections if resume.get(section))
+    completeness_score += social_media_weight if any(resume.get("socialMedia", {}).values()) else 0
 
-    completeness_score = (filled_sections / total_sections) * 100
-
-    # Get relevance score
     relevance_score = evaluate_resume_relevance(resume)
 
-    # Compute weighted final score
     final_score = (completeness_score * COMPLETENESS_WEIGHT) + (relevance_score * RELEVANCE_WEIGHT)
 
     return round(final_score, 2)

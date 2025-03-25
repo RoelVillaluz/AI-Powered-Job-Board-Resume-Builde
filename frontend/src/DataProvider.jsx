@@ -65,7 +65,9 @@ export const DataProvider = ({ children }) => {
       const response = await axios.get(`${baseUrl}/resumes/user/${userId}`)
 
       console.log('Resumes:', response.data);
-      setResumes(response.data.data);
+      if (JSON.stringify(resumes) !== JSON.stringify(response.data.data)) {
+        setResumes(response.data.data);
+    }
 
       if (response.data.data.length > 0) {
         setName(response.data.data[0].firstName + ' ' + response.data.data[0].lastName);

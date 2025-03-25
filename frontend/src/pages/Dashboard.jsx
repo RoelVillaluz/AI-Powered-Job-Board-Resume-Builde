@@ -28,7 +28,7 @@ function Dashboard () {
         if (user?._id) {
           fetchResumes(user._id);
         }
-      }, [user, fetchResumes]);
+      }, [user]);
 
     useEffect(() => {        
         const fetchJobRecommendations = async () => {

@@ -7,18 +7,13 @@ from scipy.spatial.distance import cosine
 from sentence_transformers import SentenceTransformer
 from torch import cosine_similarity
 import torch
-from utils import get_resume_by_id
+from utils import extract_resume_embeddings, get_embedding, get_resume_by_id
 
 load_dotenv()
 
 mongo_uri = os.getenv('MONGO_URI')
 client = pymongo.MongoClient(mongo_uri)
 db = client["database"]
-model = SentenceTransformer('all-mpnet-base-v2')
-
-def get_embedding(text):
-    """ Generates an embedding and ensures it's a PyTorch tensor. """
-    return torch.tensor(model.encode(text, convert_to_numpy=True), dtype=torch.float32)
 
 def evaluate_resume_relevance(resume):
     """
@@ -30,43 +25,31 @@ def evaluate_resume_relevance(resume):
     Returns:
         float: A relevance score (0-100) representing the alignment between skills and work experience.
     """
+    # Extract resume embeddings for skills, work experience, and certifications
+    mean_skill_embedding, mean_work_embedding, certification_embeddings = extract_resume_embeddings(resume)
     
-    skills = [skill["name"] for skill in resume.get("skills", []) if skill.get('name')]
-    work_experiences = [
-        f"{exp['jobTitle']} at {exp['company']}. {exp['responsibilities']}"
-        for exp in resume.get("workExperience", [])
-        if exp.get('jobTitle') and exp.get('responsibilities')
-    ]
-    certifications = [certification["name"] for certification in resume.get("certifications", [])]
+    # Check if the skill embedding is None, and return 0 relevance score if so
+    if mean_skill_embedding is None:
+        return 0  # No valid skill embedding, so no relevance score
 
-    if not skills or not work_experiences:
-        return 0  # No skills or work experience means no relevance.
-
-    # Compute embeddings
-    skill_embeddings = torch.stack([get_embedding(skill) for skill in skills])
-    work_embeddings = torch.stack([get_embedding(exp) for exp in work_experiences])
-
+    # Get summary embedding
     summary_embedding = get_embedding(resume.get("summary", "")).squeeze()  # Ensure correct shape
-    certification_embeddings = (
-        torch.stack([get_embedding(cert) for cert in certifications]).mean(dim=0)
-        if certifications else None
-    )
 
-    # Compute means
-    mean_skill_embedding = torch.mean(skill_embeddings, dim=0)
-    mean_work_embedding = torch.mean(work_embeddings, dim=0)
+    # Combine embeddings safely, filter out None values
+    all_embeddings = [emb for emb in [mean_skill_embedding, mean_work_embedding, summary_embedding, certification_embeddings] if emb is not None]
 
-    # Combine embeddings safely
-    all_embeddings = [mean_skill_embedding, mean_work_embedding, summary_embedding]
-    if certification_embeddings is not None:
-        all_embeddings.append(certification_embeddings)
+    if not all_embeddings:
+        return 0  # If no valid embeddings are found, return 0 relevance score
 
     # Stack and compute final embedding
     final_embedding = torch.mean(torch.stack(all_embeddings), dim=0)
 
-    # Compute similarity score
-    similarity_score = torch.cosine_similarity(mean_skill_embedding.unsqueeze(0), final_embedding.unsqueeze(0)).item()
-    relevance_score = similarity_score * 100  # Scale to percentage
+    # Compute similarity score (only if mean_skill_embedding and final_embedding are valid)
+    if final_embedding is not None:
+        similarity_score = torch.cosine_similarity(mean_skill_embedding.unsqueeze(0), final_embedding.unsqueeze(0)).item()
+        relevance_score = similarity_score * 100  # Scale to percentage
+    else:
+        relevance_score = 0
 
     return round(relevance_score, 2)
 

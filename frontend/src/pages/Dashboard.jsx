@@ -16,8 +16,6 @@ import NetworkSection from "../components/Dashboard/NetworkSection"
 function Dashboard () {
     const { baseUrl, fetchResumes, name, resumes } = useData();
     const { user } = useAuth();
-    const [jobRecommendations, setJobRecommendations] = useState([]);
-    const [topJob, setTopJob] = useState(null)
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
@@ -26,31 +24,11 @@ function Dashboard () {
 
     useEffect(() => {
         if (user?._id) {
-          fetchResumes(user._id);
+            setLoading(true); // Set loading to true before fetching
+            fetchResumes(user._id).then(() => setLoading(false)); // Set loading to false after fetching
         }
-      }, [user]);
-
-    useEffect(() => {        
-        const fetchJobRecommendations = async () => {
-            try {
-                const responses = await Promise.all(
-                    resumes.map(resume => 
-                        axios.get(`${baseUrl}/ai/job-recommendations/${resume._id}`)
-                    )
-                )
-                const recommendations = responses.flatMap(response => response.data.data);
-                console.log('Recommendations:', recommendations)
-                setJobRecommendations(recommendations)
-                setTopJob(recommendations[0] || null)
-            } catch (error) {
-                console.error('Error', error)
-            } finally {
-                setLoading(false)
-            }
-        }
-        if (resumes.length > 0 ) fetchJobRecommendations()
-    }, [resumes])
-
+    }, [user]);
+    
     return (
         <>
             <Layout>
@@ -60,9 +38,9 @@ function Dashboard () {
                         <p>Let's make this day productive.</p>
                     </header>
                     <div className="grid-container">
-                        <UserProfileSection user={user} name={name} loading={loading}/>
+                        <UserProfileSection user={user} name={name}/>
                         <ResumeScoreSection baseUrl={baseUrl} resume={resumes[0]}/>
-                        <TopJobSection job={topJob} user={user} resume={resumes[0]} loading={loading}/>
+                        <TopJobSection user={user} resume={resumes[0]}/>
                         <ApplicationProgressSection user={user} baseUrl={baseUrl} loading={loading}/>
                         <SalaryPredictionSection resume={resumes[0]} loading={loading}/>
                         <GoalsSection/>

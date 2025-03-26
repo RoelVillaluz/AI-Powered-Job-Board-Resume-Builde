@@ -9,6 +9,7 @@ export const DataProvider = ({ children }) => {
 
   const [users, setUsers] = useState([]);
   const [jobPostings, setJobPostings] = useState([]);
+  const [jobRecommendations, setJobRecommendations] = useState([]);
   const [resumes, setResumes] = useState([]);
 
   const [success, setSuccess] = useState(false);
@@ -74,9 +75,22 @@ export const DataProvider = ({ children }) => {
         console.log('Skills:', response.data.data[0].skills);
       }
     } catch (error) {
-      console.error('Error fetching resumes', error)
+  const fetchJobRecommendations = async () => {
+    try {
+        const responses = await Promise.all(
+            resumes.map(resume => 
+                axios.get(`${baseUrl}/ai/job-recommendations/${resume._id}`)
+            )
+        )
+        const recommendations = responses.flatMap(response => response.data.data);
+        console.log('Recommendations:', recommendations)
+        setJobRecommendations(recommendations)
+        return recommendations
+    } catch (error) {
+        console.error('Error', error)
     }
   }
+
 
   return (
     <DataContext.Provider
@@ -88,6 +102,7 @@ export const DataProvider = ({ children }) => {
         resumes, setResumes,
         getAllData, 
         fetchResumes,
+        fetchJobRecommendations,
         success, setSuccess,
         successMessage, setSuccessMessage,
         error, setError,

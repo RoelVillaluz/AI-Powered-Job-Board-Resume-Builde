@@ -62,19 +62,36 @@ export const DataProvider = ({ children }) => {
   };
 
   const fetchResumes = async (userId) => {
-    try {
-      const response = await axios.get(`${baseUrl}/resumes/user/${userId}`)
-
-      console.log('Resumes:', response.data);
-      if (JSON.stringify(resumes) !== JSON.stringify(response.data.data)) {
-        setResumes(response.data.data);
+    if (!userId) {
+      console.warn("fetchResumes called without a userId");
+      return;
     }
-
+  
+    try {
+      const response = await axios.get(`${baseUrl}/resumes/user/${userId}`);
+      console.log("Resumes API Response:", response.data);
+  
+      if (!Array.isArray(response.data.data)) {
+        console.error("Invalid data format:", response.data);
+        return;
+      }
+  
+      setResumes(prev => {
+        if (JSON.stringify(prev) !== JSON.stringify(response.data.data)) {
+          return response.data.data;
+        }
+        return prev;
+      });
+  
       if (response.data.data.length > 0) {
-        setName(response.data.data[0].firstName + ' ' + response.data.data[0].lastName);
-        console.log('Skills:', response.data.data[0].skills);
+        setName(`${response.data.data[0].firstName} ${response.data.data[0].lastName}`);
       }
     } catch (error) {
+      console.error("Error fetching resumes:", error);
+    }
+  };
+  
+
   const fetchJobRecommendations = async () => {
     try {
         const responses = await Promise.all(
@@ -88,7 +105,7 @@ export const DataProvider = ({ children }) => {
         return recommendations
     } catch (error) {
         console.error('Error', error)
-    }
+    } 
   }
 
 
@@ -99,6 +116,7 @@ export const DataProvider = ({ children }) => {
         name, setName,
         users, setUsers,
         jobPostings, setJobPostings,
+        jobRecommendations, setJobRecommendations,
         resumes, setResumes,
         getAllData, 
         fetchResumes,

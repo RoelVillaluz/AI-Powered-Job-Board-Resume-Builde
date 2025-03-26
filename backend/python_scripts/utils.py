@@ -53,17 +53,40 @@ def get_user_interacted_jobs(user_id):
         print(f"Error fetching interacted jobs for {user_id}: {e}")
         return []
     
-def extract_skills_features(resume_id, user_id):
-    resume_data = get_resume_by_id(resume_id)
-    job_data = get_user_interacted_jobs(user_id)
+def extract_resume_embeddings(resume):
+    """
+    Extracts and computes the mean embeddings for skills, work experience, and certifications from the resume.
+    
+    Parameters:
+        resume (dict): The resume data containing skills, work experience, and certifications.
+        
+    Returns:
+        tuple: A tuple containing the mean embeddings for skills, work experience, and certifications.
+               (skill_embedding, work_embedding, certification_embedding)
+               If any of the fields are empty, the corresponding embedding will be None.
+    """
+    # Extract skills, work experiences, and certifications
+    skills = [skill["name"] for skill in resume.get("skills", []) if skill.get('name')]
+    work_experiences = [
+        f"{exp['jobTitle']} at {exp['company']}. {exp['responsibilities']}"
+        for exp in resume.get("workExperience", [])
+        if exp.get('jobTitle') and exp.get('responsibilities')
+    ]
+    certifications = [certification["name"] for certification in resume.get("certifications", [])]
 
-    resume_skills = [skill['name'] for skill in resume_data.get('skills', [])]
-    job_skills = [skill['name'] for skill in job_data.get('skills', [])]
+    # Return None if no skills or work experiences are found
+    if not skills or not work_experiences:
+        return None, None, None  # No valid data to process.
 
-    all_skills = resume_skills + job_skills
-    all_skills_text = [" ".join(all_skills)]
+    # Compute embeddings for skills, work experience, and certifications
+    skill_embeddings = torch.stack([get_embedding(skill) for skill in skills]) if skills else None
+    work_embeddings = torch.stack([get_embedding(exp) for exp in work_experiences]) if work_experiences else None
+    certification_embeddings = (
+        torch.stack([get_embedding(cert) for cert in certifications]).mean(dim=0) if certifications else None
+    )
+    
+    # Compute the mean embedding for each category (skills, work, and certifications)
+    mean_skill_embedding = torch.mean(skill_embeddings, dim=0) if skill_embeddings is not None else None
+    mean_work_embedding = torch.mean(work_embeddings, dim=0) if work_embeddings is not None else None
 
-    vectorizer = TfidfVectorizer()
-    skill_matrix = vectorizer.fit_transform(all_skills_text)
-
-    return skill_matrix
+    return mean_skill_embedding, mean_work_embedding, certification_embeddings

@@ -97,7 +97,7 @@ function TopJobSection({ user, resume }) {
                                 </div>
                             </div>
                         </Link>
-                        <Link id="recommended-jobs-link" to={'jobs-postings/'}>
+                        <Link id="recommended-jobs-link" to={'job-postings/'}>
                             <div className="company-images">
                                 <img src="public/company_logos/apple.jpg" alt="" />
                                 <img src="public/company_logos/netflix.jpg" alt="" />

@@ -3,13 +3,20 @@ from dotenv import load_dotenv
 import numpy as np
 import pymongo
 from bson import ObjectId
+from sentence_transformers import SentenceTransformer
 from sklearn.feature_extraction.text import TfidfVectorizer
+import torch
 
 load_dotenv()
 
 mongo_uri = os.getenv('MONGO_URI')
 client = pymongo.MongoClient(mongo_uri)
 db = client["database"]
+model = SentenceTransformer('all-mpnet-base-v2')
+
+def get_embedding(text):
+    """ Generates an embedding and ensures it's a PyTorch tensor. """
+    return torch.tensor(model.encode(text, convert_to_numpy=True), dtype=torch.float32)
 
 def get_resume_by_id(resume_id):
     try:

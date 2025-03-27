@@ -97,7 +97,11 @@ export const updateResume = async (req, res) => {
     const resume = req.body
 
     try {
-        const updatedResume = await Resume.findByIdAndUpdate(id, resume, { new: true })
+        const updatedResume = await Resume.findByIdAndUpdate(
+            id,
+            { ...resume, score: 0},
+            { new: true}
+        )
         if (!updatedResume) {
             return sendResponse(res, { ...STATUS_MESSAGES.ERROR.NOT_FOUND, success: false }, 'Resume');
         }

@@ -47,6 +47,10 @@ const resumeSchema = new mongoose.Schema({
         github: { type: String, default: null },
         website: { type: String, default: null }
     },
+    score: {
+        type: Number,
+        default: 0
+    },
     createdAt: {
         type: Date,
         default: Date.now

@@ -148,3 +148,43 @@ export const getResumeScore = async (req, res) => {
         return sendResponse(res, { ...STATUS_MESSAGES.ERROR.SERVER_ERROR, success: false })
     }
 }
+
+export const getPredictedSalary = async (req, res) => {
+    try {
+        const { resumeId }= req.params;
+
+        if (!resumeId) {
+            return sendResponse(res, { ...STATUS_MESSAGES.ERROR.NOT_FOUND }, "Resume")
+        }
+
+        const pythonProcess = spawn("py", ["backend/python_scripts/salary_predictor.py", resumeId])
+
+        let result = ""
+        let errorOutput = ""
+
+        pythonProcess.stdout.on("data", (data) => {
+            result += data.toString()
+        })
+
+        pythonProcess.stderr.on("data", (data) => {
+            errorOutput += data.toString()
+        })
+
+        pythonProcess.on("close", async (code) => {
+            if (code === 0) {
+                try {
+                    const jsonResponse = JSON.parse(result)
+
+                    res.status(200).json(jsonResponse)
+                } catch (error) {
+                    res.status(500).json({ error: "Failed to parse Python response", details: error.message });
+                }
+            } else {
+                res.status(500).json({ error: "Python script error", details: errorOutput });
+            }
+        })
+
+    } catch (error) {
+        return sendResponse(res, { ...STATUS_MESSAGES.ERROR.SERVER_ERROR, success: false })
+    }
+}

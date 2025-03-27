@@ -157,6 +157,15 @@ export const getPredictedSalary = async (req, res) => {
             return sendResponse(res, { ...STATUS_MESSAGES.ERROR.NOT_FOUND }, "Resume")
         }
 
+        const resume = await Resume.findByIdAndUpdate(resumeId)
+        if (!resume) {
+            return sendResponse(res, { ...STATUS_MESSAGES.ERROR.NOT_FOUND }, "Resume")
+        }
+
+        if (resume.predictedSalary !== 0) {
+            return res.status(200).json({ predictedSalary: resume.predictedSalary })
+        }
+
         const pythonProcess = spawn("py", ["backend/python_scripts/salary_predictor.py", resumeId])
 
         let result = ""
@@ -174,6 +183,10 @@ export const getPredictedSalary = async (req, res) => {
             if (code === 0) {
                 try {
                     const jsonResponse = JSON.parse(result)
+                    // update resume predicted salary
+
+                    resume.predictedSalary = jsonResponse.predictedSalary
+                    await resume.save();
 
                     res.status(200).json(jsonResponse)
                 } catch (error) {

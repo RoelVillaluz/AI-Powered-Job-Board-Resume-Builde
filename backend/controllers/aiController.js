@@ -5,6 +5,7 @@ import natural from "natural";
 import { kmeans } from "ml-kmeans";
 import cosineSimilarity from "compute-cosine-similarity";
 import { spawn } from "child_process";
+import { json } from "stream/consumers";
 
 // Helper function: Convert skills into numerical vectors
 const skillToVector = (skills, allSkills) => {
@@ -103,6 +104,15 @@ export const getResumeScore = async (req, res) => {
             return sendResponse(res, { ...STATUS_MESSAGES.ERROR.NOT_FOUND }, "Resume")
         }
 
+        const resume = await Resume.findById(resumeId)
+        if (!resume) {
+            return sendResponse(res, { ...STATUS_MESSAGES.ERROR.NOT_FOUND }, "Resume")
+        }
+
+        if (resume.score !== 0) {
+            return res.status(200).json({ score: resume.score })
+        }
+
         const pythonProcess = spawn("py", ["backend/python_scripts/resume_scorer.py", resumeId])
 
         let result = ""
@@ -116,10 +126,15 @@ export const getResumeScore = async (req, res) => {
             errorOutput += data.toString()
         })
 
-        pythonProcess.on("close", (code) => {
+        pythonProcess.on("close", async (code) => {
             if (code === 0) {
                 try {
                     const jsonResponse = JSON.parse(result)
+
+                    // update resume score
+                    resume.score = jsonResponse.score
+                    await resume.save()
+
                     res.status(200).json(jsonResponse)
                 } catch (error) {
                     res.status(500).json({ error: "Failed to parse Python response", details: error.message });

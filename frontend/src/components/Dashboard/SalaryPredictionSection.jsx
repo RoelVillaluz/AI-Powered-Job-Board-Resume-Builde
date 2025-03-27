@@ -1,7 +1,9 @@
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
+import axios from "axios";
 
-function SalaryPredictionSection({ resume, loading }) {
+function SalaryPredictionSection({ baseUrl, resume, loading }) {
+    const [predictedSalary, setPredictedSalary] = useState(0);
     const example = {
         workExperience: [
             {
@@ -58,6 +60,19 @@ function SalaryPredictionSection({ resume, loading }) {
         return totalYears
     }
 
+    useEffect(() => {
+        const getPredictedSalary = async () => {
+            try {
+                const response = await axios.get(`${baseUrl}/ai/predicted-salary/${resume._id}`)
+                console.log('Predicted Salary:', response.data)
+                setPredictedSalary(response.data.predictedSalary)
+            } catch (error) {
+                console.log('Error:', error)
+            }
+        }
+        getPredictedSalary()
+    })
+
     return (
         <section className={`grid-item ${!loading ? '' : 'skeleton'}`} id="salary-prediction">
             {!loading && (
@@ -72,7 +87,7 @@ function SalaryPredictionSection({ resume, loading }) {
                     </Link>
                 </header>
                 <div className="details">
-                    <h1>No data yet</h1>
+                    <h1>{predictedSalary !== 0 ? `$${predictedSalary}` : 'No Data Yet'}</h1>
                     <p>Please complete your resume to gain more accurate prediction.</p>
                     <div className="stats-list">
                         <div className="stat">

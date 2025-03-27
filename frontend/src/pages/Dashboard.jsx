@@ -42,7 +42,7 @@ function Dashboard () {
                         <ResumeScoreSection baseUrl={baseUrl} resume={resumes[0]}/>
                         <TopJobSection user={user} resume={resumes[0]}/>
                         <ApplicationProgressSection user={user} baseUrl={baseUrl} loading={loading}/>
-                        <SalaryPredictionSection resume={resumes[0]} loading={loading}/>
+                        <SalaryPredictionSection baseUrl={baseUrl} resume={resumes[0]} loading={loading}/>
                         <GoalsSection/>
                         <NetworkSection/>
                         <OnlineCoursesSection user={user} baseUrl={baseUrl} loading={loading}/>

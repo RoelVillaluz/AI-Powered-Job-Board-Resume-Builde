@@ -4,6 +4,7 @@ import numpy as np
 import pymongo
 from bson import ObjectId
 from sentence_transformers import SentenceTransformer
+from sklearn.cluster import KMeans
 from sklearn.feature_extraction.text import TfidfVectorizer
 import torch
 
@@ -65,6 +66,7 @@ def extract_resume_embeddings(resume):
                (skill_embedding, work_embedding, certification_embedding)
                If any of the fields are empty, the corresponding embedding will be None.
     """
+
     # Extract skills, work experiences, and certifications
     skills = [skill["name"] for skill in resume.get("skills", []) if skill.get('name')]
     work_experiences = [
@@ -82,12 +84,62 @@ def extract_resume_embeddings(resume):
     # Convert lists to tensors only if they are not empty
     skill_embeddings = torch.stack(skill_embeddings) if skill_embeddings else None
     work_embeddings = torch.stack(work_embeddings) if work_embeddings else None
-    certification_embeddings = (
-        torch.stack([get_embedding(cert) for cert in certifications]).mean(dim=0) if certifications else None
-    )
-    
-    # Compute the mean embedding for each category (skills, work, and certifications)
+    certification_embeddings = torch.mean(torch.stack(certification_embeddings), dim=0) if certification_embeddings else None
+
+    # Compute mean embeddings
     mean_skill_embedding = torch.mean(skill_embeddings, dim=0) if skill_embeddings is not None else None
     mean_work_embedding = torch.mean(work_embeddings, dim=0) if work_embeddings is not None else None
 
     return mean_skill_embedding, mean_work_embedding, certification_embeddings
+
+def extract_job_embeddings(job):
+    """
+    Extracts and computes the mean embeddings for skills, experience level, job title & location, 
+    and requirements from the job posting.
+    
+    Parameters:
+        job (dict): The job posting data containing skills, experience level, title, location, and requirements.
+        
+    Returns:
+        tuple: A tuple containing the mean embeddings for skills, experience level, 
+               title & location, and requirements.
+    """
+
+    # Extract skills, requirements
+    skills = [skill["name"] for skill in job.get("skills", []) if skill.get("name")]
+    requirements = [requirement for requirement in job.get("requirements", [])]
+
+    # Get embeddings for skills and requirements
+    skill_embeddings = torch.stack([get_embedding(skill) for skill in skills]) if skills else None
+    requirement_embeddings = torch.stack([get_embedding(req) for req in requirements]) if requirements else None
+    experience_embedding = get_embedding(job.get("experienceLevel", None)) if job.get("experienceLevel") else None
+    job_title_embedding = get_embedding(job.get("jobTitle", None)) if job.get("jobTitle") else None
+    location_embedding = get_embedding(job.get("location", None)) if job.get("location") else None
+
+    # Compute mean embeddings only if they are not None and not empty
+    mean_skill_embedding = torch.mean(skill_embeddings, dim=0) if skill_embeddings is not None and skill_embeddings.numel() > 0 else None
+    mean_requirements_embedding = torch.mean(requirement_embeddings, dim=0) if requirement_embeddings is not None and requirement_embeddings.numel() > 0 else None
+
+    return mean_skill_embedding, mean_requirements_embedding, experience_embedding, job_title_embedding, location_embedding
+
+def cluster_job_postings(job_posting_embeddings, num_clusters=5):
+    """
+    Perform K-Means clustering on the job postings' embeddings.
+
+    Parameters:
+        job_postings_embeddings (list): A list of embeddings for job postings.
+        num_clusters (int): Number of clusters to form.
+
+    Returns:
+        kmeans.labels_: Array of cluster labels for each job posting.
+        kmeans.cluster_centers_: Cluster centers (mean embeddings of the clusters).
+    """
+
+    # Convert job postings embeddings into a 2D array (each row is an embedding)
+    job_matrix = np.array(job_posting_embeddings)
+
+    # Perform K-Means clustering
+    kmeans = KMeans(n_clusters=num_clusters, random_state=42)
+    kmeans.fit(job_matrix)
+
+    return kmeans.labels_, kmeans.cluster_centers_

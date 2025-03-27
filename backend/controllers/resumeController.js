@@ -99,7 +99,7 @@ export const updateResume = async (req, res) => {
     try {
         const updatedResume = await Resume.findByIdAndUpdate(
             id,
-            { ...resume, score: 0},
+            { ...resume, score: 0, predictedSalary: 0 },
             { new: true}
         )
         if (!updatedResume) {

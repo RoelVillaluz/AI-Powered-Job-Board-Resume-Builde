@@ -51,6 +51,10 @@ const resumeSchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
+    predictedSalary: {
+        type: Number,
+        default: 0
+    },
     createdAt: {
         type: Date,
         default: Date.now

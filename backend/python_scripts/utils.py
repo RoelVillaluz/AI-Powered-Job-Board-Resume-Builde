@@ -74,13 +74,14 @@ def extract_resume_embeddings(resume):
     ]
     certifications = [certification["name"] for certification in resume.get("certifications", [])]
 
-    # Return None if no skills or work experiences are found
-    if not skills or not work_experiences:
-        return None, None, None  # No valid data to process.
+    # Compute embeddings safely
+    skill_embeddings = [get_embedding(skill) for skill in skills if get_embedding(skill) is not None]
+    work_embeddings = [get_embedding(exp) for exp in work_experiences if get_embedding(exp) is not None]
+    certification_embeddings = [get_embedding(cert) for cert in certifications if get_embedding(cert) is not None]
 
-    # Compute embeddings for skills, work experience, and certifications
-    skill_embeddings = torch.stack([get_embedding(skill) for skill in skills]) if skills else None
-    work_embeddings = torch.stack([get_embedding(exp) for exp in work_experiences]) if work_experiences else None
+    # Convert lists to tensors only if they are not empty
+    skill_embeddings = torch.stack(skill_embeddings) if skill_embeddings else None
+    work_embeddings = torch.stack(work_embeddings) if work_embeddings else None
     certification_embeddings = (
         torch.stack([get_embedding(cert) for cert in certifications]).mean(dim=0) if certifications else None
     )

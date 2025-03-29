@@ -94,5 +94,5 @@ userSchema.pre("deleteOne", { document: true, query: false }, async function (ne
     next();
 }); 
 
-const User = mongoose.model('User', userSchema);
+const User = mongoose.models.User || mongoose.model('User', userSchema);
 export default User;

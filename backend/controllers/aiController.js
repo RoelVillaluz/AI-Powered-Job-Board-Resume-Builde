@@ -6,6 +6,7 @@ import { kmeans } from "ml-kmeans";
 import cosineSimilarity from "compute-cosine-similarity";
 import { spawn } from "child_process";
 import { json } from "stream/consumers";
+import User from "../models/UserModel.js";
 
 // Helper function: Convert skills into numerical vectors
 const skillToVector = (skills, allSkills) => {
@@ -13,51 +14,62 @@ const skillToVector = (skills, allSkills) => {
 };
 
 export const getJobRecommendations = async (req, res) => {
-    const { id } = req.params;
-
     try {
-        const resume = await Resume.findById(id);
-        if (!resume) {
-            return sendResponse(res, { ...STATUS_MESSAGES.ERROR.NOT_FOUND, success: false }, 'Resume');
+        // Get user
+        const { userId } = req.params;
+
+        const user = await User.findById(userId);
+        if (!user) {
+            return sendResponse(res, { ...STATUS_MESSAGES.ERROR.NOT_FOUND, success: false }, "User")
         }
 
+        const { jobType, experienceLevel, salary } = user.preferences;
+
+        // Get resumes
+        const resumes = await Resume.find({ user: userId })
+        if (!resumes) {
+            return sendResponse(res, { ...STATUS_MESSAGES.ERROR.NOT_FOUND, success: false }, "Resumes")
+        }
+
+        const resumeSkills = [
+            ...new Set(resumes.flatMap(resume => resume.skills.map(skill => skill.name.toLowerCase())))
+        ]
+
+        // Get jobs 
         const jobs = await JobPosting.find({}).populate("company", "name logo");
         if (!jobs.length) {
-            return sendResponse(res, { ...STATUS_MESSAGES.ERROR.NOT_FOUND, success: false }, 'Jobs');
+            return sendResponse(res, { ...STATUS.ERROR.NOT_FOUND, success: false }, 'Jobs')
         }
 
-        // Convert job postings into numerical vectors
+        // Compute job recommendations
         const recommendedJobs = jobs.map(job => {
-            const jobSkills = job.skills.map(skill => skill.name.toLowerCase());
+            const jobSkills = job.skills.map(skill => skill.name.toLowerCase())
             
-            // **Only include job-relevant skills in resume vector**
-            const filteredResumeSkills = resume.skills
-                .map(skill => skill.name.toLowerCase())
-                .filter(skill => jobSkills.includes(skill)); 
+            const matchedSkills = resumeSkills.filter(skill => jobSkills.includes(skill))
+            
+            const jobVector = skillToVector(jobSkills, jobSkills)
+            const resumeVector = skillToVector(resumeSkills, jobSkills)
 
-            const jobVector = skillToVector(jobSkills, jobSkills);  // Use jobSkills as reference
-            const resumeVector = skillToVector(filteredResumeSkills, jobSkills); // Ensure same length
+            let similarity = Math.round((cosineSimilarity(jobVector, resumeVector) || 0) * 100)
 
-            const similarity = Math.round((cosineSimilarity(resumeVector, jobVector) || 0) * 100);
-            const matchedSkills =  resume.skills
-                                        .map(skill => skill.name) 
-                                        .filter(skill => jobSkills.includes(skill.toLowerCase())); 
+            // **Boost similarity score based on preference matches** 
+            if (job.type === jobType) similarity += 10;  
+            if (job.experienceLevel === experienceLevel) similarity += 10;  
+            if (job.salary >= salary) similarity += 5;  
 
+            return { ...job.toObject(), similarity, matchedSkills };
 
-            return { ...job.toObject(), similarity: similarity, matchedSkills: matchedSkills };
-        }).filter(job => job.similarity >= 50);
-
-        // Sort and return top 10 jobs
-        const sortedJobs = recommendedJobs
-            .sort((a, b) => b.similarity - a.similarity)
+        }).filter(job => job.similarity >= 50) 
+            .sort((a, b) => b.similarity - a.similarity) 
             .slice(0, 10);
 
-        return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.FETCH, data: sortedJobs }, "Recommended Jobs");
+        return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.FETCH, data: recommendedJobs }, "Recommended Jobs");
+
     } catch (error) {
         console.error(error);
-        return sendResponse(res, { ...STATUS_MESSAGES.ERROR.SERVER_ERROR, success: false }, "Error fetching jobs");
+        return sendResponse(res, { ...STATUS_MESSAGES.ERROR.SERVER_ERROR, success: false }, "Error");
     }
-};
+}
 
 export const getRecommendedSkills = async (req, res) => {
     try {

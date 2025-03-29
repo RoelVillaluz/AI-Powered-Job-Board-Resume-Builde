@@ -11,7 +11,7 @@ function TopJobSection({ user, resume }) {
 
     useEffect(() => {
         const getRecommendations = async () => {
-            if (!resume) return; // Ensure resume exists
+            if (!user) return; // Ensure user exists
 
             setLoading(true); // Start loading when fetching data
             const recommendations = await fetchJobRecommendations();
@@ -25,7 +25,7 @@ function TopJobSection({ user, resume }) {
         };
 
         getRecommendations();
-    }, [resume]);
+    }, [user]);
 
     // Stop loading when topJob is set
     useEffect(() => {

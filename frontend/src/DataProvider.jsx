@@ -1,10 +1,13 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import axios from "axios";
+import { useAuth } from "./components/AuthProvider";
 
 const DataContext = createContext();
 export const useData = () => useContext(DataContext);
 
 export const DataProvider = ({ children }) => {
+  const { user } = useAuth();
+  
   const [name, setName] = useState(null);
 
   const [users, setUsers] = useState([]);
@@ -94,12 +97,9 @@ export const DataProvider = ({ children }) => {
 
   const fetchJobRecommendations = async () => {
     try {
-        const responses = await Promise.all(
-            resumes.map(resume => 
-                axios.get(`${baseUrl}/ai/job-recommendations/${resume._id}`)
-            )
-        )
-        const recommendations = responses.flatMap(response => response.data.data);
+        const response = await axios.get(`${baseUrl}/ai/job-recommendations/${user._id}`)
+        const recommendations = response.data.data
+
         console.log('Recommendations:', recommendations)
         setJobRecommendations(recommendations)
         return recommendations

@@ -73,6 +73,11 @@ function SalaryPredictionSection({ baseUrl, resume, loading }) {
         getPredictedSalary()
     })
 
+    const formatSalary = (salary) => {
+        const formattedSalary = Math.ceil(salary / 100) * 100
+        return formattedSalary.toLocaleString()
+    }
+
     return (
         <section className={`grid-item ${!loading ? '' : 'skeleton'}`} id="salary-prediction">
             {!loading && (
@@ -87,8 +92,12 @@ function SalaryPredictionSection({ baseUrl, resume, loading }) {
                     </Link>
                 </header>
                 <div className="details">
-                    <h1>{predictedSalary !== 0 ? `$${predictedSalary}` : 'No Data Yet'}</h1>
-                    <p>Please complete your resume to gain more accurate prediction.</p>
+                    <h1>{predictedSalary !== 0 ? `$${formatSalary(predictedSalary)}` : 'No Data Yet'}</h1>
+                    {predictedSalary === 0 ? (
+                        <p>Please complete your resume to gain more accurate prediction.</p>
+                    ) : (
+                        <p></p>
+                    )}
                     <div className="stats-list">
                         <div className="stat">
                             <h4>{resume.skills.length} Skills</h4>

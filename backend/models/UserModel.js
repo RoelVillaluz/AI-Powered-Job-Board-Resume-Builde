@@ -56,15 +56,33 @@ const userSchema = new mongoose.Schema({
     loggedInDates: [
         { type: String }
     ],
-    totalViews: { 
-        type: Number, 
-        default: 0 
-    },
     viewsHistory: [{
         date: { type: String, required: true },  
         count: { type: Number, default: 0 },  
         viewers: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }]  
     }],    
+    preferences: {
+        jobType: {
+            type: String,
+            enum: ['Full-Time', 'Part-Time', 'Contract', 'Internship'],
+            default: null
+        },
+        experienceLevel: {
+            type: String,
+            enum: ['Intern', 'Entry', 'Mid-Level', 'Senior'],
+            default: null
+        },
+        salary: {
+            min: {
+                type: Number,
+                default: null
+            },
+            max: {
+                type: Number,
+                default: null
+            }
+        }
+    },
     createdAt: {
         type: Date,
         default: Date.now

@@ -96,12 +96,20 @@ function SalaryPredictionSection({ baseUrl, resume, loading }) {
                     {predictedSalary === 0 ? (
                         <p>Please complete your resume to gain more accurate prediction.</p>
                     ) : (
-                        <p></p>
+                        <p>Salaries vary based on experience, location, and industry demand.</p>
                     )}
                     <div className="stats-list">
                         <div className="stat">
                             <h4>{resume.skills.length} Skills</h4>
-                            <p>No skills yet.</p>
+                            {resume ? (
+                                <p>{resume.skills
+                                    .sort(() => Math.random() - 0.5)
+                                    .slice(0, 2)
+                                    .map(skill => skill.name)
+                                    .join(', ')} + {resume.skills.length - 2}</p>
+                            ) : (
+                                <p>No skills yet.</p>
+                            )}
                         </div>
                         <div className="stat">
                             <h4>{calculateWorkExperienceCount()} years</h4>

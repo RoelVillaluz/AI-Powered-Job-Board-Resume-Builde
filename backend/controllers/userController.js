@@ -11,7 +11,7 @@ import mongoose from 'mongoose';
 export const getUsers = async (req, res) => {
     try {
         const users = await User.find({}).select('-password');
-
+        
         // Normalize profile picture paths and set default if missing
         const updatedUsers = users.map(user => {
             if (user.profilePicture) {
@@ -291,6 +291,46 @@ export const applyToJob = async (req, res) => {
     } catch (error) {
         console.error('Error', error)
         return sendResponse(res, { ...STATUS_MESSAGES.ERROR.SERVER, success: false }, 'Job Application')
+    }
+}
+
+export const sendConnectionRequest = async (req, res) => {
+    const { userId, connectionId } = req.body; // SenderID, Receiver ID
+
+    try {
+        const user = await User.findById(userId)
+        const userToAdd = await User.findById(connectionId)
+
+        if (!user || !userToAdd) {
+            return sendResponse(res, { ...STATUS_MESSAGES.ERROR.NOT_FOUND, success: false }, "User")
+        }
+
+        const existingConnection = user.connections.find(conn => conn.user.toString() === connectionId)
+
+        if (existingConnection) {
+            // delete connection request
+            user.connections = user.connections.filter(conn => conn.user.toString() !== connectionId);
+            userToAdd.connections = userToAdd.connections.filter(conn => conn.user.toString() !== userId);
+
+            const message = `Removed connection request to ${connectionId}.`
+        } else {
+            // Add connection request (pending status)
+            user.connections.push({ user: connectionId, status: 'Pending' })
+            userToAdd.connections.push({ user: userId, status: "Pending" });
+
+            const message = `Connection request sent to ${connectionId}.`
+        }
+
+        await user.save()
+        await userToAdd.save()
+
+        return res.status(200).json({
+            success: true,
+            message: message
+        })
+    } catch (error) {
+        console.error('Error: ', error )
+        return sendResponse(res, { ...STATUS_MESSAGES.ERROR.SERVER, success: false })
     }
 }
 

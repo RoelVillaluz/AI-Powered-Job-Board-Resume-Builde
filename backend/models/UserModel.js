@@ -83,6 +83,17 @@ const userSchema = new mongoose.Schema({
             }
         }
     },
+    connections: [{
+        user: { 
+            type: mongoose.Schema.Types.ObjectId, 
+            ref: "User" 
+        }, 
+        status: { 
+            type: String, 
+            enum: ['Accepted', 'Pending', 'Rejected'], 
+            default: 'Pending' 
+        }
+    }],
     createdAt: {
         type: Date,
         default: Date.now

@@ -44,7 +44,7 @@ function Dashboard () {
                         <ApplicationProgressSection user={user} baseUrl={baseUrl} loading={loading}/>
                         <SalaryPredictionSection baseUrl={baseUrl} resume={resumes[0]} loading={loading}/>
                         <GoalsSection/>
-                        <NetworkSection/>
+                        <NetworkSection user={user} baseUrl={baseUrl}/>
                         <OnlineCoursesSection user={user} baseUrl={baseUrl} loading={loading}/>
                     </div>
                 </div>

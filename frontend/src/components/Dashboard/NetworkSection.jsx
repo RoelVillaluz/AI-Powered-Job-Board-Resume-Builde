@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 import { useData } from "../../DataProvider"
+import axios from "axios";
 
 function NetworkSection({ user, baseUrl }) {
     const { users, getAllData } = useData();
@@ -21,21 +22,41 @@ function NetworkSection({ user, baseUrl }) {
         }
     }, [users, user]);
 
+    const toggleApplicationRequest = async (e, userId, connectionId) => {
+        e.preventDefault();
+        
+        try {
+            const response = await axios.post(`${baseUrl}/users/send-connection-request`, {
+                userId,
+                connectionId
+            })
+
+            console.log(response.data)
+        } catch (error) {
+            console.error('Error:', error)
+        }
+    }
+
     return (
         <section className="grid-item" id="networks">
             <header>
                 <h4>Networks</h4>
             </header>
             <ul>
-                {connectionRecommendations.slice(0, 3).map((user) => (
-                    <li key={user._id}>
-                        <img src={user.profilePicture} alt={`${user.name}'s profile picture`} />
+                {connectionRecommendations.slice(0, 3).map((connectionRecommendation) => (
+                    <li key={connectionRecommendation._id}>
+                        <img src={connectionRecommendation.profilePicture} alt={`${connectionRecommendation.name}'s profile picture`} />
                         <div className="person-info">
-                            <h4>{user.name}</h4>
-                            <p>{user.role}</p>
+                            <h4>{connectionRecommendation.name}</h4>
+                            <p>{connectionRecommendation.role}</p>
                         </div>
-                        <button>
-                            <i className="fa-solid fa-user-plus" aria-hidden="true"></i>
+                        <button onClick={(e) => user && toggleApplicationRequest(e, user._id, connectionRecommendation._id)}>
+                            {user.connections.some(conn => conn.user.toString() === connectionRecommendation._id) 
+                            ? (
+                                <i className="fa-solid fa-user-minus" aria-hidden="true"></i>
+                            ) : (
+                                <i className="fa-solid fa-user-plus" aria-hidden="true"></i>
+                            )}
                         </button>
                     </li>
                 ))}

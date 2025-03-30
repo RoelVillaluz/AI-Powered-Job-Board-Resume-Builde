@@ -98,7 +98,7 @@ export const DataProvider = ({ children }) => {
   const fetchJobRecommendations = async () => {
     try {
         const response = await axios.get(`${baseUrl}/ai/job-recommendations/${user._id}`)
-        const recommendations = response.data.data
+        const recommendations = response.data.data || []
 
         console.log('Recommendations:', recommendations)
         setJobRecommendations(recommendations)

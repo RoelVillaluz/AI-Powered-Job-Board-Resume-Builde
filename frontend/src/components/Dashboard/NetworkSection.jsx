@@ -2,8 +2,8 @@ import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 import { useData } from "../../DataProvider"
 
-function NetworkSection() {
-    const { user, users, getAllData } = useData();
+function NetworkSection({ user, baseUrl }) {
+    const { users, getAllData } = useData();
     const [connectionRecommendations, setConnectionRecommendations] = useState([]);
 
     useEffect(() => {
@@ -11,9 +11,15 @@ function NetworkSection() {
     }, [])
 
     useEffect(() => {
-        setConnectionRecommendations(users)
-        console.log("Connection recommendations:", connectionRecommendations)
-    }, [users])
+        console.log("User:", user);
+        console.log("Users:", users);
+    
+        if (user && users?.length) {
+            const filteredUsers = users.filter(u => u._id !== user._id && u.role === 'jobseeker');
+            console.log("Filtered Users:", filteredUsers);
+            setConnectionRecommendations(filteredUsers);
+        }
+    }, [users, user]);
 
     return (
         <section className="grid-item" id="networks">

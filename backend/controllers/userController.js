@@ -11,6 +11,17 @@ import mongoose from 'mongoose';
 export const getUsers = async (req, res) => {
     try {
         const users = await User.find({}).select('-password');
+
+        // Normalize profile picture paths and set default if missing
+        const updatedUsers = users.map(user => {
+            if (user.profilePicture) {
+                user.profilePicture = user.profilePicture.replace(/\\/g, '/');
+                user.profilePicture = `profile_pictures/${user.profilePicture.split('/').pop()}`;
+            } else {
+                user.profilePicture = 'profile_pictures/default.jpg';
+            }
+            return user;
+        });
         return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.FETCH, data: users }, 'Users');
     } catch (error) {
         console.error('Error fetching users:', error);

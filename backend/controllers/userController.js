@@ -312,13 +312,13 @@ export const sendConnectionRequest = async (req, res) => {
             user.connections = user.connections.filter(conn => conn.user.toString() !== connectionId);
             userToAdd.connections = userToAdd.connections.filter(conn => conn.user.toString() !== userId);
 
-            const message = `Removed connection request to ${connectionId}.`
+            message = `Removed connection request to ${connectionId}.`
         } else {
             // Add connection request (pending status)
             user.connections.push({ user: connectionId, status: 'Pending' })
             userToAdd.connections.push({ user: userId, status: "Pending" });
 
-            const message = `Connection request sent to ${connectionId}.`
+            message = `Connection request sent to ${connectionId}.`
         }
 
         await user.save()
@@ -326,7 +326,8 @@ export const sendConnectionRequest = async (req, res) => {
 
         return res.status(200).json({
             success: true,
-            message: message
+            message: message,
+            connections: user.connections,
         })
     } catch (error) {
         console.error('Error: ', error )

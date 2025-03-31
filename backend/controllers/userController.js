@@ -307,6 +307,8 @@ export const sendConnectionRequest = async (req, res) => {
 
         const existingConnection = user.connections.find(conn => conn.user.toString() === connectionId)
 
+        let message;
+
         if (existingConnection) {
             // delete connection request
             user.connections = user.connections.filter(conn => conn.user.toString() !== connectionId);

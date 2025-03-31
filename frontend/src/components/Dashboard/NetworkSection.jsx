@@ -2,8 +2,10 @@ import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 import { useData } from "../../DataProvider"
 import axios from "axios";
+import { useAuth } from "../AuthProvider";
 
 function NetworkSection({ user, baseUrl }) {
+    const { setUser } = useAuth();
     const { users, getAllData } = useData();
     const [connectionRecommendations, setConnectionRecommendations] = useState([]);
 
@@ -23,19 +25,31 @@ function NetworkSection({ user, baseUrl }) {
     }, [users, user]);
 
     const toggleApplicationRequest = async (e, userId, connectionId) => {
-        e.preventDefault();
-        
+        console.log("Button clicked! Preventing default...");
+        e.preventDefault(); 
+        e.stopPropagation();
+    
         try {
-            const response = await axios.post(`${baseUrl}/users/send-connection-request`, {
-                userId,
-                connectionId
-            })
-
-            console.log(response.data)
+            const response = await axios.post(`${baseUrl}/users/send-connection-request`, 
+                { userId, connectionId },
+                { headers: { "Content-Type": "application/json" } }
+            );
+    
+            if (response.data.success) {
+                setUser(prevUser => {
+                    if (!prevUser) return prevUser;
+                    return {
+                        ...prevUser,
+                        connections: response.data.connections,
+                    };
+                });                
+            }
         } catch (error) {
-            console.error('Error:', error)
+            console.error('Error:', error);
         }
-    }
+        
+        return false;
+    };
 
     return (
         <section className="grid-item" id="networks">
@@ -50,18 +64,16 @@ function NetworkSection({ user, baseUrl }) {
                             <h4>{connectionRecommendation.name}</h4>
                             <p>{connectionRecommendation.role}</p>
                         </div>
-                        <button onClick={(e) => user && toggleApplicationRequest(e, user._id, connectionRecommendation._id)}>
-                            {user.connections.some(conn => conn.user.toString() === connectionRecommendation._id) 
-                            ? (
-                                <i className="fa-solid fa-user-minus" aria-hidden="true"></i>
-                            ) : (
-                                <i className="fa-solid fa-user-plus" aria-hidden="true"></i>
-                            )}
+                        <button type="button" onClick={(e) => user && toggleApplicationRequest(e, user._id, connectionRecommendation._id)}>
+                            {user?.connections?.some(conn => conn.user.toString() === connectionRecommendation._id) 
+                                ? <i className="fa-solid fa-user-minus"></i>
+                                : <i className="fa-solid fa-user-plus"></i>
+                            }
                         </button>
                     </li>
                 ))}
             </ul>
-            <Link>Find more<i className="fa-solid fa-arrow-right"></i></Link>
+            <Link to={'connections'}>Find more<i className="fa-solid fa-arrow-right"></i></Link>
         </section>
     )
 }

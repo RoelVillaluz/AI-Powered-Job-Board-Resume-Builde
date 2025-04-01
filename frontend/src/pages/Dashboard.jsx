@@ -34,7 +34,7 @@ function Dashboard () {
             <Layout>
                 <div className="dashboard">
                     <header id="dashboard-header">
-                        <h1>Welcome Back, {name}</h1>
+                        <h1>Welcome Back, {name?.split(" ")[0]}</h1>
                         <p>Let's make this day productive.</p>
                     </header>
                     <div className="grid-container">

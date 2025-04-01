@@ -27,7 +27,8 @@ function Dashboard () {
             setLoading(true); // Set loading to true before fetching
             fetchResumes(user._id).then(() => setLoading(false)); // Set loading to false after fetching
         }
-    }, [user]);
+    }, [user?._id]);  // Depend only on user._id to prevent redundant fetches
+    
     
     return (
         <>

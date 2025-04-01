@@ -25,7 +25,7 @@ function TopJobSection({ user, resume }) {
         };
 
         getRecommendations();
-    }, [user]);
+    }, [user?._id]);
 
     // Stop loading when topJob is set
     useEffect(() => {

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 import axios from "axios";
 
-function SalaryPredictionSection({ baseUrl, resume, loading }) {
+function SalaryPredictionSection({ baseUrl, resume, loading, shuffledSkills }) {
     const [predictedSalary, setPredictedSalary] = useState(0);
     const example = {
         workExperience: [
@@ -102,11 +102,7 @@ function SalaryPredictionSection({ baseUrl, resume, loading }) {
                         <div className="stat">
                             <h4>{resume.skills.length} Skills</h4>
                             {resume ? (
-                                <p>{resume.skills
-                                    .sort(() => Math.random() - 0.5)
-                                    .slice(0, 2)
-                                    .map(skill => skill.name)
-                                    .join(', ')} + {resume.skills.length - 2}</p>
+                                <p>{shuffledSkills}</p>
                             ) : (
                                 <p>No skills yet.</p>
                             )}

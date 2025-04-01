@@ -8,7 +8,6 @@ function NetworkSection({ user, baseUrl }) {
     const { setUser } = useAuth();
     const { users, getAllData } = useData();
     const [connectionRecommendations, setConnectionRecommendations] = useState([]);
-    const [pendingRequests, setPendingRequests] = useState(new Set());
 
     useEffect(() => {
         getAllData(["users"])
@@ -29,26 +28,31 @@ function NetworkSection({ user, baseUrl }) {
         e.preventDefault();
         e.stopPropagation();
     
-        setPendingRequests(prev => {
-            const newSet = new Set(prev);
-            if (newSet.has(connectionId)) {
-                newSet.delete(connectionId);
-            } else {
-                newSet.add(connectionId);
-            }
-            return newSet;
-        });
-    
         try {
             const response = await axios.post(`${baseUrl}/users/send-connection-request`, 
                 { userId: user._id, connectionId },
                 { headers: { "Content-Type": "application/json" } }
             );
-            console.log(response)
+    
+            if (response.status === 200) {
+                setUser(prevUser => {
+                    if (!prevUser) return prevUser;
+    
+                    const isConnected = prevUser.connections.some(conn => conn.user === connectionId);
+                    const updatedConnections = isConnected
+                        ? prevUser.connections.filter(conn => conn.user !== connectionId) // Remove connection
+                        : [...prevUser.connections, { user: connectionId }]; // Add connection
+    
+                    return { ...prevUser, connections: updatedConnections };
+                });
+            }
+            
+            console.log(response);
         } catch (error) {
             console.error('Error:', error);
         }
     };
+    
 
     return (
         <section className="grid-item" id="networks">
@@ -67,7 +71,7 @@ function NetworkSection({ user, baseUrl }) {
                             type="button"
                             onClick={(e) => toggleApplicationRequest(e, connectionRecommendation._id)}
                         >
-                            {pendingRequests.has(connectionRecommendation._id) || (user?.connections?.some(conn => conn.user === connectionRecommendation._id))
+                            {user?.connections?.some(conn => conn.user === connectionRecommendation._id)
                                 ? <i className="fa-solid fa-user-minus"></i> 
                                 : <i className="fa-solid fa-user-plus"></i>}
                         </button>

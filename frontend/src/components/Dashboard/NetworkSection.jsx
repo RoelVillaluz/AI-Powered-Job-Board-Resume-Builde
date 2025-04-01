@@ -8,6 +8,7 @@ function NetworkSection({ user, baseUrl }) {
     const { setUser } = useAuth();
     const { users, getAllData } = useData();
     const [connectionRecommendations, setConnectionRecommendations] = useState([]);
+    const [pendingRequests, setPendingRequests] = useState(new Set());
 
     useEffect(() => {
         getAllData(["users"])
@@ -22,33 +23,31 @@ function NetworkSection({ user, baseUrl }) {
             console.log("Filtered Users:", filteredUsers);
             setConnectionRecommendations(filteredUsers);
         }
-    }, [users, user]);
+    }, [users]);
 
-    const toggleApplicationRequest = async (e, userId, connectionId) => {
-        console.log("Button clicked! Preventing default...");
-        e.preventDefault(); 
+    const toggleApplicationRequest = async (e, connectionId) => {
+        e.preventDefault();
         e.stopPropagation();
+    
+        setPendingRequests(prev => {
+            const newSet = new Set(prev);
+            if (newSet.has(connectionId)) {
+                newSet.delete(connectionId);
+            } else {
+                newSet.add(connectionId);
+            }
+            return newSet;
+        });
     
         try {
             const response = await axios.post(`${baseUrl}/users/send-connection-request`, 
-                { userId, connectionId },
+                { userId: user._id, connectionId },
                 { headers: { "Content-Type": "application/json" } }
             );
-    
-            if (response.data.success) {
-                setUser(prevUser => {
-                    if (!prevUser) return prevUser;
-                    return {
-                        ...prevUser,
-                        connections: response.data.connections,
-                    };
-                });                
-            }
+            console.log(response)
         } catch (error) {
             console.error('Error:', error);
         }
-        
-        return false;
     };
 
     return (
@@ -64,11 +63,13 @@ function NetworkSection({ user, baseUrl }) {
                             <h4>{connectionRecommendation.name}</h4>
                             <p>{connectionRecommendation.role}</p>
                         </div>
-                        <button type="button" onClick={(e) => user && toggleApplicationRequest(e, user._id, connectionRecommendation._id)}>
-                            {user?.connections?.some(conn => conn.user.toString() === connectionRecommendation._id) 
-                                ? <i className="fa-solid fa-user-minus"></i>
-                                : <i className="fa-solid fa-user-plus"></i>
-                            }
+                        <button
+                            type="button"
+                            onClick={(e) => toggleApplicationRequest(e, connectionRecommendation._id)}
+                        >
+                            {pendingRequests.has(connectionRecommendation._id) || (user?.connections?.some(conn => conn.user === connectionRecommendation._id))
+                                ? <i className="fa-solid fa-user-minus"></i> 
+                                : <i className="fa-solid fa-user-plus"></i>}
                         </button>
                     </li>
                 ))}

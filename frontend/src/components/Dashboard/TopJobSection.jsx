@@ -3,7 +3,7 @@ import { useAuth } from "../AuthProvider";
 import { Link } from "react-router-dom";
 import { useData } from "../../DataProvider";
 
-function TopJobSection({ user, resume }) {
+function TopJobSection({ user, resume, shuffledSkills }) {
     const { toggleApplyJob, toggleSaveJob } = useAuth();
     const { fetchJobRecommendations } = useData();
     const [topJob, setTopJob] = useState(null);
@@ -33,7 +33,6 @@ function TopJobSection({ user, resume }) {
             setLoading(false);
         }
     }, [topJob]);
-    
 
     const formatDate = (date) => {
         const formattedDate = date.toLocaleString('en-US', {
@@ -106,11 +105,7 @@ function TopJobSection({ user, resume }) {
                             <div className="wrapper">
                                 <div>
                                     <h3>Recommended Jobs For You</h3>
-                                    <p>{resume.skills
-                                                    .sort(() => Math.random() - 0.5)
-                                                    .slice(0, 3)
-                                                    .map(skill => skill.name)
-                                                    .join(', ')}</p>
+                                    <p>{shuffledSkills}</p>
                                 </div>
                                 <i className="fa-solid fa-angle-right"></i>
                             </div>

@@ -17,6 +17,7 @@ function Dashboard () {
     const { baseUrl, fetchResumes, name, resumes } = useData();
     const { user } = useAuth();
     const [loading, setLoading] = useState(true)
+    const [shuffledSkills, setShuffledSkills] = useState([])
 
     useEffect(() => {
         document.title = 'Dashboard'
@@ -29,6 +30,13 @@ function Dashboard () {
         }
     }, [user?._id]);  // Depend only on user._id to prevent redundant fetches
     
+    // Shuffle skills only once
+    useEffect(() => {
+        if (resumes[0]?.skills.length) {
+            const shuffled = resumes[0].skills.sort(() => Math.random() - 0.5).slice(0, 3).map(skill => skill.name).join(", ")
+            setShuffledSkills(shuffled)
+        }
+    }, [resumes]) // Only trigger when resume.skills changes
     
     return (
         <>
@@ -41,7 +49,7 @@ function Dashboard () {
                     <div className="grid-container">
                         <UserProfileSection user={user} name={name}/>
                         <ResumeScoreSection baseUrl={baseUrl} resume={resumes[0]}/>
-                        <TopJobSection user={user} resume={resumes[0]}/>
+                        <TopJobSection user={user} resume={resumes[0]} shuffledSkills={shuffledSkills}/>
                         <ApplicationProgressSection user={user} baseUrl={baseUrl} loading={loading}/>
                         <SalaryPredictionSection baseUrl={baseUrl} resume={resumes[0]} loading={loading}/>
                         <GoalsSection/>

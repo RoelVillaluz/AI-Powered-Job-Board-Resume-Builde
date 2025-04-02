@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import axios from "axios";
 import { useAuth } from "./components/AuthProvider";
+import { model } from "mongoose";
 
 const DataContext = createContext();
 export const useData = () => useContext(DataContext);
@@ -14,7 +15,7 @@ export const DataProvider = ({ children }) => {
   const [jobPostings, setJobPostings] = useState([]);
   const [jobRecommendations, setJobRecommendations] = useState([]);
   const [resumes, setResumes] = useState([]);
-const [companies, setCompanies] = useState([]);
+  const [companies, setCompanies] = useState([]);
 
   const [success, setSuccess] = useState(false);
   const [successMessage, setSuccessMessage] = useState(false);
@@ -62,6 +63,7 @@ const [companies, setCompanies] = useState([]);
       if (models.includes("users")) setUsers(data["users"] || []);
       if (models.includes("job-postings")) setJobPostings(data["job-postings"] || []); 
       if (models.includes("resumes")) setResumes(data["resumes"] || []);
+      if (model.includes("companies")) setCompanies(data["companies"] || []);
     }
   };
 
@@ -119,6 +121,7 @@ const [companies, setCompanies] = useState([]);
         jobPostings, setJobPostings,
         jobRecommendations, setJobRecommendations,
         resumes, setResumes,
+        companies, setCompanies,
         getAllData, 
         fetchResumes,
         fetchJobRecommendations,

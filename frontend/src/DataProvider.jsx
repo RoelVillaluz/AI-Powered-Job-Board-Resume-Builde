@@ -14,6 +14,7 @@ export const DataProvider = ({ children }) => {
   const [jobPostings, setJobPostings] = useState([]);
   const [jobRecommendations, setJobRecommendations] = useState([]);
   const [resumes, setResumes] = useState([]);
+const [companies, setCompanies] = useState([]);
 
   const [success, setSuccess] = useState(false);
   const [successMessage, setSuccessMessage] = useState(false);

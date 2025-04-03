@@ -1,14 +1,22 @@
 import { useEffect, useState } from "react"
 import { useAuth } from "../components/AuthProvider"
 import { useData } from "../DataProvider";
-import axios from "axios";
+import axios, { all } from "axios";
 import Layout from "../components/Layout";
 import { Link } from "react-router-dom";
 import JobPostingCard from "../components/JobPostingCard";
 
 function JobPostingsList() {
     const { user } = useAuth();
-    const { baseUrl, getAllData, fetchResumes, jobRecommendations, fetchJobRecommendations, resumes, companies } = useData();
+    const { baseUrl, getAllData, fetchResumes, jobRecommendations, jobPostings, fetchJobRecommendations, resumes, companies } = useData();
+    const allJobs = [
+        ...jobRecommendations,
+        ...jobPostings.filter(job => 
+            !jobRecommendations.some(rec => rec._id === job._id) // filter jobs that are already present in jobRecommendations
+        )
+    ]
+
+    console.log('All Jobs:', allJobs)
 
     useEffect(() => {
         if (user?._id) {
@@ -21,14 +29,13 @@ function JobPostingsList() {
     }, [resumes])
 
     useEffect(() => {
-        getAllData(["companies"])
-        console.log("Companies:", companies)
+        getAllData(["companies", "job-postings"]);
     }, [])
 
     useEffect(() => {
         document.title = 'All Jobs'
     }, [])
-
+    
     return (
         <>
             <Layout>
@@ -65,7 +72,7 @@ function JobPostingsList() {
                                 <h1>Recommended Jobs</h1>
                             </header>
                             <ul>
-                                {jobRecommendations.map((job) => (
+                                {allJobs.map((job) => (
                                     <JobPostingCard job={job}/>
                                 ))}
                             </ul>

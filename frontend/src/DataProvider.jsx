@@ -1,7 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import axios from "axios";
 import { useAuth } from "./components/AuthProvider";
-import { model } from "mongoose";
 
 const DataContext = createContext();
 export const useData = () => useContext(DataContext);
@@ -63,7 +62,7 @@ export const DataProvider = ({ children }) => {
       if (models.includes("users")) setUsers(data["users"] || []);
       if (models.includes("job-postings")) setJobPostings(data["job-postings"] || []); 
       if (models.includes("resumes")) setResumes(data["resumes"] || []);
-      if (model.includes("companies")) setCompanies(data["companies"] || []);
+      if (models.includes("companies")) setCompanies(data["companies"] || []); 
     }
   };
 

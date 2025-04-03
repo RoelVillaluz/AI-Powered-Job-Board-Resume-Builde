@@ -173,6 +173,14 @@ button {
     padding-left: 4.5rem;
 }
 
+.container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+}
+
 .line {
     width: 100%;
     height: 1px;
@@ -601,15 +609,18 @@ button {
 }
 
 .match-score {
+    font-weight: 600;
+    padding: 10px;
+    background-color: rgb(159, 255, 159);
+    border-radius: 10px;
+}
+
+#top-job .match-score {
     flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
     text-align: center;
-    font-weight: 600;
-    padding: 10px;
-    background-color: rgb(159, 255, 159);
-    border-radius: 10px;
 }
 
 .tags-list {
@@ -1083,4 +1094,173 @@ button {
 
 #online-courses .details i {
     color: white;
+}
+
+#job-filter-sidebar {
+    width: 20%;
+    height: 100vh;
+    background-color: var(--tertiary);
+}
+
+#job-list-container {
+    display: flex;
+    flex-direction: column;
+    padding: 2rem;
+    width: 80%;
+    height: 100vh;
+}
+
+#job-list-container header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+#job-list-container header h1 {
+    font-size: clamp(1rem, 1.25vw, 2rem);
+    font-weight: 600;
+}
+
+#job-list-container header h3 {
+    color: gray;
+    font-size: clamp(0.75rem, 0.85vw, 1.5rem);
+    font-weight: 500;
+}
+
+#top-companies header a {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: clamp(0.65rem, 0.8vw, 1.25rem);
+    font-weight: 600;
+}
+
+#top-companies ul {
+    display: flex;
+    align-items: center;
+    list-style-type: none;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+#top-companies li {
+    flex: 0 0 calc(15% - 0.5rem);
+    aspect-ratio: 1 / 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    border-radius: 16px;
+    background-color: var(--tertiary);
+}
+
+#top-companies li a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    text-align: center;
+    gap: 0.5rem;
+}
+
+#top-companies li img {
+    width: 25%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+}
+
+#top-companies li h3 {
+    font-weight: 500;
+}
+
+#job-posting-list {
+    margin-top: 2rem;
+}
+
+#job-posting-list ul {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    list-style-type: none;
+    margin-top: 2rem;
+}
+
+#job-posting-list .wrapper {
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+#job-posting-list li {
+    flex: 0 0 calc((100% / 3) - 0.5rem);
+    background-color: white;
+    border-radius: 20px;
+    padding: 1.5rem;
+    box-shadow: 0px 0px 4px -1px rgba(0,0,0,0.1);
+}
+
+#job-posting-list li img {
+    width: clamp(1rem, 2.5vw, 4rem);
+    height: clamp(1rem, 2.5vw, 4rem);
+    border-radius: 8px;
+    object-fit: cover;
+}
+
+#job-posting-list li h2 {
+    font-size: clamp(0.75rem, 1vw, 2rem);
+    font-weight: 600;
+}
+
+#job-posting-list li h3 {
+    font-size: clamp(0.5rem, 0.8vw, 1.25rem);
+    font-weight: 400;
+    margin-top: 0.25rem;
+}
+
+#job-posting-list li h4 {
+    font-size: clamp(0.45rem, 0.75vw, 1rem);
+    font-weight: 400;
+}
+
+#job-posting-list li .details {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+#job-posting-list .actions {
+    display: flex;
+    gap: 0.5rem;
+    width: 100%;
+}
+
+#job-posting-list .actions button {
+    border: none;
+    outline: none;
+    cursor: pointer;
+}
+
+#job-posting-list .actions #apply-btn {
+    flex: 8;
+    background-color: black;
+    color: white;
+    padding: 0.75rem;
+    border-radius: 8px;
+}
+
+#job-posting-list .actions #save-btn {
+    flex: 1;
+    border-radius: 10px;
+    border: solid 1px black;
+    padding: 10px;
+}
+
+#job-posting-list .actions .match-score {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    text-align: center;
+    font-size: clamp(0.5rem, 0.6vw, 1rem);
 }

@@ -40,7 +40,7 @@ function JobPostingsList() {
         <>
             <Layout>
                 <div className="container">
-                    <aside id="job-filter-sidebar">
+                    <aside className="filter-sidebar">
                         <h3>Filters</h3>
                     </aside>
                     <main id="job-list-container">

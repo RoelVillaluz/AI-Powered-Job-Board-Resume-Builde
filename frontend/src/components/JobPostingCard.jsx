@@ -6,7 +6,11 @@ const JobPostingCard = ({ job }) => {
         <li key={job._id}>
             <Link to={`job-postings/${job._id}`}>
                 <div className="wrapper">
+{job.company.logo ? (
                     <img src={job.company.logo} alt="" />
+) : (
+                        <i className="fa-solid fa-building"></i>
+                    )}
                     <div>
                         <h2>{job.title}</h2>
                         <h3>{job.company.name}</h3>

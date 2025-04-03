@@ -1205,6 +1205,17 @@ button {
     object-fit: cover;
 }
 
+#job-posting-list .fa-building {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: black;
+    color: white;
+    width: clamp(1rem, 2.5vw, 4rem);
+    height: clamp(1rem, 2.5vw, 4rem);
+    border-radius: 8px;
+}
+
 #job-posting-list li h2 {
     font-size: clamp(0.75rem, 1vw, 2rem);
     font-weight: 600;

@@ -16,7 +16,7 @@ function GoalsSection() {
                         <div className="goal-name">
                             <i className="fa-solid fa-file-lines"></i>
                             <h4>Applications sent</h4>
-                            <h1>{user.appliedJobs.length}<span>/15</span></h1>
+                            <h1>{user?.appliedJobs.length}<span>/15</span></h1>
                         </div>
                         <div className="progress-bar">
                             <div className="fill"></div>

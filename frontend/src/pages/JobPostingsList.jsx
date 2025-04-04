@@ -55,6 +55,39 @@ function JobPostingsList() {
                 <div className="container">
                     <aside className="filter-sidebar">
                         <h3>Filters</h3>
+                        <ul className="filter-category-list">
+
+                            <li>
+                                <div className="filter-category">
+                                    <h4>Date Posted</h4>
+                                </div>
+                            </li>
+
+                            <li>
+                                {Object.keys(filterTypes).map((section) => (
+                                    <div className="filter-category">
+                                        <h4>{section}</h4>
+                                        <ul className="checkbox-list">
+                                            {filterTypes[section].choices.map((choice, index) => (
+                                                <li key={index}>
+                                                    <input type="checkbox" name="" id={`checkbox-${choice}`} />
+                                                    <label htmlFor={`checkbox-${choice}`}>{choice}</label>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                ))}
+                            </li>
+
+                            <li>
+                                <div className="filter-category">
+                                    <h4>Salary Range</h4>
+                                    <input type="number" />
+                                    <input type="number" />
+                                </div>
+                            </li>
+
+                        </ul>
                     </aside>
                     <main id="job-list-container">
                         <section id="top-companies">

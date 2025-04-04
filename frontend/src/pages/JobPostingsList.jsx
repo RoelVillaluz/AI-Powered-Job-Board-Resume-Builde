@@ -35,6 +35,19 @@ function JobPostingsList() {
     useEffect(() => {
         document.title = 'All Jobs'
     }, [])
+
+    const filterTypes =  {
+        // filterType = actual jobPosting fields (jobType, experienceLevel) for filtering
+
+        "Working Schedule": {
+            "choices": ['Full-Time', 'Part-Time', 'Contract', 'Internship'],
+            "filterType": "jobType"
+        },
+        "Experience Level": {
+            "choices": ['Intern', 'Entry', 'Mid-Level', 'Senior'],
+            "filterType": "experienceLevel"
+        }
+    }
     
     return (
         <>

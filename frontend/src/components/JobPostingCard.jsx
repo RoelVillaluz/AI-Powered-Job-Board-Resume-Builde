@@ -3,12 +3,12 @@ import { Link } from "react-router-dom"
 const JobPostingCard = ({ job }) => {
     
     return (
-        <li key={job._id}>
+        <li className="job-card" key={job._id}>
             <Link to={`job-postings/${job._id}`}>
                 <div className="wrapper">
-{job.company.logo ? (
-                    <img src={job.company.logo} alt="" />
-) : (
+                    {job.company.logo ? (
+                        <img src={job.company.logo} alt="" />
+                    ) : (
                         <i className="fa-solid fa-building"></i>
                     )}
                     <div>

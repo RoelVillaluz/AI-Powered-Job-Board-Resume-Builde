@@ -43,9 +43,11 @@ const JobPostingCard = ({ job }) => {
                         <button id="save-btn">
                             <i className='fa-solid fa-bookmark'></i>
                         </button>
-                        <div className="match-score">
-                            {job.similarity}% Match
-                        </div>
+                        {job.similarity && (
+                            <div className="match-score">
+                                {job.similarity}% Match
+                            </div>
+                        )}
                     </div>
                 </div>
 

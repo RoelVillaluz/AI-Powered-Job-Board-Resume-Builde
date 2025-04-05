@@ -1352,6 +1352,11 @@ button {
     font-weight: 400;
 }
 
+.job-card .fa-money-bill-1 {
+    margin-right: 0.35rem;
+    color: rgb(40, 40, 40);
+}
+
 .job-card .details {
     display: flex;
     flex-direction: column;

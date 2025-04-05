@@ -38,7 +38,9 @@ function JobPostingsList() {
 
     const filterTypes =  {
         // filterType = actual jobPosting fields (jobType, experienceLevel) for filtering
-
+        "Workplace Type": {
+            "choices": ["Remote", "On-Site", "Hybrid"]
+        },
         "Working Schedule": {
             "choices": ['Full-Time', 'Part-Time', 'Contract', 'Internship'],
             "filterType": "jobType"

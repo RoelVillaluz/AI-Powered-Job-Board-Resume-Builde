@@ -82,7 +82,7 @@ function JobPostingsList() {
                                         <ul className="checkbox-list">
                                             {filterTypes[section].choices.map((choice, index) => (
                                                 <li key={index}>
-                                                    <input type="checkbox" name="" id={`checkbox-${choice}`} />
+                                                    <input type="checkbox" name="" id={`checkbox-${choice}`}/>
                                                     <label htmlFor={`checkbox-${choice}`}>{choice}</label>
                                                 </li>
                                             ))}
@@ -109,6 +109,7 @@ function JobPostingsList() {
 
                         </ul>
                     </aside>
+
                     <main id="job-list-container">
                         <section id="top-companies">
                             <header>
@@ -144,6 +145,7 @@ function JobPostingsList() {
                             </ul>
                         </section>
                     </main>
+
                 </div>
             </Layout>
         </>

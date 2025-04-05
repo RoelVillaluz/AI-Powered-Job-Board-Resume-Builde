@@ -1103,8 +1103,23 @@ button {
     align-self: start;
 }
 
-.filter-sidebar h3 {
+.filter-sidebar header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.filter-sidebar header h3 {
     font-weight: 600;
+}
+
+.filter-sidebar header button {
+    color: gray;
+    border: none;
+    outline: none;
+    font-weight: 500;
+    margin-bottom: 2px;
+    cursor: pointer;
 }
 
 .filter-sidebar ul {
@@ -1117,10 +1132,9 @@ button {
     margin-top: 1rem;
 }
 
-.filter-category-list h4 {
-    color: gray;
+.filter-sidebar h4 {
     font-size: clamp(0.5rem, 0.75vw, 1.5rem);
-    font-weight: 400;
+    font-weight: 600;
     margin-top: 1rem;
 }
 
@@ -1148,13 +1162,33 @@ button {
     font-size: clamp(0.5rem, 0.75vw, 1.5rem);
 }
 
-#job-list-container {
-    display: flex;
-    flex-direction: column;
-    padding: 2rem;
-    width: 85%;
-    height: 100vh;
-    border-left: solid 1px rgba(0, 0, 0, 0.1);
+.select-wrapper {
+    position: relative;
+    width: 100%;
+    margin-top: 0.5rem;
+}
+
+.select-wrapper i {
+    position: absolute;
+    transform: translate(0, -50%);
+    right: 0.5rem;
+    top: 60%;
+    color: gray;
+}
+
+#date-select {
+    width: 100%;
+    padding: 0.35rem;
+    margin-top: 0.5rem;
+    color: gray;
+    border: solid 1px rgb(158, 158, 158);
+    border-radius: 4px;
+    appearance: none;
+    cursor: pointer;
+}
+
+#date-select option {
+    width: 100%;
 }
 
 #salary-range {
@@ -1181,6 +1215,15 @@ button {
     outline: none;
     border: solid 1px rgb(20, 20, 20);
     border-radius: 4px;
+}
+
+#job-list-container {
+    display: flex;
+    flex-direction: column;
+    padding: 2rem;
+    width: 85%;
+    height: 100vh;
+    border-left: solid 1px rgba(0, 0, 0, 0.1);
 }
 
 #job-list-container header {

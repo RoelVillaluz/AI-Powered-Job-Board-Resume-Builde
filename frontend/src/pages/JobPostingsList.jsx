@@ -56,7 +56,10 @@ function JobPostingsList() {
             <Layout>
                 <div className="container">
                     <aside className="filter-sidebar">
-                        <h3>Filters</h3>
+                        <header>
+                            <h3>Filters</h3>
+                            <button type="reset">Clear All</button>
+                        </header>
                         <ul className="filter-category-list">
 
                             <li>

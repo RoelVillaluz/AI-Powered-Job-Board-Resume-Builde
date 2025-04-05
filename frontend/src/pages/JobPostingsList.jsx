@@ -82,8 +82,16 @@ function JobPostingsList() {
                             <li>
                                 <div className="filter-category">
                                     <h4>Salary Range</h4>
-                                    <input type="number" />
-                                    <input type="number" />
+                                    <div id="salary-range">
+                                        <div>
+                                            <label htmlFor="min">MIN</label>
+                                            <input type="number" id="min"/>
+                                        </div>
+                                        <div>
+                                            <label htmlFor="max">MAX</label>
+                                            <input type="number" id="max"/>
+                                        </div>
+                                    </div>
                                 </div>
                             </li>
 

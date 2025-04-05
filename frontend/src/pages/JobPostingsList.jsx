@@ -65,6 +65,13 @@ function JobPostingsList() {
                             <li>
                                 <div className="filter-category">
                                     <h4>Date Posted</h4>
+                                    <div className="select-wrapper">
+                                        <select name="" id="date-select">
+                                            <option value="">Anytime</option>
+                                            <option value="">This Month</option>
+                                        </select>
+                                        <i className="fa-solid fa-angle-down"></i>
+                                    </div>
                                 </div>
                             </li>
 

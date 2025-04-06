@@ -9,6 +9,9 @@ import JobPostingCard from "../components/JobPostingCard";
 function JobPostingsList() {
     const { user } = useAuth();
     const { baseUrl, getAllData, fetchResumes, jobRecommendations, jobPostings, fetchJobRecommendations, resumes, companies } = useData();
+    const [allResumeSkills, setAllResumeSkills] = useState([]);
+    const [hiddenSections, setHiddenSections] = useState([]);
+
     const allJobs = [
         ...jobRecommendations,
         ...jobPostings.filter(job => 
@@ -16,7 +19,12 @@ function JobPostingsList() {
         )
     ]
 
-    console.log('All Jobs:', allJobs)
+    const combineResumeSkills = () => {
+        const resumeSkills = resumes.map((resume) => resume.skills.map((skill) => skill.name)).flat()
+        const uniqueSkills = [...new Set(resumeSkills)]
+
+        setAllResumeSkills(uniqueSkills)
+    } 
 
     useEffect(() => {
         if (user?._id) {
@@ -36,20 +44,9 @@ function JobPostingsList() {
         document.title = 'All Jobs'
     }, [])
 
-    const filterTypes =  {
-        // filterType = actual jobPosting fields (jobType, experienceLevel) for filtering
-        "Workplace Type": {
-            "choices": ["Remote", "On-Site", "Hybrid"]
-        },
-        "Working Schedule": {
-            "choices": ['Full-Time', 'Part-Time', 'Contract', 'Internship'],
-            "filterType": "jobType"
-        },
-        "Experience Level": {
-            "choices": ['Intern', 'Entry', 'Mid-Level', 'Senior'],
-            "filterType": "experienceLevel"
-        }
-    }
+    useEffect(() => {
+        combineResumeSkills()
+    }, [resumes])
     
     return (
         <>

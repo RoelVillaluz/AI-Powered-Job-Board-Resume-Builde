@@ -77,7 +77,7 @@ function JobPostingsList() {
     return (
         <>
             <Layout>
-                <div className="container">
+                <div className="container" style={{ alignItems: 'start' }}>
                     <aside className="filter-sidebar">
                         <header>
                             <h3>Filters</h3>
@@ -89,29 +89,13 @@ function JobPostingsList() {
                                 <div className="filter-category">
                                     <h4>Date Posted</h4>
                                     <div className="select-wrapper">
-                                        <select name="" id="date-select">
+                                        <select name="" id="date-select">$
                                             <option value="">Anytime</option>
                                             <option value="">This Month</option>
                                         </select>
                                         <i className="fa-solid fa-angle-down"></i>
                                     </div>
                                 </div>
-                            </li>
-
-                            <li>
-                                {Object.keys(filterTypes).map((section) => (
-                                    <div className="filter-category">
-                                        <h4>{section}</h4>
-                                        <ul className="checkbox-list">
-                                            {filterTypes[section].choices.map((choice, index) => (
-                                                <li key={index}>
-                                                    <input type="checkbox" name="" id={`checkbox-${choice}`}/>
-                                                    <label htmlFor={`checkbox-${choice}`}>{choice}</label>
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    </div>
-                                ))}
                             </li>
 
                             <li>
@@ -128,6 +112,27 @@ function JobPostingsList() {
                                         </div>
                                     </div>
                                 </div>
+                            </li>
+
+                            <li>
+                                {Object.keys(filterTypes).map((section) => (
+                                    <div className="filter-category">
+                                        <div className="wrapper">
+                                            <h4>{section}</h4>
+                                            <i className={`fa-solid fa-angle-${!hiddenSections[section] ? 'up' : 'down'}`} onClick={() => toggleVisibility(section)}></i>
+                                        </div>
+                                        {!hiddenSections[section] && (
+                                            <ul className="checkbox-list">
+                                                {filterTypes[section].choices.map((choice, index) => (
+                                                    <li key={index}>
+                                                        <input type="checkbox" name="" id={`checkbox-${choice}`}/>
+                                                        <label htmlFor={`checkbox-${choice}`}>{choice}</label>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        )}
+                                    </div>
+                                ))}
                             </li>
 
                         </ul>
@@ -159,7 +164,10 @@ function JobPostingsList() {
                         </section>
                         <section id="job-posting-list">
                             <header>
-                                <h1>Recommended Jobs</h1>
+                                <h1>Recommended Jobs ({allJobs.length})</h1>
+                                <div className="sorter">
+                                    <i className="fa-solid fa-sort"></i>
+                                </div>
                             </header>
                             <ul>
                                 {allJobs.map((job) => (

@@ -19,6 +19,25 @@ function JobPostingsList() {
         )
     ]
 
+    const filterTypes =  {
+        // filterType = actual jobPosting fields (jobType, experienceLevel) for filtering
+        "Workplace Type": {
+            "choices": ["Remote", "On-Site", "Hybrid"]
+        },
+        "Working Schedule": {
+            "choices": ['Full-Time', 'Part-Time', 'Contract', 'Internship'],
+            "filterType": "jobType"
+        },
+        "Experience Level": {
+            "choices": ['Intern', 'Entry', 'Mid-Level', 'Senior'],
+            "filterType": "experienceLevel"
+        },
+        "Your Skills": {
+            "choices": allResumeSkills,
+            "filterType": "skills"
+        }
+    }
+
     const combineResumeSkills = () => {
         const resumeSkills = resumes.map((resume) => resume.skills.map((skill) => skill.name)).flat()
         const uniqueSkills = [...new Set(resumeSkills)]

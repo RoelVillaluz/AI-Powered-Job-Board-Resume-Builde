@@ -45,6 +45,13 @@ function JobPostingsList() {
         setAllResumeSkills(uniqueSkills)
     } 
 
+    const toggleVisibility = (section) => {
+        setHiddenSections((prevState) => ({
+            ...prevState,
+            [section]: !prevState[section]
+        }))
+    }
+
     useEffect(() => {
         if (user?._id) {
           fetchResumes(user._id);

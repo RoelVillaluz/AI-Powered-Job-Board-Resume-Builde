@@ -16,7 +16,7 @@ const JobPostingCard = ({ job }) => {
                         <h3>{job.company.name}</h3>
                     </div>
                 </div>
-                <h4><i class="fa-regular fa-money-bill-1"></i>${job.salary}</h4>
+                <h4><i className="fa-regular fa-money-bill-1"></i>${job.salary}</h4>
                 <p>{job.summary}</p>
 
                 <div className="details">

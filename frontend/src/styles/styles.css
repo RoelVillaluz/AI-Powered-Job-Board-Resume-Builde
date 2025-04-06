@@ -1122,6 +1122,18 @@ button {
     cursor: pointer;
 }
 
+.filter-sidebar .wrapper {
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.filter-sidebar .wrapper i {
+    margin-top: 1rem;
+    color: rgb(40, 40, 40);
+    cursor: pointer;
+}
+
 .filter-sidebar ul {
     list-style-type: none;
 }
@@ -1191,24 +1203,24 @@ button {
     width: 100%;
 }
 
-#salary-range {
+.min-max-container {
     display: flex;
     align-items: center;
     gap: 0.5rem;
     margin-top: 0.5rem;
 }
 
-#salary-range div {
+.min-max-container div {
     flex: 1;
     margin-top: 0.5rem;
 }
 
-#salary-range label {
+.min-max-container label {
     font-size: clamp(0.5rem, 0.65vw, 1rem);
     font-weight: 500;
 }
 
-#salary-range input {
+.min-max-container input {
     width: 100%;
     margin-top: 0.5rem;
     padding: 4px;

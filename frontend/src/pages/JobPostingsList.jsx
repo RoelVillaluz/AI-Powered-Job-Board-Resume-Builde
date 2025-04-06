@@ -39,6 +39,26 @@ function JobPostingsList() {
         }
     }
 
+    const filteredJobs = allJobs.filter(job => {
+        const matchedJobs = []
+
+        if (filters.jobType.length > 0) {
+            matchedJobs.push(filters.jobType.includes(job.jobType))
+        }
+
+        if (filters.experienceLevel.length > 0) {
+            matchedJobs.push(filters.experienceLevel.includes(job.experienceLevel))
+        }
+
+        if (filters.skills.length > 0) {
+            matchedJobs.push(filters.skills.some(skill => job.skills.some(jobSkill => jobSkill.name === skill)))
+        }
+
+        const filtersApplied = filters.jobType.length > 0 || filters.experienceLevel.length > 0 || filters.skills.length > 0;
+    
+        return filtersApplied ? matchedJobs.includes(true) : allJobs
+    })
+
     const combineResumeSkills = () => {
         const resumeSkills = resumes.map((resume) => resume.skills.map((skill) => skill.name)).flat()
         const uniqueSkills = [...new Set(resumeSkills)]
@@ -148,7 +168,7 @@ function JobPostingsList() {
                                             <ul className="checkbox-list">
                                                 {filterTypes[section].choices.map((choice, index) => (
                                                     <li key={index}>
-                                                        <input type="checkbox" name="" id={`checkbox-${choice}`}/>
+                                                        <input type="checkbox" name="" id={`checkbox-${choice}`} onClick={() => handleFilterChange(filterTypes[section].filterType, choice)}/>
                                                         <label htmlFor={`checkbox-${choice}`}>{choice}</label>
                                                     </li>
                                                 ))}

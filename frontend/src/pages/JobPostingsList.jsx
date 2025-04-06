@@ -11,6 +11,7 @@ function JobPostingsList() {
     const { baseUrl, getAllData, fetchResumes, jobRecommendations, jobPostings, fetchJobRecommendations, resumes, companies } = useData();
     const [allResumeSkills, setAllResumeSkills] = useState([]);
     const [hiddenSections, setHiddenSections] = useState([]);
+    const [minMatchScore, setMinMatchScore] = useState(50);
 
     const allJobs = [
         ...jobRecommendations,
@@ -114,6 +115,28 @@ function JobPostingsList() {
                                 </div>
                             </li>
 
+                            <li className="filter-category">
+                                <h4>Match Score</h4>
+                                <div className="range-slider">
+                                    <input
+                                        type="range"
+                                        min="0"
+                                        max="100"
+                                        value={minMatchScore}
+                                        onChange={(e) => setMinMatchScore(e.target.value)}
+                                        className="slider"
+                                    />
+                                    <div
+                                        className="custom-thumb"
+                                        style={{
+                                            left: `calc(${Math.max(minMatchScore, 15)}% - 15px)`, // Ensure a minimum of 1%
+                                        }}
+                                    >
+                                        {minMatchScore}
+                                    </div>
+                                </div>
+                            </li>
+
                             <li>
                                 {Object.keys(filterTypes).map((section) => (
                                     <div className="filter-category">
@@ -135,25 +158,11 @@ function JobPostingsList() {
                                 ))}
                             </li>
 
-                            <li className="filter-category">
-                                <h4>Match Score</h4>
-                                <div className="min-max-container">
-                                    <div>
-                                        <label htmlFor="min-score">MIN</label>
-                                        <input type="number" id="min-score"/>
-                                    </div>
-                                    <div>
-                                        <label htmlFor="max-score">MAX</label>
-                                        <input type="number" id="max-score"/>
-                                    </div>
-                                </div>
-                            </li>
-
                         </ul>
                     </aside>
 
                     <main id="job-list-container">
-                        <section id="top-companies">
+                        {/* <section id="top-companies">
                             <header>
                                 <div>
                                     <h1>Top Companies</h1>
@@ -175,7 +184,7 @@ function JobPostingsList() {
                                     </li>
                                 ))}
                             </ul>
-                        </section>
+                        </section> */}
                         <section id="job-posting-list">
                             <header>
                                 <h1>Recommended Jobs ({allJobs.length})</h1>

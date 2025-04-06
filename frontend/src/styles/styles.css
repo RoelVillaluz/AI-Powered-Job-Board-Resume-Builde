@@ -1229,6 +1229,59 @@ button {
     border-radius: 4px;
 }
 
+.range-slider {
+    position: relative;
+    width: 100%;
+    margin-top: 1.5rem;
+    padding-bottom: 0.25rem;
+}
+  
+.slider {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 6px;
+    background: #ddd;
+    border-radius: 4px;
+    outline: none;
+    position: relative;
+    z-index: 1;
+}
+  
+  /* Hide native thumb */
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    height: 30px;
+    width: 30px;
+    background: transparent; 
+    cursor: pointer;
+    border: none;
+}
+  
+.slider::-moz-range-thumb {
+    height: 30px;
+    width: 30px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+}
+  
+.custom-thumb {
+    position: absolute;
+    top: -6px;
+    height: 30px;
+    width: 30px;
+    background: #333;
+    color: white;
+    font-size: 12px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: translateX(-50%);
+    pointer-events: none; /* allows dragging through it */
+    z-index: 2;
+}
+
 #job-list-container {
     display: flex;
     flex-direction: column;

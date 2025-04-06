@@ -101,14 +101,14 @@ function JobPostingsList() {
                             <li>
                                 <div className="filter-category">
                                     <h4>Salary Range</h4>
-                                    <div id="salary-range">
+                                    <div className="min-max-container">
                                         <div>
-                                            <label htmlFor="min">MIN</label>
-                                            <input type="number" id="min"/>
+                                            <label htmlFor="min-salary">MIN</label>
+                                            <input type="number" id="min-salary"/>
                                         </div>
                                         <div>
-                                            <label htmlFor="max">MAX</label>
-                                            <input type="number" id="max"/>
+                                            <label htmlFor="max-salary">MAX</label>
+                                            <input type="number" id="max-salary"/>
                                         </div>
                                     </div>
                                 </div>
@@ -133,6 +133,20 @@ function JobPostingsList() {
                                         )}
                                     </div>
                                 ))}
+                            </li>
+
+                            <li className="filter-category">
+                                <h4>Match Score</h4>
+                                <div className="min-max-container">
+                                    <div>
+                                        <label htmlFor="min-score">MIN</label>
+                                        <input type="number" id="min-score"/>
+                                    </div>
+                                    <div>
+                                        <label htmlFor="max-score">MAX</label>
+                                        <input type="number" id="max-score"/>
+                                    </div>
+                                </div>
                             </li>
 
                         </ul>

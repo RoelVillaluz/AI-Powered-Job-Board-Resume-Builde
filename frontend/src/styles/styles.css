@@ -1443,6 +1443,20 @@ button {
     margin-top: 2rem;
 }
 
+#job-posting-list header h1 {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.filtered-jobs-count {
+    padding: 5px 20px;
+    border-radius: 1000px;
+    border: solid 1px gray;
+    font-size: clamp(0.75rem, 0.85vw, 1.5rem);
+}
+
+
 #job-posting-list ul {
     display: flex;
     flex-wrap: wrap;

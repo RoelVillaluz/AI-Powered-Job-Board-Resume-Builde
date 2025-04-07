@@ -99,6 +99,15 @@ function JobPostingsList() {
         })
     } 
 
+    const handleResetFilters = () => {
+        setFilters({
+            jobType: [],
+            experienceLevel: [],
+            skills: [],
+            minMatchScore: 0,
+        })
+    }
+
     useEffect(() => {
         if (user?._id) {
           fetchResumes(user._id);
@@ -128,7 +137,7 @@ function JobPostingsList() {
                     <aside className="filter-sidebar">
                         <header>
                             <h3>Filters</h3>
-                            <button type="reset">Clear All</button>
+                            <button type="reset" onClick={() => handleResetFilters()}>Clear All</button>
                         </header>
                         <ul className="filter-category-list">
 
@@ -194,7 +203,12 @@ function JobPostingsList() {
                                             <ul className="checkbox-list">
                                                 {filterTypes[section].choices.map((choice, index) => (
                                                     <li key={index}>
-                                                        <input type="checkbox" name="" id={`checkbox-${choice}`} onClick={() => handleFilterChange(filterTypes[section].filterType, choice)}/>
+                                                        <input
+                                                            type="checkbox"
+                                                            id={`checkbox-${choice}`}
+                                                            checked={filters[filterTypes[section].filterType]?.includes(choice) || false}
+                                                            onChange={() => handleFilterChange(filterTypes[section].filterType, choice)}
+                                                        />
                                                         <label htmlFor={`checkbox-${choice}`}>{choice}</label>
                                                     </li>
                                                 ))}

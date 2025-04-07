@@ -182,28 +182,19 @@ function JobPostingsList() {
                     </aside>
 
                     <main id="job-list-container">
-                        {/* <section id="top-companies">
-                            <header>
-                                <div>
-                                    <h1>Top Companies</h1>
-                                    <h3>Based on your industry</h3>
+                        {/* <section id="search-job-section">
+                            <h1>Search Jobs</h1>
+                            <form className="job-search-bar">
+                                <div id="search-by-job-title">
+                                    <input type="text" name="" id="" placeholder="Job title or keyword"/>
+                                    <i className="fa-solid fa-magnifying-glass"></i>
                                 </div>
-                                <Link>View All<i className="fa-solid fa-angle-right"></i></Link>
-                            </header>
-                            <ul>
-                                {companies.map((company) => (
-                                    <li key={company._id}>
-                                        <Link to={`companies/${company._id}`}>
-                                            {company.logo ? (
-                                                <img src={company.logo} alt="" />
-                                            ) : (
-                                                <i className="fa-solid fa-building"></i>
-                                            )}
-                                            <h3>{company.name}</h3>
-                                        </Link>
-                                    </li>
-                                ))}
-                            </ul>
+                                <div id="search-by-location">
+                                    <input type="text" name="" id="" placeholder="Add country or city"/>
+                                    <i className="fa-solid fa-map-location-dot"></i>
+                                </div>
+                                <button>Search</button>
+                            </form>
                         </section> */}
                         <section id="job-posting-list">
                             <header>

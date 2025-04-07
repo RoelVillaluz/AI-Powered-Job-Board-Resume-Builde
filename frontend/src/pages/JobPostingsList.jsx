@@ -227,6 +227,7 @@ function JobPostingsList() {
                             <header>
                                 <h1>Recommended jobs <span className="filtered-jobs-count">{filteredJobs.length}</span></h1>
                                 <div className="sorter">
+                                    <h4>Sort by: <span className="sort-type">Default</span></h4>
                                     <i className="fa-solid fa-sort"></i>
                                 </div>
                             </header>

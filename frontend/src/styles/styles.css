@@ -1456,6 +1456,28 @@ button {
     font-size: clamp(0.75rem, 0.85vw, 1.5rem);
 }
 
+.sorter {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-right: 1.5rem;
+}
+
+.sorter h4 {
+    color: gray;
+    font-size: clamp(0.5rem, 0.75vw, 1.25rem);
+    font-weight: 400;
+}
+
+.sorter .sort-type {
+    color: black;
+    font-weight: 500;
+    margin-left: 0.25rem;
+}
+
+.sorter i {
+    margin-left: 0.25rem;
+}
 
 #job-posting-list ul {
     display: flex;

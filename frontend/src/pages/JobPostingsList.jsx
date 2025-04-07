@@ -11,7 +11,12 @@ function JobPostingsList() {
     const { baseUrl, getAllData, fetchResumes, jobRecommendations, jobPostings, fetchJobRecommendations, resumes, companies } = useData();
     const [allResumeSkills, setAllResumeSkills] = useState([]);
     const [hiddenSections, setHiddenSections] = useState([]);
-    const [minMatchScore, setMinMatchScore] = useState(50);
+    const [filters, setFilters] = useState({
+        jobType: [],
+        experienceLevel: [],
+        skills: [],
+        minMatchScore: 0,
+    })
 
     const allJobs = [
         ...jobRecommendations,
@@ -54,7 +59,11 @@ function JobPostingsList() {
             matchedJobs.push(filters.skills.some(skill => job.skills.some(jobSkill => jobSkill.name === skill)))
         }
 
-        const filtersApplied = filters.jobType.length > 0 || filters.experienceLevel.length > 0 || filters.skills.length > 0;
+        if (filters.minMatchScore > 0) {
+            matchedJobs.push(job.similarity >= filters.minMatchScore)
+        }
+
+        const filtersApplied = filters.jobType.length > 0 || filters.experienceLevel.length > 0 || filters.skills.length > 0 || filters.minMatchScore > 0;
     
         return filtersApplied ? matchedJobs.includes(true) : allJobs
     })
@@ -72,6 +81,23 @@ function JobPostingsList() {
             [section]: !prevState[section]
         }))
     }
+
+    const handleFilterChange = (filterType, value) => {
+        setFilters((prevFilters) => {
+            if (filterType === 'minMatchScore') {
+                return {
+                    ...prevFilters,
+                    minMatchScore: parseInt(value)
+                }
+            }
+
+            const updatedFilterValues = prevFilters[filterType].includes(value)
+                ? prevFilters[filterType].filter(item => item !== value)
+                : [...prevFilters[filterType], value]
+
+            return { ...prevFilters, [filterType]: updatedFilterValues };
+        })
+    } 
 
     useEffect(() => {
         if (user?._id) {
@@ -94,7 +120,7 @@ function JobPostingsList() {
     useEffect(() => {
         combineResumeSkills()
     }, [resumes])
-    
+        
     return (
         <>
             <Layout>
@@ -142,17 +168,17 @@ function JobPostingsList() {
                                         type="range"
                                         min="0"
                                         max="100"
-                                        value={minMatchScore}
-                                        onChange={(e) => setMinMatchScore(e.target.value)}
+                                        value={filters.minMatchScore}
+                                        onChange={(e) => handleFilterChange("minMatchScore", e.target.value)}
                                         className="slider"
                                     />
                                     <div
                                         className="custom-thumb"
                                         style={{
-                                            left: `calc(${Math.max(minMatchScore, 15)}% - 15px)`, // Ensure a minimum of 1%
+                                            left: `calc(${Math.max(filters.minMatchScore, 15)}% - 15px)`, 
                                         }}
                                     >
-                                        {minMatchScore}
+                                        {filters.minMatchScore}
                                     </div>
                                 </div>
                             </li>
@@ -182,8 +208,9 @@ function JobPostingsList() {
                     </aside>
 
                     <main id="job-list-container">
-                        {/* <section id="search-job-section">
-                            <h1>Search Jobs</h1>
+                        <section id="search-job-section">
+                            <h1></h1>
+                            <p></p>
                             <form className="job-search-bar">
                                 <div id="search-by-job-title">
                                     <input type="text" name="" id="" placeholder="Job title or keyword"/>
@@ -195,16 +222,16 @@ function JobPostingsList() {
                                 </div>
                                 <button>Search</button>
                             </form>
-                        </section> */}
+                        </section>
                         <section id="job-posting-list">
                             <header>
-                                <h1>Recommended Jobs ({allJobs.length})</h1>
+                                <h1>Recommended Jobs ({filteredJobs.length})</h1>
                                 <div className="sorter">
                                     <i className="fa-solid fa-sort"></i>
                                 </div>
                             </header>
                             <ul>
-                                {allJobs.map((job) => (
+                                {filteredJobs.map((job) => (
                                     <JobPostingCard job={job}/>
                                 ))}
                             </ul>

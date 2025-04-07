@@ -209,8 +209,8 @@ function JobPostingsList() {
 
                     <main id="job-list-container">
                         <section id="search-job-section">
-                            <h1></h1>
-                            <p></p>
+                            <h1>Find Your Next Opportunity</h1>
+                            <p>Search thousands of job listings by title, keyword, or location and take the next step in your career journey.</p>
                             <form className="job-search-bar">
                                 <div id="search-by-job-title">
                                     <input type="text" name="" id="" placeholder="Job title or keyword"/>

@@ -1290,6 +1290,14 @@ button {
     border-radius: 10px;
 }
 
+#search-job-section h1 {
+    margin-bottom: 0.75rem;
+}
+
+#search-job-section p {
+    margin-bottom: 0.75rem;
+}
+
 .job-search-bar {
     width: 100%;
     position: relative;

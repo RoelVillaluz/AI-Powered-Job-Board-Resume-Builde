@@ -49,33 +49,34 @@ function JobPostingsList() {
     }
 
     const filteredJobs = allJobs.filter(job => {
-        const matchedJobs = []
+        // Check if job matches all the filters
+        const minSalary = filters.salary.min || 0
+        const maxSalary = filters.salary.max || Number.MAX_SAFE_INTEGER
 
-        if (filters.salary.min > 0) {
-            matchedJobs.push(job.salary >= filters.salary.min)
-        }
-
-
-        if (filters.jobType.length > 0) {
-            matchedJobs.push(filters.jobType.includes(job.jobType))
-        }
-
-        if (filters.experienceLevel.length > 0) {
-            matchedJobs.push(filters.experienceLevel.includes(job.experienceLevel))
-        }
-
-        if (filters.skills.length > 0) {
-            matchedJobs.push(filters.skills.some(skill => job.skills.some(jobSkill => jobSkill.name === skill)))
-        }
-
-        if (filters.minMatchScore > 0) {
-            matchedJobs.push(job.similarity >= filters.minMatchScore)
-        }
-
-        const filtersApplied = filters.salary.min > 0 || filters.jobType.length > 0 || filters.experienceLevel.length > 0 || filters.skills.length > 0 || filters.minMatchScore > 0;
+        const matchesSalary =
+            (minSalary <= 0 || job.salary >= minSalary) &&
+            (maxSalary <= 0 || job.salary <= maxSalary);
     
-        return filtersApplied ? matchedJobs.includes(true) : allJobs
-    })
+        const matchesJobType = filters.jobType.length === 0 || filters.jobType.includes(job.jobType);
+        const matchesExperienceLevel = filters.experienceLevel.length === 0 || filters.experienceLevel.includes(job.experienceLevel);
+        const matchesSkills = filters.skills.length === 0 || filters.skills.some(skill => job.skills.some(jobSkill => jobSkill.name === skill));
+        const matchesMatchScore = filters.minMatchScore <= 0 || job.similarity >= filters.minMatchScore;
+    
+        // Check if any filters are applied
+        const filtersApplied = 
+            filters.salary.min > 0 || filters.salary.max > 0 ||
+            filters.jobType.length > 0 ||
+            filters.experienceLevel.length > 0 ||
+            filters.skills.length > 0 ||
+            filters.minMatchScore > 0;
+    
+        // Return job if it matches all relevant filters
+        return (
+            (!filtersApplied || 
+            (matchesSalary && matchesJobType && matchesExperienceLevel && matchesSkills && matchesMatchScore))
+        );
+    });
+    
 
     const combineResumeSkills = () => {
         const resumeSkills = resumes.map((resume) => resume.skills.map((skill) => skill.name)).flat()
@@ -186,7 +187,10 @@ function JobPostingsList() {
                                         </div>
                                         <div>
                                             <label htmlFor="max-salary">MAX</label>
-                                            <input type="number" id="max-salary"/>
+                                            <input type="number" 
+                                                id="max-salary"
+                                                value={filters.salary.max ?? ''}
+                                                onChange={(e) => handleFilterChange("salary", e.target.value, "max")}/>
                                         </div>
                                     </div>
                                 </div>

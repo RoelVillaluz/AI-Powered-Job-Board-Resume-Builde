@@ -57,33 +57,42 @@ function JobPostingsList() {
 
     const filteredJobs = allJobs.filter(job => {
         // Check if job matches all the filters
-        const minSalary = filters.salary.min || 0
-        const maxSalary = filters.salary.max || Number.MAX_SAFE_INTEGER
-
+        const minSalary = filters.salary.min || 0;
+        const maxSalary = filters.salary.max || Number.MAX_SAFE_INTEGER;
+    
         const matchesSalary =
             (minSalary <= 0 || job.salary >= minSalary) &&
             (maxSalary <= 0 || job.salary <= maxSalary);
-    
+        
         const matchesJobType = filters.jobType.length === 0 || filters.jobType.includes(job.jobType);
         const matchesExperienceLevel = filters.experienceLevel.length === 0 || filters.experienceLevel.includes(job.experienceLevel);
-        const matchesSkills = filters.skills.length === 0 || filters.skills.some(skill => job.skills.some(jobSkill => jobSkill.name === skill));
+        const matchesSkills = filters.skills.length === 0 || filters.skills.some(skill => job.skills?.some(jobSkill => jobSkill.name === skill));
         const matchesMatchScore = filters.minMatchScore <= 0 || job.similarity >= filters.minMatchScore;
-    
+        
         // Check if any filters are applied
         const filtersApplied = 
             filters.salary.min > 0 || filters.salary.max > 0 ||
             filters.jobType.length > 0 ||
             filters.experienceLevel.length > 0 ||
             filters.skills.length > 0 ||
-            filters.minMatchScore > 0;
+            filters.minMatchScore > 0 ||
+            (filters.jobTitle && filters.jobTitle !== "") ||
+            (filters.location && filters.location !== "");
     
+        // Fixed search query matching to handle undefined values safely
+        const matchesSearchQuery = 
+            (!filters.jobTitle || filters.jobTitle === "" || 
+             (job.title && job.title.toLowerCase().includes(String(filters.jobTitle).toLowerCase()))) &&
+            (!filters.location || filters.location === "" || 
+             (job.location && job.location.toLowerCase().includes(String(filters.location).toLowerCase())));
+        
         // Return job if it matches all relevant filters
         return (
             (!filtersApplied || 
-            (matchesSalary && matchesJobType && matchesExperienceLevel && matchesSkills && matchesMatchScore))
+            (matchesSalary && matchesJobType && matchesExperienceLevel && matchesSkills && matchesMatchScore)) &&
+            matchesSearchQuery
         );
     });
-    
 
     const combineResumeSkills = () => {
         const resumeSkills = resumes.map((resume) => resume.skills.map((skill) => skill.name)).flat()
@@ -114,7 +123,14 @@ function JobPostingsList() {
                         [key]: value !== null ? parseInt(value) : null
                     }
                 }
+            } else if (filterType === 'jobTitle' || filterType === 'location') {
+                // Handle string values for search
+                return {
+                    ...prevFilters,
+                    [filterType]: value
+                };
             }
+    
 
             const updatedFilterValues = prevFilters[filterType].includes(value)
                 ? prevFilters[filterType].filter(item => item !== value)
@@ -123,8 +139,6 @@ function JobPostingsList() {
             return { ...prevFilters, [filterType]: updatedFilterValues };
         })
     } 
-
-    console.log(filters)
 
     const handleResetFilters = () => {
         setFilters({
@@ -297,7 +311,9 @@ function JobPostingsList() {
                                 </div>
                                 <button>Search</button>
                             </form>
-                            <ul className="recent-searches"></ul>
+                            <ul className="recent-searches">
+                                recent searches
+                            </ul>
                         </section>
                         <section id="job-posting-list">
                             <header>

@@ -11,6 +11,11 @@ function JobPostingsList() {
     const { baseUrl, getAllData, fetchResumes, jobRecommendations, jobPostings, fetchJobRecommendations, resumes, companies } = useData();
     const [allResumeSkills, setAllResumeSkills] = useState([]);
     const [hiddenSections, setHiddenSections] = useState([]);
+    const [searchQuery, setSearchQuery] = useState({
+        jobTitle: "",
+        location: ""
+    })
+
     const [filters, setFilters] = useState({
         salary: {
             min: 0,
@@ -20,6 +25,8 @@ function JobPostingsList() {
         experienceLevel: [],
         skills: [],
         minMatchScore: 0,
+        jobTitle: "",
+        location: ""
     })
 
     const allJobs = [

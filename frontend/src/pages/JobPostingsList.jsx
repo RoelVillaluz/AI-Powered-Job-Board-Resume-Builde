@@ -12,6 +12,10 @@ function JobPostingsList() {
     const [allResumeSkills, setAllResumeSkills] = useState([]);
     const [hiddenSections, setHiddenSections] = useState([]);
     const [filters, setFilters] = useState({
+        salary: {
+            min: 0,
+            max: 0,
+        },
         jobType: [],
         experienceLevel: [],
         skills: [],
@@ -47,6 +51,11 @@ function JobPostingsList() {
     const filteredJobs = allJobs.filter(job => {
         const matchedJobs = []
 
+        if (filters.salary.min > 0) {
+            matchedJobs.push(job.salary >= filters.salary.min)
+        }
+
+
         if (filters.jobType.length > 0) {
             matchedJobs.push(filters.jobType.includes(job.jobType))
         }
@@ -63,7 +72,7 @@ function JobPostingsList() {
             matchedJobs.push(job.similarity >= filters.minMatchScore)
         }
 
-        const filtersApplied = filters.jobType.length > 0 || filters.experienceLevel.length > 0 || filters.skills.length > 0 || filters.minMatchScore > 0;
+        const filtersApplied = filters.salary.min > 0 || filters.jobType.length > 0 || filters.experienceLevel.length > 0 || filters.skills.length > 0 || filters.minMatchScore > 0;
     
         return filtersApplied ? matchedJobs.includes(true) : allJobs
     })
@@ -82,12 +91,20 @@ function JobPostingsList() {
         }))
     }
 
-    const handleFilterChange = (filterType, value) => {
+    const handleFilterChange = (filterType, value, key = null) => {
         setFilters((prevFilters) => {
             if (filterType === 'minMatchScore') {
                 return {
                     ...prevFilters,
                     minMatchScore: parseInt(value)
+                }
+            } else if (filterType === 'salary' && key) {
+                return {
+                    ...prevFilters,
+                    salary: {
+                        ...prevFilters.salary,
+                        [key]: value !== null ? parseInt(value) : null
+                    }
                 }
             }
 
@@ -98,6 +115,8 @@ function JobPostingsList() {
             return { ...prevFilters, [filterType]: updatedFilterValues };
         })
     } 
+
+    console.log(filters)
 
     const handleResetFilters = () => {
         setFilters({
@@ -160,7 +179,10 @@ function JobPostingsList() {
                                     <div className="min-max-container">
                                         <div>
                                             <label htmlFor="min-salary">MIN</label>
-                                            <input type="number" id="min-salary"/>
+                                            <input type="number" 
+                                                id="min-salary"
+                                                value={filters.salary.min ?? ''} 
+                                                onChange={(e) => handleFilterChange("salary", e.target.value, "min")}/>
                                         </div>
                                         <div>
                                             <label htmlFor="max-salary">MAX</label>
@@ -236,6 +258,7 @@ function JobPostingsList() {
                                 </div>
                                 <button>Search</button>
                             </form>
+                            <ul className="recent-searches"></ul>
                         </section>
                         <section id="job-posting-list">
                             <header>

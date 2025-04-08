@@ -142,6 +142,21 @@ function JobPostingsList() {
         }));
     };
 
+    const handleSearchSubmit = (e) => {
+        e.preventDefault();
+
+        console.log('Search submitted')
+
+        if (searchQuery.jobTitle) {
+            handleFilterChange('jobTitle', searchQuery.jobTitle)
+        }
+
+        if (searchQuery.location) {
+            handleFilterChange('location', searchQuery.location)
+        }
+
+    }
+
     useEffect(() => {
         if (user?._id) {
           fetchResumes(user._id);
@@ -265,7 +280,7 @@ function JobPostingsList() {
                         <section id="search-job-section">
                             <h1>Find Your Next Opportunity</h1>
                             <p>Search thousands of job listings by title, keyword, or location and take the next step in your career journey.</p>
-                            <form className="job-search-bar">
+                            <form className="job-search-bar" onSubmit={handleSearchSubmit}>
                                 <div id="search-by-job-title">
                                     <input type="text" 
                                             placeholder="Job title or keyword" 

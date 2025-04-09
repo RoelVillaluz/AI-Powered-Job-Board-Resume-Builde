@@ -61,8 +61,8 @@ function JobPostingsList() {
         const maxSalary = filters.salary.max || Number.MAX_SAFE_INTEGER;
     
         const matchesSalary =
-            (minSalary <= 0 || job.salary >= minSalary) &&
-            (maxSalary <= 0 || job.salary <= maxSalary);
+            (minSalary <= 0 || parseFloat(String(job.salary).replace(/[^0-9.]/g, '')) >= minSalary) &&
+            (maxSalary <= 0 || parseFloat(String(job.salary).replace(/[^0-9.]/g, '')) <= maxSalary);
         
         const matchesJobType = filters.jobType.length === 0 || filters.jobType.includes(job.jobType);
         const matchesExperienceLevel = filters.experienceLevel.length === 0 || filters.experienceLevel.includes(job.experienceLevel);

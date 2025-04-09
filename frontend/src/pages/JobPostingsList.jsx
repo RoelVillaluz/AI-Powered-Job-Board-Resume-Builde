@@ -67,7 +67,7 @@ function JobPostingsList() {
         const matchesJobType = filters.jobType.length === 0 || filters.jobType.includes(job.jobType);
         const matchesExperienceLevel = filters.experienceLevel.length === 0 || filters.experienceLevel.includes(job.experienceLevel);
         const matchesSkills = filters.skills.length === 0 || filters.skills.some(skill => job.skills?.some(jobSkill => jobSkill.name === skill));
-        const matchesMatchScore = filters.minMatchScore <= 0 || job.similarity >= filters.minMatchScore;
+        const matchesMatchScore = filters.minMatchScore <= 0 || Number(job.similarity) >= filters.minMatchScore;
         
         // Check if any filters are applied
         const filtersApplied = 

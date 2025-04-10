@@ -170,10 +170,14 @@ function JobPostingsList() {
             handleFilterChange('location', queryToSubmit.location)
         }
 
-        // Add the current queryToSubmit to recent searches if jobTitle or location exist
-        if (queryToSubmit.jobTitle || queryToSubmit.location) {
-            setRecentSearches([...recentSearches, { ...queryToSubmit }]);
-        }
+        // create unique key so similar search queries but different types (jobTitle vs location) don't get recognized as same element 
+        const searchKey = `${queryToSubmit.jobTitle}|${queryToSubmit.location}`
+
+        setRecentSearches(prevSearches => {
+            const updatedSearches = new Set(prevSearches)
+            updatedSearches.add(searchKey)
+            return updatedSearches
+        })
 
         setSearchQuery({
             jobTitle: "",

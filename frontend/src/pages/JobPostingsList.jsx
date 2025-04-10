@@ -180,6 +180,15 @@ function JobPostingsList() {
             location: ""
         });
     }
+
+    const recentSearchesList = () => {
+        return (
+            recentSearches.map((search, index) => (
+                <li key={index}>
+                    <button>{search.jobTitle || search.location}</button>
+                </li>
+            ))
+        )
     }
 
     useEffect(() => {
@@ -322,9 +331,12 @@ function JobPostingsList() {
                                 </div>
                                 <button>Search</button>
                             </form>
-                            <ul className="recent-searches">
-                                recent searches
-                            </ul>
+                            <div id="recent-searches">
+                                <h3>Recent Searches: </h3>
+                                <ul>
+                                    {recentSearchesList()}
+                                </ul>
+                            </div>
                         </section>
                         <section id="job-posting-list">
                             <header>

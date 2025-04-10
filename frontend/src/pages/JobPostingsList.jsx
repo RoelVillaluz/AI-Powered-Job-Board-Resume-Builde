@@ -170,6 +170,16 @@ function JobPostingsList() {
             handleFilterChange('location', searchQuery.location)
         }
 
+        // Add the current searchQuery to recent searches if jobTitle or location exist
+        if (searchQuery.jobTitle || searchQuery.location) {
+            setRecentSearches([...recentSearches, { ...searchQuery }]);
+        }
+
+        setSearchQuery({
+            jobTitle: "",
+            location: ""
+        });
+    }
     }
 
     useEffect(() => {

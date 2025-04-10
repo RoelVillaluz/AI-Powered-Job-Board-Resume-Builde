@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import { useAuth } from "../components/AuthProvider"
 import { useData } from "../DataProvider";
 import axios, { all } from "axios";
@@ -186,15 +186,18 @@ function JobPostingsList() {
     }
 
     const recentSearchesList = () => {
-        return (
-            recentSearches.map((search, index) => (
-                <li key={index}>
-                    <button onClick={(e) => handleSearchSubmit(e, search)}>
-                        {search.jobTitle || search.location}
-                    </button>
-                </li>
-            ))
-        )
+        const searchesArray = Array.from(recentSearches).map(key => {
+            const [jobTitle, location] = key.split('|') // remove "|" from `${queryToSubmit.jobTitle}|${queryToSubmit.location}`
+            return { jobTitle, location }
+        })
+
+        return searchesArray.map((search, index) => (
+            <li key={index}>
+                <button onClick={(e) => handleSearchSubmit(e, search)}>
+                    {search.jobTitle || search.location}
+                </button>
+            </li>
+        ))
     }
 
     useEffect(() => {

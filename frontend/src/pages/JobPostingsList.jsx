@@ -157,22 +157,22 @@ function JobPostingsList() {
         }));
     };
 
-    const handleSearchSubmit = (e) => {
+    const handleSearchSubmit = (e, buttonQuery = null) => {
         e.preventDefault();
 
-        console.log('Search submitted')
+        const queryToSubmit = buttonQuery || searchQuery
 
-        if (searchQuery.jobTitle) {
-            handleFilterChange('jobTitle', searchQuery.jobTitle)
+        if (queryToSubmit.jobTitle) {
+            handleFilterChange('jobTitle', queryToSubmit.jobTitle)
         }
 
-        if (searchQuery.location) {
-            handleFilterChange('location', searchQuery.location)
+        if (queryToSubmit.location) {
+            handleFilterChange('location', queryToSubmit.location)
         }
 
-        // Add the current searchQuery to recent searches if jobTitle or location exist
-        if (searchQuery.jobTitle || searchQuery.location) {
-            setRecentSearches([...recentSearches, { ...searchQuery }]);
+        // Add the current queryToSubmit to recent searches if jobTitle or location exist
+        if (queryToSubmit.jobTitle || queryToSubmit.location) {
+            setRecentSearches([...recentSearches, { ...queryToSubmit }]);
         }
 
         setSearchQuery({
@@ -185,7 +185,9 @@ function JobPostingsList() {
         return (
             recentSearches.map((search, index) => (
                 <li key={index}>
-                    <button>{search.jobTitle || search.location}</button>
+                    <button onClick={(e) => handleSearchSubmit(e, search)}>
+                        {search.jobTitle || search.location}
+                    </button>
                 </li>
             ))
         )

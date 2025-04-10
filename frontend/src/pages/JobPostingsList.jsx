@@ -11,7 +11,7 @@ function JobPostingsList() {
     const { baseUrl, getAllData, fetchResumes, jobRecommendations, jobPostings, fetchJobRecommendations, resumes, companies } = useData();
     const [allResumeSkills, setAllResumeSkills] = useState([]);
     const [hiddenSections, setHiddenSections] = useState([]);
-    const [recentSearches, setRecentSearches] = useState([])
+    const [recentSearches, setRecentSearches] = useState(new Set());
     const [searchQuery, setSearchQuery] = useState({
         jobTitle: "",
         location: ""

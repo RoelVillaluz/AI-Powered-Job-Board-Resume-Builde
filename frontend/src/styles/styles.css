@@ -1285,8 +1285,8 @@ button {
 #search-job-section {
     width: 100%;
     padding: 2rem;
-    background-color: rgb(20, 20, 20);
-    color: white;
+    background-color: var(--tertiary);
+    color: var(--secondary);
     border-radius: 10px;
 }
 
@@ -1333,7 +1333,7 @@ button {
     border-radius: 1000px;
     border: none;
     outline: none;
-    background: rgb(48, 103, 255);
+    background: var(--secondary);
     color: white;
     cursor: pointer;
 }
@@ -1365,6 +1365,34 @@ button {
 
 #search-by-location input {
     border-radius: 0 1000px 1000px 0;
+}
+
+#recent-searches {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+#recent-searches h4 {
+    font-size: clamp(0.5rem, 0.75vw, 1rem);
+    font-weight: 500;
+}
+
+#recent-searches ul {
+    display: flex;
+    align-items: center;
+    list-style-type: none;
+}
+
+#recent-searches li {
+    padding: 5px 20px;
+}
+
+#recent-searches button {
+    background-color: transparent;
+    border: none;
+    outline: none;
 }
 
 #job-list-container {
@@ -1409,51 +1437,23 @@ button {
     margin-top: 2rem;
 }
 
-#top-companies li {
-    flex: 0 0 calc(15% - 0.5rem);
-    aspect-ratio: 1 / 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 1rem;
-    border-radius: 16px;
-    background-color: var(--tertiary);
-}
-
-#top-companies li a {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    text-align: center;
-    gap: 0.5rem;
-}
-
-#top-companies li img {
-    width: 25%;
-    aspect-ratio: 1 / 1;
-    object-fit: cover;
-}
-
-#top-companies li h3 {
-    font-weight: 500;
-}
-
 #job-posting-list {
     margin-top: 2rem;
 }
 
-#job-posting-list header h1 {
+#job-posting-list header h2 {
     display: flex;
     align-items: center;
     gap: 1rem;
+    font-size: clamp(0.75rem, 1vw, 2rem);
+    font-weight: 500;
 }
 
 .filtered-jobs-count {
     padding: 5px 20px;
     border-radius: 1000px;
     border: solid 1px gray;
-    font-size: clamp(0.75rem, 0.85vw, 1.5rem);
+    font-size: clamp(0.5rem, 0.75vw, 1.5rem);
 }
 
 .sorter {

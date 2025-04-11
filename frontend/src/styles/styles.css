@@ -1398,8 +1398,9 @@ button {
 
 #recent-searches li {
     padding: 5px 20px;
+    background-color: #ccc1b6;
     border-radius: 1000px;
-    border: solid 1px var(--secondary-light);
+    border: solid 1px rgba(204, 201, 176, 0.3);
     color: var(--secondary);
     cursor: pointer;
 }

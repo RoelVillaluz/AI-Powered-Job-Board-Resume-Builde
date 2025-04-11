@@ -1283,6 +1283,7 @@ button {
 }
 
 #search-job-section {
+    position: relative;
     width: 100%;
     padding: 2rem;
     background-color: var(--tertiary);
@@ -1298,8 +1299,18 @@ button {
     margin-bottom: 0.75rem;
 }
 
+#search-job-section img {
+    position: absolute;
+    width: clamp(150px, 15vw, 450px);
+    aspect-ratio: 1 / 1;
+    transform: translateY(-50%);
+    right: 5%;
+    top: 50%;
+    filter: brightness(0.85);
+}
+
 .job-search-bar {
-    width: 100%;
+    width: 70%;
     position: relative;
     display: flex;
     align-items: center;
@@ -1308,9 +1319,8 @@ button {
 
 .job-search-bar input[type="text"] {
     width: 100%;
-    padding: 1.5rem 4rem;
+    padding: 1rem;
     padding-left: 4rem;
-    padding-right: 16rem;
     border: none;
     outline: none;
     font-size: clamp(0.75rem, 0.8vw, 2rem);
@@ -1320,7 +1330,7 @@ button {
     position: absolute;
     color: rgb(70, 70, 70);
     top: 50%;
-    left: 4%;
+    left: 5%;
     transform: translateY(-50%);
 }
 
@@ -1329,7 +1339,7 @@ button {
     transform: translateY(-50%);
     right: 0.5rem;
     top: 50%;
-    padding: 1.1rem 2rem;
+    padding: 0.75rem 1.5rem;
     border-radius: 1000px;
     border: none;
     outline: none;

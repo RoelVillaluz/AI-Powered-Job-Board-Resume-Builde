@@ -193,7 +193,8 @@ function JobPostingsList() {
 
         return searchesArray.map((search, index) => (
             <li key={index}>
-                <button onClick={(e) => handleSearchSubmit(e, search)}>
+                <button>
+                    <i className={`fa-solid fa-${search.jobTitle ? 'briefcase': 'location-dot'}`}></i>
                     {search.jobTitle || search.location}
                 </button>
             </li>
@@ -341,7 +342,7 @@ function JobPostingsList() {
                                 <button>Search</button>
                             </form>
                             <div id="recent-searches">
-                                <h3>Recent Searches: </h3>
+                                <h4>Recent Searches: </h4>
                                 <ul>
                                     {recentSearchesList()}
                                 </ul>
@@ -349,7 +350,7 @@ function JobPostingsList() {
                         </section>
                         <section id="job-posting-list">
                             <header>
-                                <h1>Recommended jobs <span className="filtered-jobs-count">{filteredJobs.length}</span></h1>
+                                <h2>Recommended jobs <span className="filtered-jobs-count">{filteredJobs.length}</span></h2>
                                 <div className="sorter">
                                     <h4>Sort by: <span className="sort-type">Default</span></h4>
                                     <i className="fa-solid fa-sort"></i>

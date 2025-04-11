@@ -1382,11 +1382,23 @@ button {
 #recent-searches ul {
     display: flex;
     align-items: center;
+    gap: 1rem;
     list-style-type: none;
 }
 
 #recent-searches li {
     padding: 5px 20px;
+    border-radius: 1000px;
+    border: solid 1px var(--secondary-light);
+    color: var(--secondary);
+    cursor: pointer;
+}
+
+#recent-searches li button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
 }
 
 #recent-searches button {

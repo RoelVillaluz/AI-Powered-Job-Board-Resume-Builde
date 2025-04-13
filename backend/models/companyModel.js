@@ -35,7 +35,11 @@ const companySchema = new mongoose.Schema({
     jobs: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: "JobPosting"
-    }]
+    }],
+    rating: {
+        type: Number,
+        default: 0.0,
+    },
 }, { timestamps: true })
 
 

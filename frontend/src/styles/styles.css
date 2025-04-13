@@ -1438,38 +1438,86 @@ button {
     font-weight: 600;
 }
 
+#job-list-container header h2 {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: clamp(0.75rem, 1vw, 2rem);
+    font-weight: 500;
+}
+
 #job-list-container header h3 {
     color: gray;
     font-size: clamp(0.75rem, 0.85vw, 1.5rem);
     font-weight: 500;
 }
 
-#top-companies header a {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-    font-size: clamp(0.65rem, 0.8vw, 1.25rem);
-    font-weight: 600;
+#top-companies {
+    margin-top: 1.5rem;
 }
 
 #top-companies ul {
     display: flex;
-    align-items: center;
     list-style-type: none;
     gap: 1rem;
-    margin-top: 2rem;
+    margin-top: 1rem;
+}
+
+#top-companies li {
+    width: calc(100% / 8);
+    aspect-ratio: 1 / 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: white;
+    padding: 1rem;
+    border: solid 1px rgba(0, 0, 0, 0.1);
+    border-radius: 20px;
+}
+
+#top-companies a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    flex-direction: column;
+}
+
+#top-companies li img {
+    width: clamp(1rem, 3vw, 4rem);
+    aspect-ratio: 1 / 1;
+    border-radius: 12px;
+    object-fit: cover;
+}
+
+#top-companies li .fa-building {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgb(20, 20, 20);
+    color: white;
+    width: clamp(1rem, 3vw, 4rem);
+    aspect-ratio: 1 / 1;
+    border-radius: 12px;
+}
+
+#top-companies li h4 {
+    font-size: clamp(0.5rem, 0.75vw, 1.5rem);
+    font-weight: 500;
+    margin-top: 1rem;
+}
+
+#top-companies li h5 {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    gap: 0.25rem;
+    font-size: clamp(0.4rem, 0.7vw, 1rem);
+    font-weight: 500;
 }
 
 #job-posting-list {
     margin-top: 2rem;
-}
-
-#job-posting-list header h2 {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    font-size: clamp(0.75rem, 1vw, 2rem);
-    font-weight: 500;
 }
 
 .filtered-jobs-count {

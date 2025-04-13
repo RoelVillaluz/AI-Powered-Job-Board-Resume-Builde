@@ -351,6 +351,26 @@ function JobPostingsList() {
                                 </ul>
                             </div>
                         </section>
+                        <section id="top-companies">
+                            <header>
+                                <h2>Top Companies</h2>
+                            </header>
+                            <ul>
+                                {companies.map((company) => (
+                                    <li key={company._id}>
+                                        <Link to={`/companies/${company._id}`}>
+                                            {company.logo ? (
+                                                <img src={company.logo} alt="" />
+                                            ) : (
+                                                <i className="fa-solid fa-building"></i>
+                                            )}
+                                            <h4>{company.name}</h4>
+                                            <h5><i className="fa-solid fa-star"></i>{company.rating}.0</h5>
+                                        </Link>
+                                    </li>
+                                ))}
+                            </ul>
+                        </section>
                         <section id="job-posting-list">
                             <header>
                                 <h2>Recommended jobs <span className="filtered-jobs-count">{filteredJobs.length}</span></h2>

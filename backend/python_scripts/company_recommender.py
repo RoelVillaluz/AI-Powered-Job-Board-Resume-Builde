@@ -127,4 +127,7 @@ if __name__ == "__main__":
     user_id = sys.argv[1]
 
     recommended_companies = recommend_companies(user_id)
-    print(json.dumps({"recommended_companies": recommended_companies}))
+    if recommended_companies:
+        print(json.dumps({"recommended_companies": recommended_companies}))
+    else:
+        print(json.dumps({"error": "No recommended companies found"}))

@@ -59,7 +59,7 @@ export const getJobRecommendations = async (req, res) => {
 
             return { ...job.toObject(), similarity, matchedSkills };
 
-        }).filter(job => job.similarity >= 50) 
+        }).filter(job => job.similarity >= 40) 
             .sort((a, b) => b.similarity - a.similarity) 
             .slice(0, 10);
 
@@ -213,3 +213,49 @@ export const getPredictedSalary = async (req, res) => {
         return sendResponse(res, { ...STATUS_MESSAGES.ERROR.SERVER_ERROR, success: false })
     }
 }
+
+export const recommendCompanies = async (req, res) => {
+    try {
+        const { userId } = req.params;
+
+        const user = await User.findOne({ _id: userId });
+        if (!user) return res.status(404).json({ error: "User not found" });
+
+        // Start the Python process
+        const pythonProcess = spawn("py", ["backend/python_scripts/company_recommender.py", userId]);
+
+        let result = "";
+        let errorOutput = "";
+
+        // Listen for data from stdout
+        pythonProcess.stdout.on("data", (data) => {
+            result += data.toString();
+            console.log("Python stdout:", data.toString());  // Debug logging stdout
+        });
+
+        // Listen for errors from stderr
+        pythonProcess.stderr.on("data", (data) => {
+            errorOutput += data.toString();
+            console.error("Python stderr:", data.toString());  // Debug logging stderr
+        });
+
+        // When the Python process is finished
+        pythonProcess.on("close", () => {
+            if (errorOutput) {
+                console.error("Python error output:", errorOutput); // If there's any error output, log it
+            }
+
+            try {
+                // Parse the Python result into JSON
+                const jsonResponse = JSON.parse(result);
+                res.status(200).json(jsonResponse);  // Send the parsed result as the response
+            } catch (error) {
+                console.error("Error parsing Python result:", error.message);
+                res.status(500).json({ error: "Failed to parse Python response", details: error.message });
+            }
+        });
+    } catch (error) {
+        console.error("Server error:", error.message);
+        return res.status(500).json({ error: "Server error", details: error.message });
+    }
+};

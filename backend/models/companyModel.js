@@ -12,8 +12,22 @@ const companySchema = new mongoose.Schema({
         required: true
     },
     industry: {
-        type: String,
-        required: true
+        type: [String],
+        required: true,
+        enum: [
+            "Technology",
+            "Marketing",
+            "Healthcare",
+            "Finance",
+            "Education",
+            "Retail",
+            "Manufacturing",
+            "Media",
+            "Entertainment",
+            "Energy",
+            "Travel",
+            "Government",
+        ]
     },
     location: {
         type: String,

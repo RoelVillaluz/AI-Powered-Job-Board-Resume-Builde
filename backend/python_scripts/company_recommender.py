@@ -109,14 +109,16 @@ def recommend_companies(user_id):
 
         if similarity_score >= 0:  
             recommended_companies.append({
-                "company_id": company_id,
+                "_id": company_id,
                 "score": similarity_score * 100,
-                "company_name": company.get("name", "Unknown")
+                "name": company.get("name", "Unknown"),
+                "rating": company.get("rating", ""),
+                "logo": company.get("logo", "")
             })
 
     recommended_companies.sort(key=lambda x: x["score"], reverse=True)
 
-    return recommended_companies[:3]
+    return recommended_companies[:5]
 
 
 if __name__ == "__main__":

@@ -94,6 +94,23 @@ const userSchema = new mongoose.Schema({
             default: 'Pending' 
         }
     }],
+    industry: {
+        type: String,
+        required: true,
+        enum: [
+            "Technology",
+            "Healthcare",
+            "Finance",
+            "Education",
+            "Retail",
+            "Manufacturing",
+            "Media",
+            "Entertainment",
+            "Energy",
+            "Transportation",
+            "Government",
+        ]
+    },
     createdAt: {
         type: Date,
         default: Date.now

@@ -37,8 +37,17 @@ export const createJobPosting = async (req, res) => {
     }
 
     try {
+
         const newJob = new JobPosting(jobPosting)
         await newJob.save()
+
+        // add job to company jobs list
+        await Company.findByIdAndUpdate(
+            jobPosting.company,
+            { $push: { jobs: newJob } },
+            { new: true }
+        )
+
         return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.CREATE, data: newJob }, 'Job posting');
     } catch (error) {
         console.error('Error', error)

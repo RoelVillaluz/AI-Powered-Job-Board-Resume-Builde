@@ -8,10 +8,11 @@ import JobPostingCard from "../components/JobPostingCard";
 
 function JobPostingsList() {
     const { user } = useAuth();
-    const { baseUrl, getAllData, fetchResumes, jobRecommendations, jobPostings, fetchJobRecommendations, resumes, companies } = useData();
+    const { baseUrl, getAllData, fetchResumes, jobRecommendations, jobPostings, fetchJobRecommendations, resumes } = useData();
     const [allResumeSkills, setAllResumeSkills] = useState([]);
     const [hiddenSections, setHiddenSections] = useState([]);
     const [recentSearches, setRecentSearches] = useState(new Set());
+    const [recommendedCompanies, setRecommendedCompanies] = useState([]);
     const [searchQuery, setSearchQuery] = useState({
         jobTitle: "",
         location: ""
@@ -212,7 +213,7 @@ function JobPostingsList() {
     }, [resumes])
 
     useEffect(() => {
-        getAllData(["companies", "job-postings"]);
+        getAllData(["job-postings"]);
     }, [])
 
     useEffect(() => {
@@ -222,6 +223,20 @@ function JobPostingsList() {
     useEffect(() => {
         combineResumeSkills()
     }, [resumes])
+
+    useEffect(() => {
+        const fetchRecommendedCompanies = async () => {
+            try {
+                const response = await axios.get(`${baseUrl}/ai/recommend-companies/${user._id}`)
+
+                console.log(response.data.recommended_companies)
+                setRecommendedCompanies(response.data.recommended_companies)
+            } catch (error) {
+                console.error('Error', error)
+            }
+        }
+        fetchRecommendedCompanies()
+    }, [user._id])
         
     return (
         <>
@@ -356,7 +371,7 @@ function JobPostingsList() {
                                 <h2>Top Companies</h2>
                             </header>
                             <ul>
-                                {companies.map((company) => (
+                                {recommendedCompanies.map((company) => (
                                     <li key={company._id}>
                                         <Link to={`/companies/${company._id}`}>
                                             {company.logo ? (

@@ -80,10 +80,10 @@ def recommend_companies(user_id):
     
     user_combined_embedding = np.mean(np.array(embeddings_to_combine), axis=0)
 
-    all_companies = db.companies.find()
+    companies_in_industry = db.companies.find({"industry": user.get("industry")}) if user.get("industry") else db.companies.find({})
     recommended_companies = []
 
-    for company in all_companies:
+    for company in companies_in_industry:
         company_id = str(company["_id"])
         company_description_embedding, job_skill_embeddings, job_title_embeddings, job_description_embeddings = extract_company_embeddings(company_id)
 

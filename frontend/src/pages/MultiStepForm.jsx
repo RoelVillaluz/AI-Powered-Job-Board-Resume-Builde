@@ -20,7 +20,7 @@ function MultiStepForm({ role }) {
         'details',
         ...(selectedRole === 'jobseeker'
             ? ['skills', 'workExperience', 'resume']
-            : []),
+            : ['industry']),
         'finished' 
     ];
 

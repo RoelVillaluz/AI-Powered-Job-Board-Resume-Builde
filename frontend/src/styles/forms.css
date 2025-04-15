@@ -449,6 +449,12 @@ textarea
     display: none;
 }
 
+#industry-choice-buttons {
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
 .choice-button  {
     position: relative;
     display: flex;

@@ -33,7 +33,7 @@ export const sendResponse = (res, { code, success = true, data = null, message }
     return res.status(code).json(response)
 }
 
-export const IndustryChoices = {
+export const industryChoices = {
     Technology: "fa-solid fa-microchip",
     Marketing: "fa-solid fa-bullhorn",
     Healthcare: "fa-solid fa-stethoscope",

@@ -497,21 +497,21 @@ textarea
     pointer-events: none;
 }
 
-.choice-button :hover,
-.choice-button .selected
+.choice-button:hover,
+.choice-button.selected
 {
     background-color: var(--tertiary);
     border: solid 1px  #3b2b220a;
 }
 
-.choice-button :hover i:not(.checked-indicator i),
-.choice-button .selected i:not(.checked-indicator i)
+.choice-button:hover i:not(.checked-indicator i),
+.choice-button.selected i:not(.checked-indicator i)
 {
     color: var(--secondary);
 }
 
-.choice-button :hover label,
-.choice-button .selected label
+.choice-button:hover label,
+.choice-button.selected label
 {
     color: var(--secondary);
 }

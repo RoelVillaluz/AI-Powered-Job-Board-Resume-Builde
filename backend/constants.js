@@ -32,3 +32,18 @@ export const sendResponse = (res, { code, success = true, data = null, message }
 
     return res.status(code).json(response)
 }
+
+export const IndustryChoices = [
+    "Technology",
+    "Marketing",
+    "Healthcare",
+    "Finance",
+    "Education",
+    "Retail",
+    "Manufacturing",
+    "Media",
+    "Entertainment",
+    "Energy",
+    "Travel",
+    "Government",
+]

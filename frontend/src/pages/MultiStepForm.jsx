@@ -349,6 +349,7 @@ function MultiStepForm({ role }) {
                             )}
                         </>
                     ) : (
+                        // INDUSTRY SELECTION SECTION
                         currentStepIndex === 2 && (
                             <IndustrySection formData={formData} handleChange={handleChange}/>
                         )

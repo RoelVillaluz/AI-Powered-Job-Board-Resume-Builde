@@ -439,17 +439,17 @@ textarea
     cursor: pointer;
 }
 
-.role-choices {
+.choice-buttons {
     display: flex;
     gap: 2rem;
     margin-top: 3rem;
 }
 
-.role-choices input[type="radio"] {
+.choice-buttons input[type="radio"] {
     display: none;
 }
 
-.role-choice {
+.choice-button  {
     position: relative;
     display: flex;
     align-items: center;
@@ -465,12 +465,12 @@ textarea
     transition: 0.15s;
 }
 
-.role-choice i:not(.checked-indicator i) {
+.choice-button  i:not(.checked-indicator i) {
     font-size: clamp(1rem, 3vw, 6rem);
     color: gray;
 }
 
-.role-choice .checked-indicator {
+.choice-button  .checked-indicator {
     display: none;
     position: absolute;
     padding: 1.2rem;
@@ -482,36 +482,36 @@ textarea
     border-radius: 0 4px 0 0;
 }
 
-.role-choice.selected .checked-indicator {
+.choice-button .selected .checked-indicator {
     display: block;
 }
 
-.role-choice .checked-indicator i {
+.choice-button  .checked-indicator i {
     position: absolute;
     top: 4px;
     right: 4px;
 }
 
-.role-choice label {
+.choice-button  label {
     color: gray;
     pointer-events: none;
 }
 
-.role-choice:hover,
-.role-choice.selected
+.choice-button :hover,
+.choice-button .selected
 {
     background-color: var(--tertiary);
     border: solid 1px  #3b2b220a;
 }
 
-.role-choice:hover i:not(.checked-indicator i),
-.role-choice.selected i:not(.checked-indicator i)
+.choice-button :hover i:not(.checked-indicator i),
+.choice-button .selected i:not(.checked-indicator i)
 {
     color: var(--secondary);
 }
 
-.role-choice:hover label,
-.role-choice.selected label
+.choice-button :hover label,
+.choice-button .selected label
 {
     color: var(--secondary);
 }

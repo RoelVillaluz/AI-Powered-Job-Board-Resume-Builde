@@ -33,17 +33,17 @@ export const sendResponse = (res, { code, success = true, data = null, message }
     return res.status(code).json(response)
 }
 
-export const IndustryChoices = [
-    "Technology",
-    "Marketing",
-    "Healthcare",
-    "Finance",
-    "Education",
-    "Retail",
-    "Manufacturing",
-    "Media",
-    "Entertainment",
-    "Energy",
-    "Travel",
-    "Government",
-]
+export const IndustryChoices = {
+    Technology: "fa-solid fa-microchip",
+    Marketing: "fa-solid fa-bullhorn",
+    Healthcare: "fa-solid fa-stethoscope",
+    Finance: "fa-solid fa-chart-line",
+    Education: "fa-solid fa-graduation-cap",
+    Retail: "fa-solid fa-store",
+    Manufacturing: "fa-solid fa-industry",
+    Media: "fa-solid fa-newspaper",
+    Entertainment: "fa-solid fa-film",
+    Energy: "fa-solid fa-bolt",
+    Travel: "fa-solid fa-plane-departure",
+    Government: "fa-solid fa-landmark"
+};

@@ -69,10 +69,6 @@ function UserDetailsSection ({ selectedRole, formData, handleChange }) {
                                 <label htmlFor="">Company Name</label>
                                 <input type="text" name="name" value={formData.name} onChange={handleChange}/>
                             </div>
-                            <div className="form-group">
-                                <label htmlFor="">Industry</label>
-                                <input type="text" name="industry" value={formData.industry} onChange={handleChange}/>
-                            </div>
                         </div>
                         <div className="form-group">
                             <label htmlFor="">Location</label>

@@ -13,6 +13,7 @@ function JobPostingsList() {
     const [hiddenSections, setHiddenSections] = useState([]);
     const [recentSearches, setRecentSearches] = useState(new Set());
     const [recommendedCompanies, setRecommendedCompanies] = useState([]);
+    const [loading, setLoading] = useState(true)
     const [searchQuery, setSearchQuery] = useState({
         jobTitle: "",
         location: ""
@@ -233,6 +234,8 @@ function JobPostingsList() {
                 setRecommendedCompanies(response.data.recommended_companies)
             } catch (error) {
                 console.error('Error', error)
+            } finally {
+                setLoading(false)
             }
         }
         fetchRecommendedCompanies()
@@ -371,7 +374,7 @@ function JobPostingsList() {
                                 <h2>Top Companies</h2>
                             </header>
                             <ul>
-                                {recommendedCompanies.map((company) => (
+                                {!loading && recommendedCompanies.map((company) => (
                                     <li key={company._id}>
                                         <Link to={`/companies/${company._id}`}>
                                             {company.logo ? (
@@ -384,6 +387,11 @@ function JobPostingsList() {
                                         </Link>
                                     </li>
                                 ))}
+                                {loading && (
+                                    Array.from({ length: 7 }).map((_, index) => (
+                                        <li key={index} className="skeleton"></li>
+                                    ))
+                                )}
                             </ul>
                         </section>
                         <section id="job-posting-list">

@@ -1475,6 +1475,11 @@ button {
     border-radius: 20px;
 }
 
+#top-companies li.skeleton {
+    background-color: var(--light-gray);
+    border: none;
+}
+
 #top-companies a {
     display: flex;
     align-items: center;

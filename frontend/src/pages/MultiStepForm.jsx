@@ -9,6 +9,7 @@ import SkillsSection from "../components/MultiStepForm/SkillsSection.jsx"
 import WorkExperience from "../components/MultiStepForm/WorkExperience.jsx"
 import WelcomeSection from "../components/MultiStepForm/WelcomeSection.jsx"
 import { useAuth } from "../components/AuthProvider.jsx"
+import IndustrySection from "../components/Dashboard/IndustrySection.jsx"
 
 function MultiStepForm({ role }) {
     const { baseUrl, setSuccess, setError, setErrorMessage, setSuccessMessage } = useData();
@@ -42,7 +43,7 @@ function MultiStepForm({ role }) {
               }
             : {
                   name: '',
-                  industry: '',
+                  industry: [],
                   location: '',
                   website: '',
                   size: '',
@@ -79,7 +80,7 @@ function MultiStepForm({ role }) {
                     const requiredFields = selectedRole === 'jobseeker' ? (
                         ["firstName", "lastName", "phone", "address", "summary"]
                     ) : (
-                        ["name", "industry", "location", "description"]
+                        ["name", "location", "description"]
                     );
                     const areDetailsFilled = requiredFields.every(field => 
                         formData[field]?.trim() !== "" && formData[field] !== undefined
@@ -91,7 +92,7 @@ function MultiStepForm({ role }) {
                     setIsNextAllowed(formData.skills?.length >= 3);
                 } else {
                     // Handle employer job posting validation here
-                    setIsNextAllowed(true); // Adjust based on your requirements
+                    
                 }
                 break;
             case 3:
@@ -262,7 +263,7 @@ function MultiStepForm({ role }) {
                                         </p>
                                     </div>
                                 </li>
-                                {selectedRole === 'jobseeker' && (
+                                {selectedRole === 'jobseeker' ? (
                                     <>
                                         <li>
                                             <i className="fa-solid fa-lightbulb"></i>
@@ -291,6 +292,14 @@ function MultiStepForm({ role }) {
                                             </div>
                                         </li>
                                     </>
+                                ) : (
+                                    <li>
+                                        <i className="fa-solid fa-industry"></i>
+                                        <div>
+                                            <span>Select Industry</span>
+                                            <p>Choose the industry that best fits your company.</p>
+                                        </div>
+                                    </li>
                                 )}
                                 <li>
                                     <i className="fa-solid fa-check"></i>
@@ -315,7 +324,7 @@ function MultiStepForm({ role }) {
                         <UserDetailsSection selectedRole={selectedRole} formData={formData} handleChange={handleChange}/>
                     )}
 
-                    {selectedRole === "jobseeker" && (
+                    {selectedRole === "jobseeker" ? (
                         <>
                             {/* SKILLS SECTION */}
                             {currentStepIndex === 2 && (
@@ -339,6 +348,10 @@ function MultiStepForm({ role }) {
                                 />
                             )}
                         </>
+                    ) : (
+                        currentStepIndex === 2 && (
+                            <IndustrySection formData={formData} handleChange={handleChange}/>
+                        )
                     )}
 
                     {/* FINISHED */}

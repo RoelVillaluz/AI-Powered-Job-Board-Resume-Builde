@@ -38,7 +38,7 @@ function IndustrySection ({ formData, handleChange }) {
             </header>
             <div className="choice-buttons" id="industry-choice-buttons">
                 {Object.entries(industryChoices).sort(([a], [b]) => a.localeCompare(b)).map(([industry, iconClass], index) => (
-                    <div className="choice-button" key={index}>
+                    <div className={`choice-button ${selectedIndustries.some((i) => i === industry) ? 'selected' : ''}`} key={index} onClick={() => addOrRemoveIndustry(industry)}>
                         <i className={iconClass}></i>
                         <label htmlFor="">{industry}</label>
                     </div>

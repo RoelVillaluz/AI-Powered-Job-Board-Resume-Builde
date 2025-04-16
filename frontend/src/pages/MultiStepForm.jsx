@@ -91,8 +91,7 @@ function MultiStepForm({ role }) {
                 if (selectedRole === 'jobseeker') {
                     setIsNextAllowed(formData.skills?.length >= 3);
                 } else {
-                    // Handle employer job posting validation here
-                    
+                    setIsNextAllowed(formData.industry.length > 0);
                 }
                 break;
             case 3:

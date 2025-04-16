@@ -1,4 +1,4 @@
-# **Job Board Website with Resume Maker**
+# **AI Powered Job Board Website with Resume Maker**
 
 This project is a comprehensive job board platform that allows users to search for job listings, 
 apply for positions, and create professional resumes using the built-in resume maker. 

@@ -404,7 +404,7 @@ function JobPostingsList() {
                             </header>
                             <ul>
                                 {filteredJobs.map((job) => (
-                                    <JobPostingCard job={job}/>
+                                    <JobPostingCard job={job} user={user}/>
                                 ))}
                             </ul>
                         </section>

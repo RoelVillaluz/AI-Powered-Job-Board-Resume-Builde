@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom"
+import { useAuth } from "./AuthProvider"
 
-const JobPostingCard = ({ job }) => {
+const JobPostingCard = ({ job, user }) => {
+    const { toggleSaveJob } = useAuth();
     
     return (
         <li className="job-card" key={job._id}>
@@ -37,21 +39,24 @@ const JobPostingCard = ({ job }) => {
                     
                     <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Iste, veniam labore! Aspernatur culpa alias illum autem ipsa harum laudantium adipisci omnis minus quibusdam similique, eveniet accusantium excepturi aliquam a praesentium!</p>
 
-                    <div className="actions">
-
-                        <button id="apply-btn">Apply</button>
-                        <button id="save-btn">
-                            <i className='fa-solid fa-bookmark'></i>
-                        </button>
-                        {job.similarity && (
-                            <div className="match-score">
-                                {job.similarity}% Match
-                            </div>
-                        )}
-                    </div>
                 </div>
 
             </Link>
+
+            <div className="actions">
+
+                <button id="apply-btn">Apply</button>
+                <button id="save-btn" onClick={(e) => toggleSaveJob(e, job._id)} aria-label="Save job">
+                    <i className={`fa-${user.savedJobs.includes(job._id) ? 'solid' : 'regular'} fa-bookmark`}></i>
+                </button>
+                {job.similarity && (
+                    <div className="match-score">
+                        {job.similarity}% Match
+                    </div>
+                )}
+
+            </div>
+
         </li>
     )
 }

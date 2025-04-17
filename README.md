@@ -35,3 +35,11 @@ Here’s how it works:
 
  - Finally, it returns a list of recommended skills that could improve the user's chances of landing their desired roles.
 
+# Technologies Used
+- MongoDB
+- Express.js
+- React.js
+- Node.js
+- CSS
+- Python
+

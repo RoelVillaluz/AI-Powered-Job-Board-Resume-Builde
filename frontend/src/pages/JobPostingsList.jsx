@@ -29,7 +29,11 @@ function JobPostingsList() {
         skills: [],
         minMatchScore: 0,
         jobTitle: "",
-        location: ""
+        location: "",
+        applicationStatus: {
+            saved: false,
+            applied: false
+        }
     })
 
     const allJobs = [
@@ -55,6 +59,10 @@ function JobPostingsList() {
         "Your Skills": {
             "choices": allResumeSkills,
             "filterType": "skills"
+        },
+        "Application Status": {
+            "choices": ['Saved', 'Applied'],
+            "filterType": "applicationStatus"
         }
     }
 
@@ -323,7 +331,11 @@ function JobPostingsList() {
                                                         <input
                                                             type="checkbox"
                                                             id={`checkbox-${choice}`}
-                                                            checked={filters[filterTypes[section].filterType]?.includes(choice) || false}
+                                                            checked={
+                                                                filterTypes[section].filterType == 'applicationStatus'
+                                                                    ? filters.applicationStatus[choice] || false
+                                                                    : filters[filterTypes[section.filterType]?.includes(choice) || false]
+                                                            }
                                                             onChange={() => handleFilterChange(filterTypes[section].filterType, choice)}
                                                         />
                                                         <label htmlFor={`checkbox-${choice}`}>{choice}</label>

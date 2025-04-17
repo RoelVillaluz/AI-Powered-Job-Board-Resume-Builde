@@ -61,7 +61,7 @@ function JobPostingsList() {
             "filterType": "skills"
         },
         "Application Status": {
-            "choices": ['Saved', 'Applied'],
+            "choices": ['saved', 'applied'],
             "filterType": "applicationStatus"
         }
     }
@@ -70,6 +70,9 @@ function JobPostingsList() {
         // Check if job matches all the filters
         const minSalary = filters.salary.min || 0;
         const maxSalary = filters.salary.max || Number.MAX_SAFE_INTEGER;
+
+        const saved = user.savedJobs.includes(job._id)
+        const applied = user.appliedJobs.includes(job._id)
     
         const matchesSalary =
             (minSalary <= 0 || parseFloat(String(job.salary).replace(/[^0-9.]/g, '')) >= minSalary) &&
@@ -79,7 +82,7 @@ function JobPostingsList() {
         const matchesExperienceLevel = filters.experienceLevel.length === 0 || filters.experienceLevel.includes(job.experienceLevel);
         const matchesSkills = filters.skills.length === 0 || filters.skills.some(skill => job.skills?.some(jobSkill => jobSkill.name === skill));
         const matchesMatchScore = filters.minMatchScore <= 0 || Number(job.similarity) >= filters.minMatchScore;
-        
+
         // Check if any filters are applied
         const filtersApplied = 
             filters.salary.min > 0 || filters.salary.max > 0 ||
@@ -87,6 +90,8 @@ function JobPostingsList() {
             filters.experienceLevel.length > 0 ||
             filters.skills.length > 0 ||
             filters.minMatchScore > 0 ||
+            filters.applicationStatus.saved ||
+            filters.applicationStatus.applied ||
             (filters.jobTitle && filters.jobTitle !== "") ||
             (filters.location && filters.location !== "");
     
@@ -96,13 +101,35 @@ function JobPostingsList() {
              (job.title && job.title.toLowerCase().includes(String(filters.jobTitle).toLowerCase()))) &&
             (!filters.location || filters.location === "" || 
              (job.location && job.location.toLowerCase().includes(String(filters.location).toLowerCase())));
+
+        const matchesApplicationStatus = (() => {
+            const { saved: filterSaved, applied: filterApplied } = filters.applicationStatus;
+
+            // If neither saved nor applied are selected, allow all
+            if (!filterSaved && !filterApplied) return true;
+
+            // If only saved is selected, allow only saved jobs
+            if (filterSaved && !filterApplied) return saved;
+
+            // If only applied is selected, allow only applied jobs
+            if (!filterSaved && filterApplied) return applied;
+
+            // If both are selected, allow saved OR applied
+            if (filterSaved && filterApplied) return saved || applied;
+        })();
         
         // Return job if it matches all relevant filters
         return (
-            (!filtersApplied || 
-            (matchesSalary && matchesJobType && matchesExperienceLevel && matchesSkills && matchesMatchScore)) &&
+            (!filtersApplied ||
+                (matchesSalary &&
+                 matchesJobType &&
+                 matchesExperienceLevel &&
+                 matchesSkills &&
+                 matchesMatchScore &&
+                 matchesApplicationStatus)) &&
             matchesSearchQuery
         );
+
     });
 
     const combineResumeSkills = () => {
@@ -140,6 +167,14 @@ function JobPostingsList() {
                     ...prevFilters,
                     [filterType]: value
                 };
+            } else if (filterType === 'applicationStatus') {
+                return {
+                    ...prevFilters,
+                    applicationStatus: {
+                        ...prevFilters.applicationStatus,
+                        [value]: !prevFilters.applicationStatus[value]
+                    }
+                }
             }
     
 
@@ -157,6 +192,10 @@ function JobPostingsList() {
             experienceLevel: [],
             skills: [],
             minMatchScore: 0,
+            applicationStatus: {
+                saved: false,
+                applied: false,
+            }
         })
     }
 
@@ -332,13 +371,13 @@ function JobPostingsList() {
                                                             type="checkbox"
                                                             id={`checkbox-${choice}`}
                                                             checked={
-                                                                filterTypes[section].filterType == 'applicationStatus'
+                                                                filterTypes[section].filterType === 'applicationStatus'
                                                                     ? filters.applicationStatus[choice] || false
-                                                                    : filters[filterTypes[section.filterType]?.includes(choice) || false]
+                                                                    : filters[filterTypes[section].filterType]?.includes(choice) || false
                                                             }
                                                             onChange={() => handleFilterChange(filterTypes[section].filterType, choice)}
                                                         />
-                                                        <label htmlFor={`checkbox-${choice}`}>{choice}</label>
+                                                        <label htmlFor={`checkbox-${choice}`}>{choice.charAt(0).toUpperCase() + choice.slice(1)}</label>
                                                     </li>
                                                 ))}
                                             </ul>

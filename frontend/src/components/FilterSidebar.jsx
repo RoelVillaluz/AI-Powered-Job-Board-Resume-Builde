@@ -1,6 +1,7 @@
 import { useState, useImperativeHandle, forwardRef } from "react"
 
-const FilterSidebar = forwardRef(({ filters, setFilters, allResumeSkills, hiddenSections }, ref) => {
+const FilterSidebar = forwardRef(({ filters, setFilters, allResumeSkills }, ref) => {
+    const [hiddenSections, setHiddenSections] = useState([]);
 
     const filterTypes =  {
         // filterType = actual jobPosting fields (jobType, experienceLevel) for filtering
@@ -76,6 +77,13 @@ const FilterSidebar = forwardRef(({ filters, setFilters, allResumeSkills, hidden
                 applied: false,
             }
         })
+    }
+
+    const toggleVisibility = (section) => {
+        setHiddenSections((prevState) => ({
+            ...prevState,
+            [section]: !prevState[section]
+        }))
     }
 
     useImperativeHandle(ref, () => ({

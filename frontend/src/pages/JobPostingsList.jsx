@@ -10,6 +10,7 @@ import FilterSidebar from "../components/FilterSidebar";
 function JobPostingsList() {
     const { user } = useAuth();
     const { baseUrl, getAllData, fetchResumes, jobRecommendations, jobPostings, fetchJobRecommendations, resumes } = useData();
+    const filterRef = useRef(null);
     const [allResumeSkills, setAllResumeSkills] = useState([]);
     const [hiddenSections, setHiddenSections] = useState([]);
     const [recentSearches, setRecentSearches] = useState(new Set());
@@ -136,11 +137,11 @@ function JobPostingsList() {
         const queryToSubmit = buttonQuery || searchQuery
 
         if (queryToSubmit.jobTitle) {
-            handleFilterChange('jobTitle', queryToSubmit.jobTitle)
+            filterRef.current.handleFilterChange('jobTitle', queryToSubmit.jobTitle)
         }
 
         if (queryToSubmit.location) {
-            handleFilterChange('location', queryToSubmit.location)
+            filterRef.current.handleFilterChange('location', queryToSubmit.location)
         }
 
         // create unique key so similar search queries but different types (jobTitle vs location) don't get recognized as same element 
@@ -217,7 +218,7 @@ function JobPostingsList() {
             <Layout>
                 <div className="container" style={{ alignItems: 'start' }}>
 
-                    <FilterSidebar filters={filters} setFilters={setFilters} allJobs={allJobs} allResumeSkills={allResumeSkills} hiddenSections={hiddenSections}/>
+                    <FilterSidebar filters={filters} setFilters={setFilters} allResumeSkills={allResumeSkills} hiddenSections={hiddenSections} ref={filterRef}/>
 
                     <main id="job-list-container">
                         <section id="search-job-section">
@@ -285,7 +286,7 @@ function JobPostingsList() {
                             </header>
                             <ul>
                                 {filteredJobs.map((job) => (
-                                    <JobPostingCard job={job} user={user}/>
+                                    <JobPostingCard job={job} user={user} key={job._id}/>
                                 ))}
                             </ul>
                         </section>

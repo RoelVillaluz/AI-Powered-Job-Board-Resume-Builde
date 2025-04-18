@@ -1,7 +1,6 @@
-import { useState } from "react"
+import { useState, useImperativeHandle, forwardRef } from "react"
 
-function FilterSidebar({ filters, setFilters, allJobs, allResumeSkills, hiddenSections }) {
-
+const FilterSidebar = forwardRef(({ filters, setFilters, allResumeSkills, hiddenSections }, ref) => {
 
     const filterTypes =  {
         // filterType = actual jobPosting fields (jobType, experienceLevel) for filtering
@@ -78,6 +77,10 @@ function FilterSidebar({ filters, setFilters, allJobs, allResumeSkills, hiddenSe
             }
         })
     }
+
+    useImperativeHandle(ref, () => ({
+        handleFilterChange
+    }))
 
     return (
         <aside className="filter-sidebar">
@@ -177,6 +180,6 @@ function FilterSidebar({ filters, setFilters, allJobs, allResumeSkills, hiddenSe
             </ul>
         </aside>
     )
-}
+})
 
 export default FilterSidebar

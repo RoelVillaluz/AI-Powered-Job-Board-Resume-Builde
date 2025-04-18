@@ -42,20 +42,24 @@ function Dashboard () {
         <>
             <Layout>
                 <div className="dashboard">
-                    <header id="dashboard-header">
-                        <h1>Welcome Back, {name?.split(" ")[0]}</h1>
-                        <p>Let's make this day productive.</p>
-                    </header>
-                    <div className="grid-container">
-                        <UserProfileSection user={user} name={name}/>
-                        <ResumeScoreSection baseUrl={baseUrl} resume={resumes[0]}/>
-                        <TopJobSection user={user} resume={resumes[0]} shuffledSkills={shuffledSkills}/>
-                        <ApplicationProgressSection user={user} baseUrl={baseUrl} loading={loading}/>
-                        <SalaryPredictionSection baseUrl={baseUrl} resume={resumes[0]} loading={loading} shuffledSkills={shuffledSkills}/>
-                        <GoalsSection loading={loading}/>
-                        <NetworkSection user={user} baseUrl={baseUrl}/>
-                        <OnlineCoursesSection user={user} baseUrl={baseUrl} loading={loading}/>
-                    </div>
+                    {user.role === 'jobseeker' && (
+                        <>
+                        <header id="dashboard-header">
+                            <h1>Welcome Back, {name?.split(" ")[0]}</h1>
+                            <p>Let's make this day productive.</p>
+                        </header>
+                        <div className="grid-container">
+                            <UserProfileSection user={user} name={name}/>
+                            <ResumeScoreSection baseUrl={baseUrl} resume={resumes[0]}/>
+                            <TopJobSection user={user} resume={resumes[0]} shuffledSkills={shuffledSkills}/>
+                            <ApplicationProgressSection user={user} baseUrl={baseUrl} loading={loading}/>
+                            <SalaryPredictionSection baseUrl={baseUrl} resume={resumes[0]} loading={loading} shuffledSkills={shuffledSkills}/>
+                            <GoalsSection loading={loading}/>
+                            <NetworkSection user={user} baseUrl={baseUrl}/>
+                            <OnlineCoursesSection user={user} baseUrl={baseUrl} loading={loading}/>
+                        </div>
+                        </>
+                    )}
                 </div>
             </Layout>
         </>

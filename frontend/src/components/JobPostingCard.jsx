@@ -5,7 +5,7 @@ const JobPostingCard = ({ job, user }) => {
     const { toggleSaveJob } = useAuth();
     
     return (
-        <li className="job-card" key={job._id}>
+        <li className="job-card">
             <Link to={`job-postings/${job._id}`}>
                 <div className="wrapper">
                     {job.company.logo ? (

@@ -149,7 +149,7 @@ const FilterSidebar = forwardRef(({ filters, setFilters, allResumeSkills, hidden
 
                 <li>
                     {Object.keys(filterTypes).map((section) => (
-                        <div className="filter-category">
+                        <div className="filter-category" key={section}>
                             <div className="wrapper">
                                 <h4>{section}</h4>
                                 <i className={`fa-solid fa-angle-${!hiddenSections[section] ? 'up' : 'down'}`} onClick={() => toggleVisibility(section)}></i>

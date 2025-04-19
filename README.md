@@ -51,6 +51,10 @@ Here’s how it works:
 - KMeans Clustering  
 - PyTorch (Torch)
 
+### Other Libraries
+- Numpy
+- Pandas
+
 ### Database
 - MongoDB
 

@@ -19,6 +19,8 @@ function JobPostingsList() {
     const [loading, setLoading] = useState(true)
     const [isDropdownVisible, setIsDropdownVisible] = useState(false);
     const dropdownRef = useRef(null);
+    // Add a ref to track if a sort button was clicked
+    const sortButtonClickedRef = useRef(false);
 
     const [searchQuery, setSearchQuery] = useState({
         jobTitle: "",
@@ -213,17 +215,23 @@ function JobPostingsList() {
         fetchRecommendedCompanies()
     }, [user._id])
 
-    // Close dropdown on outside click
+    // Modified handleClickOutside to respect sort button clicks
     useEffect(() => {
         const handleClickOutside = (event) => {
-        if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-            setIsDropdownVisible(false);
-        }
+            if (sortButtonClickedRef.current) {
+                sortButtonClickedRef.current = false;
+                return;
+            }
+            
+            // Otherwise proceed with normal outside click handling
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setIsDropdownVisible(false);
+            }
         };
 
         document.addEventListener("mousedown", handleClickOutside);
         return () => {
-        document.removeEventListener("mousedown", handleClickOutside);
+            document.removeEventListener("mousedown", handleClickOutside);
         };
     }, []);
         

@@ -42,7 +42,7 @@ function JobPostingsList() {
     })
 
     const sortTypes = ['Best Match (Default)', 'A-Z', 'Z-A', 'Newest First', 'Highest Salary']
-    const [sortType, setSortType] = useState('Best Match (Default)')
+    const [currentSortType, setCurrentSortType] = useState('Best Match (Default)')
 
     const allJobs = [
         ...jobRecommendations,
@@ -305,6 +305,7 @@ function JobPostingsList() {
                                         {sortTypes.map((type, index) => (
                                             <li key={index}>
                                                 <button>{type}</button>
+                                                {}
                                             </li>
                                         ))}
                                     </ul>

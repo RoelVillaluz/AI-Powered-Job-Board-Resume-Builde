@@ -36,10 +36,26 @@ Here’s how it works:
  - Finally, it returns a list of recommended skills that could improve the user's chances of landing their desired roles.
 
 # Technologies Used
-- MongoDB
-- Express.js
-- React.js
-- Node.js
+
+### Frontend
+- React.js  
 - CSS
+
+### Backend
+- Node.js  
+- Express.js  
 - Python
+
+### AI/ML Libraries & Frameworks
+- Scikit-learn  
+- KMeans Clustering  
+- PyTorch (Torch)
+
+### Other Libraries
+- Numpy
+- Pandas
+
+### Database
+- MongoDB
+
 

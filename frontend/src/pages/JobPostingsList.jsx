@@ -177,6 +177,15 @@ function JobPostingsList() {
         ))
     }
 
+    const handleSortButtonClick = (e, type) => {
+        e.stopPropagation();
+        // Set the ref to true to indicate a sort button was clicked
+        sortButtonClickedRef.current = true;
+        setCurrentSortType(type);
+        setIsDropdownVisible(false);
+        console.log("Sort type changed to:", type);
+    }
+
     useEffect(() => {
         if (user?._id) {
           fetchResumes(user._id);
@@ -234,7 +243,7 @@ function JobPostingsList() {
             document.removeEventListener("mousedown", handleClickOutside);
         };
     }, []);
-        
+
     return (
         <>
             <Layout>
@@ -279,7 +288,7 @@ function JobPostingsList() {
                             <header>
                                 <h2>Top Companies</h2>
                             </header>
-                            <ul ref={dropdownRef}>
+                            <ul>
                                 {!loading && recommendedCompanies.map((company) => (
                                     <li key={company._id}>
                                         <Link to={`/companies/${company._id}`}>
@@ -304,15 +313,18 @@ function JobPostingsList() {
                         <section id="job-posting-list">
                             <header>
                                 <h2>Recommended jobs <span className="filtered-jobs-count">{filteredJobs.length}</span></h2>
-                                <div className="sorter">
-                                    <h4>Sort by: <span className="sort-type">Default</span></h4>
-                                    <button className="sort-toggle" onClick={() => setIsDropdownVisible(prev => !prev)} aria-label="Toggle sort options">
+                                <div className="sorter" ref={dropdownRef}>
+                                    <h4>Sort by: <span className="sort-type">{currentSortType}</span></h4>
+                                    <button className="sort-toggle" onClick={(e) => {
+                                        e.stopPropagation();  
+                                        setIsDropdownVisible(prev => !prev);
+                                    }} aria-label="Toggle sort options">
                                         <i className="fa-solid fa-sort"></i>
                                     </button>
                                     <ul style={{ display: isDropdownVisible ? 'flex': 'none' }}>
                                         {sortTypes.map((type, index) => (
                                             <li key={index}>
-                                                <button>{type}</button>
+                                                <button onClick={(e) => handleSortButtonClick(e, type)}>{type}</button>
                                                 {type === currentSortType && (
                                                     <i className="fa-solid fa-check"></i>
                                                 )}

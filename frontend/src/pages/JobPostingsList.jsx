@@ -244,6 +244,22 @@ function JobPostingsList() {
         };
     }, []);
 
+    const getSortedJobs = () => {
+        switch (currentSortType) {
+            case "A-Z":
+                return [...filteredJobs].sort((a, b) => a.title.localeCompare(b.title))
+            case "Z-A":
+                return [...filteredJobs].sort((a, b) => b.title.localeCompare(a.title))
+            case "Newest First":
+                return [...filteredJobs].sort((a, b) => a.postedAt.localeCompare(b.postedAt))
+            case "Highest Salary":
+                return [...filteredJobs].sort((a, b) => b.salary - a.salary)
+            default:
+                return filteredJobs // no need to explicitly sort by similarity, already done in the api backend
+        }
+    }
+        
+
     return (
         <>
             <Layout>
@@ -334,7 +350,7 @@ function JobPostingsList() {
                                 </div>
                             </header>
                             <ul>
-                                {filteredJobs.map((job) => (
+                                {getSortedJobs().map((job) => (
                                     <JobPostingCard job={job} user={user} key={job._id}/>
                                 ))}
                             </ul>

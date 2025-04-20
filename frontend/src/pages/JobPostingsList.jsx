@@ -11,11 +11,13 @@ function JobPostingsList() {
     const { user } = useAuth();
     const { baseUrl, getAllData, fetchResumes, jobRecommendations, jobPostings, fetchJobRecommendations, resumes } = useData();
     const filterRef = useRef(null);
+
     const [allResumeSkills, setAllResumeSkills] = useState([]);
-    const [hiddenSections, setHiddenSections] = useState([]);
     const [recentSearches, setRecentSearches] = useState(new Set());
     const [recommendedCompanies, setRecommendedCompanies] = useState([]);
+
     const [loading, setLoading] = useState(true)
+    const [isDropdownVisible, setIsDropdownVisible] = useState(false);
     const [searchQuery, setSearchQuery] = useState({
         jobTitle: "",
         location: ""
@@ -37,6 +39,9 @@ function JobPostingsList() {
         }
     })
 
+    const sortTypes = ['Best Match (Default)', 'A-Z', 'Z-A', 'Newest First', 'Highest Salary']
+    const [sortType, setSortType] = useState('Best Match (Default)')
+
     const allJobs = [
         ...jobRecommendations,
         ...jobPostings.filter(job => 
@@ -50,13 +55,6 @@ function JobPostingsList() {
 
         setAllResumeSkills(uniqueSkills)
     } 
-
-    const toggleVisibility = (section) => {
-        setHiddenSections((prevState) => ({
-            ...prevState,
-            [section]: !prevState[section]
-        }))
-    }
 
     const filteredJobs = allJobs.filter(job => {
         // Check if job matches all the filters
@@ -218,9 +216,10 @@ function JobPostingsList() {
             <Layout>
                 <div className="container" style={{ alignItems: 'start' }}>
 
-                    <FilterSidebar filters={filters} setFilters={setFilters} allResumeSkills={allResumeSkills} hiddenSections={hiddenSections} ref={filterRef}/>
+                    <FilterSidebar filters={filters} setFilters={setFilters} allResumeSkills={allResumeSkills} ref={filterRef}/>
 
                     <main id="job-list-container">
+
                         <section id="search-job-section">
                             <h1>Find Your Next Opportunity</h1>
                             <p>Search thousands of job listings by title, keyword, or location and take the next step in your career journey.</p>
@@ -251,6 +250,7 @@ function JobPostingsList() {
                                 </ul>
                             </div>
                         </section>
+
                         <section id="top-companies">
                             <header>
                                 <h2>Top Companies</h2>
@@ -276,12 +276,22 @@ function JobPostingsList() {
                                 )}
                             </ul>
                         </section>
+
                         <section id="job-posting-list">
                             <header>
                                 <h2>Recommended jobs <span className="filtered-jobs-count">{filteredJobs.length}</span></h2>
                                 <div className="sorter">
                                     <h4>Sort by: <span className="sort-type">Default</span></h4>
-                                    <i className="fa-solid fa-sort"></i>
+                                    <button className="sort-toggle" onClick={() => setIsDropdownVisible(prev => !prev)} aria-label="Toggle sort options">
+                                        <i className="fa-solid fa-sort"></i>
+                                    </button>
+                                    <ul style={{ display: isDropdownVisible ? 'flex': 'none' }}>
+                                        {sortTypes.map((type, index) => (
+                                            <li key={index}>
+                                                <button>{type}</button>
+                                            </li>
+                                        ))}
+                                    </ul>
                                 </div>
                             </header>
                             <ul>
@@ -290,6 +300,7 @@ function JobPostingsList() {
                                 ))}
                             </ul>
                         </section>
+
                     </main>
 
                 </div>

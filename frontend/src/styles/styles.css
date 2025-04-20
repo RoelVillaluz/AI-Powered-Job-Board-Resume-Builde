@@ -1533,6 +1533,7 @@ button {
 }
 
 .sorter {
+    position: relative;
     display: flex;
     align-items: center;
     gap: 0.5rem;
@@ -1551,11 +1552,51 @@ button {
     margin-left: 0.25rem;
 }
 
+.sorter ul {
+    position: absolute;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    list-style-type: none;
+    margin-top: 3rem;
+    transform: translateY(50%);
+    background-color: white;
+    border: solid 1px rgba(0, 0, 0, 0.1);
+}
+
+.sort-toggle {
+    border: none;
+    outline: none;
+    background-color: transparent;
+}
+
 .sorter i {
+    cursor: pointer;
     margin-left: 0.25rem;
 }
 
-#job-posting-list ul {
+.sorter li {
+    transition: 0.3s;
+    padding: 8px 16px;
+}
+
+.sorter li:hover {
+    background-color: var(--tertiary);
+}
+
+.sorter li button {
+    background-color: transparent;
+    color: var(--secondary);
+    border: none;
+    outline: none;
+    cursor: pointer;
+    font-size: clamp(0.75rem, 0.75vw, 2rem);
+    font-weight: 500;
+    width: 100%;
+    text-align: left;
+}
+
+#job-posting-list ul:not(.sorter ul) {
     display: flex;
     flex-wrap: wrap;
     gap: 1rem;
@@ -1569,7 +1610,7 @@ button {
     margin-bottom: 1.5rem;
 }
 
-#job-posting-list li {
+#job-posting-list li:not(.sorter li) {
     flex: 0 0 calc((100% / 3) - 1rem);
 }
 
@@ -1629,6 +1670,7 @@ button {
 .job-card .actions {
     display: flex;
     gap: 0.5rem;
+    margin-top: 1rem;
     width: 100%;
 }
 

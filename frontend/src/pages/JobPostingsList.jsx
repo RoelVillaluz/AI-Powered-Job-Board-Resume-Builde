@@ -18,6 +18,8 @@ function JobPostingsList() {
 
     const [loading, setLoading] = useState(true)
     const [isDropdownVisible, setIsDropdownVisible] = useState(false);
+    const dropdownRef = useRef(null);
+
     const [searchQuery, setSearchQuery] = useState({
         jobTitle: "",
         location: ""
@@ -210,6 +212,20 @@ function JobPostingsList() {
         }
         fetchRecommendedCompanies()
     }, [user._id])
+
+    // Close dropdown on outside click
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+        if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+            setIsDropdownVisible(false);
+        }
+        };
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+        document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
         
     return (
         <>
@@ -255,7 +271,7 @@ function JobPostingsList() {
                             <header>
                                 <h2>Top Companies</h2>
                             </header>
-                            <ul>
+                            <ul ref={dropdownRef}>
                                 {!loading && recommendedCompanies.map((company) => (
                                     <li key={company._id}>
                                         <Link to={`/companies/${company._id}`}>

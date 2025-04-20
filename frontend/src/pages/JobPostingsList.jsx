@@ -305,7 +305,9 @@ function JobPostingsList() {
                                         {sortTypes.map((type, index) => (
                                             <li key={index}>
                                                 <button>{type}</button>
-                                                {}
+                                                {type === currentSortType && (
+                                                    <i className="fa-solid fa-check"></i>
+                                                )}
                                             </li>
                                         ))}
                                     </ul>

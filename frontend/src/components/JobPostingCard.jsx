@@ -6,7 +6,7 @@ const JobPostingCard = ({ job, user }) => {
     
     return (
         <li className="job-card">
-            <Link to={`job-postings/${job._id}`}>
+            <Link to={`/job-postings/${job._id}`}>
                 <div className="wrapper">
                     {job.company.logo ? (
                         <img src={job.company.logo} alt="" />

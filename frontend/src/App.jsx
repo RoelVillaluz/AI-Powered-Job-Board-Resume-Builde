@@ -9,6 +9,7 @@ import Dashboard from "./pages/Dashboard";
 import { AuthProvider, useAuth } from "./components/AuthProvider";
 import CreateJobPosting from "./pages/CreateJob";
 import JobPostingsList from "./pages/JobPostingsList";
+import JobDetailPage from "./components/JobDetailPage";
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
 
             <Route path="/create-job-posting" element={<CreateJobPosting/>} />
             <Route path="/job-postings" element={<JobPostingsList/>} />
+            <Route path="/job-postings/:jobId" element={<JobDetailPage />} />
 
           </Routes>
         </DataProvider>

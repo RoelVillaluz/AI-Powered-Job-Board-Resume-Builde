@@ -1,0 +1,8 @@
+#job-details-page {
+    width: 100%;
+}
+
+#job-details-page header {
+    background-color: var(--disabled);
+    height: clamp(250px, 35vh, 2000px);
+}

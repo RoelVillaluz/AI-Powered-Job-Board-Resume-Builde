@@ -18,7 +18,7 @@ const JobPostingCard = ({ job, user }) => {
                         <h3>{job.company.name}</h3>
                     </div>
                 </div>
-                <h4><i className="fa-regular fa-money-bill-1"></i> ${Number(job.salary).toLocaleString()}</h4>
+                <h4><i className="fa-regular fa-money-bill-1"></i> ${Number(job.salary).toLocaleString()} / year</h4>
                 <p>{job.summary}</p>
 
                 <div className="details">

@@ -3,11 +3,13 @@ import Layout from "./Layout"
 import axios from "axios";
 import { useData } from "../DataProvider";
 import { useParams } from "react-router-dom";
+import { faL } from "@fortawesome/free-solid-svg-icons";
 
 function JobDetailPage() {
     const { baseUrl } = useData();
     const { jobId } = useParams();
     const [job, setJob] = useState(null);
+    const [loading, setLoading] = useState(true)
 
     useEffect(() => {
         const fetchJob = async () => {
@@ -18,7 +20,9 @@ function JobDetailPage() {
                 setJob(response.data.data)
             } catch (error) {
                 console.error('Error: ', error)
-            } 
+            } finally {
+                setLoading(false)
+            }
         }
         fetchJob()
     }, [jobId])
@@ -27,6 +31,7 @@ function JobDetailPage() {
         <>
             <Layout>
                 <main id="job-details-page">
+
                     <section id="job-details">
 
                         <header>
@@ -36,6 +41,7 @@ function JobDetailPage() {
                                 <h3>{job?.company?.name} • {job?.location}</h3>
                             </div>
                         </header>
+
                         <ul id="icons"> 
                             <li>
                                 <i className="fa-regular fa-clock" aria-hidden="true"></i>
@@ -68,6 +74,9 @@ function JobDetailPage() {
                         </ul>
 
                     </section>
+
+                    <section id="similar-jobs">
+
                     </section>
 
                 </main> 

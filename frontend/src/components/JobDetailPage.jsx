@@ -27,9 +27,17 @@ function JobDetailPage() {
         <>
             <Layout>
                 <main id="job-details-page">
-                    <header>
-                        <h1>{job?.title}</h1>
-                    </header>
+                    <section id="job-details">
+
+                        <header>
+                            <div className="job-overview">
+                                <img id="company-logo" src={`/${job?.company?.logo}`} alt="" />
+                                <h1>{job?.title}</h1>
+                                <h3>{job?.company?.name} • {job?.location}</h3>
+                            </div>
+                        </header>
+                    </section>
+
                 </main> 
             </Layout>
         </>

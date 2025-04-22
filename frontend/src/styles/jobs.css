@@ -50,6 +50,13 @@
     font-weight: 400;
 }
 
+#job-details .details {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    padding: 2rem;
+}
+
 #job-details #icons {
     width: 100%;
     display: flex;
@@ -57,7 +64,6 @@
     justify-content: center;
     gap: 1rem;
     list-style-type: none;
-    padding: 2rem;
 }
 
 #job-details #icons li {
@@ -67,9 +73,9 @@
     gap: 1rem;
     padding: 1.5rem;
     border-radius: 1.25rem;
+    margin-bottom: 1rem;
     background-color: var(--light-gray);
 }
-
 
 #job-details #icons li i {
     font-size: clamp(1rem, 1.25vw, 3rem);

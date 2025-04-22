@@ -72,6 +72,23 @@ function JobDetailPage() {
                                 </div>
                             </li>
                         </ul>
+                        
+                            <div className="job-details-section">
+                                <h3>Job Description</h3>
+                                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. 
+                                    Optio, a nulla placeat ex aperiam error, iure quam pariatur dicta ducimus eius asperiores cumque unde minus quaerat totam, 
+                                    reiciendis esse dolor?
+                                </p>
+                            </div>
+                            <div className="job-details-section">
+                                <h3>Requirements</h3>
+                                <ul>
+                                    {job?.requirements.map((requirement, index) => (
+                                        <li>{requirement}</li>
+                                    ))}
+                                </ul>
+                            </div>
+                        </div>
 
                     </section>
 

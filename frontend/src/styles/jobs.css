@@ -1,7 +1,54 @@
 #job-details-page {
+    display: flex;
     width: 100%;
 }
 
+#job-details {
+    flex: 3;
+    width: 100%;
+}
+
+#similar-jobs {
+    flex: 1;
+}
+
+#job-details header {
+    width: 100%;
+    height: clamp(250px, 30vh, 1000px);
+    position: relative;
+    background-color: var(--tertiary);
+    margin-bottom: 10rem;
+}
+
+.job-overview {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    flex-direction: column;
+    position: absolute;
+    transform: translate(-50%, -50%);
+    left: 50%;
+    bottom: -225px;
+}
+
+.job-overview #company-logo {
+    width: clamp(3rem, 10vw, 8rem);
+    aspect-ratio: 1 / 1;
+    border-radius: 1.5rem;
+    border: solid 5px white;
+    object-fit: cover;
+}
+
+.job-overview h1 {
+    font-size: clamp(1rem, 1vw, 5rem);
+    font-weight: 500;
+}
+
+.job-overview h3 {
+    color: rgb(50, 50, 50);
+    font-size: clamp(0.5rem, 0.8vw, 2.5rem);
+    font-weight: 400;
+}
 
 #job-details #icons {
     width: 100%;

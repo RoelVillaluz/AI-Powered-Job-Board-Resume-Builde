@@ -2,7 +2,38 @@
     width: 100%;
 }
 
-#job-details-page header {
-    background-color: var(--disabled);
-    height: clamp(250px, 35vh, 2000px);
+
+#job-details #icons {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    list-style-type: none;
+    padding: 2rem;
+}
+
+#job-details #icons li {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.5rem;
+    border-radius: 1.25rem;
+    background-color: var(--light-gray);
+}
+
+
+#job-details #icons li i {
+    font-size: clamp(1rem, 1.25vw, 3rem);
+}
+
+#job-details #icons li span {
+    font-size: clamp(0.5rem, 0.75vw, 1.5rem);
+}
+
+#job-details #icons li h4 {
+    margin-top: 0.25rem;
+    font-size: clamp(1rem, 1.5rem, 4rem);
+    font-weight: 600;
 }

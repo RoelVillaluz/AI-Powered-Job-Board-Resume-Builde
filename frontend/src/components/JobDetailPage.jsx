@@ -81,14 +81,26 @@ function JobDetailPage() {
                                     reiciendis esse dolor?
                                 </p>
                             </div>
+
                             <div className="job-details-section">
                                 <h3>Requirements</h3>
                                 <ul>
                                     {job?.requirements.map((requirement, index) => (
-                                        <li>{requirement}</li>
+                                        <li key={index}>{requirement}</li>
                                     ))}
                                 </ul>
                             </div>
+
+                            <div className="job-details-section" id="skills-section">
+                                <h3>Skills</h3>
+                                <div>progress bar skills matched for checklist</div>
+                                <ul>
+                                    {job?.skills.map((skill, index) => (
+                                        <li key={index}>{skill.name} {skill?.level}</li>
+                                    ))}
+                                </ul>
+                            </div>
+
                         </div>
 
                     </section>

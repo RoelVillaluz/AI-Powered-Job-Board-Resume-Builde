@@ -96,7 +96,13 @@ function JobDetailPage() {
                                 <div>progress bar skills matched for checklist</div>
                                 <ul>
                                     {job?.skills.map((skill, index) => (
-                                        <li key={index}>{skill.name} {skill?.level}</li>
+                                        <li key={index}>
+                                            <div class="checkbox-wrapper-19">
+                                                <input type="checkbox" id={`cbtest-19 ${skill.name}`} />
+                                                <label for={`cbtest-19 ${skill.name}`} class="check-box" />
+                                            </div>
+                                            <label htmlFor={`${skill.name}-checkbox`}>{skill.name} {skill.level}</label>
+                                        </li>
                                     ))}
                                 </ul>
                             </div>

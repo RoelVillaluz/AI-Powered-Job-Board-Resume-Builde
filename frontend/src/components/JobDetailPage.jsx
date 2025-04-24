@@ -26,6 +26,9 @@ function JobDetailPage() {
         }
         fetchJob()
     }, [jobId])
+    useEffect(() => {
+        document.title = `${job?.title} - ${job?.company.name}`
+    }, [job?._id])
 
     return (
         <>

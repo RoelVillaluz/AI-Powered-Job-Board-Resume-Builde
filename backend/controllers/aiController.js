@@ -36,7 +36,7 @@ export const getJobRecommendations = async (req, res) => {
         ]
 
         // Get jobs 
-        const jobs = await JobPosting.find({ _id: {$nin: [...user.savedJobs, ...user.appliedJobs] } }).populate("company", "name logo");
+        const jobs = await JobPosting.find({ _id: {$nin: [...user.savedJobs, ...user.appliedJobs] } }).populate("company", "name logo industry");
         if (!jobs.length) {
             return sendResponse(res, { ...STATUS.ERROR.NOT_FOUND, success: false }, 'Jobs')
         }

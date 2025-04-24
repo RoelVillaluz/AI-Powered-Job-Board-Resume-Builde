@@ -1712,68 +1712,10 @@ button {
     font-size: clamp(0.5rem, 0.6vw, 1rem);
 }
 
-
-@-moz-keyframes dothabottomcheck-19 {
-    0% {
-      height: 0;
-    }
-    100% {
-      height: calc(var(--checkbox-height) / 2);
-    }
-}
-
-@-webkit-keyframes dothabottomcheck-19 {
-    0% {
-      height: 0;
-    }
-    100% {
-      height: calc(var(--checkbox-height) / 2);
-    }
-}
-
-@keyframes dothabottomcheck-19 {
-    0% {
-      height: 0;
-    }
-    100% {
-      height: calc(var(--checkbox-height) / 2);
-    }
-}
-
-@keyframes dothatopcheck-19 {
-    0% {
-      height: 0;
-    }
-    50% {
-      height: 0;
-    }
-    100% {
-      height: calc(var(--checkbox-height) * 1.2);
-    }
-}
-
-@-webkit-keyframes dothatopcheck-19 {
-    0% {
-      height: 0;
-    }
-    50% {
-      height: 0;
-    }
-    100% {
-      height: calc(var(--checkbox-height) * 1.2);
-    }
-}
-
-@-moz-keyframes dothatopcheck-19 {
-    0% {
-      height: 0;
-    }
-    50% {
-      height: 0;
-    }
-    100% {
-      height: calc(var(--checkbox-height) * 1.2);
-    }
+.checkbox-wrapper-19 {
+    box-sizing: border-box;
+    --background-color: #fff;
+    --checkbox-height: 25px;
 }
 
 .checkbox-wrapper-19 input[type=checkbox] {

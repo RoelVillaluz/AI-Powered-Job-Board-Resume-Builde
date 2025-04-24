@@ -1,4 +1,5 @@
 import { useState, useImperativeHandle, forwardRef } from "react"
+import { industryChoices } from "../../../backend/constants";
 
 const FilterSidebar = forwardRef(({ filters, setFilters, allResumeSkills }, ref) => {
     const [hiddenSections, setHiddenSections] = useState([]);
@@ -23,6 +24,10 @@ const FilterSidebar = forwardRef(({ filters, setFilters, allResumeSkills }, ref)
         "Application Status": {
             "choices": ['saved', 'applied'],
             "filterType": "applicationStatus"
+        },
+        "Industry": {
+            "choices": [...Object.keys(industryChoices)],
+            "filterType": "industry"
         }
     }
 

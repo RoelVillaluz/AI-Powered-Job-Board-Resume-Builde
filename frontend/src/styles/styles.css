@@ -1585,7 +1585,9 @@ button {
     padding: 1rem;
 }
 
-.sorter li:hover {
+.sorter li:hover,
+.sorter li.active
+{
     background-color: var(--tertiary);
 }
 

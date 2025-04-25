@@ -476,6 +476,12 @@ button {
     background-color: rgb(20, 20, 20);
 }
 
+.save-btn {
+    border-radius: 10px;
+    border: solid 1px black;
+    padding: 10px;
+}
+
 #top-job {
     display: flex;
     flex-direction: column;
@@ -550,7 +556,6 @@ button {
     justify-content: center;
     gap: 0.5rem;
     border-radius: 10px;
-    border: none;
     outline: none;
     cursor: pointer;
 }
@@ -559,13 +564,11 @@ button {
     flex: 8;
     background-color: black;
     color: white;
+    border: none;
 }
 
-#top-job #save-btn {
+#top-job .save-btn {
     flex: 1;
-    border-radius: 10px;
-    border: solid 1px black;
-    padding: 10px;
 }
 
 #recommended-jobs-link {
@@ -1697,7 +1700,6 @@ button {
 }
 
 .job-card .actions button {
-    border: none;
     outline: none;
     cursor: pointer;
 }
@@ -1707,14 +1709,12 @@ button {
     background-color: black;
     color: white;
     padding: 0.75rem;
+    border: none;
     border-radius: 8px;
 }
 
-.job-card .actions #save-btn {
+.job-card .actions .save-btn {
     flex: 1;
-    border-radius: 10px;
-    border: solid 1px black;
-    padding: 10px;
 }
 
 .job-card .actions .match-score {

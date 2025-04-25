@@ -46,7 +46,7 @@ const JobPostingCard = ({ job, user }) => {
             <div className="actions">
 
                 <button className="apply-btn">Apply</button>
-                <button id="save-btn" onClick={(e) => toggleSaveJob(e, job._id)} aria-label="Save job">
+                <button className="save-btn" onClick={(e) => toggleSaveJob(e, job._id)} aria-label="Save job">
                     <i className={`fa-${user.savedJobs.includes(job._id) ? 'solid' : 'regular'} fa-bookmark`}></i>
                 </button>
                 {job.similarity && (

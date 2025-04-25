@@ -85,7 +85,7 @@ function TopJobSection({ user, resume, shuffledSkills }) {
                                         {user.appliedJobs.some(application => application.jobPosting._id === topJob._id) ? 'Unapply': 'Apply Now'}
                                     </button>
 
-                                    <button id="save-btn" onClick={(e) => toggleSaveJob(e, topJob._id)} aria-label="Save job">
+                                    <button className="save-btn" onClick={(e) => toggleSaveJob(e, topJob._id)} aria-label="Save job">
                                         <i className={`fa-${user.savedJobs.includes(topJob._id) ? 'solid': 'regular'} fa-bookmark`}></i>
                                     </button>
 

@@ -54,6 +54,9 @@ const companySchema = new mongoose.Schema({
         type: Number,
         default: 0.0,
     },
+    banner: {
+        type: String
+    },
 }, { timestamps: true })
 
 

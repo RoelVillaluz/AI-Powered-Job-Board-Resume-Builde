@@ -461,6 +461,21 @@ button {
     animation: floatUpAndDown 2s ease-in-out infinite;
 }
 
+.apply-btn {
+    background-color: black;
+    color: white;
+    border: none;
+    outline: none;
+    padding: 0.75rem 1.75rem;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.apply-btn:hover {
+    background-color: rgb(20, 20, 20);
+}
+
 #top-job {
     display: flex;
     flex-direction: column;
@@ -540,7 +555,7 @@ button {
     cursor: pointer;
 }
 
-#top-job #apply-btn {
+#top-job .apply-btn {
     flex: 8;
     background-color: black;
     color: white;
@@ -1687,7 +1702,7 @@ button {
     cursor: pointer;
 }
 
-.job-card .actions #apply-btn {
+.job-card .actions .apply-btn {
     flex: 8;
     background-color: black;
     color: white;

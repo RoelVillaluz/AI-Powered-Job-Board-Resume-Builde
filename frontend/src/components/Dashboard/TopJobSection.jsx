@@ -81,7 +81,7 @@ function TopJobSection({ user, resume, shuffledSkills }) {
 
                                 <div className="actions">
 
-                                    <button id="apply-btn" onClick={(e) => toggleApplyJob(e, topJob._id, resume)} aria-label="Apply to job">
+                                    <button className="apply-btn" onClick={(e) => toggleApplyJob(e, topJob._id, resume)} aria-label="Apply to job">
                                         {user.appliedJobs.some(application => application.jobPosting._id === topJob._id) ? 'Unapply': 'Apply Now'}
                                     </button>
 

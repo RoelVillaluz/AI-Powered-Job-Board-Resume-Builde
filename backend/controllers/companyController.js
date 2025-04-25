@@ -29,6 +29,13 @@ export const getCompany = async (req, res) => {
             console.log("Normalized user company logo:", company.logo); // Debugging: Check normalized path
         }
 
+        if (company.banner) {
+            console.log("Original user company banner", company.banner) // Debugging: Check original banner
+            company.banner = company.banner.replace(/\\/g, '/');
+            company.banner = `company_banners/${company.banner.split('/').pop()}`
+            console.log("Normalized user company banner:", company.banner); // Debugging: Check normalized path
+        }
+
         return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.FETCH, data: company}, 'Company')
     } catch (error) {
         console.error(error)

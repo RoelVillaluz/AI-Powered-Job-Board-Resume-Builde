@@ -19,6 +19,9 @@
     border-radius: 10px;
     border: solid 1px rgba(0, 0, 0, 0.1);
 }
+
+#job-details section {
+    border: solid 1px rgba(0, 0, 0, 0.1);
 }
 
 #job-details .company-banner-image {
@@ -79,6 +82,7 @@
 .job-overview {
     margin: 1rem;
     margin-right: 0;
+    padding-bottom: 2rem;
 }
 
 .job-overview h1 {

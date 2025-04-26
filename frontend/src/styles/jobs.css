@@ -4,14 +4,35 @@
 }
 
 #job-details {
-    flex: 3;
+    flex: 0 0 70%;
     width: 100%;
+    margin: 1rem;
+    padding: 1.5rem;
+    border-radius: 10px;
+    border: solid 1px rgba(0, 0, 0, 0.1);
 }
 
 #similar-jobs {
-    flex: 1;
+    flex: 0 0 30%;
 }
 
+#job-details header {
+    width: 100%;
+}
+
+#job-details .company-banner-image {
+    width: 100%;
+    height: clamp(250px, 30vh, 1000px);
+    border-radius: 8px;
+    object-fit: cover;
+}
+
+#job-details header .banner {
+    width: 100%;
+    height: clamp(250px, 30vh, 1000px);
+    background-color: var(--light-gray);
+    border-radius: 8px;
+}
 #job-details header {
     width: 100%;
     height: clamp(250px, 30vh, 1000px);

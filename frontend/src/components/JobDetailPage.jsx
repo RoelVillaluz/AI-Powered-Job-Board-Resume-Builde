@@ -38,7 +38,13 @@ function JobDetailPage() {
                     <section id="job-details">
 
                         <header>
-                            <div className="job-overview">
+                            {job?.company?.banner ? (
+                                <img src={`/${job?.company?.banner}`} className="company-banner-image"></img>
+                            ) : (
+                                <div className="banner">
+                                </div>
+                            )}
+                            <div className="icons">
                                 <img id="company-logo" src={`/${job?.company?.logo}`} alt="" />
                                 <h1>{job?.title}</h1>
                                 <h3>{job?.company?.name} • {job?.location}</h3>

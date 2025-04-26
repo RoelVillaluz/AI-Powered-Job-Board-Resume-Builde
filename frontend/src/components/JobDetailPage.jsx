@@ -108,6 +108,38 @@ function JobDetailPage() {
                                 </div>
                             </div>
                         </header>
+                        <section className="job-highlights">
+                            <ul className="">
+                                <li>
+                                    <i className="fa-solid fa-user-tie" aria-hidden="true"></i>
+                                    <div>
+                                        <h5>Experience Level</h5>
+                                        <h3>{job?.experienceLevel}</h3>
+                                    </div>
+                                </li>
+                                <li>
+                                    <i className="fa-solid fa-briefcase" aria-hidden="true"></i>
+                                    <div>
+                                        <h5>Job Type</h5>
+                                        <h3>{job?.jobType}</h3>
+                                    </div>
+                                </li>
+                                <li>
+                                    <i className="fa-solid fa-house-laptop" aria-hidden="true"></i>
+                                    <div>
+                                        <h5>Work Setup</h5>
+                                        <h3>Remote</h3>
+                                    </div>
+                                </li>
+                                <li>
+                                    <i className="fa-solid fa-industry" aria-hidden="true"></i>
+                                    <div>
+                                        <h5>Industry</h5>
+                                        <h3>{job?.company?.industry[0]}</h3>
+                                    </div>
+                                </li>
+                            </ul>
+                        </section>
                     </section>
 
                     <section id="job-company-details">

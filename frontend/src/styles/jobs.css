@@ -124,7 +124,7 @@
 }
 
 .job-overview .row:nth-of-type(2) {
-    align-items: end;
+    align-items: center;
     justify-content: space-between;
 }
 
@@ -136,144 +136,36 @@
 
 .job-overview .apply-btn {
     border: none;
+    border-radius: 10px;
 }
 
-
-/* 
-#job-details header {
-    width: 100%;
-    height: clamp(250px, 30vh, 1000px);
-    position: relative;
-    background-color: var(--tertiary);
-    margin-bottom: 10rem;
+.job-overview .save-btn {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
 }
 
-.job-overview {
+.job-overview .applicants {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 0.25rem;
-    position: absolute;
-    transform: translateY(-50%);
-    left: 2.5%;
-    bottom: -225px;
-    width: 100%;
+    justify-self: end;
+    margin-top: 0.75rem;
 }
 
-.job-overview #company-logo {
-    width: clamp(3rem, 10vw, 8rem);
+.job-overview .applicants img {
+    width: clamp(0.5rem, 1.5vw, 2rem);
     aspect-ratio: 1 / 1;
-    border-radius: 1.5rem;
-    border: solid 5px var(--primary);
+    border-radius: 50%;
+    border: solid 1px var(--primary);
     object-fit: cover;
 }
 
-.job-overview h1 {
-    font-size: clamp(1rem, 1vw, 5rem);
+.job-overview .applicants img:not(:first-of-type) {
+    margin-left: -8px;
+}
+
+.job-overview .applicants span {
+    color: gray;
+    font-size: clamp(0.5rem, 0.85rem, 1.25rem);
     font-weight: 500;
-}
-
-.job-overview h3 {
-    color: rgb(50, 50, 50);
-    font-size: clamp(0.5rem, 0.8vw, 2.5rem);
-    font-weight: 400;
-}
-
-#job-details .details {
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
-    padding: 2rem;
-}
-
-#job-details #icons {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 1rem;
-    list-style-type: none;
-}
-
-#job-details #icons li {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 1.5rem;
-    border-radius: 1.25rem;
-    margin-bottom: 1rem;
-    background-color: var(--light-gray);
-}
-
-#job-details #icons li i {
-    font-size: clamp(1rem, 1.25vw, 3rem);
-}
-
-#job-details #icons li span {
-    font-size: clamp(0.5rem, 0.75vw, 1.5rem);
-}
-
-#job-details #icons li h4 {
-    margin-top: 0.25rem;
-    font-size: clamp(1rem, 1.5rem, 4rem);
-    font-weight: 600;
-}
-
-.job-details-section {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-}
-
-.job-details-section h3 {
-    font-size: clamp(0.75rem, 1.25vw, 4rem);
-    font-weight: 600;
-}
-
-.job-details-section p {
-    color: gray;
-    font-size: clamp(0.5rem, 0.85vw, 3rem);
-    line-height: 1.35rem;
-    max-width: 85%;
-}
-
-.job-details-section ul {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-}
-
-.job-details-section#skills-section ul {
-    list-style-type: none;
-}
-
-.job-details-section li {
-    color: gray;
-    margin-left: 1rem;
-}
-
-.job-details-section#skills-section .wrapper {
-    align-items: center;
-}
-
-.job-details-section#skills-section .wrapper i {
-    margin-left: 1rem;
-}
-
-.job-details-section#skills-section .wrapper span {
-    color: rgb(110, 110, 110);
-    margin-top: 4px;
     margin-left: 0.5rem;
 }
-
-.job-details-section#skills-section li {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-left: 0;
-}
-
-.job-details-section#skills-section label {
-    cursor: pointer;
-} */

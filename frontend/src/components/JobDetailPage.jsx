@@ -92,13 +92,17 @@ function JobDetailPage() {
                                     </div>
                                     <div>
                                         <div className="actions">
-                                            <button className="apply-btn">Apply Now</button>
-                                            <button className="save-btn">
-                                                <i className="fa-regular fa-bookmark"></i>
-                                            </button>
-                                        </div>
-                                        <p>0 Applicants</p>
+                                        <button className="apply-btn">Apply Now</button>
+                                        <button className="save-btn">
+                                            <i className="fa-regular fa-bookmark"></i>
+                                        </button>
                                     </div>
+                                </div>
+                                <div className="applicants">
+                                    <img src="/media/pexels-alipli-15003448.jpg" alt="Applicant Image" />
+                                    <img src="/media/pexels-anthonyshkraba-production-8278885.jpg" alt="Applicant Image" />
+                                    <img src="/media/pexels-tima-miroshnichenko-6694958.jpg" alt="Applicant Image" />
+                                    <span>3 Applicants</span>
                                 </div>
                             </div>
                         </header>

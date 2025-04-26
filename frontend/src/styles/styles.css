@@ -480,6 +480,7 @@ button {
     border-radius: 10px;
     border: solid 1px black;
     padding: 10px;
+    cursor: pointer;
 }
 
 #top-job {

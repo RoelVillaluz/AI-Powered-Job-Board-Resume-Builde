@@ -4,12 +4,17 @@ import axios from "axios";
 import { useData } from "../DataProvider";
 import { useParams } from "react-router-dom";
 import { faL } from "@fortawesome/free-solid-svg-icons";
+import Resume from "../../../backend/models/resumeModel";
 
 function JobDetailPage() {
     const { baseUrl } = useData();
     const { jobId } = useParams();
     const [job, setJob] = useState(null);
     const [loading, setLoading] = useState(true)
+
+    const [userPreferences, setUserPreferences] = useState({
+
+    })
 
     useEffect(() => {
         const fetchJob = async () => {
@@ -26,6 +31,23 @@ function JobDetailPage() {
         }
         fetchJob()
     }, [jobId])
+
+    const handleAddSkill = async (resumeId, newSkill) => {
+        const currentResume = user.resumes.find(resume => resume._id === resumeId)
+        if (!currentResume || currentResume.skills.includes(newSkill)) return;
+
+        const updatedSkills = [...currentResume.skills, newSkill]
+
+        try {
+            const response = await axios.patch(`${baseUrl}/resumes/${resumeId}`, {
+                ...currentResume,
+                skills: [updatedSkills]
+            })
+        } catch (error) {
+            console.error('Failed to add skill:', error);
+        }
+    }
+
     useEffect(() => {
         document.title = `${job?.title} - ${job?.company.name}`
     }, [job?._id])
@@ -36,7 +58,6 @@ function JobDetailPage() {
                 <main id="job-details-page">
 
                     <section id="job-details">
-
                         <header>
                             {job?.company?.banner ? (
                                 <img src={`/${job?.company?.banner}`} className="company-banner-image"></img>
@@ -45,82 +66,45 @@ function JobDetailPage() {
                                 </div>
                             )}
                             <div className="icons">
-                                <img id="company-logo" src={`/${job?.company?.logo}`} alt="" />
-                                <h1>{job?.title}</h1>
-                                <h3>{job?.company?.name} • {job?.location}</h3>
+                                <img src={`/${job?.company?.logo}`} alt={`${job?.company?.name} logo`} className="company-logo" />
+                                <div className="socials">
+                                    <div className="social-media-icon">
+                                        <i className="fa-brands fa-facebook"></i>
+                                    </div>
+                                    <div className="social-media-icon">
+                                        <i className="fa-brands fa-linkedin-in"></i>
+                                    </div>
+                                    <div className="social-media-icon">
+                                        <i className="fa-solid fa-share-nodes"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="job-overview">
+                                <div className="row">
+                                    <h1>{job?.title}</h1>
+                                    <span className="posted-at">Posted 2 days ago</span>
+                                    <h2>${Number(job?.salary).toLocaleString()}<span>/year</span></h2>
+                                </div>
+                                <div className="row">
+                                    <div>
+                                        <h3>{job?.company?.name}</h3>
+                                        <h4>{job?.company?.location}</h4>
+                                    </div>
+                                    <div>
+                                        <div className="actions">
+                                            <button className="apply-btn">Apply Now</button>
+                                            <button className="save-btn">
+                                                <i className="fa-regular fa-bookmark"></i>
+                                            </button>
+                                        </div>
+                                        <p>0 Applicants</p>
+                                    </div>
+                                </div>
                             </div>
                         </header>
-
-                        <div className="details">
-                            <ul id="icons"> 
-                                <li>
-                                    <i className="fa-regular fa-clock" aria-hidden="true"></i>
-                                    <div>
-                                        <span>Job Type</span>
-                                        <h4>{job?.jobType}</h4>
-                                    </div>
-                                </li>
-                                <li>
-                                    <i className="fa-solid fa-user-tie" aria-hidden="true"></i>
-                                    <div>
-                                        <span>Experience Level</span>
-                                        <h4>{job?.experienceLevel}</h4>
-                                    </div>
-                                </li>
-                                <li>
-                                    <i className="fa-regular fa-money-bill-1" aria-hidden="true"></i>
-                                    <div>
-                                        <span>Salary</span>
-                                        <h4>${Number(job?.salary).toLocaleString()} / year</h4> 
-                                    </div>
-                                </li>
-                                <li>
-                                    <i className="fa-solid fa-users" aria-hidden="true"></i>
-                                    <div>
-                                        <span>Number of applicants</span>
-                                        <h4>0</h4> 
-                                    </div>
-                                </li>
-                            </ul>
-                        
-                            <div className="job-details-section">
-                                <h3>Job Description</h3>
-                                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. 
-                                    Optio, a nulla placeat ex aperiam error, iure quam pariatur dicta ducimus eius asperiores cumque unde minus quaerat totam, 
-                                    reiciendis esse dolor?
-                                </p>
-                            </div>
-
-                            <div className="job-details-section">
-                                <h3>Requirements</h3>
-                                <ul>
-                                    {job?.requirements.map((requirement, index) => (
-                                        <li key={index}>{requirement}</li>
-                                    ))}
-                                </ul>
-                            </div>
-
-                            <div className="job-details-section" id="skills-section">
-                                <h3>Skills</h3>
-                                <div>progress bar skills matched for checklist</div>
-                                <ul>
-                                    {job?.skills.map((skill, index) => (
-                                        <li key={index}>
-                                            <div class="checkbox-wrapper-19">
-                                                <input type="checkbox" id={`cbtest-19 ${skill.name}`} />
-                                                <label for={`cbtest-19 ${skill.name}`} class="check-box" />
-                                            </div>
-                                            <label htmlFor={`${skill.name}-checkbox`}>{skill.name} {skill.level}</label>
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
-
-                        </div>
-
                     </section>
 
-                    <section id="similar-jobs">
+                    <section id="job-company-details">
 
                     </section>
 

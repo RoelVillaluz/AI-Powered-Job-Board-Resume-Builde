@@ -139,7 +139,9 @@
     border-radius: 10px;
 }
 
-.job-overview .save-btn {
+.job-overview .save-btn,
+.job-overview .settings-btn
+{
     padding-left: 1.5rem;
     padding-right: 1.5rem;
 }

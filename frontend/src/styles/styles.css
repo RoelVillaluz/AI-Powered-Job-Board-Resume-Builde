@@ -476,7 +476,9 @@ button {
     background-color: rgb(20, 20, 20);
 }
 
-.save-btn {
+.save-btn,
+.settings-btn 
+{
     border-radius: 10px;
     border: solid 1px black;
     padding: 10px;

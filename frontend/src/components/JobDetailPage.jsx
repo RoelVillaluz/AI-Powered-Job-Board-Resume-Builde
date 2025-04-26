@@ -90,11 +90,13 @@ function JobDetailPage() {
                                         <h3>{job?.company?.name}</h3>
                                         <h4>{job?.company?.location}</h4>
                                     </div>
-                                    <div>
-                                        <div className="actions">
+                                    <div className="actions">
                                         <button className="apply-btn">Apply Now</button>
                                         <button className="save-btn">
                                             <i className="fa-regular fa-bookmark"></i>
+                                        </button>
+                                        <button className="settings-btn">
+                                            <i className="fa-solid fa-gear"></i>
                                         </button>
                                     </div>
                                 </div>

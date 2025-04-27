@@ -5,6 +5,7 @@ import { useData } from "../DataProvider";
 import { useParams } from "react-router-dom";
 import { faL } from "@fortawesome/free-solid-svg-icons";
 import Resume from "../../../backend/models/resumeModel";
+import { useAuth } from "./AuthProvider";
 
 function JobDetailPage() {
     const { baseUrl } = useData();
@@ -107,8 +108,8 @@ function JobDetailPage() {
                                     </div>
                                     <div className="actions">
                                         <button className="apply-btn">Apply Now</button>
-                                        <button className="save-btn">
-                                            <i className="fa-regular fa-bookmark"></i>
+                                        <button className="save-btn" onClick={(e) => toggleSaveJob(e, job._id)} aria-label="Save job">
+                                            <i className={`fa-${user?.savedJobs.includes(job?._id) ? 'solid' : 'regular'} fa-bookmark`}></i>
                                         </button>
                                         <button className="settings-btn">
                                             <i className="fa-solid fa-gear"></i>

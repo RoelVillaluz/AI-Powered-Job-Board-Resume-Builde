@@ -64,7 +64,7 @@ function JobDetailPage() {
     }
 
     useEffect(() => {
-        document.title = `${job?.title} - ${job?.company.name}`
+        document.title = `${job?.title} - ${company?.name}`
     }, [job?._id])
 
     return (
@@ -74,14 +74,14 @@ function JobDetailPage() {
 
                     <section id="job-details">
                         <header>
-                            {job?.company?.banner ? (
-                                <img src={`/${job?.company?.banner}`} className="company-banner-image"></img>
+                            {company?.banner ? (
+                                <img src={`/${company?.banner}`} className="company-banner-image" alt={`${company?.name} banner`}></img>
                             ) : (
                                 <div className="banner">
                                 </div>
                             )}
                             <div className="icons">
-                                <img src={`/${job?.company?.logo}`} alt={`${job?.company?.name} logo`} className="company-logo" />
+                                <img src={`/${company?.logo}`} alt={`${company?.name} logo`} className="company-logo" />
                                 <div className="socials">
                                     <div className="social-media-icon">
                                         <i className="fa-brands fa-facebook"></i>
@@ -102,8 +102,8 @@ function JobDetailPage() {
                                 </div>
                                 <div className="row">
                                     <div>
-                                        <h3>{job?.company?.name}</h3>
-                                        <h4>{job?.company?.location}</h4>
+                                        <h3>{company?.name}</h3>
+                                        <h4>{company?.location}</h4>
                                     </div>
                                     <div className="actions">
                                         <button className="apply-btn">Apply Now</button>
@@ -150,7 +150,7 @@ function JobDetailPage() {
                                     <i className="fa-solid fa-industry" aria-hidden="true"></i>
                                     <div>
                                         <h5>Industry</h5>
-                                        <h3>{job?.company?.industry[0]}</h3>
+                                        <h3>{company?.industry[0]}</h3>
                                     </div>
                                 </li>
                             </ul>

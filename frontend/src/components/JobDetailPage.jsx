@@ -10,6 +10,7 @@ function JobDetailPage() {
     const { baseUrl } = useData();
     const { jobId } = useParams();
     const [job, setJob] = useState(null);
+    const [company, setCompany] = useState(null);
     const [loading, setLoading] = useState(true)
 
     const [userPreferences, setUserPreferences] = useState({
@@ -31,6 +32,20 @@ function JobDetailPage() {
         }
         fetchJob()
     }, [jobId])
+
+    useEffect(() => {
+        const fetchCompany = async () => {
+            try {
+                const response = await axios.get(`${baseUrl}/companies/${job?.company?._id}`)
+                console.log('Company: ', response.data.data)
+
+                setCompany(response.data.data)
+            } catch (error) {
+                console.error('Error: ', error)
+            }
+        }
+        fetchCompany()
+    }, [job?.company])
 
     const handleAddSkill = async (resumeId, newSkill) => {
         const currentResume = user.resumes.find(resume => resume._id === resumeId)

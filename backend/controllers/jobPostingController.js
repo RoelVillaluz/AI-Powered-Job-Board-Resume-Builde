@@ -5,7 +5,7 @@ import User from "../models/userModel.js";
 
 export const getJobPostings = async (req, res) => {
     try {
-        const jobPostings = await JobPosting.find({}).populate("company", "name logo");
+        const jobPostings = await JobPosting.find({}).populate("company", "id name logo");
         return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.FETCH, data: jobPostings }, 'Job postings')
     } catch (error) {
         console.error(error)
@@ -16,7 +16,7 @@ export const getJobPostings = async (req, res) => {
 export const getJobPosting = async (req, res) => {
     const { id } = req.params
     try {
-        const jobPosting = await JobPosting.findById(id).populate("company", "name logo banner location");
+        const jobPosting = await JobPosting.findById(id).populate("company", "id name logo");
         if (!jobPosting) {
             return res.status(404).json({ success: false, message: 'Job posting not found' })
         }

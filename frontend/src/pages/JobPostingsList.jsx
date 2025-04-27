@@ -251,7 +251,7 @@ function JobPostingsList() {
             case "Z-A":
                 return [...filteredJobs].sort((a, b) => b.title.localeCompare(a.title))
             case "Newest First":
-                return [...filteredJobs].sort((a, b) => a.postedAt.localeCompare(b.postedAt))
+                return [...filteredJobs].sort((a, b) => b.postedAt.localeCompare(a.postedAt))
             case "Highest Salary":
                 return [...filteredJobs].sort((a, b) => b.salary - a.salary)
             default:

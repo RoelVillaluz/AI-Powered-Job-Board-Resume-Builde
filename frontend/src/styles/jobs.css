@@ -35,6 +35,7 @@
     color: gray;
     font-size: clamp(0.5rem, 0.85vw, 1.5rem);
     letter-spacing: -0.25px;
+    line-height: clamp(1rem, 1.25vw, 1.75rem);
     margin-top: 0.75rem;
 }
 

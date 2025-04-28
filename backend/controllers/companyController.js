@@ -36,11 +36,13 @@ export const getCompany = async (req, res) => {
             console.log("Normalized user company banner:", company.banner); // Debugging: Check normalized path
         }
 
-        if (company.images) {
-            console.log("Original user company images", company.images) // Debugging: Check original images
-            company.images = company.images.replace(/\\/g, '/');
-            company.images = `company_imagess/${company.images.split('/').pop()}`
-            console.log("Normalized user company images:", company.images); // Debugging: Check normalized path
+        if (company.images && company.images.length > 0) {
+            console.log("Original company images", company.images) // Debugging: Check original images path
+            company.images = company.images.map((img) => {
+                const normalizedPath = img.replace(/\\/g, '/');
+                return `company_images/${normalizedPath.split('/').pop()}`;
+            })
+            console.log("Normalized user company images:", company.images);
         }
 
         return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.FETCH, data: company}, 'Company')

@@ -25,6 +25,18 @@
     background-color: white;
 }
 
+#job-details section h3 {
+    font-size: clamp(1rem, 1vw, 2.5rem);
+    font-weight: 600;
+    letter-spacing: -0.5px;
+}
+
+#job-details section p {
+    color: gray;
+    letter-spacing: -0.25px;
+    margin-top: 0.75rem;
+}
+
 #job-details section:not(.job-highlights) {
     border-radius: 10px;
     border: solid 1px rgba(0, 0, 0, 0.1);

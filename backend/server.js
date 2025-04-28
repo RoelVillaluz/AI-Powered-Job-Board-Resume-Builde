@@ -24,6 +24,7 @@ app.use('/profile-pictures', express.static(path.join(__dirname, 'public', 'prof
 
 app.use('/company-logos', express.static(path.join(__dirname, 'public', 'company_logos')))
 app.use('/company_banners', express.static(path.join(__dirname, 'public', 'company_banners')))
+app.use('/company_images', express.static(path.join(__dirname, 'public', 'company_images')))
 
 app.use('/api/users', userRoutes)
 app.use('/api/job-postings', jobPostingRoutes)

@@ -10,6 +10,7 @@ import { useAuth } from "./AuthProvider";
 function JobDetailPage() {
     const { baseUrl } = useData();
     const { jobId } = useParams();
+    const { user, toggleSaveJob } = useAuth();
     const [job, setJob] = useState(null);
     const [company, setCompany] = useState(null);
     const [loading, setLoading] = useState(true)
@@ -64,6 +65,26 @@ function JobDetailPage() {
         }
     }
 
+    const formatDate = (date) => {
+        const postedDate = new Date(date);
+        const now = new Date();
+        const diffTime = Math.abs(now - postedDate);
+
+        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+        if (diffDays <= 7 && diffDays !== 0) {
+            return `Posted ${diffDays} day${diffDays !== 1 ? 's' : ''} ago`
+        } else if (diffDays === 0) {
+            return 'Posted today'
+        } else {
+            return `Posted on ${postedDate.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            })}`;   
+        }
+    }
+
     useEffect(() => {
         document.title = `${job?.title} - ${company?.name}`
     }, [job?._id])
@@ -98,7 +119,7 @@ function JobDetailPage() {
                             <div className="job-overview">
                                 <div className="row">
                                     <h1>{job?.title}</h1>
-                                    <span className="posted-at">Posted 2 days ago</span>
+                                    <span className="posted-at">{formatDate(job?.postedAt)}</span>
                                     <h2>${Number(job?.salary).toLocaleString()}<span>/year</span></h2>
                                 </div>
                                 <div className="row">

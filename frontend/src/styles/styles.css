@@ -1744,7 +1744,7 @@ button {
     height: var(--checkbox-height);
     width: var(--checkbox-height);
     background-color: transparent;
-    border: calc(var(--checkbox-height) * .1) solid #000;
+    border: calc(var(--checkbox-height) * .1) solid gray;
     border-radius: 5px;
     position: relative;
     display: inline-block;

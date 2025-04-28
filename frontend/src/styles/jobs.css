@@ -33,6 +33,7 @@
 
 #job-details section p {
     color: gray;
+    font-size: clamp(0.5rem, 0.85vw, 1.5rem);
     letter-spacing: -0.25px;
     margin-top: 0.75rem;
 }
@@ -275,6 +276,7 @@
 
 #job-details #job-description li {
     color: gray;
+    font-size: clamp(0.5rem, 0.85vw, 1.5rem);
 }
 
 #job-details #skills {
@@ -293,4 +295,8 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
+}
+
+#job-details #about-the-company {
+    margin-top: 1rem;
 }

@@ -177,10 +177,55 @@ function JobDetailPage() {
                                 </li>
                             </ul>
                         </section>
+                        <div className="wrapper">
+
+                            <section id="job-description">
+
+                                <div>
+                                    <h3>Description</h3>
+                                    {job?.description ? (
+                                        <p>{job?.description}</p>
+                                    ) : (
+                                        <p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Nostrum facilis cum eligendi ratione sunt sed, accusamus quia esse temporibus rerum, blanditiis facere nam nobis repellendus ad iusto provident inventore neque!</p>
+                                    )}
+                                </div>
+
+                                <div>
+                                    <h3>Requirements</h3>
+                                    <ul>
+                                        {job?.requirements.map((requirement, index) => (
+                                            <li key={index}>{requirement}</li>
+                                        ))}
+                                    </ul>
+                                </div>
+
+                            </section>
+
+                            <section id="skills">
+                                
+                                <div>
+                                    <h3>Skills</h3>
+                                    <ul>
+                                        {job?.skills.map((skill, index) => (
+                                            <li key={index}>
+                                                <div class="checkbox-wrapper-19">
+                                                    <input type="checkbox" id={`cbtest-19 ${skill.name}`} />
+                                                    <label for={`cbtest-19 ${skill.name}`} class="check-box" />
+                                                </div>
+                                                <label htmlFor={`${skill.name}-checkbox`}>{skill.name} {skill.level}</label>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                                
+                            </section>
+
+                        </div>
                     </section>
 
-                    <section id="job-company-details">
-
+                    <section id="similarity-analysis">
+                        {/* add gauge here later for similarity percentage */}
+                        {/* add feature later here for resume selection */}
                     </section>
 
                 </main> 

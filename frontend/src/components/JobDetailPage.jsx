@@ -220,8 +220,30 @@ function JobDetailPage() {
                                 
                             </section>
 
+                        </div>
+
                         <section id="about-the-company">
                             <h3>About the Company</h3>
+                            <div className="wrapper">
+                                <div id="company-details">
+                                    <p>{company?.description}</p>
+                                    <div className="row">
+                                        <div id="rating">
+                                            <img src={`/${company?.logo}`} alt={`${company.name} logo`} />
+                                            <div style={{ marginTop: '8px' }}>
+                                                <h4>{company?.name}</h4>
+                                                <span><i className="fa-solid fa-star"></i> {company?.rating}</span>
+                                            </div>
+                                        </div>
+                                        <div id="ceo">
+                                            <img src={`/${company?.ceo?.image}`} alt={`${company.name} CEO`} />
+                                            <div style={{ marginTop: '8px' }}>
+                                                <h4>{company?.ceo?.name}</h4>
+                                                <span>CEO</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                                 <div className="images">
                                     {company?.images.slice(0, 3).map((image, index) => (
                                         <img src={`/${image}`}></img>

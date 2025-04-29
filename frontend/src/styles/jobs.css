@@ -317,6 +317,7 @@
 
 #job-details #about-the-company .wrapper {
     margin-top: 1rem;
+    gap: 3rem;
 }
 
 #job-details #about-the-company .images img {
@@ -326,4 +327,37 @@
 
 #job-details #about-the-company .images img:first-of-type {
     width: 100%;
+}
+
+#job-details #about-the-company .row {
+    align-items: center;
+    margin-top: 0.5rem;
+}
+
+#job-details #about-the-company .row h4 {
+    font-weight: 600;
+    letter-spacing: -0.25px;
+    margin-bottom: 2px;
+}
+
+#job-details #about-the-company .row span {
+    color: gray;
+    font-weight: 400;
+}
+
+#job-details #rating,
+#job-details #ceo
+{
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+#job-details #rating i {
+    color: black;
+}
+
+#job-details #ceo img {
+    border-radius: 50%;
 }

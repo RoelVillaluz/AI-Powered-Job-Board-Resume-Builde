@@ -60,6 +60,14 @@ const companySchema = new mongoose.Schema({
     images: {
         type: [String]
     },
+    CEO: {
+        name: {
+            type: String
+        },
+        image: {
+            type: String
+        }
+    }
 }, { timestamps: true })
 
 

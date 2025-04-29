@@ -298,6 +298,32 @@
     gap: 0.5rem;
 }
 
-#job-details #about-the-company {
+#job-details #about-the-company #company-details {
+    flex: 0 0 50%;
+}
+
+#job-details #about-the-company #company-details img {
+    width: clamp(1rem, 3vw, 5rem);
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
     margin-top: 1rem;
+}
+
+#job-details #about-the-company {
+    flex: 0 0 50%;
+    margin-top: 1rem;
+    overflow-x: hidden;
+}
+
+#job-details #about-the-company .wrapper {
+    margin-top: 1rem;
+}
+
+#job-details #about-the-company .images img {
+    border-radius: 1rem;
+    cursor: pointer;
+}
+
+#job-details #about-the-company .images img:first-of-type {
+    width: 100%;
 }

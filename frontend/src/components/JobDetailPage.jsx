@@ -220,7 +220,16 @@ function JobDetailPage() {
                                 
                             </section>
 
-                        </div>
+                        <section id="about-the-company">
+                            <h3>About the Company</h3>
+                                <div className="images">
+                                    {company?.images.slice(0, 3).map((image, index) => (
+                                        <img src={`/${image}`}></img>
+                                    ))}
+                                </div>
+                            </div>
+                        </section>
+
                     </section>
 
                     <section id="similarity-analysis">

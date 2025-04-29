@@ -335,13 +335,14 @@
 }
 
 #job-details #about-the-company .row h4 {
+    font-size: clamp(0.5rem, 0.75vw, 1.75rem);
     font-weight: 600;
     letter-spacing: -0.25px;
-    margin-bottom: 2px;
 }
 
 #job-details #about-the-company .row span {
     color: gray;
+    font-size: clamp(0.5rem, 0.75vw, 1.75rem);
     font-weight: 400;
 }
 

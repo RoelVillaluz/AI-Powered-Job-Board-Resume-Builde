@@ -45,6 +45,13 @@ export const getCompany = async (req, res) => {
             console.log("Normalized user company images:", company.images);
         }
 
+        if (company.ceo.image) {
+            console.log("Original user company ceo.image", company.ceo.image) // Debugging: Check original ceo image
+            company.ceo.image = company.ceo.image.replace(/\\/g, '/');
+            company.ceo.image = `ceo_profile_pictures/${company.ceo.image.split('/').pop()}`
+            console.log("Normalized user company ceo image:", company.ceo.image); // Debugging: Check normalized path
+        }
+
         return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.FETCH, data: company}, 'Company')
     } catch (error) {
         console.error(error)

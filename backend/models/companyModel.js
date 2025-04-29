@@ -60,7 +60,7 @@ const companySchema = new mongoose.Schema({
     images: {
         type: [String]
     },
-    CEO: {
+    ceo: {
         name: {
             type: String
         },

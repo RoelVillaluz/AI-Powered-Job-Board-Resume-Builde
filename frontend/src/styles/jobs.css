@@ -270,6 +270,9 @@
 }
 
 #job-details #job-description ul {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
     margin-top: 1rem;
     margin-left: 1.5rem;
 }

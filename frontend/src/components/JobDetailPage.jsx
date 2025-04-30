@@ -47,11 +47,13 @@ function JobDetailPage() {
         fetchCompany()
     }, [job?.company])
 
-    useEffect(() => {
-        if (job && company) {
-            setLoading(true)
-        }
-    }, [job, company])
+    // useEffect(() => {
+    //     if (job && company) {
+    //         setTimeout(() => {
+    //             setLoading(false)
+    //         }, 3000)
+    //     }
+    // }, [job, company])
 
     const handleAddSkill = async (resumeId, newSkill) => {
         const currentResume = user.resumes.find(resume => resume._id === resumeId)
@@ -142,7 +144,7 @@ function JobDetailPage() {
                                     <>
                                         <div className="row">
                                             <h1>{job?.title}</h1>
-                                            <span className="posted-at">{formatDate(job?.postedAt)}</span>
+                                            <span className="posted-at">{formatDate(job.postedAt)}</span>
                                             <h2>${Number(job?.salary).toLocaleString()}<span>/year</span></h2>
                                         </div>
                                         <div className="row">
@@ -185,14 +187,14 @@ function JobDetailPage() {
                                             <i className="fa-solid fa-user-tie" aria-hidden="true"></i>
                                             <div>
                                                 <h5>Experience Level</h5>
-                                                <h3>{job?.experienceLevel}</h3>
+                                                <h3>{job.experienceLevel}</h3>
                                             </div>
                                         </li>
                                         <li>
                                             <i className="fa-solid fa-briefcase" aria-hidden="true"></i>
                                             <div>
                                                 <h5>Job Type</h5>
-                                                <h3>{job?.jobType}</h3>
+                                                <h3>{job.jobType}</h3>
                                             </div>
                                         </li>
                                         <li>
@@ -206,7 +208,7 @@ function JobDetailPage() {
                                             <i className="fa-solid fa-industry" aria-hidden="true"></i>
                                             <div>
                                                 <h5>Industry</h5>
-                                                <h3>{company?.industry[0]}</h3>
+                                                <h3>{company.industry[0]}</h3>
                                             </div>
                                         </li>
                                     </>
@@ -224,10 +226,14 @@ function JobDetailPage() {
 
                                 <div>
                                     <h3>Description</h3>
-                                    {job?.description ? (
-                                        <p>{job?.description}</p>
+                                    {!loading ? (
+                                        <p>{job.description}</p>
                                     ) : (
-                                        <p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Nostrum facilis cum eligendi ratione sunt sed, accusamus quia esse temporibus rerum, blanditiis facere nam nobis repellendus ad iusto provident inventore neque!</p>
+                                        <div className="skeleton-text-group">
+                                            <div className="skeleton text max-width"></div>
+                                            <div className="skeleton text max-width"></div>
+                                            <div className="skeleton text short"></div>
+                                        </div>
                                     )}
                                 </div>
 

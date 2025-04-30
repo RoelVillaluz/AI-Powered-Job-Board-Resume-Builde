@@ -49,7 +49,7 @@ function JobDetailPage() {
 
     useEffect(() => {
         if (job && company) {
-            setLoading(false)
+            setLoading(true)
         }
     }, [job, company])
 
@@ -132,6 +132,10 @@ function JobDetailPage() {
                                     </div>
                                 </>
                                 ) : (
+                                <>
+                                    <div className="banner"></div>
+                                    <div className="company-logo skeleton"></div>
+                                </>
                             )}
                             <div className="job-overview">
                                 <div className="row">

@@ -42,6 +42,7 @@
 .job-highlights li.skeleton {
     background-color: var(--light-gray);
     border: none;
+    border-radius: 5px;
 }
 
 

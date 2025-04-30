@@ -239,11 +239,18 @@ function JobDetailPage() {
 
                                 <div>
                                     <h3>Requirements</h3>
-                                    <ul>
-                                        {job?.requirements.map((requirement, index) => (
-                                            <li key={index}>{requirement}</li>
-                                        ))}
+                                    {!loading ? (
+                                        <ul>
+                                            {job.requirements.map((requirement, index) => (
+                                                <li key={index}>{requirement}</li>
+                                            ))}
                                     </ul>
+                                    ) : (
+                                        <div className="skeleton-text-group">
+                                            <div className="skeleton text long"></div>
+                                            <div className="skeleton text long"></div>
+                                        </div>
+                                    )}
                                 </div>
 
                             </section>
@@ -252,17 +259,25 @@ function JobDetailPage() {
                                 
                                 <div>
                                     <h3>Skills</h3>
-                                    <ul>
-                                        {job?.skills.map((skill, index) => (
-                                            <li key={index}>
-                                                <div class="checkbox-wrapper-19">
-                                                    <input type="checkbox" id={`cbtest-19 ${skill.name}`} />
-                                                    <label for={`cbtest-19 ${skill.name}`} class="check-box" />
-                                                </div>
-                                                <label htmlFor={`${skill.name}-checkbox`}>{skill.name} {skill.level}</label>
-                                            </li>
-                                        ))}
-                                    </ul>
+                                    {!loading ? (
+                                        <ul>
+                                            {job.skills.map((skill, index) => (
+                                                <li key={index}>
+                                                    <div class="checkbox-wrapper-19">
+                                                        <input type="checkbox" id={`cbtest-19 ${skill.name}`} />
+                                                        <label for={`cbtest-19 ${skill.name}`} class="check-box" />
+                                                    </div>
+                                                    <label htmlFor={`${skill.name}-checkbox`}>{skill.name} {skill.level}</label>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    ) : (
+                                        <div className="skeleton-text-group">
+                                            <div className="skeleton text long"></div>
+                                            <div className="skeleton text long"></div>
+                                            <div className="skeleton text long"></div>
+                                        </div>
+                                    )}
                                 </div>
                                 
                             </section>

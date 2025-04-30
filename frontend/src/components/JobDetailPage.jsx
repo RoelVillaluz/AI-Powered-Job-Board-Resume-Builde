@@ -14,7 +14,7 @@ function JobDetailPage() {
     const [job, setJob] = useState(null);
     const [company, setCompany] = useState(null);
     const [loading, setLoading] = useState(true)
-
+    const [currentResume, setCurrentResume] = useState(null);
     const [userPreferences, setUserPreferences] = useState({
 
     })
@@ -28,8 +28,6 @@ function JobDetailPage() {
                 setJob(response.data.data)
             } catch (error) {
                 console.error('Error: ', error)
-            } finally {
-                setLoading(false)
             }
         }
         fetchJob()
@@ -48,6 +46,12 @@ function JobDetailPage() {
         }
         fetchCompany()
     }, [job?.company])
+
+    useEffect(() => {
+        if (job && company) {
+            setLoading(false)
+        }
+    }, [job, company])
 
     const handleAddSkill = async (resumeId, newSkill) => {
         const currentResume = user.resumes.find(resume => resume._id === resumeId)
@@ -177,6 +181,7 @@ function JobDetailPage() {
                                 </li>
                             </ul>
                         </section>
+
                         <div className="wrapper">
 
                             <section id="job-description">
@@ -229,19 +234,25 @@ function JobDetailPage() {
                                     <p>{company?.description}</p>
                                     <div className="row">
                                         <div id="rating">
-                                            <img src={`/${company?.logo}`} alt={`${company.name} logo`} />
+                                            <img src={`/${company?.logo}`} alt={`${company?.name} logo`} />
                                             <div style={{ marginTop: '8px' }}>
                                                 <h4>{company?.name}</h4>
-                                                <span><i className="fa-solid fa-star"></i> {company?.rating}</span>
+                                                <span><i className="fa-solid fa-star"></i> {company?.rating.toFixed(1)}</span>
                                             </div>
                                         </div>
-                                        <div id="ceo">
-                                            <img src={`/${company?.ceo?.image}`} alt={`${company.name} CEO`} />
-                                            <div style={{ marginTop: '8px' }}>
-                                                <h4>{company?.ceo?.name}</h4>
-                                                <span>CEO</span>
+                                        {company?.ceo && (
+                                            <div id="ceo">
+                                                {company?.ceo.image ? (
+                                                    <img src={`/${company?.ceo?.image}`} alt={`${company?.name} CEO`} />
+                                                ) : (
+                                                    <i className="fa-solid fa-user"></i>
+                                                )}
+                                                <div style={{ marginTop: '8px' }}>
+                                                    <h4>{company?.ceo?.name}</h4>
+                                                    <span>CEO</span>
+                                                </div>
                                             </div>
-                                        </div>
+                                        )}
                                     </div>
                                 </div>
                                 <div className="images">

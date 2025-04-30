@@ -358,6 +358,10 @@
     gap: 0.75rem;
 }
 
+#job-details #rating img {
+    border-radius: 10px;
+}
+
 #job-details #rating i {
     color: black;
 }

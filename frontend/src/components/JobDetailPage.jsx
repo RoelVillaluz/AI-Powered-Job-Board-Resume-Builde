@@ -300,10 +300,14 @@ function JobDetailPage() {
                                     )}
                                     <div className="row">
                                         <div id="rating">
-                                            <img src={`/${company?.logo}`} alt={`${company?.name} logo`} />
+                                            {!loading ? (
+                                                <img src={`/${company?.logo}`} alt={`${company?.name} logo`} />
+                                            ) : (
+                                                <div className="skeleton square"></div>
+                                            )}
                                             <div style={{ marginTop: '8px' }}>
-                                                <h4>{company?.name}</h4>
-                                                <span><i className="fa-solid fa-star"></i> {company?.rating.toFixed(1)}</span>
+                                                <h4>{!loading ? company?.name : 'Company Name'}</h4>
+                                                <span><i className="fa-solid fa-star"></i> {!loading ? company?.rating.toFixed(1) : '0.0'}</span>
                                             </div>
                                         </div>
                                         {company?.ceo && (

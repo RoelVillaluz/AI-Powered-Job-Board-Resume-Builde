@@ -6,6 +6,7 @@ import './styles/forms.css'
 import './styles/animations.css'
 import './styles/animations.css'
 import './styles/jobs.css'
+import './styles/skeleton.css'
 
 import App from './App.jsx'
 

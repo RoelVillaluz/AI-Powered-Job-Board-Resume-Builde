@@ -100,26 +100,39 @@ function JobDetailPage() {
 
                     <section id="job-details">
                         <header>
-                            {company?.banner ? (
-                                <img src={`/${company?.banner}`} className="company-banner-image" alt={`${company?.name} banner`}></img>
-                            ) : (
-                                <div className="banner">
-                                </div>
+                            {!loading ? (
+                                <>
+                                    {company.banner ? (
+                                    <img 
+                                        src={`/${company.banner}`} 
+                                        className="company-banner-image" 
+                                        alt={`${company.name} banner`}
+                                    />
+                                    ) : (
+                                    <div className="banner"></div>
+                                    )}
+                                    
+                                    <div className="icons">
+                                    <img 
+                                        src={`/${company.logo}`} 
+                                        alt={`${company.name} logo`} 
+                                        className="company-logo" 
+                                    />
+                                        <div className="socials">
+                                            <div className="social-media-icon">
+                                            <i className="fa-brands fa-facebook"></i>
+                                            </div>
+                                            <div className="social-media-icon">
+                                            <i className="fa-brands fa-linkedin-in"></i>
+                                            </div>
+                                            <div className="social-media-icon">
+                                            <i className="fa-solid fa-share-nodes"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </>
+                                ) : (
                             )}
-                            <div className="icons">
-                                <img src={`/${company?.logo}`} alt={`${company?.name} logo`} className="company-logo" />
-                                <div className="socials">
-                                    <div className="social-media-icon">
-                                        <i className="fa-brands fa-facebook"></i>
-                                    </div>
-                                    <div className="social-media-icon">
-                                        <i className="fa-brands fa-linkedin-in"></i>
-                                    </div>
-                                    <div className="social-media-icon">
-                                        <i className="fa-solid fa-share-nodes"></i>
-                                    </div>
-                                </div>
-                            </div>
                             <div className="job-overview">
                                 <div className="row">
                                     <h1>{job?.title}</h1>

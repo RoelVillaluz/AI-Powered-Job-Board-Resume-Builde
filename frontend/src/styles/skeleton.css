@@ -35,6 +35,10 @@
     width: 50%;
 }
 
+.skeleton.text.max-width {
+    width: 100%;
+}
+
 .job-highlights li.skeleton {
     background-color: var(--light-gray);
     border: none;

@@ -48,6 +48,11 @@
     border-radius: 50%;
 }
 
+.skeleton.rectangle {
+    aspect-ratio: 4 / 2;
+    border-radius: 10px;
+}
+
 #job-details .company-logo.skeleton {
     background-color: var(--light-gray);
 }
@@ -65,6 +70,10 @@
 
 #job-details #ceo .skeleton.circle {
     width: clamp(1rem, 3vw, 5rem);
+}
+
+#job-details #about-the-company .skeleton.rectangle {
+    width: 100%;
 }
 
 @keyframes skeleton-shimmer {

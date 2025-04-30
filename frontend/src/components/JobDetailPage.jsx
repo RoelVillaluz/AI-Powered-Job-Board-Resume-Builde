@@ -331,11 +331,15 @@ function JobDetailPage() {
                                         )}
                                     </div>
                                 </div>
-                                <div className="images">
-                                    {company?.images.slice(0, 3).map((image, index) => (
-                                        <img src={`/${image}`}></img>
-                                    ))}
-                                </div>
+                                {!loading ? (
+                                    <div className="images">
+                                        {company?.images.slice(0, 3).map((image, index) => (
+                                            <img src={`/${image}`}></img>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="skeleton rectangle"></div>
+                                )}
                             </div>
                         </section>
 

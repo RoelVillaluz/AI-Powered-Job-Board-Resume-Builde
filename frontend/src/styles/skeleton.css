@@ -2,6 +2,13 @@
     background-color: var(--light-gray);
 }
 
+.skeleton {
+    position: relative;
+    overflow: hidden;
+    background-color: #e6e4e3;
+}
+  
+
 .skeleton-text-group {
     display: flex;
     flex-direction: column;

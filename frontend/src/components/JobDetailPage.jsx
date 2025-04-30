@@ -288,7 +288,16 @@ function JobDetailPage() {
                             <h3>About the Company</h3>
                             <div className="wrapper">
                                 <div id="company-details">
-                                    <p>{company?.description}</p>
+                                    {!loading ? (
+                                        <p>{company?.description}</p>
+                                    ) : (
+                                        <div className="skeleton-text-group">
+                                            <div className="skeleton text max-width"></div>
+                                            <div className="skeleton text max-width"></div>
+                                            <div className="skeleton text max-width"></div>
+                                            <div className="skeleton text short"></div>
+                                        </div>
+                                    )}
                                     <div className="row">
                                         <div id="rating">
                                             <img src={`/${company?.logo}`} alt={`${company?.name} logo`} />

@@ -1,7 +1,3 @@
-#job-details .company-logo.skeleton {
-    background-color: var(--light-gray);
-}
-
 .skeleton {
     position: relative;
     overflow: hidden;
@@ -35,9 +31,15 @@
     width: 25%;
 }
 
-.skeleton.text.long{ 
+.skeleton.text.long { 
     width: 50%;
 }
+
+.job-highlights li.skeleton {
+    background-color: var(--light-gray);
+    border: none;
+}
+
 
 @keyframes skeleton-shimmer {
     0% {

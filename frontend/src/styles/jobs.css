@@ -75,10 +75,6 @@
     margin-top: -4rem;
 }
 
-#job-details .company-logo.skeleton {
-    background-color: var(--light-gray);
-}
-
 #job-details .socials {
     display: flex;
     align-items: center;

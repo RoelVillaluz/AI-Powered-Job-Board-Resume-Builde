@@ -1,0 +1,23 @@
+#job-details .company-logo.skeleton {
+    background-color: var(--light-gray);
+}
+
+.skeleton-text-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.skeleton-text {
+    background-color: var(--light-gray);
+    border-radius: 5px;
+    height: 2rem;
+}
+
+.skeleton-text.short {
+    width: 25%;
+}
+
+.skeleton-text.long{ 
+    width: 50%;
+}

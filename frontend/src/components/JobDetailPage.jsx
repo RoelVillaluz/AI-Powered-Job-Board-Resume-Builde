@@ -138,32 +138,43 @@ function JobDetailPage() {
                                 </>
                             )}
                             <div className="job-overview">
-                                <div className="row">
-                                    <h1>{job?.title}</h1>
-                                    <span className="posted-at">{formatDate(job?.postedAt)}</span>
-                                    <h2>${Number(job?.salary).toLocaleString()}<span>/year</span></h2>
-                                </div>
-                                <div className="row">
-                                    <div>
-                                        <h3>{company?.name}</h3>
-                                        <h4>{company?.location}</h4>
-                                    </div>
-                                    <div className="actions">
-                                        <button className="apply-btn">Apply Now</button>
-                                        <button className="save-btn" onClick={(e) => toggleSaveJob(e, job._id)} aria-label="Save job">
-                                            <i className={`fa-${user?.savedJobs.includes(job?._id) ? 'solid' : 'regular'} fa-bookmark`}></i>
-                                        </button>
-                                        <button className="settings-btn">
-                                            <i className="fa-solid fa-gear"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                                <div className="applicants">
-                                    <img src="/media/pexels-alipli-15003448.jpg" alt="Applicant Image" />
-                                    <img src="/media/pexels-anthonyshkraba-production-8278885.jpg" alt="Applicant Image" />
-                                    <img src="/media/pexels-tima-miroshnichenko-6694958.jpg" alt="Applicant Image" />
-                                    <span>3 Applicants</span>
-                                </div>
+                                {!loading ? (
+                                    <>
+                                        <div className="row">
+                                            <h1>{job?.title}</h1>
+                                            <span className="posted-at">{formatDate(job?.postedAt)}</span>
+                                            <h2>${Number(job?.salary).toLocaleString()}<span>/year</span></h2>
+                                        </div>
+                                        <div className="row">
+                                            <div>
+                                                <h3>{company?.name}</h3>
+                                                <h4>{company?.location}</h4>
+                                            </div>
+                                            <div className="actions">
+                                                <button className="apply-btn">Apply Now</button>
+                                                <button className="save-btn" onClick={(e) => toggleSaveJob(e, job._id)} aria-label="Save job">
+                                                    <i className={`fa-${user?.savedJobs.includes(job?._id) ? 'solid' : 'regular'} fa-bookmark`}></i>
+                                                </button>
+                                                <button className="settings-btn">
+                                                    <i className="fa-solid fa-gear"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div className="applicants">
+                                            <img src="/media/pexels-alipli-15003448.jpg" alt="Applicant Image" />
+                                            <img src="/media/pexels-anthonyshkraba-production-8278885.jpg" alt="Applicant Image" />
+                                            <img src="/media/pexels-tima-miroshnichenko-6694958.jpg" alt="Applicant Image" />
+                                            <span>3 Applicants</span>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <>
+                                        <div className="skeleton-text-group">
+                                            <div className="skeleton-text long"></div>
+                                            <div className="skeleton-text short"></div>
+                                        </div>
+                                    </>
+                                )}
                             </div>
                         </header>
                         <section className="job-highlights">

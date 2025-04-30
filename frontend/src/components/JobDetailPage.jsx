@@ -312,13 +312,19 @@ function JobDetailPage() {
                                         </div>
                                         {company?.ceo && (
                                             <div id="ceo">
-                                                {company?.ceo.image ? (
-                                                    <img src={`/${company?.ceo?.image}`} alt={`${company?.name} CEO`} />
+                                                {!loading ? (
+                                                    company?.ceo.image ? (
+                                                        <img src={`/${company?.ceo?.image}`} alt={`${company?.name} CEO`} />
+                                                    ) : (
+                                                        <i className="fa-solid fa-user"></i>
+                                                    )
                                                 ) : (
-                                                    <i className="fa-solid fa-user"></i>
+                                                    <div className="skeleton circle"></div>
                                                 )}
                                                 <div style={{ marginTop: '8px' }}>
-                                                    <h4>{company?.ceo?.name}</h4>
+                                                    {!loading && (
+                                                        <h4>{company?.ceo?.name}</h4>
+                                                    )}
                                                     <span>CEO</span>
                                                 </div>
                                             </div>

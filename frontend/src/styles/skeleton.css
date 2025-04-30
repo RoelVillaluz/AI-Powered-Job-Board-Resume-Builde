@@ -43,12 +43,29 @@
     aspect-ratio: 1 / 1;
 }
 
+.skeleton.circle {
+    aspect-ratio: 1 / 1;
+    border-radius: 50%;
+}
+
+#job-details .company-logo.skeleton {
+    background-color: var(--light-gray);
+}
+
 .job-highlights li.skeleton {
     background-color: var(--light-gray);
     border: none;
     border-radius: 5px;
 }
 
+#job-details #rating .skeleton.square {
+    width: clamp(1rem, 3vw, 5rem);
+    border-radius: 5px;
+}
+
+#job-details #ceo .skeleton.circle {
+    width: clamp(1rem, 3vw, 5rem);
+}
 
 @keyframes skeleton-shimmer {
     0% {

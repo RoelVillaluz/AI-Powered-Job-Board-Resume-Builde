@@ -35,6 +35,8 @@ function JobDetailPage() {
 
     useEffect(() => {
         const fetchCompany = async () => {
+            if (!job?.company?._id) return; 
+
             try {
                 const response = await axios.get(`${baseUrl}/companies/${job?.company?._id}`)
                 console.log('Company: ', response.data.data)
@@ -45,15 +47,13 @@ function JobDetailPage() {
             }
         }
         fetchCompany()
-    }, [job?.company])
+    }, [job?.company?._id])
 
-    // useEffect(() => {
-    //     if (job && company) {
-    //         setTimeout(() => {
-    //             setLoading(false)
-    //         }, 3000)
-    //     }
-    // }, [job, company])
+    useEffect(() => {
+        if (job && company) {
+            setLoading(false)
+        }
+    }, [job, company])
 
     const handleAddSkill = async (resumeId, newSkill) => {
         const currentResume = user.resumes.find(resume => resume._id === resumeId)
@@ -227,7 +227,11 @@ function JobDetailPage() {
                                 <div>
                                     <h3>Description</h3>
                                     {!loading ? (
-                                        <p>{job.description}</p>
+                                        job.description ? (
+                                            <p>{job.description}</p>
+                                        ) : (
+                                            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Perspiciatis facere laborum, impedit iusto fugit porro sequi sint vitae odio ut neque qui, esse mollitia. Corporis cumque veniam enim aliquid adipisci!</p>
+                                        )
                                     ) : (
                                         <div className="skeleton-text-group">
                                             <div className="skeleton text max-width"></div>

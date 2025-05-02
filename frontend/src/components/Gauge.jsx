@@ -35,7 +35,7 @@ function Gauge({ progress, messages, loading, objectName = null }) {
                     }}
                 >
                 </div>
-                <div className={`gauge-cover ${!loading ? '' : 'skeleton'}`}>
+                <div className={`gauge-cover`}>
                     {!loading ? (
                         <>
                             <h2>{Math.round(progress * 100)}<span>%</span></h2>

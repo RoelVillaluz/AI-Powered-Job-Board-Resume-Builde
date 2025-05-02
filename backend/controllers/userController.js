@@ -55,23 +55,32 @@ export const getUser = async (req, res) => {
 
 export const getCurrentUser = async (req, res) => {
     try {
-        const user = await User.findById(req.user.id).select("-password").populate({
-            path: 'appliedJobs',
-            populate: {
-                path: 'jobPosting', 
-                model: 'JobPosting' // JobPostingModel
-            }
-        }); 
+        // Modified query to include resumes and populate them
+        const user = await User.findById(req.user.id)
+            .select("-password +resumes") // Note the +resumes to explicitly include it
+            .populate([
+                {
+                    path: 'appliedJobs',
+                    populate: {
+                        path: 'jobPosting',
+                        model: 'JobPosting'
+                    }
+                },
+                {
+                    path: 'resumes',
+                    model: 'Resume'
+                }
+            ]);
 
         if (!user) {
             return sendResponse(res, {...STATUS_MESSAGES.ERROR.NOT_FOUND, success: false}, 'User');
         }
 
         if (user.profilePicture) {
-            console.log("Original user profile picture", user.profilePicture) // Debugging: Check original profile picture
+            console.log("Original user profile picture", user.profilePicture)
             user.profilePicture = user.profilePicture.replace(/\\/g, '/');
             user.profilePicture = `profile_pictures/${user.profilePicture.split('/').pop()}`
-            console.log("Normalized user profile picture:", user.profilePicture); // Debugging: Check normalized path
+            console.log("Normalized user profile picture:", user.profilePicture);
         } else {
             user.profilePicture = 'profile_pictures/default.jpg'
         }
@@ -226,7 +235,7 @@ export const toggleSaveJob = async (req, res) => {
         const isSaved = user.savedJobs.includes(jobId)
 
         if (isSaved) {
-            user.savedJobs = user.savedJobs.filter(jobId => jobId.toString() !== jobId);
+            user.savedJobs = user.savedJobs.filter(savedJobId => savedJobId.toString() !== jobId);
         } else {
             user.savedJobs.push(jobId)
         }

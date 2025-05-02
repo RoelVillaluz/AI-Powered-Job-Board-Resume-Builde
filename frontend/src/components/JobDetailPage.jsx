@@ -92,7 +92,9 @@ function JobDetailPage() {
     }
 
     useEffect(() => {
-        document.title = `${job?.title} - ${company?.name}`
+        if (job && company) {
+            document.title = `${job.title} - ${company.name}`
+        }
     }, [job?._id])
 
     return (

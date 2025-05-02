@@ -14,6 +14,7 @@ function JobDetailPage() {
     const [job, setJob] = useState(null);
     const [company, setCompany] = useState(null);
     const [loading, setLoading] = useState(true)
+    const [resumes, setResumes] = useState([]);
     const [currentResume, setCurrentResume] = useState(null);
     const [userPreferences, setUserPreferences] = useState({
 
@@ -48,6 +49,20 @@ function JobDetailPage() {
         }
         fetchCompany()
     }, [job?.company?._id])
+
+    useEffect(() => {
+        const fetchResumes = async () => {
+            try {
+                const response = await axios.get(`${baseUrl}/resumes/user/${user?._id}`)
+                console.log('User Resumes: ', response.data.data)
+
+                setResumes(response.data.data)
+            } catch (error) {
+                console.error('Error: ', error)
+            }
+        }
+        fetchResumes()
+    }, [user?._id])
 
     useEffect(() => {
         if (job && company) {
@@ -271,7 +286,7 @@ function JobDetailPage() {
                                                 <li key={index}>
                                                     <div className="checkbox-wrapper-19">
                                                         <input type="checkbox" id={`cbtest-19 ${skill.name}`} />
-                                                        <label for={`cbtest-19 ${skill.name}`} class="check-box" />
+                                                        <label htmlFor={`cbtest-19 ${skill.name}`} className="check-box" />
                                                     </div>
                                                     <label htmlFor={`${skill.name}-checkbox`}>{skill.name} {skill.level}</label>
                                                 </li>
@@ -354,6 +369,9 @@ function JobDetailPage() {
                     <section id="similarity-analysis">
                         {/* add gauge here later for similarity percentage */}
                         {/* add feature later here for resume selection */}
+                        <section id="resume-list">
+                            
+                        </section>
                     </section>
 
                 </main> 

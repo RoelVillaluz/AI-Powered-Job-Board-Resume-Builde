@@ -269,7 +269,7 @@ function JobDetailPage() {
                                         <ul>
                                             {job.skills.map((skill, index) => (
                                                 <li key={index}>
-                                                    <div class="checkbox-wrapper-19">
+                                                    <div className="checkbox-wrapper-19">
                                                         <input type="checkbox" id={`cbtest-19 ${skill.name}`} />
                                                         <label for={`cbtest-19 ${skill.name}`} class="check-box" />
                                                     </div>
@@ -340,7 +340,7 @@ function JobDetailPage() {
                                 {!loading ? (
                                     <div className="images">
                                         {company?.images.slice(0, 3).map((image, index) => (
-                                            <img src={`/${image}`}></img>
+                                            <img src={`/${image}`} key={index}></img>
                                         ))}
                                     </div>
                                 ) : (

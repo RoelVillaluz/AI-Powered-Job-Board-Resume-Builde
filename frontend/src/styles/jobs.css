@@ -369,3 +369,54 @@
 #job-details #ceo img {
     border-radius: 50%;
 }
+
+#similarity-analysis {
+    padding: 2rem 1rem;
+    width: 100%;
+}
+
+#similarity-analysis #resume-list ol {
+    margin-top: 2rem;
+}
+
+.custom-ol {
+    display: flex;
+    flex-direction: column;
+    list-style-type: none;
+    counter-reset: step;
+    padding-left: 0;
+    width: 100%;
+}
+
+.custom-li {
+    counter-increment: step;
+    position: relative;
+    padding: 1.5rem 2rem;
+    padding-left: 3.75rem;
+    margin-bottom: 1rem;
+    width: 100%;
+    border: solid 1px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+
+.custom-li::before {
+    content: counter(step);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    left: 1rem;
+    padding: 0.5rem;
+    width: clamp(0.5rem, 0.65vw, 3rem);
+    height: clamp(0.5rem, 0.65vw, 3rem);
+    border-radius: 50%;
+    background: rgb(0, 110, 255);
+    color: white;
+    font-size: clamp(0.75rem, 0.5vw, 2.5rem);
+    font-weight: 600;
+}
+
+.custom-li h4 {
+    font-weight: 600;
+    margin: 2px 0;
+}

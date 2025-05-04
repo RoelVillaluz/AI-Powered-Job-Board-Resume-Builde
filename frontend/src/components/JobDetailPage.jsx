@@ -390,8 +390,11 @@ function JobDetailPage() {
                             <ol className="custom-ol">
                                 {resumes.map((resume, index) => (
                                     <li className="custom-li" key={resume._id}>
-                                        <h4>Resume {index + 1}</h4>
-                                        <span>Javascript, HTML, CSS, +4</span>
+                                        <div className="wrapper">
+                                            <h4>Resume {index + 1}</h4> 
+                                            <i className="fa-solid fa-angle-down" aria-label="Toggle content visibility"></i>
+                                        </div>
+                                        <span className="joined-skills">{getMatchedResumeSkills(resume)}</span>
                                     </li>
                                 ))}
                             </ol>

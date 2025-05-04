@@ -50,6 +50,7 @@ Here’s how it works:
 - Scikit-learn  
 - KMeans Clustering  
 - PyTorch (Torch)
+- Sentence Transformers (all-mpnet-base-v2 model)
 
 ### Other Libraries
 - Numpy

@@ -471,12 +471,12 @@ textarea
     transition: 0.15s;
 }
 
-.choice-button  i:not(.checked-indicator i) {
+.choice-button i:not(.checked-indicator i) {
     font-size: clamp(1rem, 3vw, 6rem);
     color: gray;
 }
 
-.choice-button  .checked-indicator {
+.choice-button .checked-indicator {
     display: none;
     position: absolute;
     padding: 1.2rem;
@@ -508,6 +508,10 @@ textarea
 {
     background-color: var(--tertiary);
     border: solid 1px  #3b2b220a;
+}
+
+.choice-button.selected .checked-indicator {
+    display: block;
 }
 
 .choice-button:hover i:not(.checked-indicator i),

@@ -302,7 +302,7 @@ function JobDetailPage() {
                                             {job.skills.map((skill, index) => (
                                                 <li key={index}>
                                                     <div className="checkbox-wrapper-19">
-                                                        <input type="checkbox" id={`cbtest-19 ${skill.name}`} />
+                                                        <input type="checkbox" id={`cbtest-19 ${skill.name}`}/>
                                                         <label htmlFor={`cbtest-19 ${skill.name}`} className="check-box" />
                                                     </div>
                                                     <label htmlFor={`${skill.name}-checkbox`}>{skill.name} {skill.level}</label>
@@ -390,7 +390,7 @@ function JobDetailPage() {
                             <h3>Select Resume</h3>
                             <ol className="custom-ol">
                                 {resumes.map((resume, index) => (
-                                    <li className="custom-li" key={resume._id}>
+                                    <li className={`custom-li ${currentResume._id === resume._id ? 'current': ''}`} key={resume._id}>
                                         <div className="wrapper">
                                             <h4>Resume {index + 1}</h4> 
                                             <i className="fa-solid fa-angle-down" aria-label="Toggle content visibility"></i>

@@ -106,6 +106,17 @@ function JobDetailPage() {
         }
     }
 
+    const getMatchedResumeSkills = (resume) => {
+        if (!job || !job.skills) return []; // safety check
+        
+        const jobSkillNames = job.skills.map(skill => skill.name);
+        const resumeSkills = resume.skills;
+      
+        return resumeSkills
+          .filter(skill => jobSkillNames.includes(skill.name))
+          .map(skill => skill.name);
+    };      
+      
     useEffect(() => {
         if (job && company) {
             document.title = `${job.title} - ${company.name}`
@@ -370,7 +381,15 @@ function JobDetailPage() {
                         {/* add gauge here later for similarity percentage */}
                         {/* add feature later here for resume selection */}
                         <section id="resume-list">
-                            
+                            <h3>Select Resume</h3>
+                            <ol className="custom-ol">
+                                {resumes.map((resume, index) => (
+                                    <li className="custom-li" key={resume._id}>
+                                        <h4>Resume {index + 1}</h4>
+                                        <span>Javascript, HTML, CSS, +4</span>
+                                    </li>
+                                ))}
+                            </ol>
                         </section>
                     </section>
 

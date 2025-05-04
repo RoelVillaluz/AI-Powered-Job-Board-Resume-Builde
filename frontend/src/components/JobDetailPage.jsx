@@ -57,7 +57,9 @@ function JobDetailPage() {
                 console.log('User Resumes: ', response.data.data)
 
                 setResumes(response.data.data)
-                setCurrentResume(resumes[0])
+                if (response.data.data.length > 0) {
+                    setCurrentResume(response.data.data[0]);
+                }
             } catch (error) {
                 console.error('Error: ', error)
             }

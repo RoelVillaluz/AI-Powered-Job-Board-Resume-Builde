@@ -112,9 +112,14 @@ function JobDetailPage() {
         const jobSkillNames = job.skills.map(skill => skill.name);
         const resumeSkills = resume.skills;
       
-        return resumeSkills
-          .filter(skill => jobSkillNames.includes(skill.name))
-          .map(skill => skill.name);
+        const matchedSkills = resumeSkills.filter(skill => jobSkillNames.includes(skill.name)).map(skill => skill.name);
+
+        const firstFour = matchedSkills.slice(0, 4).join(", ");
+        const remainingCount = matchedSkills.length - 4;
+
+        const displayText = remainingCount > 0 ? `${firstFour}, +${remainingCount}` : firstFour
+
+        return displayText
     };      
       
     useEffect(() => {

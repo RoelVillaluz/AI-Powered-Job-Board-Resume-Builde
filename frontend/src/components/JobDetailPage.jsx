@@ -6,6 +6,7 @@ import { useParams } from "react-router-dom";
 import { faL } from "@fortawesome/free-solid-svg-icons";
 import Resume from "../../../backend/models/resumeModel";
 import { useAuth } from "./AuthProvider";
+import Gauge from "./Gauge";
 
 function JobDetailPage() {
     const { baseUrl } = useData();
@@ -415,6 +416,11 @@ function JobDetailPage() {
                     <section id="similarity-analysis">
                         {/* add gauge here later for similarity percentage */}
                         {/* add feature later here for resume selection */}
+                        <section id="similarity-gauge">
+                            <h3>Resume Analysis</h3>
+                            <Gauge progress={0} messages={messages} loading={loading} objectName={"Resume"}/>
+                        </section>
+
                         <section id="resume-list">
                             <h3>Select Resume</h3>
                             <ol className="custom-ol">
@@ -424,11 +430,12 @@ function JobDetailPage() {
                                             <h4>Resume {index + 1}</h4> 
                                             <i className="fa-solid fa-angle-down" aria-label="Toggle content visibility"></i>
                                         </div>
-                                        <span className="joined-skills">{getMatchedResumeSkills(resume)}</span>
+                                        <span className="joined-skills">Matched skills: {getMatchedResumeSkills(resume)}</span>
                                     </li>
                                 ))}
                             </ol>
                         </section>
+
                     </section>
 
                 </main> 

@@ -434,6 +434,10 @@ function JobDetailPage() {
                                     </li>
                                 ))}
                             </ol>
+                            <button className="upload-resume-btn">
+                                <span>Or upload new resume</span>
+                                <i className="fa-solid fa-arrow-up"></i>
+                            </button>
                         </section>
 
                     </section>

@@ -125,7 +125,7 @@ export const getResumeScore = async (req, res) => {
             return res.status(200).json({ score: resume.score })
         }
 
-        const pythonProcess = spawn("py", ["backend/python_scripts/resume_scorer.py", resumeId])
+        const pythonProcess = spawn("py", ["backend/python_scripts/resume_scorer.py", "score", resumeId])
 
         let result = ""
         let errorOutput = ""

@@ -163,7 +163,7 @@ export const getResumeScore = async (req, res) => {
 
 export const getPredictedSalary = async (req, res) => {
     try {
-        const { resumeId }= req.params;
+        const { resumeId } = req.params;
 
         if (!resumeId) {
             return sendResponse(res, { ...STATUS_MESSAGES.ERROR.NOT_FOUND }, "Resume")
@@ -257,5 +257,59 @@ export const recommendCompanies = async (req, res) => {
     } catch (error) {
         console.error("Server error:", error.message);
         return res.status(500).json({ error: "Server error", details: error.message });
+    }
+};
+
+export const compareResumeAndJob = async (req, res) => {
+    try {
+        const { resumeId, jobId } = req.params; // Extract resumeId and jobId from params
+        console.log(`Received resumeId: ${resumeId}, jobId: ${jobId}`);
+
+        // Ensure that resumeId and jobId are both provided
+        if (!resumeId || !jobId) {
+            return sendResponse(res, { ...STATUS_MESSAGES.ERROR.NOT_FOUND, success: false }, "Resume or Job");
+        }
+
+        // Fetch resume from the database
+        const resume = await Resume.findById(resumeId);
+        if (!resume) {
+            return sendResponse(res, { ...STATUS_MESSAGES.ERROR.NOT_FOUND, success: false }, "Resume");
+        }
+
+        // Fetch job from the database
+        const job = await JobPosting.findById(jobId);
+        if (!job) {
+            return sendResponse(res, { ...STATUS_MESSAGES.ERROR.NOT_FOUND, success: false }, "Job");
+        }
+
+        // Spawn Python script to compare resume and job
+        const pythonProcess = spawn("py", ["backend/python_scripts/resume_scorer.py", "compare", resumeId, jobId]);
+
+        let result = "";
+        let errorOutput = "";
+
+        pythonProcess.stdout.on("data", (data) => {
+            result += data.toString();
+        });
+
+        pythonProcess.stderr.on("data", (data) => {
+            errorOutput += data.toString();
+        });
+
+        pythonProcess.on("close", async (code) => {
+            if (code === 0) {
+                try {
+                    // Parse Python response
+                    const jsonResponse = JSON.parse(result);
+                    res.status(200).json(jsonResponse);
+                } catch (error) {
+                    res.status(500).json({ error: "Failed to parse Python response", details: error.message });
+                }
+            } else {
+                res.status(500).json({ error: "Python script error", details: errorOutput });
+            }
+        });
+    } catch (error) {
+        return sendResponse(res, { ...STATUS_MESSAGES.ERROR.SERVER_ERROR, success: false });
     }
 };

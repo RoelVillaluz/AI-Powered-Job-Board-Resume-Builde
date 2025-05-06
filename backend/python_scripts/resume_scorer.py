@@ -1,13 +1,14 @@
 import json
 import os
 import sys
+from bson import ObjectId
 from dotenv import load_dotenv
 import pymongo
 from scipy.spatial.distance import cosine
 from sentence_transformers import SentenceTransformer
 from torch import cosine_similarity
 import torch
-from utils import extract_resume_embeddings, get_embedding, get_resume_by_id
+from utils import extract_job_embeddings, extract_resume_embeddings, get_embedding, get_resume_by_id
 
 load_dotenv()
 
@@ -172,14 +173,23 @@ if __name__ == "__main__":
         print(json.dumps({"error": "Missing resumeId"}))
         sys.exit(1)
 
-    resume_id = sys.argv[1]
-    
-    # Fetch resume data (Replace with actual data retrieval)
-    resume = get_resume_by_id(resume_id)  
+    mode = sys.argv[1]
+
+    resume_id = sys.argv[2]
+    resume = get_resume_by_id(resume_id)
 
     if not resume:
-        print(json.dumps({"error": "Resume not found"}))
+        print(json.dumps({"error": "Resume not found."}))
         sys.exit(1)
 
-    score = calculate_resume_score(resume)
-    print(json.dumps({"score": score}))
+    if mode == "score":
+        score = calculate_resume_score(resume)
+        print(json.dumps({"score": score}))
+
+    elif mode == "compare":
+        job_id = sys.argv[3]
+        feedback = compare_resume_to_job(resume_id, job_id)  
+        print(json.dumps(feedback))
+
+    else:
+        print(json.dumps({"error": "Invalid mode"}))

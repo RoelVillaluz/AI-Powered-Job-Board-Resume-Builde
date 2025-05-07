@@ -74,6 +74,31 @@ function JobDetailPage() {
         }
     }, [job, company])
 
+    useEffect(() => {
+        const compareResumeAndJob = async () => {
+            setIsComparing(true)
+            try {
+                const response = await axios.get(`${baseUrl}/ai/compare/${currentResume?._id}/${job?._id}`)
+
+                console.log('Feedback: ', response.data)
+                setResumeScore({
+                    skillSimilarity: response.data.skill_similarity,
+                    experienceSimilarity: response.data.experience_similarity,
+                    requirementsSimilarity: response.data.requirements_similarity,
+                    totalScore: response.data.total_score
+                })
+                
+            } catch (error) {
+                console.error('Error: ', error)
+            } finally {
+                setIsComparing(false)
+            }
+        }
+        if (currentResume && job && !loading) {
+            compareResumeAndJob();
+        }
+    }, [currentResume, job, loading])
+
     const handleAddSkill = async (resumeId, newSkill) => {
         const currentResume = user.resumes.find(resume => resume._id === resumeId)
         if (!currentResume || currentResume.skills.includes(newSkill)) return;

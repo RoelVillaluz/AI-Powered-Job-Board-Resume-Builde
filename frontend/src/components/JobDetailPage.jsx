@@ -11,7 +11,7 @@ import Gauge from "./Gauge";
 function JobDetailPage() {
     const { baseUrl } = useData();
     const { jobId } = useParams();
-    const { user, toggleSaveJob } = useAuth();
+    const { user, setUser, toggleSaveJob } = useAuth();
     const [job, setJob] = useState(null);
     const [company, setCompany] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -122,7 +122,23 @@ function JobDetailPage() {
             const response = await axios.patch(`${baseUrl}/resumes/${resumeId}`, {
                 skills: updatedSkills
             })
-            console.log(response.data.data.skills)
+
+            // update local user state with updated resume
+            const updatedResume = response.data.data;
+
+            // Update the currentResume state immediately
+            if (currentResume._id === resumeId) {
+                setCurrentResume(updatedResume);
+            }
+
+            const updatedResumes = user.resumes.map(resume => resume._id === resumeId ? updatedResume : resume);
+
+            setUser(prev => ({
+                ...prev,
+                resumes: updatedResumes
+            }));
+
+            console.log("Resume Skills: :", response.data.data.skills)
         } catch (error) {
             console.error('Failed to add skill:', error);
         }

@@ -162,7 +162,7 @@ function JobDetailPage() {
         if (job && company) {
             document.title = `${job.title} - ${company.name}`
         }
-    }, [job?._id])
+    }, [job, company])
 
     const messages = {
         0: {

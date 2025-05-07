@@ -27,7 +27,7 @@ def evaluate_resume_relevance(resume):
         float: A relevance score (0-100) representing the alignment between skills and work experience.
     """
     # Extract resume embeddings for skills, work experience, and certifications
-    mean_skill_embedding, mean_work_embedding, certification_embeddings = extract_resume_embeddings(resume)
+    mean_skill_embedding, mean_work_embedding, certification_embeddings, _ = extract_resume_embeddings(resume)
     
     # Check if the skill embedding is None, and return 0 relevance score if so
     if mean_skill_embedding is None:
@@ -106,8 +106,8 @@ def compare_resume_to_job(resume_id, job_id):
         return {"error": "Resume or Job not found in database."}
 
     # Embeddings
-    mean_resume_skill_embedding, mean_resume_work_embedding, certification_embeddings = extract_resume_embeddings(resume)
-    mean_job_skill_embedding, mean_job_requirements_embedding, experience_embedding, *_ = extract_job_embeddings(job)
+    mean_resume_skill_embedding, mean_resume_work_embedding, certification_embeddings, _ = extract_resume_embeddings(resume)
+    mean_job_skill_embedding, mean_job_requirements_embedding, _, job_title_embedding, _ = extract_job_embeddings(job)
 
     feedback = {}
 
@@ -146,16 +146,16 @@ def compare_resume_to_job(resume_id, job_id):
         feedback["skill_similarity"] = None
 
     # Experience similarity
-    if mean_resume_work_embedding is not None and experience_embedding is not None:
+    if mean_resume_work_embedding is not None and job_title_embedding is not None:
         resume_tensor = (
             torch.tensor(mean_resume_work_embedding)
             if not isinstance(mean_resume_work_embedding, torch.Tensor)
             else mean_resume_work_embedding
         )
         job_tensor = (
-            torch.tensor(experience_embedding)
-            if not isinstance(experience_embedding, torch.Tensor)
-            else experience_embedding
+            torch.tensor(job_title_embedding)
+            if not isinstance(job_title_embedding, torch.Tensor)
+            else job_title_embedding
         )
 
         experience_similarity = cosine_similarity(resume_tensor.unsqueeze(0), job_tensor.unsqueeze(0)).item()

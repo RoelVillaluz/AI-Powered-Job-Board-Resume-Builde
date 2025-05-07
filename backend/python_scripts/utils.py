@@ -113,7 +113,7 @@ def extract_job_embeddings(job):
     skill_embeddings = torch.stack([get_embedding(skill) for skill in skills]) if skills else None
     requirement_embeddings = torch.stack([get_embedding(req) for req in requirements]) if requirements else None
     experience_embedding = get_embedding(job.get("experienceLevel", None)) if job.get("experienceLevel") else None
-    job_title_embedding = get_embedding(job.get("jobTitle", None)) if job.get("jobTitle") else None
+    job_title_embedding = get_embedding(job.get("title", None)) if job.get("title") else None
     location_embedding = get_embedding(job.get("location", None)) if job.get("location") else None
 
     # Compute mean embeddings only if they are not None and not empty

@@ -364,7 +364,12 @@ function JobDetailPage() {
                                             {job.skills.map((skill, index) => (
                                                 <li key={index}>
                                                     <div className="checkbox-wrapper-19">
-                                                        <input type="checkbox" id={`cbtest-19 ${skill.name}`} checked={currentResume.skills.some(s => s.name === skill.name)}/>
+                                                        <input 
+                                                            type="checkbox" 
+                                                            id={`cbtest-19 ${skill.name}`} 
+                                                            checked={currentResume.skills.some(s => s.name === skill.name)}
+                                                            onChange={() => handleAddSkillToResume(currentResume._id, skill)}
+                                                        />
                                                         <label htmlFor={`cbtest-19 ${skill.name}`} className="check-box" />
                                                     </div>
                                                     <label htmlFor={`${skill.name}-checkbox`}>{skill.name} {skill.level}</label>

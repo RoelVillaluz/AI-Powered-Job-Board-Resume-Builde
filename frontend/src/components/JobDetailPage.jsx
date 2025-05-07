@@ -106,17 +106,23 @@ function JobDetailPage() {
         }
     }, [currentResume, job, loading])
 
-    const handleAddSkill = async (resumeId, newSkill) => {
+    const handleAddSkillToResume = async (resumeId, newSkill) => {
         const currentResume = user.resumes.find(resume => resume._id === resumeId)
-        if (!currentResume || currentResume.skills.includes(newSkill)) return;
+        if (!currentResume) return;
 
-        const updatedSkills = [...currentResume.skills, newSkill]
+         // Check if skill is already in the resume
+        const skillExists = currentResume.skills.some(s => s._id === newSkill._id)
+
+        // Add or remove skill based on current status
+        const updatedSkills = skillExists 
+            ? currentResume.skills.filter(s => s._id !== newSkill._id)
+            : [...currentResume.skills, newSkill]
 
         try {
             const response = await axios.patch(`${baseUrl}/resumes/${resumeId}`, {
-                ...currentResume,
-                skills: [updatedSkills]
+                skills: updatedSkills
             })
+            console.log(response.data.data.skills)
         } catch (error) {
             console.error('Failed to add skill:', error);
         }

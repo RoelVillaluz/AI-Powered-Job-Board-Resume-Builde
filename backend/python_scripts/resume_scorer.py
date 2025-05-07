@@ -111,6 +111,21 @@ def compare_resume_to_job(resume_id, job_id):
 
     feedback = {}
 
+    feedback = {
+        "debug": {
+            "resume_work_embedding_exists": mean_resume_work_embedding is not None,
+            "job_title_embedding_exists": job_title_embedding is not None,
+            "job_title": job.get("title", "Not found"),
+            "resume_work_experience": [
+                {
+                    "jobTitle": exp.get("jobTitle", "No title"),
+                    "has_responsibilities": "responsibilities" in exp and bool(exp["responsibilities"])
+                }
+                for exp in resume.get("workExperience", [])
+            ]
+        }
+    }
+
     # Skill similarity
     if mean_resume_skill_embedding is not None and mean_job_skill_embedding is not None:
         # Ensure they're tensors

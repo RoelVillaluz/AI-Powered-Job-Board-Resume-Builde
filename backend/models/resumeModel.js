@@ -33,9 +33,9 @@ const resumeSchema = new mongoose.Schema({
     workExperience: [{
         jobTitle: String,
         company: String,
-        startDate: String,
-        endDate: String,
-        responsibilities: String
+        startDate: Date,
+        endDate: Date,
+        responsibilities: [String]
     }],
     certifications: [{
         name: String,

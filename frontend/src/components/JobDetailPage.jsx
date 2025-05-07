@@ -217,11 +217,15 @@ function JobDetailPage() {
                                     )}
                                     
                                     <div className="icons">
-                                    <img 
-                                        src={`/${company.logo}`} 
-                                        alt={`${company.name} logo`} 
-                                        className="company-logo" 
-                                    />
+                                    {company.logo ? (
+                                        <img 
+                                            src={`/${company.logo}`} 
+                                            alt={`${company.name} logo`} 
+                                            className="company-logo" 
+                                        />
+                                    ) : (
+                                        <i className="fa-solid fa-building"></i>
+                                    )}
                                         <div className="socials">
                                             <div className="social-media-icon">
                                             <i className="fa-brands fa-facebook"></i>

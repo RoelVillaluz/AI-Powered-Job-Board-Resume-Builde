@@ -14,7 +14,8 @@ function JobDetailPage() {
     const { user, toggleSaveJob } = useAuth();
     const [job, setJob] = useState(null);
     const [company, setCompany] = useState(null);
-    const [loading, setLoading] = useState(true)
+    const [loading, setLoading] = useState(true);
+    const [isComparing, setIsComparing] = useState(false);
     const [resumes, setResumes] = useState([]);
     const [currentResume, setCurrentResume] = useState(null);
     const [userPreferences, setUserPreferences] = useState({
@@ -443,7 +444,8 @@ function JobDetailPage() {
                         {/* add feature later here for resume selection */}
                         <section id="similarity-gauge">
                             <h3>Resume Analysis</h3>
-                            <Gauge progress={0} messages={messages} loading={loading} objectName={"Resume"}/>
+                            <Gauge progress={resumeScore.totalScore} messages={messages} loading={isComparing} objectName={"Resume"}/>
+
                         </section>
 
                         <section id="resume-list">

@@ -18,6 +18,12 @@ function JobDetailPage() {
     const [isComparing, setIsComparing] = useState(false);
     const [resumes, setResumes] = useState([]);
     const [currentResume, setCurrentResume] = useState(null);
+    const [resumeScore, setResumeScore] = useState({
+        skillSimilarity: 0,
+        experienceSimilarity: 0,
+        requirementsSimilarity: 0,
+        totalScore: 0
+    })
     const [userPreferences, setUserPreferences] = useState({
 
     })

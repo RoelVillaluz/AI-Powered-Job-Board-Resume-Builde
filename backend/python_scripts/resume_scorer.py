@@ -181,6 +181,21 @@ def compare_resume_to_job(resume_id, job_id):
     else:
         feedback["requirements_similarity"] = None
 
+
+    value_weights = {
+        "skill_similarity": 0.5,
+        "experience_similarity": 0.25,
+        "requirements_similarity": 0.25
+    }
+
+    total_score = 0
+    for key, weight in value_weights.items():
+        value = feedback.get(key, 0)
+        value = value if value is not None else 0
+        total_score += value * weight
+
+    feedback["total_score"] = total_score
+
     return feedback
 
 if __name__ == "__main__":

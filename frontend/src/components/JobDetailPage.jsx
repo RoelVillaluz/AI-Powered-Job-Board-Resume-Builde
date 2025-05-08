@@ -267,12 +267,12 @@ function JobDetailPage() {
                                         <div className="row">
                                             <h1>{job?.title}</h1>
                                             <span className="posted-at">{formatDate(job.postedAt)}</span>
-                                            <h2>${Number(job?.salary).toLocaleString()}<span>/year</span></h2>
+                                            <h2>{job.salary.currency}{job.salary.amount}<span>/{job.salary.frequency}</span></h2>
                                         </div>
                                         <div className="row">
                                             <div>
                                                 <h3>{company?.name}</h3>
-                                                <h4>{company?.location}</h4>
+                                                <h4>{job.location}</h4>
                                             </div>
                                             <div className="actions">
                                                 <button className="apply-btn">Apply Now</button>
@@ -482,7 +482,12 @@ function JobDetailPage() {
                         <section id="similarity-gauge">
                             <h3>Resume Analysis</h3>
                             <Gauge progress={resumeScore.totalScore} messages={messages} loading={isComparing} objectName={"Resume"}/>
-
+                            
+                            <div>
+                                <p>Strengths: High skill similarity</p>
+                                <p>Weaknesses: Low relevant work experience. No college degree yet.</p>
+                            </div>
+                            
                         </section>
 
                         <section id="resume-list">

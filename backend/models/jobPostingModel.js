@@ -36,8 +36,8 @@ const jobPostingSchema = new mongoose.Schema({
         },
         frequency: {
             type: String,
-            enum: ['hourly', 'daily', 'weekly', 'monthly', 'annually'],
-            default: 'annually'
+            enum: ['hour', 'day', 'week', 'month', 'year'],
+            default: 'year'
         }
     },    
     requirements: {

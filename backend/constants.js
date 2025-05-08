@@ -49,5 +49,5 @@ export const industryChoices = {
 };
 
 export const formattedSalary = (job) => {
-    return `${job.salary.currency}${job.salary.amount.toLocaleString()}/${job.salary.frequency}`
+    return `${job.salary.currency}${job.salary.amount.toLocaleString(r)}/${job.salary.frequency}`
 }

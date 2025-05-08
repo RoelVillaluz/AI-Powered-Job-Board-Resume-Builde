@@ -47,3 +47,7 @@ export const industryChoices = {
     Travel: "fa-solid fa-plane-departure",
     Government: "fa-solid fa-landmark"
 };
+
+export const formattedSalary = (job) => {
+    return `${job.salary.currency}${job.salary.amount.toLocaleString()}/${job.salary.frequency}`
+}

@@ -27,8 +27,8 @@ const jobPostingSchema = new mongoose.Schema({
     salary: {
         currency: {
             type: String,
-            enum: ['USD', 'PHP', 'EUR', 'JPY', 'GBP'], 
-            default: 'USD'
+            enum: ['$', '₱', '€', '¥', '£'], 
+            default: '$'
         },
         amount: {
             type: Number,

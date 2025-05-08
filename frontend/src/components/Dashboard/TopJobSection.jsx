@@ -2,6 +2,7 @@ import { useState, useEffect } from "react"
 import { useAuth } from "../AuthProvider";
 import { Link } from "react-router-dom";
 import { useData } from "../../DataProvider";
+import { formattedSalary } from "../../../../backend/constants";
 
 function TopJobSection({ user, resume, shuffledSkills }) {
     const { toggleApplyJob, toggleSaveJob } = useAuth();
@@ -58,7 +59,7 @@ function TopJobSection({ user, resume, shuffledSkills }) {
                             </header>
                             <div className="details">
 
-                                <h4>${topJob.salary}/year</h4>
+                                <h4>{formattedSalary(topJob)}</h4>
     
                                 <div className="tags-list">
                                     <div className="tag-item">

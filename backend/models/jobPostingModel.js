@@ -25,9 +25,21 @@ const jobPostingSchema = new mongoose.Schema({
         required: false,
     },  
     salary: {
-        type: String,
-        default: null
-    },
+        currency: {
+            type: String,
+            enum: ['USD', 'PHP', 'EUR', 'JPY', 'GBP'], 
+            default: 'USD'
+        },
+        amount: {
+            type: Number,
+            default: null
+        },
+        frequency: {
+            type: String,
+            enum: ['hourly', 'daily', 'weekly', 'monthly', 'annually'],
+            default: 'annually'
+        }
+    },    
     requirements: {
         type: [String],
         required: true

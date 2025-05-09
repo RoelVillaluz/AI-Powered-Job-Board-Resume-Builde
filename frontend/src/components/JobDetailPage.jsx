@@ -267,7 +267,7 @@ function JobDetailPage() {
                                         <div className="row">
                                             <h1>{job?.title}</h1>
                                             <span className="posted-at">{formatDate(job.postedAt)}</span>
-                                            <h2>{job.salary.currency}{job.salary.amount}<span>/{job.salary.frequency}</span></h2>
+                                            <h2>{job.salary.currency}{job.salary.amount.toLocaleString()}<span>/{job.salary.frequency}</span></h2>
                                         </div>
                                         <div className="row">
                                             <div>

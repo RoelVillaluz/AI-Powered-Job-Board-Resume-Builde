@@ -96,7 +96,29 @@ def extract_resume_embeddings(resume):
     mean_skill_embedding = torch.mean(skill_embeddings, dim=0) if skill_embeddings is not None else None
     mean_work_embedding = torch.mean(work_embeddings, dim=0) if work_embeddings is not None else None
 
-    return mean_skill_embedding, mean_work_embedding, certification_embeddings
+    # Compute total years of experience
+    total_experience_years = 0.0
+    for exp in resume.get("workExperience", []):
+        try:
+            # Parse start date
+            start_date = datetime.strptime(exp['startDate'], "%Y-%m-%dT%H:%M:%S.%fZ")
+
+            # Parse end date or set to now if missing/present
+            end_date_raw = exp.get('endDate')
+            if end_date_raw and end_date_raw.lower() != "present":
+                end_date = datetime.strptime(end_date_raw, "%Y-%m-%dT%H:%M:%S.%fZ")
+            else:
+                end_date = datetime.now()
+
+            # Calculate years of experience
+            years = (end_date - start_date).days / 365.25
+            total_experience_years += max(0, years)
+
+        except Exception as e:
+            # Skip if any parsing error occurs
+            continue
+
+    return mean_skill_embedding, mean_work_embedding, certification_embeddings, total_experience_years
 
 def extract_job_embeddings(job):
     """
@@ -121,6 +143,15 @@ def extract_job_embeddings(job):
     experience_embedding = get_embedding(job.get("experienceLevel", None)) if job.get("experienceLevel") else None
     job_title_embedding = get_embedding(job.get("title", None)) if job.get("title") else None
     location_embedding = get_embedding(job.get("location", None)) if job.get("location") else None
+
+    # Extract phrases in requirements related to education and scale for machine to understand hierarchical order of educational levels
+    education_level_map = {
+        "None": 0,
+        "High school": 1,
+        "Bachelor's degree": 2,
+        "Master's degree": 3,
+        "PhD": 4
+    }
 
     # Compute mean embeddings only if they are not None and not empty
     mean_skill_embedding = torch.mean(skill_embeddings, dim=0) if skill_embeddings is not None and skill_embeddings.numel() > 0 else None

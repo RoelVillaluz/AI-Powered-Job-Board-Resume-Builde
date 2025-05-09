@@ -27,7 +27,7 @@ def evaluate_resume_relevance(resume):
         float: A relevance score (0-100) representing the alignment between skills and work experience.
     """
     # Extract resume embeddings for skills, work experience, and certifications
-    mean_skill_embedding, mean_work_embedding, certification_embeddings, _ = extract_resume_embeddings(resume)
+    mean_skill_embedding, mean_work_embedding, certification_embeddings, *_ = extract_resume_embeddings(resume)
     
     # Check if the skill embedding is None, and return 0 relevance score if so
     if mean_skill_embedding is None:

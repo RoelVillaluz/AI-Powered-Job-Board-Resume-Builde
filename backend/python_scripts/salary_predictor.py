@@ -21,11 +21,12 @@ def predict_salary(resume, job_postings):
     """ 
     Predicts the estimated salary for a given resume based on similar job postings.
     """
+    # Unpack all four values that extract_resume_embeddings returns
     result = extract_resume_embeddings(resume)
     if result is None:
         return json.dumps({"error": "Failed to extract embeddings from resume"})
 
-    mean_skill_embedding, mean_work_embedding, certification_embedding = result
+    mean_skill_embedding, mean_work_embedding, certification_embedding, *_ = result
 
     if mean_skill_embedding is None:
         return json.dumps({"error": "Not enough data to predict salary."})
@@ -40,18 +41,42 @@ def predict_salary(resume, job_postings):
     salaries = []
 
     for job in job_postings:
-        mean_skill_emb, mean_req_emb, exp_emb, job_title_emb, loc_emb = extract_job_embeddings(job)
-
-        job_embedding = torch.mean(torch.stack([mean_skill_emb, mean_req_emb, exp_emb]), dim=0)
+        job_embedding_result = extract_job_embeddings(job)
+        
+        # Check if any embeddings are None
+        if job_embedding_result is None:
+            continue
+            
+        mean_skill_emb, mean_req_emb, exp_emb, job_title_emb, loc_emb = job_embedding_result
+        
+        # Create a list of valid embeddings
+        valid_job_embeddings = [emb for emb in [mean_skill_emb, mean_req_emb, exp_emb] 
+                               if emb is not None and emb.numel() > 0]
+        
+        # Skip if no valid embeddings
+        if not valid_job_embeddings:
+            continue
+            
+        job_embedding = torch.mean(torch.stack(valid_job_embeddings), dim=0)
 
         if resume_embedding.dim() == 0 or job_embedding.dim() == 0:
-            return json.dumps({"error": "One of the embeddings is 0-dimensional."})
+            continue  # Skip instead of returning an error
 
-        similarity = torch.nn.functional.cosine_similarity(resume_embedding.unsqueeze(0), job_embedding.unsqueeze(0)).item()
+        similarity = torch.nn.functional.cosine_similarity(
+            resume_embedding.unsqueeze(0), 
+            job_embedding.unsqueeze(0)
+        ).item()
 
-        if "salary" in job and job["salary"]:
-            salaries.append(float(job["salary"].replace(",", "")))
-            similarities.append(similarity)
+        # Only add to calculations if job has a valid salary
+        if job.get("salary") and job["salary"].get("amount"):
+            try:
+                amount_str = str(job["salary"]["amount"]).replace(",", "")
+                salary = float(amount_str)
+                salaries.append(salary)
+                similarities.append(similarity)
+            except (ValueError, TypeError):
+                # Skip salaries that can't be converted to float
+                continue
 
     if not salaries or np.sum(similarities) == 0:
         return json.dumps({"error": "No valid similarity scores found."})

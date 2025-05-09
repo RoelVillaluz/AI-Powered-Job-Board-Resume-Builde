@@ -1,3 +1,5 @@
+import datetime
+import json
 import os
 from dotenv import load_dotenv
 import numpy as np
@@ -69,11 +71,15 @@ def extract_resume_embeddings(resume):
 
     # Extract skills, work experiences, and certifications
     skills = [skill["name"] for skill in resume.get("skills", []) if skill.get('name')]
+    
+    # Extract work experience, with more robust handling of responsibilities
     work_experiences = [
-        f"{exp['jobTitle']} at {exp['company']}. {exp['responsibilities']}"
-        for exp in resume.get("workExperience", [])
-        if exp.get('jobTitle') and exp.get('responsibilities')
+        f"{exp['jobTitle']}: {', '.join([json.dumps(r) if isinstance(r, dict) else str(r) for r in exp.get('responsibilities', [])])}"
+        if exp.get('responsibilities') else exp['jobTitle']
+        for exp in resume.get('workExperience', [])
+        if exp.get('jobTitle')
     ]
+    
     certifications = [certification["name"] for certification in resume.get("certifications", [])]
 
     # Compute embeddings safely

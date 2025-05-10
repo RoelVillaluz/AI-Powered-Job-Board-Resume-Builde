@@ -90,10 +90,16 @@ def extract_resume_embeddings(resume):
     # Convert lists to tensors only if they are not empty
     skill_embeddings = torch.stack(skill_embeddings) if skill_embeddings else None
     work_embeddings = torch.stack(work_embeddings) if work_embeddings else None
-    certification_embeddings = torch.mean(torch.stack(certification_embeddings), dim=0) if certification_embeddings else None
+    
+    # Convert to primitive tensor before computing mean for JSON serialization later
+    if certification_embeddings:
+        certification_embeddings_tensor = torch.stack(certification_embeddings)
+        certification_embeddings = torch.mean(certification_embeddings_tensor, dim=0).detach().cpu()
+    else:
+        certification_embeddings = None
 
-    # Compute mean embeddings
-    mean_skill_embedding = torch.mean(skill_embeddings, dim=0) if skill_embeddings is not None else None
+    # Compute mean embeddings and ensure they're detached from computation graph
+    mean_skill_embedding = torch.mean(skill_embeddings, dim=0).detach().cpu() if skill_embeddings is not None else None
     mean_work_embedding = torch.mean(work_embeddings, dim=0) if work_embeddings is not None else None
 
     # Compute total years of experience

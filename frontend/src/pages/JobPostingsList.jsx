@@ -6,6 +6,7 @@ import Layout from "../components/Layout";
 import { Link } from "react-router-dom";
 import JobPostingCard from "../components/JobPostingCard";
 import FilterSidebar from "../components/FilterSidebar";
+import { industryChoices } from "../../../backend/constants";
 
 function JobPostingsList() {
     const { user } = useAuth();
@@ -28,8 +29,10 @@ function JobPostingsList() {
     })
     const [filters, setFilters] = useState({
         salary: {
-            min: 0,
-            max: 0,
+            amount: {
+                min: 0,
+                max: 0,
+            }
         },
         jobType: [],
         experienceLevel: [],
@@ -40,7 +43,8 @@ function JobPostingsList() {
         applicationStatus: {
             saved: false,
             applied: false
-        }
+        },
+        industry: []
     })
 
     const sortTypes = ['Best Match (Default)', 'A-Z', 'Z-A', 'Newest First', 'Highest Salary']
@@ -62,15 +66,15 @@ function JobPostingsList() {
 
     const filteredJobs = allJobs.filter(job => {
         // Check if job matches all the filters
-        const minSalary = filters.salary.min || 0;
-        const maxSalary = filters.salary.max || Number.MAX_SAFE_INTEGER;
+        const minSalary = filters.salary.amount.min || 0;
+        const maxSalary = filters.salary.amount.max || Number.MAX_SAFE_INTEGER;
 
         const saved = user.savedJobs.includes(job._id)
         const applied = user.appliedJobs.includes(job._id)
     
         const matchesSalary =
-            (minSalary <= 0 || parseFloat(String(job.salary).replace(/[^0-9.]/g, '')) >= minSalary) &&
-            (maxSalary <= 0 || parseFloat(String(job.salary).replace(/[^0-9.]/g, '')) <= maxSalary);
+            (minSalary <= 0 || parseFloat(String(job.salary.amount).replace(/[^0-9.]/g, '')) >= minSalary) &&
+            (maxSalary <= 0 || parseFloat(String(job.salary.amount).replace(/[^0-9.]/g, '')) <= maxSalary);
         
         const matchesJobType = filters.jobType.length === 0 || filters.jobType.includes(job.jobType);
         const matchesExperienceLevel = filters.experienceLevel.length === 0 || filters.experienceLevel.includes(job.experienceLevel);
@@ -79,7 +83,7 @@ function JobPostingsList() {
 
         // Check if any filters are applied
         const filtersApplied = 
-            filters.salary.min > 0 || filters.salary.max > 0 ||
+            filters.salary?.amount?.min > 0 || filters.salary?.amount?.max > 0 ||
             filters.jobType.length > 0 ||
             filters.experienceLevel.length > 0 ||
             filters.skills.length > 0 ||

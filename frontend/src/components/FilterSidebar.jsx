@@ -42,8 +42,10 @@ const FilterSidebar = forwardRef(({ filters, setFilters, allResumeSkills }, ref)
                 return {
                     ...prevFilters,
                     salary: {
-                        ...prevFilters.salary,
-                        [key]: value !== null ? parseInt(value) : null
+                        amount: {
+                            ...prevFilters.salary.amount,
+                            [key]: value !== null ? parseInt(value) : null
+                        }
                     }
                 }
             } else if (filterType === 'jobTitle' || filterType === 'location') {
@@ -73,15 +75,24 @@ const FilterSidebar = forwardRef(({ filters, setFilters, allResumeSkills }, ref)
 
     const handleResetFilters = () => {
         setFilters({
+            salary: {
+                amount: {
+                    min: 0,
+                    max: 0
+                }
+            },
             jobType: [],
             experienceLevel: [],
             skills: [],
             minMatchScore: 0,
+            jobTitle: "",
+            location: "",
             applicationStatus: {
                 saved: false,
                 applied: false,
-            }
-        })
+            },
+            industry: []
+        });
     }
 
     const toggleVisibility = (section) => {
@@ -124,14 +135,14 @@ const FilterSidebar = forwardRef(({ filters, setFilters, allResumeSkills }, ref)
                                 <label htmlFor="min-salary">MIN</label>
                                 <input type="number" 
                                     id="min-salary"
-                                    value={filters.salary.min ?? ''} 
+                                    value={filters.salary.amount.min ?? ''} 
                                     onChange={(e) => handleFilterChange("salary", e.target.value, "min")}/>
                             </div>
                             <div>
                                 <label htmlFor="max-salary">MAX</label>
                                 <input type="number" 
                                     id="max-salary"
-                                    value={filters.salary.max ?? ''}
+                                    value={filters.salary.amount.max ?? ''}
                                     onChange={(e) => handleFilterChange("salary", e.target.value, "max")}/>
                             </div>
                         </div>

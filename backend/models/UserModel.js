@@ -47,7 +47,7 @@ const userSchema = new mongoose.Schema({
     }],
     appliedJobs: [{ 
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Application",
+        ref: "JobPosting",
     }],
     streakCount: {
         type: Number,

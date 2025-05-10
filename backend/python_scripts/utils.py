@@ -69,6 +69,7 @@ def extract_resume_embeddings(resume):
                If any of the fields are empty, the corresponding embedding will be None.
     """
 
+
     # Extract skills, work experiences, and certifications
     skills = [skill["name"] for skill in resume.get("skills", []) if skill.get('name')]
     
@@ -100,7 +101,7 @@ def extract_resume_embeddings(resume):
 
     # Compute mean embeddings and ensure they're detached from computation graph
     mean_skill_embedding = torch.mean(skill_embeddings, dim=0).detach().cpu() if skill_embeddings is not None else None
-    mean_work_embedding = torch.mean(work_embeddings, dim=0) if work_embeddings is not None else None
+    mean_work_embedding = torch.mean(work_embeddings, dim=0).detach().cpu() if work_embeddings is not None else None
 
     # Compute total years of experience
     total_experience_years = 0.0
@@ -138,6 +139,7 @@ def extract_job_embeddings(job):
         tuple: A tuple containing the mean embeddings for skills, experience level, 
                title & location, and requirements.
     """
+    import torch
 
     # Extract skills, requirements
     skills = [skill["name"] for skill in job.get("skills", []) if skill.get("name")]
@@ -146,11 +148,21 @@ def extract_job_embeddings(job):
     # Get embeddings for skills and requirements
     skill_embeddings = torch.stack([get_embedding(skill) for skill in skills]) if skills else None
     requirement_embeddings = torch.stack([get_embedding(req) for req in requirements]) if requirements else None
-    experience_embedding = get_embedding(job.get("experienceLevel", None)) if job.get("experienceLevel") else None
-    job_title_embedding = get_embedding(job.get("title", None)) if job.get("title") else None
-    location_embedding = get_embedding(job.get("location", None)) if job.get("location") else None
+    
+    # Get single embeddings and ensure they're detached
+    experience_embedding = get_embedding(job.get("experienceLevel", "")) if job.get("experienceLevel") else None
+    if experience_embedding is not None:
+        experience_embedding = experience_embedding.detach().cpu()
+        
+    job_title_embedding = get_embedding(job.get("title", "")) if job.get("title") else None
+    if job_title_embedding is not None:
+        job_title_embedding = job_title_embedding.detach().cpu()
+        
+    location_embedding = get_embedding(job.get("location", "")) if job.get("location") else None
+    if location_embedding is not None:
+        location_embedding = location_embedding.detach().cpu()
 
-    # Extract phrases in requirements related to education and scale for machine to understand hierarchical order of educational levels
+    # Education level mapping (unused in the original code but keeping for reference)
     education_level_map = {
         "None": 0,
         "High school": 1,
@@ -160,8 +172,13 @@ def extract_job_embeddings(job):
     }
 
     # Compute mean embeddings only if they are not None and not empty
-    mean_skill_embedding = torch.mean(skill_embeddings, dim=0) if skill_embeddings is not None and skill_embeddings.numel() > 0 else None
-    mean_requirements_embedding = torch.mean(requirement_embeddings, dim=0) if requirement_embeddings is not None and requirement_embeddings.numel() > 0 else None
+    mean_skill_embedding = None
+    if skill_embeddings is not None and skill_embeddings.numel() > 0:
+        mean_skill_embedding = torch.mean(skill_embeddings, dim=0).detach().cpu()
+        
+    mean_requirements_embedding = None
+    if requirement_embeddings is not None and requirement_embeddings.numel() > 0:
+        mean_requirements_embedding = torch.mean(requirement_embeddings, dim=0).detach().cpu()
 
     return mean_skill_embedding, mean_requirements_embedding, experience_embedding, job_title_embedding, location_embedding
 

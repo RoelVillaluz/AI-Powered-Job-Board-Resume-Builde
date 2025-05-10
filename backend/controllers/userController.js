@@ -61,10 +61,8 @@ export const getCurrentUser = async (req, res) => {
             .populate([
                 {
                     path: 'appliedJobs',
-                    populate: {
-                        path: 'jobPosting',
-                        model: 'JobPosting'
-                    }
+                    select: '_id',
+                    model: 'JobPosting'
                 },
                 {
                     path: 'resumes',
@@ -290,10 +288,16 @@ export const applyToJob = async (req, res) => {
             await newApplication.save()
 
             // add job ID to user's applied jobs 
-            await User.findByIdAndUpdate(userId, {$addToSet: { appliedJobs: newApplication._id }})
+            await User.findByIdAndUpdate(userId, {$addToSet: { appliedJobs: jobId }})
+
+            // add user to job applicants
+            await JobPosting.findByIdAndUpdate(jobId, { $addToSet: { applicants: userId }})
         } else {
             await Application.findByIdAndDelete(existingApplication._id);
-            await User.findByIdAndUpdate(userId, { $pull: { appliedJobs: newApplication._id }})
+            await User.findByIdAndUpdate(userId, { $pull: { appliedJobs: jobId }})
+
+            // remove user from job applicants
+            await User.findByIdAndUpdate(userId, { $pull: { applicants: userId }})
         }
 
         return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.CREATE, data: newApplication }, 'Job Application')

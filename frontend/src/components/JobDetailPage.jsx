@@ -11,7 +11,7 @@ import Gauge from "./Gauge";
 function JobDetailPage() {
     const { baseUrl } = useData();
     const { jobId } = useParams();
-    const { user, setUser, toggleSaveJob } = useAuth();
+    const { user, setUser, toggleSaveJob, toggleApplyJob } = useAuth();
     const [job, setJob] = useState(null);
     const [company, setCompany] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -80,6 +80,9 @@ function JobDetailPage() {
             setLoading(false)
         }
     }, [job, company])
+
+    console.log('Applied jobs: ', user.appliedJobs)
+    console.log('Saved jobs: ', user.savedJobs)
 
     useEffect(() => {
         const compareResumeAndJob = async () => {
@@ -275,7 +278,9 @@ function JobDetailPage() {
                                                 <h4>{job.location}</h4>
                                             </div>
                                             <div className="actions">
-                                                <button className="apply-btn">Apply Now</button>
+                                                <button className="apply-btn" onClick={(e) => toggleApplyJob(e, job._id, currentResume._id )}>
+                                                    {user?.appliedJobs.some(j => j._id === job._id) ? 'Unapply' : 'Apply Now'}
+                                                </button>
                                                 <button className="save-btn" onClick={(e) => toggleSaveJob(e, job._id)} aria-label="Save job">
                                                     <i className={`fa-${user?.savedJobs.includes(job?._id) ? 'solid' : 'regular'} fa-bookmark`}></i>
                                                 </button>
@@ -393,8 +398,8 @@ function JobDetailPage() {
                                                         <input 
                                                             type="checkbox" 
                                                             id={`cbtest-19 ${skill.name}`} 
-                                                            checked={currentResume.skills.some(s => s.name === skill.name)}
-                                                            onChange={() => handleAddSkillToResume(currentResume._id, skill)}
+                                                            checked={currentResume?.skills.some(s => s.name === skill.name)}
+                                                            onChange={() => handleAddSkillToResume(currentResume?._id, skill)}
                                                         />
                                                         <label htmlFor={`cbtest-19 ${skill.name}`} className="check-box" />
                                                     </div>

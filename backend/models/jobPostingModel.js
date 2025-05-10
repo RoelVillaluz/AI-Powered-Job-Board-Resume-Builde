@@ -51,6 +51,10 @@ const jobPostingSchema = new mongoose.Schema({
         question: { type: String, required: true },
         required: { type: Boolean, default: true }, // Flag to indicate if answering the question is mandatory
     }],
+    applicants: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+    }],
     postedAt: {
         type: Date,
         default: Date.now

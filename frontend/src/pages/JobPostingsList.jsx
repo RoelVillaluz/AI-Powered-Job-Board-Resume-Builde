@@ -80,6 +80,7 @@ function JobPostingsList() {
         const matchesExperienceLevel = filters.experienceLevel.length === 0 || filters.experienceLevel.includes(job.experienceLevel);
         const matchesSkills = filters.skills.length === 0 || filters.skills.some(skill => job.skills?.some(jobSkill => jobSkill.name === skill));
         const matchesMatchScore = filters.minMatchScore <= 0 || Number(job.similarity) >= filters.minMatchScore;
+        const matchesIndustry = filters.industry.length === 0 || filters.industry.some(ind => job.company.industry.includes(ind));
 
         // Check if any filters are applied
         const filtersApplied = 
@@ -91,7 +92,8 @@ function JobPostingsList() {
             filters.applicationStatus.saved ||
             filters.applicationStatus.applied ||
             (filters.jobTitle && filters.jobTitle !== "") ||
-            (filters.location && filters.location !== "");
+            (filters.location && filters.location !== "") ||
+            filters.industry.length > 0;
     
         // Fixed search query matching to handle undefined values safely
         const matchesSearchQuery = 
@@ -124,11 +126,14 @@ function JobPostingsList() {
                  matchesExperienceLevel &&
                  matchesSkills &&
                  matchesMatchScore &&
-                 matchesApplicationStatus)) &&
+                 matchesApplicationStatus &&
+                 matchesIndustry)) &&
             matchesSearchQuery
         );
 
     });
+
+    console.log('Filters: ', filters)
 
     const handleSearchQueryChange = (value, field) => {
         setSearchQuery((prevQuery) => ({

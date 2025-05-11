@@ -279,7 +279,7 @@ function JobDetailPage() {
                                             </div>
                                             <div className="actions">
                                                 <button className="apply-btn" onClick={(e) => toggleApplyJob(e, job._id, currentResume._id )}>
-                                                    {user?.appliedJobs.some(j => j._id === job._id) ? 'Unapply' : 'Apply Now'}
+                                                    {user.appliedJobs.includes(job._id) ? 'Unapply' : 'Apply Now'}
                                                 </button>
                                                 <button className="save-btn" onClick={(e) => toggleSaveJob(e, job._id)} aria-label="Save job">
                                                     <i className={`fa-${user?.savedJobs.includes(job?._id) ? 'solid' : 'regular'} fa-bookmark`}></i>

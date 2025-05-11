@@ -55,20 +55,9 @@ export const getUser = async (req, res) => {
 
 export const getCurrentUser = async (req, res) => {
     try {
-        // Modified query to include resumes and populate them
         const user = await User.findById(req.user.id)
-            .select("-password +resumes") // Note the +resumes to explicitly include it
-            .populate([
-                {
-                    path: 'appliedJobs',
-                    select: '_id',
-                    model: 'JobPosting'
-                },
-                {
-                    path: 'resumes',
-                    model: 'Resume'
-                }
-            ]);
+            .select("-password +resumes") 
+            .populate("resumes")
 
         if (!user) {
             return sendResponse(res, {...STATUS_MESSAGES.ERROR.NOT_FOUND, success: false}, 'User');
@@ -288,16 +277,18 @@ export const applyToJob = async (req, res) => {
             await newApplication.save()
 
             // add job ID to user's applied jobs 
-            await User.findByIdAndUpdate(userId, {$addToSet: { appliedJobs: jobId }})
+            await User.findByIdAndUpdate(userId, { $addToSet: { appliedJobs: new mongoose.Types.ObjectId(jobId) } })
 
             // add user to job applicants
-            await JobPosting.findByIdAndUpdate(jobId, { $addToSet: { applicants: userId }})
+            await JobPosting.findByIdAndUpdate(jobId, { $addToSet: { applicants: new mongoose.Types.ObjectId(userId) } })
         } else {
             await Application.findByIdAndDelete(existingApplication._id);
-            await User.findByIdAndUpdate(userId, { $pull: { appliedJobs: jobId }})
+
+            // remove job from user's applied jobs
+            await User.findByIdAndUpdate(userId, { $pull: { appliedJobs: new mongoose.Types.ObjectId(jobId) }})
 
             // remove user from job applicants
-            await User.findByIdAndUpdate(userId, { $pull: { applicants: userId }})
+            await User.findByIdAndUpdate(userId, { $pull: { applicants: new mongoose.Types.ObjectId(userId) }})
         }
 
         return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.CREATE, data: newApplication }, 'Job Application')

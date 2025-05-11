@@ -67,7 +67,7 @@ def recommend_skills(user_id):
     job_skills = get_user_saved_job_skills(user_id)
 
     if not job_skills:
-        return json.dumps({"recommended skills", []})
+        return json.dumps({"recommended_skills": []})
 
     # Combine all unique skills
     all_skills = list(set(resume_skills).union(set(job_skills)))

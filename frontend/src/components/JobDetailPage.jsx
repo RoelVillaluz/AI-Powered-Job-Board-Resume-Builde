@@ -290,10 +290,10 @@ function JobDetailPage() {
                                             </div>
                                         </div>
                                         <div className="applicants">
-                                            <img src="/media/pexels-alipli-15003448.jpg" alt="Applicant Image" />
-                                            <img src="/media/pexels-anthonyshkraba-production-8278885.jpg" alt="Applicant Image" />
-                                            <img src="/media/pexels-tima-miroshnichenko-6694958.jpg" alt="Applicant Image" />
-                                            <span>3 Applicants</span>
+                                            {job.applicants.map((applicant, index) => (
+                                                <img src={`/${applicant.profilePicture}`} key={index}></img>
+                                            ))}
+                                            <span>{job.applicants.length} {job.applicants.length > 1 ? 'Applicants' : 'Applicant'}</span>
                                         </div>
                                     </>
                                 ) : (

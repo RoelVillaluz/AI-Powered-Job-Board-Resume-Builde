@@ -16,10 +16,22 @@ export const getJobPostings = async (req, res) => {
 export const getJobPosting = async (req, res) => {
     const { id } = req.params
     try {
-        const jobPosting = await JobPosting.findById(id).populate("company", "id name logo");
+        const jobPosting = await JobPosting.findById(id).populate("company", "id name logo").populate("applicants", "profilePicture");
         if (!jobPosting) {
             return res.status(404).json({ success: false, message: 'Job posting not found' })
         }
+
+        jobPosting.applicants.forEach((applicant) => {
+            if (applicant.profilePicture) {
+                console.log("Original user profile picture", applicant.profilePicture) // Debugging: Check original profile picture
+                applicant.profilePicture = applicant.profilePicture.replace(/\\/g, '/');
+                applicant.profilePicture = `profile_pictures/${applicant.profilePicture.split('/').pop()}`
+                console.log("Normalized user profile picture:", applicant.profilePicture); // Debugging: Check normalized path
+            } else {
+                applicant.profilePicture = 'profile_pictures/default.jpg'
+            }
+        })
+
         return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.FETCH, data: jobPosting }, 'Job posting')
     } catch (error) {
         console.error(error)

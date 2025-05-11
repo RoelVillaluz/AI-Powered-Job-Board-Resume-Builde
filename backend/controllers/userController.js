@@ -288,7 +288,7 @@ export const applyToJob = async (req, res) => {
             await User.findByIdAndUpdate(userId, { $pull: { appliedJobs: new mongoose.Types.ObjectId(jobId) }})
 
             // remove user from job applicants
-            await User.findByIdAndUpdate(userId, { $pull: { applicants: new mongoose.Types.ObjectId(userId) }})
+            await JobPosting.findByIdAndUpdate(jobId, { $pull: { applicants: new mongoose.Types.ObjectId(userId) }})
         }
 
         return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.CREATE, data: newApplication }, 'Job Application')

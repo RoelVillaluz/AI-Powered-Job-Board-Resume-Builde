@@ -20,14 +20,14 @@ function SideNavbar () {
         { to: '/', icon: 'fa-solid fa-house'}
     ]
 
-    if (user.role === 'jobseeker') {
+    if (user?.role === 'jobseeker') {
         links.push(
             { to: '/job-postings', icon: 'fa-solid fa-briefcase'},
             { to: '/messages', icon: 'fa-solid fa-envelope'},
             { to: '/resumes', icon: 'fa-solid fa-file-invoice'},
             { to: '/courses', icon: 'fa-solid fa-graduation-cap'}
         )
-    } else {
+    } else if (user?.role === 'employer') {
         links.push(
             { to: 'create-job-posting', icon: 'fa-solid fa-square-plus'}
         )

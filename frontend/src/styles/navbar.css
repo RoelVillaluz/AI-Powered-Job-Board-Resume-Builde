@@ -69,3 +69,11 @@
 .sidebar-navbar a {
     color: white;
 }
+
+#logout-btn {
+    border: none;
+    outline: none;
+    background-color: transparent;
+    color: white;
+    cursor: pointer;
+}

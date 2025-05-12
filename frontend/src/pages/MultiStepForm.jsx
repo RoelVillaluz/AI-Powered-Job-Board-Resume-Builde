@@ -231,7 +231,7 @@ function MultiStepForm({ role }) {
 
     return (
         <>
-            <div className="form-container" id="get-started-form">
+            <div className="form-container" id="multi-step-form">
                 <div className="steps">
                     <header>
                         <h2>Let's get started</h2>

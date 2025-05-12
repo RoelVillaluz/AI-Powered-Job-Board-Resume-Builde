@@ -304,7 +304,7 @@ textarea
     background-color: rgba(0,0,0,1);
 }
 
-#get-started-form .steps {
+#multi-step-form .steps {
     flex: 2;
     display: flex;
     justify-content: center;
@@ -312,22 +312,22 @@ textarea
     padding: 3rem;
 }
 
-#get-started-form header {
+#multi-step-form header {
     margin-bottom: 1rem;
 }
 
-#get-started-form header h2 {
+#multi-step-form header h2 {
     font-size: clamp(1rem, 1.5vw, 2.5rem);
 }
 
-#get-started-form header .subheader {
+#multi-step-form header .subheader {
     font-size: clamp(0.8rem, 1.1vw, 1.75rem);
     font-weight: 500;
     margin-top: 0.25rem;
     color: var(--gray);
 }
 
-#get-started-form .steps ul {
+#multi-step-form .steps ul {
     display: flex;
     justify-content: center;
     flex-direction: column;
@@ -335,7 +335,7 @@ textarea
     margin-top: 1rem;
 }
 
-#get-started-form .steps li {
+#multi-step-form .steps li {
     position: relative;
     display: flex;
     align-items: start;
@@ -343,7 +343,7 @@ textarea
     padding-bottom: 2rem;
 }
 
-#get-started-form .steps li i {
+#multi-step-form .steps li i {
     position: relative;
     display: flex;
     align-items: center;
@@ -356,7 +356,7 @@ textarea
     border-radius: 4px;
 }
 
-#get-started-form .steps li i::after {
+#multi-step-form .steps li i::after {
     content: "";
     position: absolute;
     width: 1px;
@@ -366,30 +366,30 @@ textarea
     background-color: rgba(0,0,0,0.3);
 }
 
-#get-started-form .steps li:last-child i::after {
+#multi-step-form .steps li:last-child i::after {
     display: none;
 }
 
-#get-started-form .steps li span {
+#multi-step-form .steps li span {
     color: rgb(100, 100, 100);
     font-weight: 600;
     font-size: clamp(0.5rem, 1vw, 1.75rem);
 }
 
-#get-started-form .supporting-text {
+#multi-step-form .supporting-text {
     color: rgb(100, 100, 100);
     font-size: clamp(0.5rem, 1vw, 1.75rem);
     margin-top: 4px;
 }
 
-#get-started-form .steps li.active i {
+#multi-step-form .steps li.active i {
     background-color: var(--tertiary);
     border: solid 1px  #3b2b220a;
     color: black;
 }
 
-#get-started-form .steps li.active span,
-#get-started-form .steps li.active .supporting-text
+#multi-step-form .steps li.active span,
+#multi-step-form .steps li.active .supporting-text
 {
     color: black;
 }

@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "./AuthProvider";
 
 function SideNavbar () {
-    const { user } = useAuth();
+    const { user, logout } = useAuth();
     const location = useLocation();
     const navigate = useNavigate();
     const hideNavbarLocations = ['/register', '/login', '/get-started', '/sign-in']
@@ -43,11 +43,18 @@ function SideNavbar () {
                                 ))}
                             </ul>
                         </ul>
+                        <ul>
                             <li>
                                 <Link to={'/settings'}>
                                     <i className="fa-solid fa-gear"></i>
                                 </Link>
                             </li>
+                            <li>
+                                <button id="logout-btn" aria-label="logout user" onClick={logout}>
+                                    <i className="fa-solid fa-right-from-bracket"></i>
+                                </button>
+                            </li>
+                        </ul>
                     </nav>
                 </aside>
             )}

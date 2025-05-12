@@ -43,9 +43,11 @@ function SideNavbar () {
                                 ))}
                             </ul>
                         </ul>
-                        <Link to={'/settings'}>
-                            <i className="fa-solid fa-gear"></i>
-                        </Link>
+                            <li>
+                                <Link to={'/settings'}>
+                                    <i className="fa-solid fa-gear"></i>
+                                </Link>
+                            </li>
                     </nav>
                 </aside>
             )}

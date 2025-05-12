@@ -87,7 +87,37 @@ function CreateJobPosting() {
     return(
         <>
             <Layout>
-                <h1>Create Job Posting</h1>
+                <div className="form-container" id="multi-step-form">
+                    <div className="steps">
+                        <header>
+                            <h2>Let's make a job posting.</h2>
+                            <p className="subheader">Ready to find the perfect candidate? Fill out the details below to create your job posting and start connecting with talent.</p>
+                        </header>
+
+                        <ul>
+                            <li>
+                                <i className="fa-solid fa-address-book"></i>
+                                <span>Add details.</span>
+                            </li>
+                            <li>
+                                <i className="fa-solid fa-lightbulb"></i>
+                                <span>Skills</span>
+                            </li>
+                            <li>
+                                <i className="fa-solid fa-clipboard-question"></i>
+                                <span>Pre-screening Questions</span>
+                            </li>
+                             <li>
+                                <i className="fa-solid fa-check"></i>
+                                <span>Finished!</span>
+                            </li>
+                        </ul>
+
+                    </div>
+                    <form className="form-panel">
+                    </form>
+                </div>
+                {/* <h1>Create Job Posting</h1>
                 <form action="" onSubmit={handleFormSubmit}>
                     <div className="form-group">
                         <label htmlFor="">Job Title</label>
@@ -145,7 +175,7 @@ function CreateJobPosting() {
                     {formData.skills.map((skill, index) => (
                         <li key={index}>{skill.name}</li>
                     ))}
-                </ul>
+                </ul> */}
             </Layout>
         </>
     )

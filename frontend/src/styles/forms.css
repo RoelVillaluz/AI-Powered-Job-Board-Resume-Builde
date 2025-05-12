@@ -338,7 +338,7 @@ textarea
 #multi-step-form .steps li {
     position: relative;
     display: flex;
-    align-items: start;
+    align-items: center;
     gap: 0.5rem;
     padding-bottom: 2rem;
 }

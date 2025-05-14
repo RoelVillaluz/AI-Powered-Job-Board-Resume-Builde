@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect } from "react";
+import { useNavigate } from 'react-router-dom';
 import axios from "axios";
 
 const AuthContext = createContext();
@@ -7,6 +8,7 @@ export const useAuth = () => useContext(AuthContext);
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true); 
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -71,6 +73,7 @@ export const AuthProvider = ({ children }) => {
         localStorage.removeItem("authToken");
         localStorage.removeItem("user");
         setUser(null);
+        navigate('/')
     };
 
     const handleJobAction = async (e, jobId, resume, actionType) => {

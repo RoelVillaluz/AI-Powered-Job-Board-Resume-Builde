@@ -7,10 +7,13 @@ function JobDetailsSection({ formData, setFormData, handleChange }) {
         experienceLevelOptions: ['Intern', 'Entry', 'Mid-Level', 'Senior'],
 
         // Salary object options
-        currency: {
-            icons: ['fa-dollar-sign', 'fa-peso-sign', 'fa-euro-sign', 'fa-yen-sign', 'fa-sterling-sign'],
-            values: ['$', '₱', '€', '¥', '£']
-        },
+        currencyOptions: [
+            { icon: 'fa-dollar-sign', value: '$' },
+            { icon: 'fa-peso-sign', value: '₱' },
+            { icon: 'fa-euro-sign', value: '€' },
+            { icon: 'fa-yen-sign', value: '¥' },
+            { icon: 'fa-sterling-sign', value: '£' }
+        ],
         frequencyOptions: ['hour', 'day', 'week', 'month', 'year']
     }
     

@@ -7,7 +7,7 @@ import SignIn from "./pages/SignIn";
 import GetStartedForm from "./pages/GetStartedForm";
 import Dashboard from "./pages/Dashboard";
 import { AuthProvider, useAuth } from "./components/AuthProvider";
-import CreateJobPosting from "./pages/CreateJob";
+import CreateJobForm from "./pages/CreateJobForm";
 import JobPostingsList from "./pages/JobPostingsList";
 import JobDetailPage from "./components/JobDetailPage";
 import { useEffect } from "react";
@@ -37,7 +37,7 @@ function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/sign-in" element={<SignIn />} />
             <Route path="/get-started" element={<GetStartedForm />} />
-            <Route path="/create-job-posting" element={<CreateJobPosting />} />
+            <Route path="/create-job-posting" element={<CreateJobForm />} />
             <Route path="/job-postings" element={<JobPostingsList />} />
             <Route path="/job-postings/:jobId" element={<JobDetailPage />} />
           </Routes>

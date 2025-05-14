@@ -3,6 +3,7 @@ import { useData } from "../DataProvider.jsx"
 import axios from "axios";
 import { useAuth } from "../components/AuthProvider.jsx";
 import Layout from "../components/Layout.jsx";
+import JobDetailsSection from "../components/MultiStepForm/CreateJobForm/JobDetailsSection.jsx";
 
 function CreateJobForm() {
     const { baseUrl } = useData();
@@ -13,21 +14,20 @@ function CreateJobForm() {
         location: '',
         jobType: '',
         experienceLevel: '',
-        salary: '',
+        salary: {
+            currency: '',
+            amount: '',
+            frequency: ''
+        },
         requirements: [],
         skills: []
     })
     const [skillInput, setSkillInput] = useState('');
     const [requirementInput, setRequirementInput] = useState('');
-
-    const jobTypeOptions = ['Full-Time', 'Part-Time', 'Contract', 'Internship']
-    const experienceLevelOptions = ['Intern', 'Entry', 'Mid-Level', 'Senior']
     
     useEffect(() => {
         document.title = 'Create Job Posting'
     }, [])
-
-    console.log(user)
 
     const handleFormSubmit = async (e) => {
         e.preventDefault();

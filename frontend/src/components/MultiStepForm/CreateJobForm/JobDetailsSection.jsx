@@ -46,16 +46,17 @@ function JobDetailsSection({ formData, setFormData, handleChange }) {
                     <div className="form-group">
                         <label>Salary</label>
                         <div className="salary-group">
-                            <ul name="" id="" className="select-menu" onClick={() => setIsVisible(!isVisible)}>
-                                <li>
-                                    <i className={`fa-solid ${options.currency.icons[0]}`}></i>
+                            <ul className="select-menu">
+                                <li onClick={() => setIsVisible(!isVisible)}>
+                                    <i className={`fa-solid ${options.currencyOptions[0].icon}`} value={options.currencyOptions[0].value}></i>
                                 </li>
-                                {Array.from(options.currency.icons).slice(1).map((icon, index) => (
+                                <div className={`dropdown-list ${isVisible ? 'visible' : ''}`}>
+                                    {options.currencyOptions.slice(1).map((currency, index) => (
                                     <li key={index}>
-                                        <i className={`fa-solid ${icon}`}></i>
+                                        <i className={`fa-solid ${currency.icon}`} value={currency.value}></i>
                                     </li>
-                                ))}
-                                {/* {Object.entries()} */}
+                                    ))}
+                                </div>
                             </ul>                            
                         </div>
                     </div>

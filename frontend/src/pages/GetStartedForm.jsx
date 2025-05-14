@@ -1,17 +1,17 @@
 import { useEffect, useState } from "react"
 import { useData } from "../DataProvider.jsx"
 import { useNavigate } from "react-router-dom"
-import Layout from "../components/Layout"
+import Layout from "../components/Layout.jsx"
 import axios from "axios"
-import RoleSection from '../components/MultiStepForm/RoleSection'
-import UserDetailsSection from "../components/MultiStepForm/UserDetailsSection.jsx"
-import SkillsSection from "../components/MultiStepForm/SkillsSection.jsx"
-import WorkExperience from "../components/MultiStepForm/WorkExperience.jsx"
-import WelcomeSection from "../components/MultiStepForm/WelcomeSection.jsx"
+import RoleSection from '../components/MultiStepForm/GetStartedForm/RoleSection.jsx'
+import UserDetailsSection from "../components/MultiStepForm/GetStartedForm/UserDetailsSection.jsx"
+import SkillsSection from "../components/MultiStepForm/GetStartedForm/SkillsSection.jsx"
+import WorkExperience from "../components/MultiStepForm/GetStartedForm/WorkExperience.jsx"
+import WelcomeSection from "../components/MultiStepForm/GetStartedForm/WelcomeSection.jsx"
 import { useAuth } from "../components/AuthProvider.jsx"
 import IndustrySection from "../components/Dashboard/IndustrySection.jsx"
 
-function MultiStepForm({ role }) {
+function GetStartedForm({ role }) {
     const { baseUrl, setSuccess, setError, setErrorMessage, setSuccessMessage } = useData();
     const { user } = useAuth();
     const navigate = useNavigate();
@@ -390,4 +390,4 @@ function MultiStepForm({ role }) {
     )
 }
 
-export default MultiStepForm
+export default GetStartedForm

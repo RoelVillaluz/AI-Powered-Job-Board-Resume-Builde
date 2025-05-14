@@ -4,7 +4,7 @@ import LandingPage from "./pages/LandingPage";
 import SideNavbar from "./components/SideNavbar";
 import Register from "./pages/Register";
 import SignIn from "./pages/SignIn";
-import MultiStepForm from "./pages/MultiStepForm";
+import GetStartedForm from "./pages/GetStartedForm";
 import Dashboard from "./pages/Dashboard";
 import { AuthProvider, useAuth } from "./components/AuthProvider";
 import CreateJobPosting from "./pages/CreateJob";
@@ -36,7 +36,7 @@ function App() {
             <Route path="/" element={<AppRoutes />} />
             <Route path="/register" element={<Register />} />
             <Route path="/sign-in" element={<SignIn />} />
-            <Route path="/get-started" element={<MultiStepForm />} />
+            <Route path="/get-started" element={<GetStartedForm />} />
             <Route path="/create-job-posting" element={<CreateJobPosting />} />
             <Route path="/job-postings" element={<JobPostingsList />} />
             <Route path="/job-postings/:jobId" element={<JobDetailPage />} />

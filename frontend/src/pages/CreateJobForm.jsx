@@ -114,8 +114,8 @@ function CreateJobForm() {
                         </ul>
 
                     </div>
-                    <form className="form-panel" style={{ flex: '4' }}>
-                        
+                    <form className="form-panel" style={{ flex: '3' }}>
+                        <JobDetailsSection formData={formData} setFormData={setFormData} handleChange={handleChange}/>
                     </form>
                 </div>
             </Layout>

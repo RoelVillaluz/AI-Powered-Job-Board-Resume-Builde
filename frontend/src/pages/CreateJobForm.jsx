@@ -27,7 +27,7 @@ function CreateJobForm() {
 
     const steps = ['details', 'skills', 'questions', 'finished'];
     const [currentStepIndex, setCurrentStepIndex] = useState(0);
-    cosnt [isNextAllowed, setIsNextAllowed] = useState(false);
+    const [isNextAllowed, setIsNextAllowed] = useState(false);
     
     useEffect(() => {
         document.title = 'Create Job Posting'

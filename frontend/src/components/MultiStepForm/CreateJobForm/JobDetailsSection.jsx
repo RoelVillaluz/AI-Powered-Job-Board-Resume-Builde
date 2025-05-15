@@ -59,6 +59,7 @@ function JobDetailsSection({ formData, setFormData, handleChange }) {
                     <div className="form-group">
                         <label>Salary</label>
                         <div className="salary-group">
+
                             <ul className="select-menu">
                                 <li onClick={() => toggleVisibility("salaryDropdown")} className="selected">
                                     <i className={`fa-solid ${selectedCurrency.icon}`}></i>
@@ -73,8 +74,25 @@ function JobDetailsSection({ formData, setFormData, handleChange }) {
                                         </li>
                                     ))}
                                 </div>
+                            </ul>    
+
                             <input type="number" name="salary.amount" value={formData.salary.amount} onChange={handleChange}/>      
 
+                            <ul className="select-menu">
+                                <li onClick={() => toggleVisibility("frequencyDropdown")} className="selected">
+                                    {selectedFrequency}
+                                </li>
+                                <div className={`dropdown-list ${isVisible.frequencyDropdown ? 'visible': ''}`}>
+                                    {options.frequencyOptions.map((option, index) => (
+                                        <li key={index} onClick={() => {
+                                            handleChange({ target: { name: "salary.frequency", value: option } })
+                                            toggleVisibility("frequencyDropdown")
+                                        }}>
+                                            {option}
+                                        </li>
+                                    ))}
+                                </div>
+                            </ul>          
                         </div>
                     </div>
                 </div>

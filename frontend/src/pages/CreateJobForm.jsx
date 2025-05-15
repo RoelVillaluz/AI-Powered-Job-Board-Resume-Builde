@@ -15,9 +15,9 @@ function CreateJobForm() {
         jobType: '',
         experienceLevel: '',
         salary: {
-            currency: '',
+            currency: '$', // to match default in job posting schema
             amount: '',
-            frequency: ''
+            frequency: 'year' // to match default in job posting schema
         },
         requirements: [],
         skills: []
@@ -56,7 +56,19 @@ function CreateJobForm() {
     }
 
     const handleChange = (e) => {
-        setFormData({...formData, [e.target.name]: e.target.value})
+        const { name, value } = e.target;
+        const keys = name.split(".")
+
+        if (keys[0] === "salary") {
+            setFormData(prev => ({
+                ...prev,
+                salary: { ...prev.salary, [keys[1]]: value }
+            }))
+        } else {
+            setFormData(prev => ({ ...prev, [name]: value }))
+        }
+
+        console.log('Form Data', formData)
     }
 
     const handleAddItem = (e) => {

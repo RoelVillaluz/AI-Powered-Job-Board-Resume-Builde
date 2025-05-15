@@ -97,7 +97,28 @@ function CreateJobForm() {
             }
         }
     }
+
+    const addActiveClass = () => {
+        const stepMarkers = document.querySelectorAll('.steps li');
+        stepMarkers.forEach((marker, index) => {
+            marker.setAttribute('data-index', index)
+            const markerIndex = marker.getAttribute('data-index');
+            if (currentStepIndex >= markerIndex) {
+                marker.classList.add('active')
+            } else {
+                marker.classList.remove('active')
+            }
+        })
+    }
     
+    
+    useEffect(() => {
+        console.log('Form Data: ', formData)
+    }, [formData])
+
+    useEffect(() => {
+        addActiveClass()
+    }, [currentStepIndex])
 
     return(
         <>

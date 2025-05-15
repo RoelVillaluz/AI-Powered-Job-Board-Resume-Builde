@@ -24,6 +24,9 @@ function CreateJobForm() {
     })
     const [skillInput, setSkillInput] = useState('');
     const [requirementInput, setRequirementInput] = useState('');
+
+    const steps = ['details', 'skills', 'questions', 'finished'];
+    const [currentStepIndex, setCurrentStepIndex] = useState(0);
     
     useEffect(() => {
         document.title = 'Create Job Posting'

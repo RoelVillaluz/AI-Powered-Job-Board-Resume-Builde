@@ -65,7 +65,8 @@ function JobDetailsSection({ formData, setFormData, handleChange }) {
                                         </li>
                                     ))}
                                 </div>
-                            </ul>    
+                            <input type="number" name="salary.amount" value={formData.salary.amount} onChange={handleChange}/>      
+
                         </div>
                     </div>
                 </div>

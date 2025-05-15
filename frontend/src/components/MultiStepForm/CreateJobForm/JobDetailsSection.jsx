@@ -54,7 +54,10 @@ function JobDetailsSection({ formData, setFormData, handleChange }) {
                                 </li>
                                 <div className={`dropdown-list ${isVisible ? 'visible' : ''}`}>
                                     {options.currencyOptions.map((currency, index) => (
-                                        <li key={index} onClick={() => handleChange({ target: { name: "salary.currency", value: currency.value } })}>
+                                        <li key={index} onClick={() => { 
+                                                handleChange({ target: { name: "salary.currency", value: currency.value } }) 
+                                                setIsVisible(!isVisible)
+                                            }}>
                                             <i className={`fa-solid ${currency.icon}`} value={currency.value}></i>
                                         </li>
                                     ))}

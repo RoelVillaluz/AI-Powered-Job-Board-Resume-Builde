@@ -49,14 +49,17 @@ function JobDetailsSection({ formData, setFormData, handleChange }) {
                         </div>
                     </div>
                     <div className="form-group">
+                        {/* Job Type */}
                         <label>Job Type</label>
                         <input type="text" name="jobType" value={formData.jobType} onChange={handleChange}/>
                     </div>
                     <div className="form-group">
+                        {/* Experience Level */}
                         <label>Experience Level</label>
                         <input type="text" name="experienceLevel" value={formData.experienceLevel} onChange={handleChange}/>
                     </div>
                     <div className="form-group">
+                        {/* Salary */}
                         <label>Salary</label>
                         <div className="salary-group">
 

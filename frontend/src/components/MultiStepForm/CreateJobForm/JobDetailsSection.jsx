@@ -1,7 +1,10 @@
 import { useState } from "react"
 
 function JobDetailsSection({ formData, setFormData, handleChange }) {
-    const [isVisible, setIsVisible] = useState(false);
+    const [isVisible, setIsVisible] = useState({
+        salaryDropdown: false,
+        frequencyDropdown: false
+    });
     const options = {
         jobTypeOptions: ['Full-Time', 'Part-Time', 'Contract', 'Internship'],
         experienceLevelOptions: ['Intern', 'Entry', 'Mid-Level', 'Senior'],

@@ -16,6 +16,8 @@ function JobDetailsSection({ formData, setFormData, handleChange }) {
         ],
         frequencyOptions: ['hour', 'day', 'week', 'month', 'year']
     }
+
+    const selectedCurrency = options.currencyOptions.find(c => c.value === formData.salary.currency)
     
     return (
         <>
@@ -48,7 +50,7 @@ function JobDetailsSection({ formData, setFormData, handleChange }) {
                         <div className="salary-group">
                             <ul className="select-menu">
                                 <li onClick={() => setIsVisible(!isVisible)}>
-                                    <i className={`fa-solid ${options.currencyOptions[0].icon}`} value={options.currencyOptions[0].value}></i>
+                                    <i className={`fa-solid ${selectedCurrency.icon}`}></i>
                                 </li>
                                 <div className={`dropdown-list ${isVisible ? 'visible' : ''}`}>
                                     {options.currencyOptions.map((currency, index) => (
@@ -57,7 +59,7 @@ function JobDetailsSection({ formData, setFormData, handleChange }) {
                                         </li>
                                     ))}
                                 </div>
-                            </ul>                            
+                            </ul>                    
                         </div>
                     </div>
                 </div>

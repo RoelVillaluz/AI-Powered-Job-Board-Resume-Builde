@@ -99,6 +99,20 @@ function CreateJobForm() {
         }
     }
 
+    const nextStep = () => {
+        if (currentStepIndex < steps.length - 1) {
+            setCurrentStepIndex((prev) => prev + 1)
+            setIsNextAllowed(false)
+        }
+    }
+
+    const prevStep = () => {
+        if (currentStepIndex > 0 ) {
+            setCurrentStepIndex((prev) => prev - 1)
+            setIsNextAllowed(true)
+        }
+    }
+
     const addActiveClass = () => {
         const stepMarkers = document.querySelectorAll('.steps li');
         stepMarkers.forEach((marker, index) => {

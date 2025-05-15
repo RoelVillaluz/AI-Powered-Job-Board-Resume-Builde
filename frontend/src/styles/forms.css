@@ -706,6 +706,7 @@ textarea
   cursor: pointer;
 }
 
+.select-menu li.selected,
 .select-menu li:hover {
   background-color: var(--tertiary);
   color: var(--secondary);

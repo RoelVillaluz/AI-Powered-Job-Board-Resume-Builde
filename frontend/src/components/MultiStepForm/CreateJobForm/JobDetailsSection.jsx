@@ -49,7 +49,7 @@ function JobDetailsSection({ formData, setFormData, handleChange }) {
                         <label>Salary</label>
                         <div className="salary-group">
                             <ul className="select-menu">
-                                <li onClick={() => setIsVisible(!isVisible)}>
+                                <li onClick={() => setIsVisible(!isVisible)} className="selected">
                                     <i className={`fa-solid ${selectedCurrency.icon}`}></i>
                                 </li>
                                 <div className={`dropdown-list ${isVisible ? 'visible' : ''}`}>

@@ -126,6 +126,28 @@ function CreateJobForm() {
         })
     }
     
+    useEffect(() => {
+        // First, ensure formData has required properties
+        if (!formData) return;
+
+        const getValue = (field) => {
+            const keys = field.split(".");
+            return keys.reduce((obj, key) => obj?.[key], formData)
+        }
+
+        switch (currentStepIndex) {
+            case 0: 
+                const requiredFields = ["title", "location", "jobType", "salary.amount"]
+                const areDetailsFilled = requiredFields.every(field => {
+                    const value = getValue(field);
+                    return value !== undefined && value.toString().trim() !== "";
+                })
+                setIsNextAllowed(areDetailsFilled)
+                break;
+            default:
+                setIsNextAllowed(false)
+        }
+    })
     
     useEffect(() => {
         console.log('Form Data: ', formData)

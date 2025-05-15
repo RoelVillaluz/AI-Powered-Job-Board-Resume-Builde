@@ -71,8 +71,6 @@ function CreateJobForm() {
         } else {
             setFormData(prev => ({ ...prev, [name]: value }))
         }
-
-        console.log('Form Data', formData)
     }
 
     const handleAddItem = (e) => {
@@ -187,8 +185,33 @@ function CreateJobForm() {
                         </ul>
 
                     </div>
-                    <form className="form-panel" style={{ flex: '3' }}>
+                    <form className="form-panel" style={{ flex: '3', marginRight: '4.5rem' }}>
                         <JobDetailsSection formData={formData} setFormData={setFormData} handleChange={handleChange}/>
+
+                        <div className="buttons" style={{ justifyContent: currentStepIndex > 0 ? "space-between" : "flex-end" }}>
+                        {currentStepIndex > 0 && (
+                            <button onClick={prevStep} id="prev-step-btn" type="button">Previous</button>
+                        )}
+                        {steps[currentStepIndex] === 'finished' ? (
+                            <button id="submit-btn" type="submit">
+                                Submit
+                            </button>
+                        ) : (
+                            isNextAllowed && (
+                                <button
+                                    onClick={(e) => {
+                                        e.preventDefault();  // <-- Prevents form submission
+                                        nextStep();
+                                    }}
+                                    id="next-step-btn"
+                                    type="button"
+                                >
+                                    Next
+                                </button>
+                            )
+                        )}
+
+                    </div>
                     </form>
                 </div>
             </Layout>

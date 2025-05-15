@@ -65,7 +65,7 @@ function JobDetailsSection({ formData, setFormData, handleChange }) {
                                     <i className={`fa-solid ${selectedCurrency.icon}`}></i>
                                 </li>
                                 <div className={`dropdown-list ${isVisible.salaryDropdown ? 'visible' : ''}`}>
-                                    {options.currencyOptions.map((currency, index) => (
+                                    {options.currencyOptions.filter(currency => currency !== selectedCurrency).map((currency, index) => (
                                         <li key={index} onClick={() => { 
                                                 handleChange({ target: { name: "salary.currency", value: currency.value } }) 
                                                 toggleVisibility("salaryDropdown")
@@ -83,7 +83,7 @@ function JobDetailsSection({ formData, setFormData, handleChange }) {
                                     {selectedFrequency}
                                 </li>
                                 <div className={`dropdown-list ${isVisible.frequencyDropdown ? 'visible': ''}`}>
-                                    {options.frequencyOptions.map((option, index) => (
+                                    {options.frequencyOptions.filter(option => option !== selectedFrequency).map((option, index) => (
                                         <li key={index} onClick={() => {
                                             handleChange({ target: { name: "salary.frequency", value: option } })
                                             toggleVisibility("frequencyDropdown")

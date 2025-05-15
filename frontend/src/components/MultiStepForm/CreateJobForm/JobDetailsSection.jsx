@@ -52,20 +52,20 @@ function JobDetailsSection({ formData, setFormData, handleChange }) {
                         <label>Salary</label>
                         <div className="salary-group">
                             <ul className="select-menu">
-                                <li onClick={() => setIsVisible(!isVisible)} className="selected">
+                                <li onClick={() => toggleVisibility("salaryDropdown")} className="selected">
                                     <i className={`fa-solid ${selectedCurrency.icon}`}></i>
                                 </li>
-                                <div className={`dropdown-list ${isVisible ? 'visible' : ''}`}>
+                                <div className={`dropdown-list ${isVisible.salaryDropdown ? 'visible' : ''}`}>
                                     {options.currencyOptions.map((currency, index) => (
                                         <li key={index} onClick={() => { 
                                                 handleChange({ target: { name: "salary.currency", value: currency.value } }) 
-                                                setIsVisible(!isVisible)
+                                                toggleVisibility("salaryDropdown")
                                             }}>
                                             <i className={`fa-solid ${currency.icon}`} value={currency.value}></i>
                                         </li>
                                     ))}
                                 </div>
-                            </ul>                    
+                            </ul>    
                         </div>
                     </div>
                 </div>

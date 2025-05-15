@@ -51,10 +51,10 @@ function JobDetailsSection({ formData, setFormData, handleChange }) {
                                     <i className={`fa-solid ${options.currencyOptions[0].icon}`} value={options.currencyOptions[0].value}></i>
                                 </li>
                                 <div className={`dropdown-list ${isVisible ? 'visible' : ''}`}>
-                                    {options.currencyOptions.slice(1).map((currency, index) => (
-                                    <li key={index}>
-                                        <i className={`fa-solid ${currency.icon}`} value={currency.value}></i>
-                                    </li>
+                                    {options.currencyOptions.map((currency, index) => (
+                                        <li key={index} onClick={() => handleChange({ target: { name: "salary.currency", value: currency.value } })}>
+                                            <i className={`fa-solid ${currency.icon}`} value={currency.value}></i>
+                                        </li>
                                     ))}
                                 </div>
                             </ul>                            

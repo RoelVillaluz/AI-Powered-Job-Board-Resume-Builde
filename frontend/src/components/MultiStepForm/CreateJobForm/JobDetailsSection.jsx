@@ -74,6 +74,7 @@ function JobDetailsSection({ formData, setFormData, handleChange }) {
 
                                 <button onClick={() => toggleVisibility("experienceDropdown")}  className="toggle-dropdown-btn" type="button">
                                     {formData.experienceLevel || options.experienceLevelOptions[0]}
+                                    <i className="fa-solid fa-angle-down"></i>
                                 </button>
 
                                 <ul className={`dropdown-list ${isVisible.experienceDropdown ? 'visible' : ''}`}>
@@ -117,6 +118,7 @@ function JobDetailsSection({ formData, setFormData, handleChange }) {
                             <ul className="select-menu">
                                 <button onClick={() => toggleVisibility("frequencyDropdown")} className="toggle-dropdown-btn" type="button">
                                     {selectedFrequency}
+                                    <i className="fa-solid fa-angle-down"></i>
                                 </button>
                                 <div className={`dropdown-list ${isVisible.frequencyDropdown ? 'visible': ''}`}>
                                     {options.frequencyOptions.filter(option => option !== selectedFrequency).map((option, index) => (

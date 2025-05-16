@@ -725,7 +725,7 @@ textarea
 
 .toggle-dropdown-btn {
     display: flex;
-    align-items: center;
+    align-items: end;
     justify-content: center;
     gap: 0.5rem;
     font-weight: 600;

@@ -25,11 +25,12 @@ function JobDetailsSection({ formData, setFormData, handleChange }) {
     const selectedCurrency = options.currencyOptions.find(c => c.value === formData.salary.currency);
     const selectedFrequency = options.frequencyOptions.find(f => f === formData.salary.frequency);
 
-    const getFilteredOptions = (options, selectedValue) => {
-        return options.filter((option, index) => {
-            // If nothing selected yet, skip the first item (index 0)
-            if (!selectedValue && index === 0) return false;
-            // Always skip the currently selected value
+    const getFilteredOptions = (options, selectedValue, key = null) => {
+    return options.filter((option, index) => {
+        if (!selectedValue && index === 0) return false;
+            if (key) {
+                return option[key] !== selectedValue;
+            }
             return option !== selectedValue;
         });
     };

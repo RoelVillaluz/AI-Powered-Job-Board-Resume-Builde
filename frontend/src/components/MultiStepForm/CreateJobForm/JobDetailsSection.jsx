@@ -72,9 +72,9 @@ function JobDetailsSection({ formData, setFormData, handleChange }) {
                             <input type="text" name="experienceLevel" value={formData.experienceLevel} onChange={handleChange} readOnly/>
                             <ul className="select-menu">
 
-                                <li onClick={() => toggleVisibility("experienceDropdown")}>
+                                <button onClick={() => toggleVisibility("experienceDropdown")}  className="toggle-dropdown-btn" type="button">
                                     {formData.experienceLevel || options.experienceLevelOptions[0]}
-                                </li>
+                                </button>
 
                                 <ul className={`dropdown-list ${isVisible.experienceDropdown ? 'visible' : ''}`}>
                                     {getFilteredOptions(options.experienceLevelOptions, formData.experienceLevel).map((option, index) => (
@@ -97,9 +97,9 @@ function JobDetailsSection({ formData, setFormData, handleChange }) {
                         <div className="salary-group">
 
                             <ul className="select-menu">
-                                <li onClick={() => toggleVisibility("salaryDropdown")} className="selected">
+                                <button onClick={() => toggleVisibility("salaryDropdown")} className="toggle-dropdown-btn" type="button">
                                     <i className={`fa-solid ${selectedCurrency.icon}`}></i>
-                                </li>
+                                </button>
                                 <ul className={`dropdown-list ${isVisible.salaryDropdown ? 'visible' : ''}`}>
                                     {options.currencyOptions.filter(currency => currency !== selectedCurrency).map((currency, index) => (
                                         <li key={index} onClick={() => { 
@@ -115,9 +115,9 @@ function JobDetailsSection({ formData, setFormData, handleChange }) {
                             <input type="number" name="salary.amount" value={formData.salary.amount} onChange={handleChange}/>      
 
                             <ul className="select-menu">
-                                <li onClick={() => toggleVisibility("frequencyDropdown")} className="selected">
+                                <button onClick={() => toggleVisibility("frequencyDropdown")} className="toggle-dropdown-btn" type="button">
                                     {selectedFrequency}
-                                </li>
+                                </button>
                                 <div className={`dropdown-list ${isVisible.frequencyDropdown ? 'visible': ''}`}>
                                     {options.frequencyOptions.filter(option => option !== selectedFrequency).map((option, index) => (
                                         <li key={index} onClick={() => {

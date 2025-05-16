@@ -429,7 +429,9 @@ textarea
     padding: 0 1rem;
 }
 
-.form-panel button {
+#next-step-btn,
+#prev-step-btn
+{
     padding: 6px 12px;
     border-radius: 4px;
     background-color: var(--secondary);

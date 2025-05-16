@@ -82,7 +82,7 @@ function JobDetailsSection({ formData, setFormData, handleChange }) {
                                                 handleChange({ target: { name: "experienceLevel", value: option } }) 
                                                 toggleVisibility("experienceDropdown")
                                             }}>
-                                            {option}
+                                            <span className="option-text">{option}</span>
                                         </li>
                                     ))}
 
@@ -124,7 +124,7 @@ function JobDetailsSection({ formData, setFormData, handleChange }) {
                                             handleChange({ target: { name: "salary.frequency", value: option } })
                                             toggleVisibility("frequencyDropdown")
                                         }}>
-                                            {option}
+                                            <span className="option-text">{option}</span>
                                         </li>
                                     ))}
                                 </div>

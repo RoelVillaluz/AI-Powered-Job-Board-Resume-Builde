@@ -714,6 +714,14 @@ textarea
   color: var(--secondary);
 }
 
+.option-text {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .toggle-dropdown-btn {
     display: flex;
     align-items: center;

@@ -66,7 +66,29 @@ function JobDetailsSection({ formData, setFormData, handleChange }) {
                     <div className="form-group">
                         {/* Experience Level */}
                         <label>Experience Level</label>
-                        <input type="text" name="experienceLevel" value={formData.experienceLevel} onChange={handleChange}/>
+
+                        <div className="row" style={{ alignItems: 'start' }}>
+                            <input type="text" name="experienceLevel" value={formData.experienceLevel} onChange={handleChange} readOnly/>
+                            <ul className="select-menu">
+
+                                <li onClick={() => toggleVisibility("experienceDropdown")}>
+                                    {selectedExperienceLevel !== '' ? options.experienceLevelOptions[0] : selectedExperienceLevel}
+                                </li>
+
+                                <div className={`dropdown-list ${isVisible.experienceDropdown ? 'visible' : ''}`}>
+                                    {getFilteredOptions(options.experienceLevelOptions, formData.experienceLevel).map((option, index) => (
+                                        <li key={index} onClick={() => { 
+                                                handleChange({ target: { name: "experienceLevel", value: option } }) 
+                                                toggleVisibility("experienceDropdown")
+                                            }}>
+                                            {option}
+                                        </li>
+                                    ))}
+
+                                </div>
+                            </ul> 
+
+                        </div>
                     </div>
                     <div className="form-group">
                         {/* Salary */}

@@ -76,7 +76,7 @@ function JobDetailsSection({ formData, setFormData, handleChange }) {
                                     {formData.experienceLevel || options.experienceLevelOptions[0]}
                                 </li>
 
-                                <div className={`dropdown-list ${isVisible.experienceDropdown ? 'visible' : ''}`}>
+                                <ul className={`dropdown-list ${isVisible.experienceDropdown ? 'visible' : ''}`}>
                                     {getFilteredOptions(options.experienceLevelOptions, formData.experienceLevel).map((option, index) => (
                                         <li key={index} onClick={() => { 
                                                 handleChange({ target: { name: "experienceLevel", value: option } }) 
@@ -86,7 +86,7 @@ function JobDetailsSection({ formData, setFormData, handleChange }) {
                                         </li>
                                     ))}
 
-                                </div>
+                                </ul>
                             </ul> 
 
                         </div>
@@ -100,7 +100,7 @@ function JobDetailsSection({ formData, setFormData, handleChange }) {
                                 <li onClick={() => toggleVisibility("salaryDropdown")} className="selected">
                                     <i className={`fa-solid ${selectedCurrency.icon}`}></i>
                                 </li>
-                                <div className={`dropdown-list ${isVisible.salaryDropdown ? 'visible' : ''}`}>
+                                <ul className={`dropdown-list ${isVisible.salaryDropdown ? 'visible' : ''}`}>
                                     {options.currencyOptions.filter(currency => currency !== selectedCurrency).map((currency, index) => (
                                         <li key={index} onClick={() => { 
                                                 handleChange({ target: { name: "salary.currency", value: currency.value } }) 
@@ -109,7 +109,7 @@ function JobDetailsSection({ formData, setFormData, handleChange }) {
                                             <i className={`fa-solid ${currency.icon}`} value={currency.value}></i>
                                         </li>
                                     ))}
-                                </div>
+                                </ul>
                             </ul>    
 
                             <input type="number" name="salary.amount" value={formData.salary.amount} onChange={handleChange}/>      

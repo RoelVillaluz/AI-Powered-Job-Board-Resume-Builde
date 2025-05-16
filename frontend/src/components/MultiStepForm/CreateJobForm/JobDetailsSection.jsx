@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 function JobDetailsSection({ formData, setFormData, handleChange }) {
     const [isVisible, setIsVisible] = useState({
@@ -34,12 +34,15 @@ function JobDetailsSection({ formData, setFormData, handleChange }) {
     };
 
     const toggleVisibility = (dropdown) => {
-        setIsVisible(prev => ({
-            ...prev,
-            [dropdown]: !prev[dropdown]
-        }));
-    };
-    
+        setIsVisible((prevState) => {
+            const updatedState = {}
+            Object.keys(prevState).forEach((key) => {
+                updatedState[key] = key === dropdown ? !prevState[key] : false;
+            })
+            return updatedState
+        })
+    }
+
     return (
         <>
             <section id="job-posting-details">

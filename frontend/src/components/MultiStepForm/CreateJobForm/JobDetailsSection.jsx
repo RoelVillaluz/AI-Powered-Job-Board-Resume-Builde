@@ -21,6 +21,7 @@ function JobDetailsSection({ formData, setFormData, handleChange }) {
         frequencyOptions: ['hour', 'day', 'week', 'month', 'year']
     }
 
+    const selectedExperienceLevel = options.experienceLevelOptions.find(e => e === formData.experienceLevel)
     const selectedCurrency = options.currencyOptions.find(c => c.value === formData.salary.currency);
     const selectedFrequency = options.frequencyOptions.find(f => f === formData.salary.frequency);
 

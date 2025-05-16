@@ -73,7 +73,7 @@ function JobDetailsSection({ formData, setFormData, handleChange }) {
                             <ul className="select-menu">
 
                                 <li onClick={() => toggleVisibility("experienceDropdown")}>
-                                    {selectedExperienceLevel !== '' ? options.experienceLevelOptions[0] : selectedExperienceLevel}
+                                    {formData.experienceLevel || options.experienceLevelOptions[0]}
                                 </li>
 
                                 <div className={`dropdown-list ${isVisible.experienceDropdown ? 'visible' : ''}`}>

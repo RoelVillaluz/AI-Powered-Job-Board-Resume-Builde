@@ -693,6 +693,7 @@ textarea
   list-style: none;
   padding: 0;
   margin: 0;
+  width: clamp(175px, 7.5vw, 225px); 
 }
 
 .select-menu li {

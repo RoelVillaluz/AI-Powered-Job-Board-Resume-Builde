@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 
 function JobDetailsSection({ formData, setFormData, handleChange }) {
     const [isVisible, setIsVisible] = useState({
+        jobTypeDropdown: false,
         experienceDropdown: false,
         salaryDropdown: false,
         frequencyDropdown: false,
@@ -64,7 +65,31 @@ function JobDetailsSection({ formData, setFormData, handleChange }) {
                     <div className="form-group">
                         {/* Job Type */}
                         <label>Job Type</label>
-                        <input type="text" name="jobType" value={formData.jobType} onChange={handleChange}/>
+
+                        <div className="row" style={{ alignItems: 'start' }}>
+                            <input type="text" name="jobType" value={formData.jobType} onChange={handleChange} readOnly/>
+                            <ul className="select-menu">
+
+                                <button onClick={() => toggleVisibility("jobTypeDropdown")}  className="toggle-dropdown-btn" type="button">
+                                    {formData.jobType || options.jobTypeOptions[0]}
+                                    <i className="fa-solid fa-angle-down"></i>
+                                </button>
+
+                                <ul className={`dropdown-list ${isVisible.jobTypeDropdown ? 'visible' : ''}`}>
+                                    {getFilteredOptions(options.jobTypeOptions, formData.jobType).map((option, index) => (
+                                        <li key={index} onClick={() => { 
+                                                handleChange({ target: { name: "jobType", value: option } }) 
+                                                toggleVisibility("jobTypeDropdown")
+                                            }}>
+                                            <span className="option-text">{option}</span>
+                                        </li>
+                                    ))}
+
+                                </ul>
+                            </ul> 
+
+                        </div>
+
                     </div>
                     <div className="form-group">
                         {/* Experience Level */}
@@ -93,6 +118,7 @@ function JobDetailsSection({ formData, setFormData, handleChange }) {
                             </ul> 
 
                         </div>
+
                     </div>
                     <div className="form-group">
                         {/* Salary */}

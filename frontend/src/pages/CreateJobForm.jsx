@@ -4,6 +4,7 @@ import axios from "axios";
 import { useAuth } from "../components/AuthProvider.jsx";
 import Layout from "../components/Layout.jsx";
 import JobDetailsSection from "../components/MultiStepForm/CreateJobForm/JobDetailsSection.jsx";
+import SkillsAndRequirementsSection from "../components/MultiStepForm/CreateJobForm/SkillsAndRequirementsSection.jsx";
 
 function CreateJobForm() {
     const { baseUrl } = useData();
@@ -190,6 +191,11 @@ function CreateJobForm() {
                         {/* Job Details Section */}
                         {currentStepIndex === 0 && (
                             <JobDetailsSection formData={formData} setFormData={setFormData} handleChange={handleChange}/>
+                        )}
+
+                        {/* Skills and Requirements Section */}
+                        {currentStepIndex === 1 && (
+                            <SkillsAndRequirementsSection formData={formData} setFormData={setFormData} handleChange={handleChange}/>
                         )}
 
                         <div className="buttons" style={{ justifyContent: currentStepIndex > 0 ? "space-between" : "flex-end" }}>

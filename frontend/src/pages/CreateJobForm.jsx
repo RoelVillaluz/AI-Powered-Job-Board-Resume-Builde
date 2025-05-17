@@ -186,7 +186,11 @@ function CreateJobForm() {
 
                     </div>
                     <form className="form-panel" style={{ flex: '3', marginRight: '4.5rem' }}>
-                        <JobDetailsSection formData={formData} setFormData={setFormData} handleChange={handleChange}/>
+
+                        {/* Job Details Section */}
+                        {currentStepIndex === 0 && (
+                            <JobDetailsSection formData={formData} setFormData={setFormData} handleChange={handleChange}/>
+                        )}
 
                         <div className="buttons" style={{ justifyContent: currentStepIndex > 0 ? "space-between" : "flex-end" }}>
                         {currentStepIndex > 0 && (

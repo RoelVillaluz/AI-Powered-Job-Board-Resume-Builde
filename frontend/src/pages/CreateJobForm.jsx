@@ -25,7 +25,7 @@ function CreateJobForm() {
     const [skillInput, setSkillInput] = useState('');
     const [requirementInput, setRequirementInput] = useState('');
 
-    const steps = ['details', 'skills', 'questions', 'finished'];
+    const steps = ['details', 'skillsAndRequirements', 'questions', 'finished'];
     const [currentStepIndex, setCurrentStepIndex] = useState(0);
     const [isNextAllowed, setIsNextAllowed] = useState(false);
     
@@ -171,8 +171,8 @@ function CreateJobForm() {
                                 <span>Add details.</span>
                             </li>
                             <li>
-                                <i className="fa-solid fa-lightbulb"></i>
-                                <span>Skills</span>
+                                <i className="fa-solid fa-list-check"></i>
+                                <span>Skills and Requirements</span>
                             </li>
                             <li>
                                 <i className="fa-solid fa-clipboard-question"></i>

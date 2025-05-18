@@ -85,7 +85,37 @@ function SkillsAndRequirementsSection({ formData, setFormData, handleChange }) {
                 <div className="form-group">
 
                     <label htmlFor="skills">Skills</label>
-                    <div className="wrapper" style={{ alignItems: 'stretch' }}>
+                    <div className="row" style={{ alignItems: 'start' }}>
+
+                        <input 
+                            type="text" 
+                            value={skillInput}
+                            onChange={(e) => setSkillInput(e.target.value)}
+                            onKeyDown={handleAddSkill}
+                        />
+
+                        <ul className="select-menu">
+
+                            <button onClick={() => toggleVisibility("skillDropdown")} className="toggle-dropdown-btn" type="button">
+                                {formData.skills.level || options.skillLevelOptions[0]}
+                                <i className="fa-solid fa-angle-down"></i>
+                            </button>
+
+                            <ul className={`dropdown-list ${isVisible.skillDropdown ? 'visible' : ''}`}>
+                                {getFilteredOptions(options.skillLevelOptions, formData.skills.level).map((option, index) => (
+                                    <li key={index} onClick={() => { 
+                                            handleChange({ target: { name: "skills.level", value: option } }) 
+                                            toggleVisibility("skillDropdown")
+                                        }}>
+                                        <span className="option-text">{option}</span>
+                                    </li>
+                                ))}
+                            </ul>
+
+                        </ul>
+
+                    </div>
+                    {/* <div className="wrapper" style={{ alignItems: 'stretch' }}>
                         <input 
                             type="text" 
                             value={skillInput}
@@ -93,13 +123,13 @@ function SkillsAndRequirementsSection({ formData, setFormData, handleChange }) {
                             onKeyDown={handleAddSkill}
                         />
                         <select className="skill-select" value={levelInput} onChange={(e) => setLevelInput(e.target.value)}>
-                            {skillLevels.map((level) => (
+                            {options.skillOptions.map((level) => (
                                 <option key={level} value={level === "Level" ? "" : level}>
                                     {level}
                                 </option>
                             ))}
                         </select>
-                    </div>
+                    </div> */}
 
                 </div>
 

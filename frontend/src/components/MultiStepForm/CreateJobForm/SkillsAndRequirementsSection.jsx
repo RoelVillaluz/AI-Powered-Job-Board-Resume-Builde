@@ -64,6 +64,16 @@ function SkillsAndRequirementsSection({ formData, setFormData, handleChange }) {
         });
     };
 
+    const toggleVisibility = (dropdown) => {
+        setIsVisible((prevState) => {
+            const updatedState = {}
+            Object.keys(prevState).forEach((key) => {
+                updatedState[key] = key === dropdown ? !prevState[key] : false;
+            })
+            return updatedState
+        })
+    }
+
     return (
         <section className="user-skills">
             <header>

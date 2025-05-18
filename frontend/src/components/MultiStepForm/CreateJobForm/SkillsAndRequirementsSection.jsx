@@ -53,6 +53,17 @@ function SkillsAndRequirementsSection({ formData, setFormData, handleChange }) {
         })
     }
 
+    const getFilteredOptions = (options, selectedValue, key = null) => {
+        return options.filter((option, index) => {
+            if (!selectedValue && index === 0) return false;
+            
+            if (key) {
+                return option[key] !== selectedValue;
+            }
+            return option !== selectedValue;
+        });
+    };
+
     return (
         <section className="user-skills">
             <header>

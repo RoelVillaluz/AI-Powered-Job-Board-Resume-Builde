@@ -25,8 +25,9 @@ function JobDetailsSection({ formData, setFormData, handleChange }) {
     const selectedCurrency = options.currencyOptions.find(c => c.value === formData.salary.currency) || { icon: '' };
 
     const getFilteredOptions = (options, selectedValue, key = null) => {
-    return options.filter((option, index) => {
-        if (!selectedValue && index === 0) return false;
+        return options.filter((option, index) => {
+            if (!selectedValue && index === 0) return false;
+            
             if (key) {
                 return option[key] !== selectedValue;
             }

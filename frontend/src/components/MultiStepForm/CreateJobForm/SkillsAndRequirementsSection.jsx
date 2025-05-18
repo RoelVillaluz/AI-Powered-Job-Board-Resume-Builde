@@ -2,35 +2,44 @@ import { useState } from "react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 
 function SkillsAndRequirementsSection({ formData, setFormData, handleChange }) {
-    const [skillInput, setSkillInput] = useState('');
-    const [levelInput, setLevelInput] = useState('Beginner'); 
-    const [requirementInput, setRequirementInput] = useState('');
+    const [inputs, setInputs] = useState({
+        skill: '',
+        level: 'Level',
+        requirement: ''
+    })
 
     const [isVisible, setIsVisible] = useState({
         skillDropdown: false
     })
+
     const options = {
         skillLevelOptions: ["Level", "Beginner", "Intermediate", "Advanced"],
     }
 
-    const handleAddSkill = (e) => {
-        if (e.key === 'Enter' && skillInput.trim()) {
+    const handleInputChange = (e, name) => {
+        setInputs(prev => ({ ...prev, [name]: e.target.value }))
+    }
+
+    const handleAddItem = (e, name) => {
+        if (e.key === 'Enter' && inputs[name].trim()) {
             e.preventDefault();
 
-            // Ensure formData.skills exists
-            const currentSkills = formData.skills || [];
+            const currentList = formData[name] || [];
+
+            const newItem = name === "skills"
+                ? { name: inputs[name].trim(), level: inputs.level || "Level" }
+                : inputs[name].trim();
 
             handleChange({
-                target: { 
-                    name: "skills", 
-                    value: [...currentSkills, { name: skillInput.trim(), level: levelInput }] 
+                target: {
+                    name: name,
+                    value: [...currentList, newItem]
                 }
             });
 
-            setSkillInput('');
-            setLevelInput('Level'); // Reset level selection
+            setInputs(prev => ({ ...prev, [name]: "" }))
         }
-    };
+    }
 
     const handleDragEnd = (result) => {
         if (!result.destination) return;
@@ -84,30 +93,35 @@ function SkillsAndRequirementsSection({ formData, setFormData, handleChange }) {
 
                 <div className="form-group">
 
+                    {/* Skill Name Input */}
                     <label htmlFor="skills">Skills</label>
+
                     <div className="row" style={{ alignItems: 'start' }}>
 
                         <input 
                             type="text" 
-                            value={skillInput}
-                            onChange={(e) => setSkillInput(e.target.value)}
-                            onKeyDown={handleAddSkill}
+                            value={inputs.skills}
+                            onChange={(e) => handleInputChange(e, "skills")}
+                            onKeyDown={(e) => handleAddItem(e, "skills")}
                         />
 
                         <ul className="select-menu">
 
                             <button onClick={() => toggleVisibility("skillDropdown")} className="toggle-dropdown-btn" type="button">
-                                {formData.skills.level || options.skillLevelOptions[0]}
+                                {inputs.level || options.skillLevelOptions[0]}
                                 <i className="fa-solid fa-angle-down"></i>
                             </button>
 
                             <ul className={`dropdown-list ${isVisible.skillDropdown ? 'visible' : ''}`}>
-                                {getFilteredOptions(options.skillLevelOptions, formData.skills.level).map((option, index) => (
-                                    <li key={index} onClick={() => { 
-                                            handleChange({ target: { name: "skills.level", value: option } }) 
+                                {getFilteredOptions(options.skillLevelOptions, inputs.level).map((option, index) => (
+                                    <li 
+                                        key={index}
+                                        onClick={() => { 
+                                            setInputs(prev => ({ ...prev, level: option }))
                                             toggleVisibility("skillDropdown")
-                                        }}>
-                                        <span className="option-text">{option}</span>
+                                        }}
+                                    >
+                                    <span className="option-text">{option}</span>
                                     </li>
                                 ))}
                             </ul>

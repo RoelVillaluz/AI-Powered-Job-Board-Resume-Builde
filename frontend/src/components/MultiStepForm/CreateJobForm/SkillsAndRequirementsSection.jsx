@@ -7,7 +7,7 @@ function SkillsAndRequirementsSection({ formData, setFormData, handleChange }) {
     const [requirementInput, setRequirementInput] = useState('');
 
     const options = {
-        skillOptions: ["Level", "Beginner", "Intermediate", "Advanced"],
+        skillLevelOptions: ["Level", "Beginner", "Intermediate", "Advanced"],
     }
 
     const handleAddSkill = (e) => {

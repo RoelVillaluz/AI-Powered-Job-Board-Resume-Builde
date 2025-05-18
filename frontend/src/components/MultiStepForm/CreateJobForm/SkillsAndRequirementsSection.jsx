@@ -6,6 +6,9 @@ function SkillsAndRequirementsSection({ formData, setFormData, handleChange }) {
     const [levelInput, setLevelInput] = useState('Beginner'); 
     const [requirementInput, setRequirementInput] = useState('');
 
+    const [isVisible, setIsVisible] = useState({
+        skillDropdown: false
+    })
     const options = {
         skillLevelOptions: ["Level", "Beginner", "Intermediate", "Advanced"],
     }

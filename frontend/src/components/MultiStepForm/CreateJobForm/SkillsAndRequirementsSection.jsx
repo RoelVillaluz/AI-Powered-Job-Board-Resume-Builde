@@ -3,9 +3,9 @@ import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 
 function SkillsAndRequirementsSection({ formData, setFormData, handleChange }) {
     const [inputs, setInputs] = useState({
-        skill: '',
+        skills: '',
         level: 'Level',
-        requirement: ''
+        requirements: ''
     })
 
     const [isVisible, setIsVisible] = useState({
@@ -100,7 +100,7 @@ function SkillsAndRequirementsSection({ formData, setFormData, handleChange }) {
 
                         <input 
                             type="text" 
-                            value={inputs.skills}
+                            value={inputs.skill}
                             onChange={(e) => handleInputChange(e, "skills")}
                             onKeyDown={(e) => handleAddItem(e, "skills")}
                         />

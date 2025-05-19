@@ -86,7 +86,7 @@ function SkillsAndRequirementsSection({ formData, setFormData, handleChange }) {
     return (
         <section className="user-skills">
             <header>
-                <h3>What Skills Are You Looking For?</h3>
+                <h3>What skills and requirements are you looking for?</h3>
             </header>
             
             <div className="form-details">

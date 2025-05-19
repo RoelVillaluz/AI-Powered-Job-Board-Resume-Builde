@@ -129,21 +129,6 @@ function SkillsAndRequirementsSection({ formData, setFormData, handleChange }) {
                         </ul>
 
                     </div>
-                    {/* <div className="wrapper" style={{ alignItems: 'stretch' }}>
-                        <input 
-                            type="text" 
-                            value={skillInput}
-                            onChange={(e) => setSkillInput(e.target.value)} 
-                            onKeyDown={handleAddSkill}
-                        />
-                        <select className="skill-select" value={levelInput} onChange={(e) => setLevelInput(e.target.value)}>
-                            {options.skillOptions.map((level) => (
-                                <option key={level} value={level === "Level" ? "" : level}>
-                                    {level}
-                                </option>
-                            ))}
-                        </select>
-                    </div> */}
 
                 </div>
 
@@ -178,6 +163,24 @@ function SkillsAndRequirementsSection({ formData, setFormData, handleChange }) {
                         )}
                     </Droppable>
                 </DragDropContext>
+
+                <div className="form-group">
+
+                    {/* Requirements Input */}
+                    <label htmlFor="requirements">Requirements</label>
+
+                    <div className="row" style={{ alignItems: 'start' }}>
+
+                        <input 
+                            type="text" 
+                            value={inputs.requirement}
+                            onChange={(e) => handleInputChange(e, "requirements")}
+                            onKeyDown={(e) => handleAddItem(e, "requirements")}
+                        />
+
+                    </div>
+
+                </div>
 
             </div>
         </section>

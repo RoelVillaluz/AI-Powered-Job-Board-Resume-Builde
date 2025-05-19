@@ -23,8 +23,6 @@ function CreateJobForm() {
         requirements: [],
         skills: []
     })
-    const [skillInput, setSkillInput] = useState('');
-    const [requirementInput, setRequirementInput] = useState('');
 
     const steps = ['details', 'skillsAndRequirements', 'questions', 'finished'];
     const [currentStepIndex, setCurrentStepIndex] = useState(0);

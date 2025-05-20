@@ -2,6 +2,19 @@ import { useState } from "react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 
 function SkillsAndRequirementsSection({ formData, setFormData, handleChange }) {
+    const formTypes = {
+        skills: {
+            label: "Skills",
+            hasDropDown: true,
+            dropDownName: "skillDropdown",
+            options: ["Level", "Beginner", "Intermediate", "Advanced"],
+        },
+        requirements : {
+            label: "Requirements",
+            hasDropdDown: false,
+        }
+    }
+
     const [inputs, setInputs] = useState({
         skills: '',
         level: 'Level',

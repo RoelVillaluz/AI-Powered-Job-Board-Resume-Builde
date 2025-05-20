@@ -24,11 +24,7 @@ function SkillsAndRequirementsSection({ formData, setFormData, handleChange }) {
     const [isVisible, setIsVisible] = useState({
         skillDropdown: false
     })
-
-    const options = {
-        skillLevelOptions: ["Level", "Beginner", "Intermediate", "Advanced"],
-    }
-
+    
     const handleInputChange = (e, name) => {
         setInputs(prev => ({ ...prev, [name]: e.target.value }))
     }
@@ -103,99 +99,57 @@ function SkillsAndRequirementsSection({ formData, setFormData, handleChange }) {
             </header>
             
             <div className="form-details">
+                
+                {Object.entries(formTypes).map(([name, config]) => (
+                    <>
+                        <div className="form-group" key={name}>
+                            <label>{config.label}</label>
+                            
+                            <div className="row" style={{ alignItems: 'start' }}>
 
-                <div className="form-group">
+                                <input 
+                                    type="text" 
+                                    value={inputs[name] || ""}
+                                    onChange={(e) => handleInputChange(e, name)}
+                                    onKeyDown={(e) => handleAddItem(e, name)}
+                                />
 
-                    {/* Skill Name Input */}
-                    <label htmlFor="skills">Skills</label>
-
-                    <div className="row" style={{ alignItems: 'start' }}>
-
-                        <input 
-                            type="text" 
-                            value={inputs.skill}
-                            onChange={(e) => handleInputChange(e, "skills")}
-                            onKeyDown={(e) => handleAddItem(e, "skills")}
-                        />
-
-                        <ul className="select-menu">
-
-                            <button onClick={() => toggleVisibility("skillDropdown")} className="toggle-dropdown-btn" type="button">
-                                {inputs.level || options.skillLevelOptions[0]}
-                                <i className="fa-solid fa-angle-down"></i>
-                            </button>
-
-                            <ul className={`dropdown-list ${isVisible.skillDropdown ? 'visible' : ''}`}>
-                                {getFilteredOptions(options.skillLevelOptions, inputs.level).map((option, index) => (
-                                    <li 
-                                        key={index}
-                                        onClick={() => { 
-                                            setInputs(prev => ({ ...prev, level: option }))
-                                            toggleVisibility("skillDropdown")
-                                        }}
-                                    >
-                                    <span className="option-text">{option}</span>
-                                    </li>
-                                ))}
-                            </ul>
-
-                        </ul>
-
-                    </div>
-
-                </div>
-
-                <DragDropContext onDragEnd={handleDragEnd}>
-                    <Droppable droppableId="skills-list">
-                        {(provided) => (
-                            <ul className="added-skills" 
-                                {...provided.droppableProps}
-                                ref={provided.innerRef}
-                            >   
-                                {formData.skills?.length > 0 ? (
-                                    formData.skills.map((skill, index) => (
-                                        <Draggable key={skill.name} draggableId={skill.name} index={index}>
-                                            {(provided) => (
+                                {config.hasDropDown && (
+                                    <ul className="select-menu">
+                                        <button onClick={() => toggleVisibility(config.dropDownName)} className="toggle-dropdown-btn" type="button">
+                                            {inputs.level || config.options[0]}
+                                            <i className="fa-solid fa-angle-down"></i>
+                                        </button>
+                                        <ul className={`dropdown-list ${isVisible[formTypes[name].dropDownName] ? 'visible' : ''}`}>
+                                            {getFilteredOptions(config.options, inputs.level).map((option, index) => (
                                                 <li 
-                                                    ref={provided.innerRef}
-                                                    {...provided.draggableProps}
-                                                    {...provided.dragHandleProps}
-                                                    className="draggable-skill"
+                                                    key={index}
+                                                    onClick={() => { 
+                                                        setInputs(prev => ({ ...prev, level: option }))
+                                                        toggleVisibility("skillDropdown")
+                                                    }}
                                                 >
-                                                    <span>{skill.name} {skill.level === 'Level' ? '' : ` - ${skill.level}`}</span>
-                                                    <i className="fa-solid fa-xmark" onClick={() => handleRemoveListItem("skills", index)}></i>
+                                                <span className="option-text">{option}</span>
                                                 </li>
-                                            )}
-                                        </Draggable>
-                                    ))
-                                ) : (
-                                    <p>No skills added yet.</p>
+                                            ))}
+                                        </ul>
+                                    </ul>
                                 )}
-                                {provided.placeholder}
-                            </ul>
-                        )}
-                    </Droppable>
-                </DragDropContext>
 
-                <div className="form-group">
+                            </div>
 
-                    {/* Requirements Input */}
-                    <label htmlFor="requirements">Requirements</label>
+                        </div>
 
-                    <div className="row" style={{ alignItems: 'start' }}>
+                        {/* <DragDropContext onDragEnd={handleDragEnd}>
+                            <Droppable droppableId="">
 
-                        <input 
-                            type="text" 
-                            value={inputs.requirement}
-                            onChange={(e) => handleInputChange(e, "requirements")}
-                            onKeyDown={(e) => handleAddItem(e, "requirements")}
-                        />
-
-                    </div>
-
-                </div>
+                            </Droppable>
+                        </DragDropContext> */}
+                    </>
+                ))}
 
             </div>
+
         </section>
     )
 }

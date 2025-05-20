@@ -7,6 +7,7 @@ function SkillsAndRequirementsSection({ formData, setFormData, handleChange }) {
             label: "Skills",
             hasDropDown: true,
             dropDownName: "skillDropdown",
+            dropDownField: "level",
             options: ["Level", "Beginner", "Intermediate", "Advanced"],
         },
         requirements : {
@@ -117,11 +118,11 @@ function SkillsAndRequirementsSection({ formData, setFormData, handleChange }) {
                                 {config.hasDropDown && (
                                     <ul className="select-menu">
                                         <button onClick={() => toggleVisibility(config.dropDownName)} className="toggle-dropdown-btn" type="button">
-                                            {inputs.level || config.options[0]}
+                                            {inputs[config.dropDownField] || config.options[0]}
                                             <i className="fa-solid fa-angle-down"></i>
                                         </button>
                                         <ul className={`dropdown-list ${isVisible[formTypes[name].dropDownName] ? 'visible' : ''}`}>
-                                            {getFilteredOptions(config.options, inputs.level).map((option, index) => (
+                                            {getFilteredOptions(config.options, inputs[config.dropDownField]).map((option, index) => (
                                                 <li 
                                                     key={index}
                                                     onClick={() => { 

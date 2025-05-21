@@ -1,6 +1,32 @@
 import { useEffect, useState } from "react"
 
 function JobDetailsSection({ formData, setFormData, handleChange }) {
+    const formTypes = {
+        jobType: {
+            label: "Job Type",
+            hasDropDown: true,
+            dropDownName: "jobTypeDropdown",
+            dropDownField: 'jobType',
+            options: ['Full-Time', 'Part-Time', 'Contract', 'Internship'],
+            readOnly: true, // ensures user cant type directly and field can only change through dropdown select
+            updateFormOnClick: true, // ensures once user clicks on dropdown item, it instantly updates form data without clicking enter
+        },
+        experienceLevel: {
+            label: "Experience Level",
+            hasDropDown: true,
+            dropDownName: "experienceDropdown",
+            dropDownField: 'experienceLevel',
+            options: ['Intern', 'Entry', 'Mid-Level', 'Senior'],
+            readOnly: true,
+            updateFormOnClick: true,
+        },
+    }
+
+    const [inputs, setInputs] = useState({
+        jobType: '',
+        experienceLevel: ''
+    })
+ 
     const [isVisible, setIsVisible] = useState({
         jobTypeDropdown: false,
         experienceDropdown: false,

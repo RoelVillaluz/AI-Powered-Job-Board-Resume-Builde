@@ -33,6 +33,11 @@ function JobDetailsSection({ formData, setFormData, handleChange }) {
         salaryDropdown: false,
         frequencyDropdown: false,
     });
+
+    const handleInputChange = (e, name) => {
+        setInputs(prev => ({ ...prev, [name]: e.target.value }))
+    }
+
     const options = {
         jobTypeOptions: ['Full-Time', 'Part-Time', 'Contract', 'Internship'],
         experienceLevelOptions: ['Intern', 'Entry', 'Mid-Level', 'Senior'],

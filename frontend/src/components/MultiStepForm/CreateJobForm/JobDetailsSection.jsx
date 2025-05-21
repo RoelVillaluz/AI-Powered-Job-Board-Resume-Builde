@@ -40,9 +40,6 @@ function JobDetailsSection({ formData, setFormData, handleChange }) {
     }
 
     const options = {
-        jobTypeOptions: ['Full-Time', 'Part-Time', 'Contract', 'Internship'],
-        experienceLevelOptions: ['Intern', 'Entry', 'Mid-Level', 'Senior'],
-
          // Salary object options
         currencyOptions: [
             { icon: 'fa-dollar-sign', value: '$' },

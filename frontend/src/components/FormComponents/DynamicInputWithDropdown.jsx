@@ -1,4 +1,4 @@
-function DynamicInputWithDropdown({ config, name, inputs, handleInputChange, handleAddItem, setInputs, isVisible, toggleVisibility, getFilteredOptions }) {
+function DynamicInputWithDropdown({ config, name, inputs, handleInputChange, handleAddItem = null, setInputs, setFormData, isVisible, toggleVisibility, getFilteredOptions }) {
     return (
         <div className="form-group" key={name}>
             <label>{config.label}</label>
@@ -6,10 +6,11 @@ function DynamicInputWithDropdown({ config, name, inputs, handleInputChange, han
             <div className="row" style={{ alignItems: 'start' }}>
 
                 <input 
-                    type="text" 
+                    type="text"
                     value={inputs[name] || ""}
                     onChange={(e) => handleInputChange(e, name)}
-                    onKeyDown={(e) => handleAddItem(e, name)}
+                    {...(handleAddItem && { onKeyDown: (e) => handleAddItem(e, name) })}
+                    readOnly={config.readOnly}
                 />
 
                 {config.hasDropDown && (
@@ -23,8 +24,15 @@ function DynamicInputWithDropdown({ config, name, inputs, handleInputChange, han
                                 <li 
                                     key={index}
                                     onClick={() => { 
-                                        setInputs(prev => ({ ...prev, level: option }))
+                                        setInputs(prev => ({ ...prev, [config.dropDownField]: option }))
                                         toggleVisibility(config.dropDownName)
+                                        // Directly update parent formData if updateFormOnClick is true
+                                        if (config.updateFormOnClick) {
+                                            setFormData(prev => ({
+                                                ...prev,
+                                                [config.dropDownField]: option
+                                            }))
+                                        }
                                     }}
                                 >
                                 <span className="option-text">{option}</span>

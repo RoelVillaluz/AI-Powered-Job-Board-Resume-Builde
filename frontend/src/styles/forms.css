@@ -642,6 +642,10 @@ textarea
     border-radius: 0 4px 4px 0;
 }
 
+.added .more-items {
+    padding: 5px 10px;
+}
+
 .added-work-exp {
     display: flex;
     gap: 1rem;

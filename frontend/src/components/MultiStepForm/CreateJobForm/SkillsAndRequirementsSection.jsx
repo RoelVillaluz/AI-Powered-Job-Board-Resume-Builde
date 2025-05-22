@@ -17,6 +17,7 @@ function SkillsAndRequirementsSection({ formData, setFormData, handleChange }) {
         requirements : {
             label: "Requirements",
             hasDropdDown: false,
+            inputType: "textarea"
         }
     }
 

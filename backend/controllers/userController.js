@@ -532,3 +532,19 @@ export const trackUserLogin = async (req, res) => {
         return res.status(500).json({ success: false, message: "Server error" });
     }
 };
+
+export const changePassword = async (req, res) => {
+    const { userId, newPassword } = req.body;
+
+    try {
+        const updatedUser = await User.findByIdAndUpdate({})
+        if (user.password.length < 8) {
+            return sendResponse(res, STATUS_MESSAGES.ERROR.WEAK_PASSWORD, 'User');
+        }
+        // Hash the password before saving
+        const hashedPassword = await bcrypt.hash(user.password, 10);
+    } catch (error) {
+        console.error("Error:", error);
+        return res.status(500).json({ success: false, message: "Server error" });
+    }
+}

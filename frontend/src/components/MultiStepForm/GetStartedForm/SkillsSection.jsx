@@ -75,7 +75,7 @@ function SkillsSection({ selectedRole, setFormData, formData, handleChange, hand
                 <DragDropContext onDragEnd={handleDragEnd}>
                     <Droppable droppableId="skills-list">
                         {(provided) => (
-                            <ul className="added-skills" 
+                            <ul className="added" 
                                 {...provided.droppableProps}
                                 ref={provided.innerRef}
                             >   

@@ -3,6 +3,7 @@ import React from 'react';
 
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import DynamicInputWithDropdown from "../../FormComponents/DynamicInputWithDropdown";
+import DraggableList from "../../DraggableList";
 
 function SkillsAndRequirementsSection({ formData, setFormData, handleChange }) {
     const formTypes = {
@@ -54,18 +55,19 @@ function SkillsAndRequirementsSection({ formData, setFormData, handleChange }) {
         }
     }
 
-    const handleDragEnd = (result) => {
+    const handleDragEnd = (result, listKey) => {
         if (!result.destination) return;
 
-        // Ensure formData.skills exists before modifying
-        const reorderedSkills = [...(formData.skills || [])];
-        const [movedSkill] = reorderedSkills.splice(result.source.index, 1);
-        reorderedSkills.splice(result.destination.index, 0, movedSkill);
+        const items = Array.from(formData[listKey]);
+        const [reorderedItem] = items.splice(result.source.index, 1);
+        items.splice(result.destination.index, 0, reorderedItem);
 
-        handleChange({
-            target: { name: "skills", value: reorderedSkills }
-        });
+        setFormData(prev => ({
+            ...prev,
+            [listKey]: items
+        }));
     };
+
 
     const handleRemoveListItem = (name, index) => {
         setFormData(prev => {

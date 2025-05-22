@@ -581,7 +581,7 @@ textarea
 }
 
 .form-panel .form-group textarea {
-    height: clamp(3rem, 5vw, 5rem);
+    height: clamp(3rem, 10vw, 7.5rem);
     padding: 5px 10px;
     resize: none;
 }

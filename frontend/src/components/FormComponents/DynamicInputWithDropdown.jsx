@@ -5,13 +5,22 @@ function DynamicInputWithDropdown({ config, name, inputs, handleInputChange, han
             
             <div className="row" style={{ alignItems: 'start' }}>
 
-                <input 
-                    type="text"
-                    value={inputs[name] || ""}
-                    onChange={(e) => handleInputChange(e, name)}
-                    {...(handleAddItem && { onKeyDown: (e) => handleAddItem(e, name) })}
-                    readOnly={config.readOnly}
-                />
+                {config?.inputType === "textarea" ? (
+                    <textarea
+                        value={inputs[name] || ""}
+                        onChange={(e) => handleInputChange(e, name)}
+                        {...(handleAddItem && { onKeyDown: (e) => handleAddItem(e, name) })}
+                        readOnly={config.readOnly}
+                    />
+                    ) : (
+                    <input
+                        type={config?.inputType || "text"}
+                        value={inputs[name] || ""}
+                        onChange={(e) => handleInputChange(e, name)}
+                        {...(handleAddItem && { onKeyDown: (e) => handleAddItem(e, name) })}
+                        readOnly={config.readOnly}
+                    />
+                )}
 
                 {config.hasDropDown && (
                     <ul className="select-menu">

@@ -106,6 +106,7 @@ function SkillsAndRequirementsSection({ formData, setFormData, handleChange }) {
                 
                 {Object.entries(formTypes).map(([name, config]) => (
                     <React.Fragment key={name}>
+
                         <DynamicInputWithDropdown
                             key={name}
                             config={config}
@@ -118,12 +119,15 @@ function SkillsAndRequirementsSection({ formData, setFormData, handleChange }) {
                             toggleVisibility={toggleVisibility}
                             getFilteredOptions={getFilteredOptions}
                         />
+                        
+                        <DraggableList
+                            key={`${name}-list`}
+                            listKey={name}
+                            items={formData[name]}
+                            handleDragEnd={handleDragEnd}
+                            handleRemoveListItem={handleRemoveListItem}
+                        />
 
-                        {/* <DragDropContext onDragEnd={handleDragEnd}>
-                            <Droppable droppableId="">
-
-                            </Droppable>
-                        </DragDropContext> */}
                     </React.Fragment>
                 ))}
 

@@ -609,14 +609,14 @@ textarea
     max-width: 75%;
 }
 
-.added-skills {
+.added {
     display: flex;
     list-style-type: none;
     gap: 1rem;
     flex-wrap: wrap;
 }
 
-.added-skills li {
+.added li {
     display: flex;
     align-items: center;
     gap: 0.5rem;
@@ -626,13 +626,13 @@ textarea
     cursor: pointer;
 }
 
-.added-skills li span {
+.added li span {
     padding: 5px 10px;
     padding-right: 0;
     font-weight: 500;
 }
 
-.added-skills li i {
+.added li i {
     display: flex;
     align-items: center;
     justify-content: center;

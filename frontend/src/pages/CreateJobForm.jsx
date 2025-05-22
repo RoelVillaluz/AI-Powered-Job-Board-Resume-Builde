@@ -73,30 +73,6 @@ function CreateJobForm() {
         }
     }
 
-    const handleAddItem = (e) => {
-        if (e.key === 'Enter' && e.target.value.trim() !== "") {
-            e.preventDefault();
-
-            const fieldName = e.target.name;
-            const newValue = e.target.value.trim();
-
-            setFormData((prev) => {
-                if (fieldName === "skills") {
-                    return { ...prev, skills: [...prev.skills, { name: newValue }] };
-                } else if (fieldName === "requirements") {
-                    return { ...prev, requirements: [...prev.requirements, newValue] };
-                }
-                return prev;
-            });
-
-            if (fieldName === "skills") {
-                setSkillInput("");
-            } else if (fieldName === "requirements") {
-                setRequirementInput("");
-            }
-        }
-    }
-
     const nextStep = () => {
         if (currentStepIndex < steps.length - 1) {
             setCurrentStepIndex((prev) => prev + 1)

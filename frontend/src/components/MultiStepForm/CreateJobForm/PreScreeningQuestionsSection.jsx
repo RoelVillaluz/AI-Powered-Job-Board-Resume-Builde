@@ -17,7 +17,7 @@ function PreScreeningQuestionsSection({ formData, setFormData, handleChange }) {
         if (e.key === 'Enter' && inputs[name].trim()) {
             e.preventDefault();
 
-            const currentList = [];
+            const currentList = [...formData.preScreeningQuestions];
 
             const newItem = { question: inputs[name].trim(), required: inputs.required };
 

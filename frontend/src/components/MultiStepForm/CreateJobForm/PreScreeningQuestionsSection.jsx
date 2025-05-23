@@ -41,7 +41,6 @@ function PreScreeningQuestionsSection({ formData, setFormData, handleChange }) {
             <div className="form-details">
 
                 <div className="form-group">
-                    <label>Pre-Screening Questions</label>
                     <textarea 
                         name="preScreeningQuestions.question" 
                         value={inputs.question} 

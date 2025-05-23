@@ -22,7 +22,8 @@ function CreateJobForm() {
             frequency: 'year' // to match default in job posting schema
         },
         requirements: [],
-        skills: []
+        skills: [],
+        preScreeningQuestions: []
     })
 
     const steps = ['details', 'skillsAndRequirements', 'questions', 'finished'];

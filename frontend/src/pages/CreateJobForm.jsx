@@ -124,8 +124,8 @@ function CreateJobForm() {
                     (formData.skills?.length >= 3) && (formData.requirements.length > 0)
                 )
                 break;
-            default:
-                setIsNextAllowed(false)
+            case 2:
+                setIsNextAllowed(true)
         }
     })
     
@@ -137,9 +137,6 @@ function CreateJobForm() {
         addActiveClass()
     }, [currentStepIndex])
 
-    useEffect(() => {
-        setCurrentStepIndex(2)
-    }, [])
 
     return(
         <>

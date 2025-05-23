@@ -1,7 +1,6 @@
 import { useState } from "react";
 import React from 'react';
 
-import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import DynamicInputWithDropdown from "../../FormComponents/DynamicInputWithDropdown";
 import DraggableList from "../../DraggableList";
 

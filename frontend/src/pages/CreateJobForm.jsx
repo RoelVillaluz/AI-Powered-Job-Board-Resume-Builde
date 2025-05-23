@@ -118,6 +118,11 @@ function CreateJobForm() {
                 })
                 setIsNextAllowed(areDetailsFilled)
                 break;
+            case 1:
+                setIsNextAllowed(
+                    (formData.skills?.length >= 3) && (formData.requirements.length > 0)
+                )
+                break;
             default:
                 setIsNextAllowed(false)
         }
@@ -130,6 +135,10 @@ function CreateJobForm() {
     useEffect(() => {
         addActiveClass()
     }, [currentStepIndex])
+
+    useEffect(() => {
+        setCurrentStepIndex(2)
+    }, [])
 
     return(
         <>
@@ -175,7 +184,7 @@ function CreateJobForm() {
 
                         {/* Pre-Screening Question Section */}
                         {currentStepIndex === 2 && (
-                            <PreScreeningQuestionsSection/>
+                            <PreScreeningQuestionsSection formData={formData} setFormData={setFormData} handleChange={handleChange}/>
                         )}
 
                         <div className="buttons" style={{ justifyContent: currentStepIndex > 0 ? "space-between" : "flex-end" }}>

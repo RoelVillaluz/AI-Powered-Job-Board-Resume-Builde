@@ -35,7 +35,7 @@ function PreScreeningQuestionsSection({ formData, setFormData, handleChange }) {
     return (
         <section id="pre-screening-questions">
             <header>
-                <h3>Pre Screening Questions</h3>
+                <h3>Pre Screening Questions (Optional)</h3>
             </header>
 
             <div className="form-details">
@@ -50,25 +50,34 @@ function PreScreeningQuestionsSection({ formData, setFormData, handleChange }) {
                     </textarea>
                 </div>
 
-                <ul className="select-menu">
-                    <button onClick={() => setIsVisible((prev) => !prev)} className="toggle-dropdown-btn" type="button">
-                        {inputs.required}
-                        <i className="fa-solid fa-angle-down"></i>
-                    </button>
-                    <ul className={`dropdown-list ${isVisible ? 'visible' : ''}`}>
-                        {options.filter(o => o !== inputs.required).map((option, index) => (
-                            <li 
-                                key={index}
-                                onClick={(e) => {
-                                    setInputs((prev) => ({ ...prev, required: option }))
-                                    setIsVisible((prev) => !prev)
-                                }}
-                            >
-                                <span className="option-text">{option}</span>
-                            </li>
-                        ))}
-                    </ul>
-                </ul>
+                <div className="row" style={{ alignItems: 'center' }}>
+                    <span>Are applicants required to answer this question: </span>
+                    <div className="select-menu">
+                        <button 
+                            aria-haspopup="listbox"
+                            aria-expanded={isVisible}
+                            onClick={() => setIsVisible((prev) => !prev)} 
+                            className="toggle-dropdown-btn" 
+                            type="button"
+                        >
+                            {inputs.required}
+                            <i className="fa-solid fa-angle-down"></i>
+                        </button>
+                        <ul className={`dropdown-list ${isVisible ? 'visible' : ''}`}>
+                            {options.filter(o => o !== inputs.required).map((option, index) => (
+                                <li 
+                                    key={index}
+                                    onClick={(e) => {
+                                        setInputs((prev) => ({ ...prev, required: option }))
+                                        setIsVisible((prev) => !prev)
+                                    }}
+                                >
+                                    <span className="option-text">{option}</span>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                </div>
             </div>
 
         </section>

@@ -774,3 +774,11 @@ textarea
     margin-top: 1rem;
 }
 
+#finished-form-icon {
+    background-color: var(--tertiary);
+    color: var(--secondary);
+    padding: 2rem;
+    font-size: clamp(1.5rem, 6vw, 7rem);
+    border-radius: 4px;
+    margin-top: 1rem;
+}

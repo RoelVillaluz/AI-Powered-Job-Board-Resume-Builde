@@ -6,6 +6,7 @@ import Layout from "../components/Layout.jsx";
 import JobDetailsSection from "../components/MultiStepForm/CreateJobForm/JobDetailsSection.jsx";
 import SkillsAndRequirementsSection from "../components/MultiStepForm/CreateJobForm/SkillsAndRequirementsSection.jsx";
 import PreScreeningQuestionsSection from "../components/MultiStepForm/CreateJobForm/PreScreeningQuestionsSection.jsx";
+import FinishedSection from "../components/MultiStepForm/CreateJobForm/FinishedSection.jsx";
 
 function CreateJobForm() {
     const { baseUrl } = useData();
@@ -183,6 +184,11 @@ function CreateJobForm() {
                         {/* Pre-Screening Question Section */}
                         {currentStepIndex === 2 && (
                             <PreScreeningQuestionsSection formData={formData} setFormData={setFormData} handleChange={handleChange}/>
+                        )}
+
+                        {/* Finished Section */}
+                        {currentStepIndex === 3 && (
+                            <FinishedSection formData={formData}/>
                         )}
 
                         <div className="buttons" style={{ justifyContent: currentStepIndex > 0 ? "space-between" : "flex-end" }}>

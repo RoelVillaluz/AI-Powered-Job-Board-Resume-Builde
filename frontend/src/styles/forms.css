@@ -528,6 +528,10 @@ textarea
     color: var(--secondary);
 }
 
+.form-panel section {
+    min-width: 60%;
+}
+
 .form-panel .form-details {
     display: flex;
     flex-direction: column;

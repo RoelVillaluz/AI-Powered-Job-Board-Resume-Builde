@@ -764,3 +764,13 @@ textarea
 .dropdown-list.visible {
   display: flex;
 }
+
+#welcome-icon {
+    background-color: var(--tertiary);
+    color: var(--secondary);
+    padding: 1.5rem;
+    border-radius: 4px;
+    font-size: clamp(2rem, 7.5vw, 8rem);
+    margin-top: 1rem;
+}
+

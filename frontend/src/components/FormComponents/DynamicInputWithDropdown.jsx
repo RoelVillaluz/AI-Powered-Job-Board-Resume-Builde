@@ -23,7 +23,7 @@ function DynamicInputWithDropdown({ config, name, inputs, handleInputChange, han
                 )}
 
                 {config.hasDropDown && (
-                    <ul className="select-menu">
+                    <div className="select-menu">
                         <button onClick={() => toggleVisibility(config.dropDownName)} className="toggle-dropdown-btn" type="button">
                             {inputs[config.dropDownField] || config.options[0]}
                             <i className="fa-solid fa-angle-down"></i>
@@ -48,7 +48,7 @@ function DynamicInputWithDropdown({ config, name, inputs, handleInputChange, han
                                 </li>
                             ))}
                         </ul>
-                    </ul>
+                    </div>
                 )}
 
             </div>

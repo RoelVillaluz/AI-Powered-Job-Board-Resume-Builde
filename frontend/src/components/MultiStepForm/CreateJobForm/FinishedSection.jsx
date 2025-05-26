@@ -1,5 +1,11 @@
 function FinishedSection({ formData }) {
 
+    const stepsMap = {
+        details: 0,
+        SkillsAndRequirements: 1,
+        questions: 2
+    }
+
     const formatSalary = (salary) => {
         return `${salary.currency}${salary.amount || '0'} per ${salary.frequency}`
     }

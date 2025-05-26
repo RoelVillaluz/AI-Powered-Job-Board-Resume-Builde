@@ -65,19 +65,16 @@ function PreScreeningQuestionsSection({ formData, setFormData, handleChange }) {
                             className="toggle-dropdown-btn" 
                             type="button"
                         >
-                            {inputs.required}
+                            {selectedRequiredValue}
                             <i className="fa-solid fa-angle-down"></i>
                         </button>
                         <ul className={`dropdown-list ${isVisible ? 'visible' : ''}`}>
-                            {options.filter(o => o !== inputs.required).map((option, index) => (
-                                <li 
-                                    key={index}
-                                    onClick={(e) => {
-                                        setInputs((prev) => ({ ...prev, required: option }))
-                                        setIsVisible((prev) => !prev)
-                                    }}
-                                >
-                                    <span className="option-text">{option}</span>
+                            {Object.entries(options).filter(([label, value]) => value !== inputs.required).map(([label, value]) => (
+                                <li key={label} onClick={(e) => {
+                                    setInputs((prev) => ({ ...prev, required: value }))
+                                    setIsVisible((prev) => !prev)
+                                }}>
+                                    <span className="option-text">{label}</span>
                                 </li>
                             ))}
                         </ul>

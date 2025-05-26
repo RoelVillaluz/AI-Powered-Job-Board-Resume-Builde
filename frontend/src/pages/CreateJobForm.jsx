@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import { useNavigate } from 'react-router-dom';
 import { useData } from "../DataProvider.jsx"
 import axios from "axios";
 import { useAuth } from "../components/AuthProvider.jsx";
@@ -26,6 +27,7 @@ function CreateJobForm() {
         skills: [],
         preScreeningQuestions: []
     })
+    const navigate = useNavigate();
 
     const steps = ['details', 'skillsAndRequirements', 'questions', 'finished'];
     const [currentStepIndex, setCurrentStepIndex] = useState(0);
@@ -44,6 +46,8 @@ function CreateJobForm() {
             const response = await axios.post(`${baseUrl}/job-postings`, formData)
             console.log('New job posting created', response.data.data)
 
+            const newJobId = response.data.data._id;
+
             setFormData({
                 title: '',
                 company: user.company,
@@ -54,8 +58,8 @@ function CreateJobForm() {
                 requirements: [],
                 skills: []
             });
-            setSkillInput('');
-            setRequirementInput('');
+
+            navigate(`/job_postings/${newJobId}`)
         } catch (error) {
             console.error('Error', error)
         }
@@ -138,6 +142,10 @@ function CreateJobForm() {
         addActiveClass()
     }, [currentStepIndex])
 
+    useEffect(() => {
+        setCurrentStepIndex(3)
+    }, [])
+
 
     return(
         <>
@@ -196,7 +204,7 @@ function CreateJobForm() {
                             <button onClick={prevStep} id="prev-step-btn" type="button">Previous</button>
                         )}
                         {steps[currentStepIndex] === 'finished' ? (
-                            <button id="submit-btn" type="submit">
+                            <button id="submit-btn" type="submit" onClick={handleFormSubmit}>
                                 Submit
                             </button>
                         ) : (

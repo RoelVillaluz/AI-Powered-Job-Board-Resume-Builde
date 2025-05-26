@@ -10,6 +10,54 @@ function FinishedSection({ formData }) {
         return `${salary.currency}${salary.amount || '0'} per ${salary.frequency}`
     }
 
+    // Configuration for fields grouped by column, with a step reference for navigation
+    const fields = {
+        left: [
+        {
+            label: 'Job Title',
+            value: formData.title || '-',
+            step: stepsMap.details,
+        },
+        {
+            label: 'Job Type',
+            value: formData.jobType || '-',
+            step: stepsMap.details,
+        },
+        {
+            label: 'Salary',
+            value: formatSalary(formData.salary),
+            step: stepsMap.details,
+        },
+        {
+            label: 'Skills',
+            value: `${formData.skills.length} skills`,
+            step: stepsMap.skillsAndRequirements,
+        },
+        ],
+        right: [
+        {
+            label: 'Location',
+            value: formData.location || '-',
+            step: stepsMap.details,
+        },
+        {
+            label: 'Experience Level',
+            value: formData.experienceLevel || '-',
+            step: stepsMap.details,
+        },
+        {
+            label: 'Requirements',
+            value: `${formData.requirements.length} requirements`,
+            step: stepsMap.skillsAndRequirements,
+        },
+        {
+            label: 'Pre-screening Questions',
+            value: `${formData.preScreeningQuestions.length} Questions`,
+            step: stepsMap.questions,
+        },
+        ],
+    };
+
     return (
        <section id="finished">
             <header>
@@ -22,49 +70,23 @@ function FinishedSection({ formData }) {
 
                     <div className="column left">
 
-                        <div className="title-value-pair">
-                            <dt>Job Title: </dt>
-                            <dd>{formData.title || '-'}</dd>
-                        </div>
-
-                        <div className="title-value-pair">
-                            <dt>Job Type: </dt>
-                            <dd>{formData.jobType || '-'}</dd>
-                        </div>
-
-                        <div className="title-value-pair">
-                            <dt>Salary: </dt>
-                            <dd>{formatSalary(formData.salary)}</dd>
-                        </div>
-
-                        <div className="title-value-pair">
-                            <dt>Skills: </dt>
-                            <dd>{formData.skills.length} skills</dd>
-                        </div>
+                        {fields.left.map(({ label, value, step }) => (
+                            <div className="title-value-pair">
+                                <dt>{label}</dt>
+                                <dd>{value}</dd>
+                            </div>
+                        ))}
 
                     </div>
 
                     <div className="column right">
 
-                        <div className="title-value-pair">
-                            <dt>Location: </dt>
-                            <dd>{formData.location || '-'}</dd>
-                        </div>
-
-                        <div className="title-value-pair">
-                            <dt>Experience Level: </dt>
-                            <dd>{formData.experienceLevel || '-'}</dd>
-                        </div>
-
-                        <div className="title-value-pair">
-                            <dt>Requirements: </dt>
-                            <dd>{formData.requirements.length} requirements</dd>
-                        </div>
-
-                        <div className="title-value-pair">
-                            <dt>Pre-screening Questions: </dt>
-                            <dd>{formData.preScreeningQuestions.length} Questions</dd>
-                        </div>
+                        {fields.right.map(({ label, value, step }) => (
+                            <div className="title-value-pair">
+                                <dt>{label}</dt>
+                                <dd>{value}</dd>
+                            </div>
+                        ))}
 
                     </div>
 

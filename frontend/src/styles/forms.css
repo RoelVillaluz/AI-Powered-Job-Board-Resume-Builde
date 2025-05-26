@@ -430,7 +430,8 @@ textarea
 }
 
 #next-step-btn,
-#prev-step-btn
+#prev-step-btn,
+.form-panel #submit-btn
 {
     padding: 6px 12px;
     border-radius: 4px;

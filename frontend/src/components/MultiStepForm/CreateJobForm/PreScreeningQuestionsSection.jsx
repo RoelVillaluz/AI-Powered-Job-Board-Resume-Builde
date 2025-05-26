@@ -4,10 +4,15 @@ function PreScreeningQuestionsSection({ formData, setFormData, handleChange }) {
     const [isVisible, setIsVisible] = useState(false);
     const [inputs, setInputs] = useState({
         question: '',
-        required: 'Optional' // questions are not required to be answered by applicant by default
+        required: false // questions are not required to be answered by applicant by default
     })
     
-    const options = ["Required", "Optional"]
+    const options = {
+        "Required": true,
+        "Optional": false
+    }
+
+    const selectedRequiredValue = Object.entries(options).find(([key, value]) => value === inputs.required)?.[0]
 
     const handleInputChange = (e, name) => {
         setInputs(prev => ({ ...prev, [name]: e.target.value }))

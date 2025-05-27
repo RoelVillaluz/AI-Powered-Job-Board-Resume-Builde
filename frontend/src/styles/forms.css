@@ -793,3 +793,65 @@ textarea
     border-radius: 4px;
     margin-top: 1rem;
 }
+
+.job-form-summary {
+    display: flex;
+    align-items: start;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.job-form-summary .column {
+    display: flex;
+    align-items: start;
+    flex-direction: column;
+    flex: 3;
+    gap: 2rem;
+}
+
+.job-form-summary .column.left {
+    flex: 4;
+}
+
+.title-value-pair {
+    display: flex;
+    align-items: start;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.title-value-pair button {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    color: gray;
+    font-size: clamp(0.75rem, 0.85vw, 2rem);
+    font-weight: 400;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.title-value-pair i {
+    color: rgb(160, 160, 160);
+    font-size: clamp(0.5rem, 0.5vw, 1.5rem);
+    margin-top: 2px;
+    transition: 0.3s;
+}
+
+.title-value-pair button:hover, 
+.title-value-pair button:hover *
+{
+    color: black;
+}
+
+.title-value-pair button:hover i {
+    transform: translateX(2px);
+}
+
+.title-value-pair span {
+    color: rgb(40, 40, 40);
+    font-size: clamp(0.75rem, 0.85vw, 2rem);
+    font-weight: 600;
+}

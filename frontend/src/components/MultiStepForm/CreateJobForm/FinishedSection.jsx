@@ -1,4 +1,4 @@
-function FinishedSection({ formData }) {
+function FinishedSection({ formData, setCurrentStepIndex }) {
 
     const stepsMap = {
         details: 0,
@@ -66,14 +66,17 @@ function FinishedSection({ formData }) {
             </header>
 
             <div className="form-group">
-                <dl className="job-form-summary">
+                <div className="job-form-summary">
 
                     <div className="column left">
 
                         {fields.left.map(({ label, value, step }) => (
-                            <div className="title-value-pair">
-                                <dt>{label}</dt>
-                                <dd>{value}</dd>
+                            <div className="title-value-pair" key={label}>
+                                <button type="button" onClick={() => setCurrentStepIndex(step)}>
+                                    {label}
+                                    <i className="fa-solid fa-angle-right" aria-hidden="true"></i>
+                                </button>
+                                <span>{value}</span>
                             </div>
                         ))}
 
@@ -82,16 +85,19 @@ function FinishedSection({ formData }) {
                     <div className="column right">
 
                         {fields.right.map(({ label, value, step }) => (
-                            <div className="title-value-pair">
-                                <dt>{label}</dt>
-                                <dd>{value}</dd>
+                            <div className="title-value-pair" key={label}>
+                                <button type="button" onClick={() => setCurrentStepIndex(step)}>
+                                    {label}
+                                    <i className="fa-solid fa-angle-right" aria-hidden="true"></i>
+                                </button>
+                                <span>{value}</span>
                             </div>
                         ))}
 
                     </div>
 
 
-                </dl>
+                </div>
             </div>
 
         </section>

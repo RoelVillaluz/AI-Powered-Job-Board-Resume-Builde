@@ -196,7 +196,7 @@ function CreateJobForm() {
 
                         {/* Finished Section */}
                         {currentStepIndex === 3 && (
-                            <FinishedSection formData={formData}/>
+                            <FinishedSection formData={formData} setCurrentStepIndex={setCurrentStepIndex}/>
                         )}
 
                         <div className="buttons" style={{ justifyContent: currentStepIndex > 0 ? "space-between" : "flex-end" }}>

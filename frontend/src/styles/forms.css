@@ -109,6 +109,16 @@ textarea
     font-size: clamp(0.75rem, 1vw, 1rem);
 }
 
+.forgot-password-btn {
+    margin-right: auto;
+    border: none;
+    outline: none;
+    color: black;
+    cursor: pointer;
+    font-size: clamp(0.75rem, 1vw, 1rem);
+    font-weight: 600;
+}
+
 #authentication-form-container a {
     font-family: 'Montserrat', sans-serif;
     position: relative;

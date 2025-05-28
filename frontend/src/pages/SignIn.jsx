@@ -71,6 +71,7 @@ function SignIn() {
 
                     <button type="submit">Sign In</button>
                     <span id="sign-in-link-span">Don't have an account yet? <Link to={'/register'}>Create an account now!</Link></span>
+                    <button type="button" className="forgot-password-btn">Forgot Password?</button>
 
                 </form>
             </div>

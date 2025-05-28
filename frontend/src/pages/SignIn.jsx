@@ -9,7 +9,11 @@ function SignIn() {
     const [formData, setFormData] = useState({
         email: '',
         password: ''
-    })
+
+    const [isEmailValid, setIsEmailValid] = useState(false);
+    const [isEmailSent, setIsEmailSent] = useState(false);
+    const [verificationCode, setVerificationCode] = useState('');
+
     const { baseUrl } = useData();
     const { login } = useAuth();
 

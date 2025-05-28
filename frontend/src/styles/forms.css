@@ -250,6 +250,7 @@ textarea
 
 .verification-form .buttons {
     display: flex;
+    margin-left: auto;
     gap: 0.5rem;
 }
 

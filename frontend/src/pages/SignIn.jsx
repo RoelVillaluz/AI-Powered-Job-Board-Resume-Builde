@@ -3,12 +3,13 @@ import { Link, useNavigate } from "react-router-dom"
 import { useData } from "../DataProvider"
 import { useAuth } from "../components/AuthProvider"
 import axios from "axios"
-
+import VerifyUser from "../components/VerifyUser"
 function SignIn() {
     const [error, setError] = useState('');
     const [formData, setFormData] = useState({
         email: '',
         password: ''
+    });
 
     const [isEmailValid, setIsEmailValid] = useState(false);
     const [isEmailSent, setIsEmailSent] = useState(false);
@@ -101,13 +102,14 @@ function SignIn() {
 
                     <button type="submit">Sign In</button>
                     <span id="sign-in-link-span">Don't have an account yet? <Link to={'/register'}>Create an account now!</Link></span>
-                    
-                    {isEmailValid && (
-                        <button type="button" className="forgot-password-btn">Forgot Password?</button>
-                    )}
+
+                    <button type="button" className="forgot-password-btn" onClick={handleForgotPasswordClick}>Forgot Password?</button>
 
                 </form>
             </div>
+            {isEmailSent && (
+                <VerifyUser email={formData.email} verificationCode={verificationCode}/>
+            )}
         </>
     )
 }

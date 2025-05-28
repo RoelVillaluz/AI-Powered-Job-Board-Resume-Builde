@@ -40,6 +40,11 @@ function SignIn() {
         }
     }
 
+    const checkValidEmailStructure = (email) => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    };
+
     return (
         <>
             <div className="form-container" id="authentication-form-container">

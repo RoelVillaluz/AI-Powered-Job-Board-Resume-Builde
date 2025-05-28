@@ -44,6 +44,22 @@ function SignIn() {
         }
     }
 
+    const handleForgotPasswordClick = async (e) => {
+        try {
+            // send verification code to email
+            const response = await axios.post(`${baseUrl}/users/resend-verification-code`, {
+                email: formData.email
+            })
+
+            console.log(response.data.data);
+            
+            setIsEmailSent(true);
+            setVerificationCode(response.data?.data?.verificationCode || '');
+        } catch (error) {
+            console.log('Error:', error)
+        }
+    }
+
     const checkValidEmailStructure = (email) => {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return emailRegex.test(email);

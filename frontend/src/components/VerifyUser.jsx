@@ -114,10 +114,12 @@ const VerifyUser = ({ email, password, verificationCode }) => {
                 </div>
                 <div className="line"></div>
                 <div className="actions">
-                    <span className="error-message">
-                        {errorMessage}
-                        {errorMessage && <i className="fa-solid fa-xmark"></i>}
-                    </span>
+                    {errorMessage !== null && (
+                        <span className="error-message">
+                            {errorMessage}
+                            <i className="fa-solid fa-xmark"></i>
+                        </span>
+                    )}
                     <div className="buttons">
                         <button type="button" className="resend-code-btn" onClick={handleResendCode}>Resend Code</button>
                         <button type="submit" className="verify-btn" disabled={isLoading}>

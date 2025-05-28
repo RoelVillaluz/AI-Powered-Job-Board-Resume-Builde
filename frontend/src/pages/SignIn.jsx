@@ -5,7 +5,7 @@ import { useAuth } from "../components/AuthProvider"
 import axios from "axios"
 
 function SignIn() {
-    const [error, setError] = useState('')
+    const [error, setError] = useState('');
     const [formData, setFormData] = useState({
         email: '',
         password: ''
@@ -44,6 +44,11 @@ function SignIn() {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return emailRegex.test(email);
     };
+
+    useEffect(() => {
+        setIsEmailValid(checkValidEmailStructure(formData.email))
+        console.log(`Is email valid?`, isEmailValid);
+    }, [formData.email])
 
     return (
         <>

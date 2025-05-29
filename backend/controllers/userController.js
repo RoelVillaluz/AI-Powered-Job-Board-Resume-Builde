@@ -410,32 +410,46 @@ export const verifyUser = async (req, res) => {
         const tempUser = await TempUser.findOne({ email });
         const user = await User.findOne({ email })
 
-        if (!tempUser) {
+        // If neither exists
+        if (!tempUser && !user) {
             return sendResponse(res, {...STATUS_MESSAGES.ERROR.NOT_FOUND, success: false}, 'User');
         }
 
-        if (tempUser.verificationCode.toString() !== verificationCode.toString()) {
-            return sendResponse(res, { ...STATUS_MESSAGES.ERROR.INVALID_CODE, success: false});
+        // Verification for temporary user (creating new account)
+        if (tempUser && verificationType === 'register') {
+            if (tempUser.verificationCode.toString() !== verificationCode.toString()) {
+                return sendResponse(res, { ...STATUS_MESSAGES.ERROR.INVALID_CODE, success: false});
+            } else {
+                const newUser = new User({
+                    email: tempUser.email,
+                    password: tempUser.password, // Already hashed
+                    isVerified: true,
+                });
+
+                // Ensure only the correct field exists before saving
+                if (newUser.role !== "jobseeker") {
+                    delete newUser.resumes; // Ensure resumes is removed
+                }
+                if (newUser.role !== "employer") {
+                    delete newUser.company; // Ensure company is removed
+                }
+
+                await newUser.save();
+                await TempUser.deleteOne({ email });
+
+                return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.CREATE, data: newUser }, 'User');
+            }
         }
 
-        const newUser = new User({
-            email: tempUser.email,
-            password: tempUser.password, // Already hashed
-            isVerified: true,
-        });
-
-        // Ensure only the correct field exists before saving
-        if (newUser.role !== "jobseeker") {
-            delete newUser.resumes; // Ensure resumes is removed
-        }
-        if (newUser.role !== "employer") {
-            delete newUser.company; // Ensure company is removed
+        // Verification for old user (change password request)
+        if (user && verificationType === 'password_reset') {
+            if (user.verificationCode.toString() !== verificationCode.toString()) {
+                return sendResponse(res, { ...STATUS_MESSAGES.ERROR.INVALID_CODE, success: false });
+            } else {
+                return sendResponse(res, { ...STATUS.MESSAGES.SUCCESS.MATCHED_CODE })
+            }
         }
 
-        await newUser.save();
-        await TempUser.deleteOne({ email });
-
-        return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.CREATE, data: newUser }, 'User');
     } catch (error) {
         console.error('Error', error);
         return sendResponse(res, STATUS_MESSAGES.ERROR.SERVER, 'User');

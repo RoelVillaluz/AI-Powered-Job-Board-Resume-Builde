@@ -465,7 +465,7 @@ export const verifyUser = async (req, res) => {
             if (user.verificationCode.toString() !== verificationCode.toString()) {
                 return sendResponse(res, { ...STATUS_MESSAGES.ERROR.INVALID_CODE, success: false });
             } else {
-                return sendResponse(res, { ...STATUS.MESSAGES.SUCCESS.MATCHED_CODE })
+                return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.MATCHED_CODE })
             }
         }
 

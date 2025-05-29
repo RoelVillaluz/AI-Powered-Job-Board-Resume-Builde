@@ -20,10 +20,10 @@ import { useData } from "../DataProvider"
                 </header>
 
                 <div className="form-group">
-                    <input type="text" name='formData.newPassword' placeholder="New password" onChange={(e) => handleChange(e)}/>
+                    <input type="password" name='newPassword' placeholder="New password" onChange={(e) => handleChange(e)}/>
                 </div>
                 <div className="form-group">
-                    <input type="text" name='formData.confirmNewPassword' placeholder="Confirm new password" onChange={(e) => handleChange(e)}/>
+                    <input type="password" name='confirmNewPassword' placeholder="Confirm new password" onChange={(e) => handleChange(e)}/>
                 </div>
 
             </form>

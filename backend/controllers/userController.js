@@ -404,7 +404,7 @@ export const resendVerificationCode = async (req, res) => {
 }
 
 export const verifyUser = async (req, res) => {
-    const { email, verificationCode } = req.body;
+    const { email, verificationCode, verificationType } = req.body;
 
     try {
         const tempUser = await TempUser.findOne({ email });

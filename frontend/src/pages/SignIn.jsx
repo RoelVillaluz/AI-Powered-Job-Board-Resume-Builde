@@ -5,7 +5,7 @@ import { useAuth } from "../components/AuthProvider"
 import axios from "axios"
 import VerifyUser from "../components/VerifyUser"
 function SignIn() {
-    const [error, setError] = useState('');
+    const [errorMessage, setErrorMessage] = useState(null);
     const [formData, setFormData] = useState({
         email: '',
         password: ''
@@ -41,7 +41,7 @@ function SignIn() {
             navigate('/');
         } catch (error) {
             console.error('Error', error)
-            setError(error)
+            setErrorMessage(error)
         }
     }
 
@@ -57,7 +57,8 @@ function SignIn() {
             setIsEmailSent(true);
             setVerificationCode(response.data?.data?.verificationCode || '');
         } catch (error) {
-            console.log('Error:', error)
+            console.log('Error:', error);
+            setErrorMessage(error.response?.data?.formattedMessage);
         }
     }
 
@@ -105,6 +106,13 @@ function SignIn() {
 
                     <button type="button" className="forgot-password-btn" onClick={handleForgotPasswordClick}>Forgot Password?</button>
 
+                    {errorMessage !== null && (
+                        <span className="error-message">
+                            {errorMessage}
+                            <i className="fa-solid fa-xmark"></i>
+                        </span>
+                    )}
+                    
                 </form>
             </div>
             {isEmailSent && (

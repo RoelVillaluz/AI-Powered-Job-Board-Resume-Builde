@@ -49,6 +49,14 @@ import { useData } from "../DataProvider"
                     <input type="password" name='confirmNewPassword' placeholder="Confirm new password" onChange={(e) => handleChange(e)}/>
                 </div>
 
+                <div className="password-requirements">
+                    <h5>Password must contain at least: </h5>
+                    <ul className="password-requirements">
+                        {Object.entries(passwordRequirements).map(([req, fulfilled]) => (
+                            <li key={req}>{req}</li>
+                        ))}
+                    </ul>
+                </div>
             </form>
 
         </div>

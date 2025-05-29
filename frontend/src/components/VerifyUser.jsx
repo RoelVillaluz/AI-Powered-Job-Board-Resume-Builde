@@ -64,16 +64,26 @@ const VerifyUser = ({ email, password = null, verificationCode, verificationType
 
             console.log('Verification successful:', verificationResponse.data);
     
-            // Login user
-            const loginResponse = await axios.post(`${baseUrl}/users/login`, { email, password });
-            console.log('Login successful:', loginResponse.data);
-    
-            // Extract user & token
-            const { token, user } = loginResponse.data.data;
-    
-            login(user, token)
-    
-            navigate('/get-started');
+            if (verificationType === "register") {
+                // Login user
+                const loginResponse = await axios.post(`${baseUrl}/users/login`, { email, password });
+                console.log('Login successful:', loginResponse.data);
+        
+                // Extract user & token
+                const { token, user } = loginResponse.data.data;
+        
+                login(user, token)
+        
+                navigate('/get-started');
+            }
+
+            if (verificationType === 'password_reset') {
+                // check if response is success then redirect
+                if (verificationResponse.data.data.success) {
+                    navigate()
+                }
+            }
+
         } catch (error) {
             console.error('Error during verification:', error.response?.data || error.message);
             setErrorMessage(error.response?.data?.formattedMessage);

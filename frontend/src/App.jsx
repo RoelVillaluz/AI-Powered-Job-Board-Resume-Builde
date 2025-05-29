@@ -11,6 +11,7 @@ import CreateJobForm from "./pages/CreateJobForm";
 import JobPostingsList from "./pages/JobPostingsList";
 import JobDetailPage from "./components/JobDetailPage";
 import { useEffect } from "react";
+import ChangePasswordForm from "./pages/ChangePasswordForm";
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -40,6 +41,7 @@ function App() {
             <Route path="/create-job-posting" element={<CreateJobForm />} />
             <Route path="/job-postings" element={<JobPostingsList />} />
             <Route path="/job-postings/:jobId" element={<JobDetailPage />} />
+            <Route path="/change-password" element={<ChangePasswordForm />} />
           </Routes>
           
         </DataProvider>

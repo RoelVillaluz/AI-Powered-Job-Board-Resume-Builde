@@ -387,16 +387,27 @@ export const resendVerificationCode = async (req, res) => {
 
     try {
         const tempUser = await TempUser.findOne({ email })
-        if (!tempUser) {
+        const user = await User.findOne({ email })
+
+        if (!tempUser && !user) {
             return sendResponse(res, { ...STATUS_MESSAGES.ERROR.NOT_FOUND, success: false }, 'User');
         }
 
         const newVerificationCode = Math.floor(10000 + Math.random() * 900000).toString();
-        tempUser.verificationCode = newVerificationCode
-        await sendVerificationEmail(tempUser, newVerificationCode)
-        await tempUser.save()
+        
+        if (tempUser) {
+            tempUser.verificationCode = newVerificationCode
+            await sendVerificationEmail(tempUser, newVerificationCode)
+            await tempUser.save()
+        }
 
-        return sendResponse(res, {...STATUS_MESSAGES.SUCCESS.RESENT_CODE, data: tempUser})
+        if (user) {
+            user.verificationCode = newVerificationCode
+            await sendVerificationEmail(user, newVerificationCode)
+            await user.save()
+        }
+
+        return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.RESENT_CODE, data: tempUser || user })
     } catch (error) {
         console.error("Error resending verification code:", error.message);
         return sendResponse(res, STATUS_MESSAGES.ERROR.SERVER, "User");

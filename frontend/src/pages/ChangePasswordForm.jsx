@@ -5,6 +5,26 @@ import { useData } from "../DataProvider"
         newPassword: '',
         confirmNewPassword: ''
     })
+
+    const [passwordRequirements, setPasswordRequirements] = useState({
+        '8 characters minimum': false,
+        'One uppercase character': false,
+        'One number': false
+    })
+
+    const handleFormSubmit = async () => {
+        try {
+            const response = await axios.patch(`${baseUrl}/users/change-password`, {
+                email: email,
+                newPassword: formData.password
+            })
+
+            console.log(response.data)
+        } catch (error) {
+            console.error('Error: ', error)
+        }
+    }
+
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value })
     }

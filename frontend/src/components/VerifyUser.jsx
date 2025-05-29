@@ -79,8 +79,8 @@ const VerifyUser = ({ email, password = null, verificationCode, verificationType
 
             if (verificationType === 'password_reset') {
                 // check if response is success then redirect
-                if (verificationResponse.data.data.success) {
-                    navigate()
+                if (verificationResponse.data.success) {
+                    navigate('/change-password')
                 }
             }
 

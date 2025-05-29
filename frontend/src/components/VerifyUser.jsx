@@ -4,7 +4,7 @@ import { useAuth } from "./AuthProvider";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
-const VerifyUser = ({ email, password, verificationCode }) => {
+const VerifyUser = ({ email, password = null, verificationCode, verificationType }) => {
     const { baseUrl } = useData();
     const [enteredCode, setEnteredCode] = useState(['', '', '', '', '', '']);
     const [localVerificationCode, setLocalVerificationCode] = useState(verificationCode); // Track verification code locally

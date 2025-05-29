@@ -53,7 +53,7 @@ function SignIn() {
             })
 
             console.log(response.data.data);
-            
+
             setIsEmailSent(true);
             setVerificationCode(response.data?.data?.verificationCode || '');
         } catch (error) {
@@ -108,7 +108,7 @@ function SignIn() {
                 </form>
             </div>
             {isEmailSent && (
-                <VerifyUser email={formData.email} verificationCode={verificationCode}/>
+                <VerifyUser email={formData.email} verificationCode={verificationCode} verificationType={"password_reset"}/>
             )}
         </>
     )

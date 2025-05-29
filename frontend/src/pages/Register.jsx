@@ -97,7 +97,7 @@ function Register() {
                 </figure>
             </div>
             {isEmailSent && (
-                <VerifyUser email={formData.email} password={formData.password} verificationCode={verificationCode} />
+                <VerifyUser email={formData.email} password={formData.password} verificationCode={verificationCode} verificationType={"register"}/>
             )}
         </>
     );

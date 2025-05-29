@@ -408,6 +408,7 @@ export const verifyUser = async (req, res) => {
 
     try {
         const tempUser = await TempUser.findOne({ email });
+        const user = await User.findOne({ email })
 
         if (!tempUser) {
             return sendResponse(res, {...STATUS_MESSAGES.ERROR.NOT_FOUND, success: false}, 'User');

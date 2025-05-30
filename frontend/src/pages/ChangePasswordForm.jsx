@@ -12,6 +12,16 @@ import { useData } from "../DataProvider"
         'One number': false
     })
 
+    const checkRequirements = (password = formData.newPassword) => {
+        const requirements = {
+            '8 characters minimum': password.length >= 8,
+            'One uppercase character': /[A-Z]/.test(password),
+            'One number': /\d/.test(password)
+        }
+
+        setPasswordRequirements(requirements)
+    }
+
     const handleFormSubmit = async () => {
         try {
             const response = await axios.patch(`${baseUrl}/users/change-password`, {
@@ -31,6 +41,10 @@ import { useData } from "../DataProvider"
     useEffect(() => {
         console.log('Form Data: ', formData)
     }, [formData])
+
+    useEffect(() => {
+        checkRequirements()
+    }, [formData.newPassword])
 
     return (
         <div className="form-container" id="authentication-form-container">

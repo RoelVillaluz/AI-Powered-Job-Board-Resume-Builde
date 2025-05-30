@@ -9,6 +9,7 @@
     --light-gray:#e6e4e3;
     --gray: rgb(54, 54, 54);
     --disabled: rgb(230, 230, 230);
+    --success: rgb(0, 163, 122);
 }
 
 * {

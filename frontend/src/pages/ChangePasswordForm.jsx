@@ -12,6 +12,8 @@ import { useData } from "../DataProvider"
         'One number': false
     })
 
+    const [passwordMatches, setPasswordMatches] = useState(false);
+
     const checkRequirements = (password = formData.newPassword) => {
         const requirements = {
             '8 characters minimum': password.length >= 8,
@@ -45,6 +47,11 @@ import { useData } from "../DataProvider"
     useEffect(() => {
         checkRequirements()
     }, [formData.newPassword])
+
+    useEffect(() => {
+        setPasswordMatches(formData.newPassword === formData.confirmNewPassword);
+    }, [formData.newPassword, formData.confirmNewPassword]);
+
 
     return (
         <div className="form-container" id="authentication-form-container">

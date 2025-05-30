@@ -66,8 +66,8 @@ import { useData } from "../DataProvider"
                 <div className="password-requirements">
                     <h5>Password must contain at least: </h5>
                     <ul className="password-requirements">
-                        {Object.entries(passwordRequirements).map(([req, fulfilled]) => (
-                            <li key={req}>{req}</li>
+                        {Object.entries(passwordRequirements).map(([req, valid]) => (
+                            <li key={req} className={valid ? 'valid': ''}>{req}</li>
                         ))}
                     </ul>
                 </div>

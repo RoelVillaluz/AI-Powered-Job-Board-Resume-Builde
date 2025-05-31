@@ -40,6 +40,11 @@ import { useData } from "../DataProvider"
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value })
     }
+
+    useEffect(() => {
+        document.title = 'Change Password'
+    }, [])
+
     useEffect(() => {
         console.log('Form Data: ', formData)
     }, [formData])

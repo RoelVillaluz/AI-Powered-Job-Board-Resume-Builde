@@ -867,6 +867,18 @@ textarea
     font-size: clamp(0.75rem, 0.85vw, 2rem);
     font-weight: 600;
 }
+
+#change-password-form .form-group {
+    position: relative;
+}
+
+#change-password-form .form-group i {
+    position: absolute;
+    transform: translateY(-50%);
+    top: 50%;
+    right: 2%;
+}
+
 #change-password-form .form-group .fa-check-circle {
     color: var(--success);
     
@@ -874,6 +886,30 @@ textarea
 
 #change-password-form .form-group .fa-circle-exclamation {
     color: var(--error);
+}
+
+#change-password-form input[type="password"] {
+    border-color: var(--success);
+    font-size: 1rem;
+}
+
+#change-password-form button {
+    font-family: 'Montserrat', sans-serif;
+    padding: 0.75rem 1rem;
+    border: none;
+    outline: none;
+    background-color: rgb(20, 20, 20);
+    color: white;
+    font-size: 1rem;
+    font-weight: 400;
+    border-radius: 4px;
+    margin-top: 1rem;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+#change-password-form button:hover {
+    background-color: rgb(36, 36, 36);
 }
 
 .password-requirements h5 {

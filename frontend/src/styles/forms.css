@@ -15,7 +15,8 @@ textarea
 }
 
 #register-form,
-#sign-in-form
+#sign-in-form,
+#change-password-form
 {
     display: flex;
     justify-content: center;

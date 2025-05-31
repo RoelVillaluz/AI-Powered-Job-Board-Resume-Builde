@@ -10,6 +10,7 @@
     --gray: rgb(54, 54, 54);
     --disabled: rgb(230, 230, 230);
     --success: rgb(0, 163, 122);
+    --error: rgb(177, 0, 0);
 }
 
 * {

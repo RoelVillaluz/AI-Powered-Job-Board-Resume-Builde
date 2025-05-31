@@ -867,3 +867,11 @@ textarea
     font-size: clamp(0.75rem, 0.85vw, 2rem);
     font-weight: 600;
 }
+#change-password-form .form-group .fa-check-circle {
+    color: var(--success);
+    
+}
+
+#change-password-form .form-group .fa-circle-exclamation {
+    color: var(--error);
+}

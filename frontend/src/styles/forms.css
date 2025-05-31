@@ -875,3 +875,28 @@ textarea
 #change-password-form .form-group .fa-circle-exclamation {
     color: var(--error);
 }
+
+.password-requirements h5 {
+    font-size: clamp(0.5rem, 0.75vw, 1.5rem);
+    font-weight: 600;
+}
+
+.password-requirements ul {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding-left: 1.25rem;
+    margin-top: 0.5rem;
+}
+
+.password-requirements li {
+    color: rgb(60, 60, 60);
+    font-size: clamp(0.5rem, 0.75vw, 1.5rem);
+    font-weight: 400;
+    transition: 0.3s;
+}
+
+.password-requirements li.valid {
+    color: var(--success);
+}
+

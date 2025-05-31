@@ -171,8 +171,8 @@ textarea
 
 .error-message {
     display: flex;
-    align-items: end;
-    gap: 0.25rem;
+    align-items: center;
+    gap: 0.5rem;
     background-color: rgb(255, 211, 211);
     color: red;
     padding: clamp(6px, 0.75vw, 0.75rem) clamp(10px, 1.5vw, 1rem);

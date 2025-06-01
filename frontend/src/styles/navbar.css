@@ -27,6 +27,13 @@
     background-color: var(--secondary);
 }
 
+.logo.floating {
+    position: absolute;
+    top: 1%;
+    left: 1%;
+    padding: 0.5rem;
+}
+
 .logo img {
     filter: brightness(0) invert(1);
 }

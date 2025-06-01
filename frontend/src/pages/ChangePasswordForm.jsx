@@ -56,9 +56,14 @@ import { useData } from "../DataProvider"
     }, [formData.newPassword])
 
     useEffect(() => {
-        setPasswordMatches(formData.newPassword === formData.confirmNewPassword);
+        const { newPassword, confirmNewPassword } = formData;
+
+        const allFilled = [newPassword, confirmNewPassword].every(val => val.trim() !== '');
+
+        setPasswordMatches(allFilled && newPassword.trim() === confirmNewPassword.trim());
     }, [formData.newPassword, formData.confirmNewPassword]);
 
+    
 
     return (
         <div className="form-container" id="authentication-form-container">
@@ -77,7 +82,22 @@ import { useData } from "../DataProvider"
                     )}
                 </div>
                 <div className="form-group">
-                    <input type="password" name='confirmNewPassword' placeholder="Confirm new password" onChange={(e) => handleChange(e)}/>
+                    <input type="password" 
+                           name='confirmNewPassword' 
+                           className={
+                                formData.newPassword && formData.confirmNewPassword
+                                ? (passwordMatches ? 'valid' : 'invalid')
+                                : ''
+                            }
+                           placeholder="Confirm new password" 
+                           onChange={(e) => handleChange(e)}/>
+                    {formData.newPassword && formData.confirmNewPassword ? (
+                        passwordMatches ? (
+                            <i className="fa-solid fa-check-circle"></i>
+                        ) : (
+                            <i className="fa-solid fa-circle-exclamation"></i>
+                        )
+                    ) : null}
                 </div>
 
                 <div className="password-requirements">

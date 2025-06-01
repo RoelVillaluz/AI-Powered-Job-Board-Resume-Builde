@@ -24,6 +24,8 @@ import { useData } from "../DataProvider"
         setPasswordRequirements(requirements)
     }
 
+    const isPasswordValid = Object.values(passwordRequirements).every(Boolean);
+
     const handleFormSubmit = async () => {
         try {
             const response = await axios.patch(`${baseUrl}/users/change-password`, {
@@ -69,7 +71,10 @@ import { useData } from "../DataProvider"
                 </header>
 
                 <div className="form-group">
-                    <input type="password" name='newPassword' placeholder="New password" onChange={(e) => handleChange(e)}/>
+                    <input type="password" name='newPassword' className={isPasswordValid ? 'valid': ''} placeholder="New password" onChange={(e) => handleChange(e)}/>
+                    {isPasswordValid && (
+                        <i className="fa-solid fa-check-circle"></i>
+                    )}
                 </div>
                 <div className="form-group">
                     <input type="password" name='confirmNewPassword' placeholder="Confirm new password" onChange={(e) => handleChange(e)}/>

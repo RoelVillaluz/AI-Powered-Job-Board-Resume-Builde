@@ -66,9 +66,11 @@ import { useData } from "../DataProvider"
     
 
     return (
-        <div className="form-container" id="authentication-form-container">
-
-            
+            <nav>
+                <Link className="logo floating" to={'/'}>
+                    <img src="/public/media/icons8-opportunity-24.png" alt="" />
+                </Link>
+            </nav>
 
             <form action="" id="change-password-form">
                 <header>
@@ -110,7 +112,7 @@ import { useData } from "../DataProvider"
                 </div>
             </form>
 
-        </div>
+        </>
     )
 }
 

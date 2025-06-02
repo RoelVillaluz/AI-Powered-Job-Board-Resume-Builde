@@ -31,7 +31,8 @@ router.post('/apply-to-job/:jobId', authenticateUser, applyToJob)
 router.post('/send-connection-request', sendConnectionRequest)
 
 router.patch('/:id', upload.single('profilePicture'), updateUser)
-router.patch('/change-password', changePassword)
+
+router.put('/change-password', changePassword)
 
 router.delete('/:id', deleteUser)
 

@@ -71,47 +71,59 @@ import { useData } from "../DataProvider"
                     <img src="/public/media/icons8-opportunity-24.png" alt="" />
                 </Link>
             </nav>
+            <div className="form-container" id="authentication-form-container" onSubmit={() => handleFormSubmit()}>
 
-            <form action="" id="change-password-form">
-                <header>
-                    <h1>Change your password</h1>
-                </header>
+                {success ? (
+                    <SuccessMessage message={"You have successfully changed your password"}/>
+                ) : (
+                    <form action="" id="change-password-form">
+                        <header>
+                            <h1>Create a new password</h1>
+                            <h3>For {email}</h3>
+                        </header>
 
-                <div className="form-group">
-                    <input type="password" name='newPassword' className={isPasswordValid ? 'valid': ''} placeholder="New password" onChange={(e) => handleChange(e)}/>
-                    {isPasswordValid && (
-                        <i className="fa-solid fa-check-circle"></i>
-                    )}
-                </div>
-                <div className="form-group">
-                    <input type="password" 
-                           name='confirmNewPassword' 
-                           className={
-                                formData.newPassword && formData.confirmNewPassword
-                                ? (passwordMatches ? 'valid' : 'invalid')
-                                : ''
-                            }
-                           placeholder="Confirm new password" 
-                           onChange={(e) => handleChange(e)}/>
-                    {formData.newPassword && formData.confirmNewPassword ? (
-                        passwordMatches ? (
-                            <i className="fa-solid fa-check-circle"></i>
-                        ) : (
-                            <i className="fa-solid fa-circle-exclamation"></i>
-                        )
-                    ) : null}
-                </div>
+                        <div className="form-group">
+                            <input type="password" name='newPassword' className={isPasswordValid ? 'valid': ''} placeholder="New password" onChange={(e) => handleChange(e)}/>
+                            {isPasswordValid && (
+                                <i className="fa-solid fa-check-circle"></i>
+                            )}
+                        </div>
+                        <div className="form-group">
+                            <input type="password" 
+                                name='confirmNewPassword' 
+                                className={
+                                        formData.newPassword && formData.confirmNewPassword
+                                        ? (passwordMatches ? 'valid' : 'invalid')
+                                        : ''
+                                    }
+                                placeholder="Confirm new password" 
+                                onChange={(e) => handleChange(e)}/>
+                            {formData.newPassword && formData.confirmNewPassword ? (
+                                passwordMatches ? (
+                                    <i className="fa-solid fa-check-circle"></i>
+                                ) : (
+                                    <i className="fa-solid fa-circle-exclamation"></i>
+                                )
+                            ) : null}
+                        </div>
 
-                <div className="password-requirements">
-                    <h5>Password must contain at least: </h5>
-                    <ul className="password-requirements">
-                        {Object.entries(passwordRequirements).map(([req, valid]) => (
-                            <li key={req} className={valid ? 'valid': ''}>{req}</li>
-                        ))}
-                    </ul>
-                </div>
-            </form>
+                        <div className="password-requirements">
+                            <h5>Password must contain at least: </h5>
+                            <ul className="password-requirements">
+                                {Object.entries(passwordRequirements).map(([req, valid]) => (
+                                    <li key={req} className={valid ? 'valid': ''}>
+                                        {req}
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
 
+                        <button type="button">Change password</button>
+
+                    </form>
+                )}
+
+            </div>
         </>
     )
 }

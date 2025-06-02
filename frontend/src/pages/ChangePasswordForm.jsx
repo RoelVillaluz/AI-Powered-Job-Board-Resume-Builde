@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react"
 import { useData } from "../DataProvider"
     const { baseUrl } = useData();
+    const [error, setError] = useState(null);
+    const [success, setSuccess] = useState(false);
     const [formData, setFormData] = useState({
         newPassword: '',
         confirmNewPassword: ''

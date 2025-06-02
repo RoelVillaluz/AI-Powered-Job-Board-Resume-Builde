@@ -83,17 +83,18 @@ import { useData } from "../DataProvider"
     
 
     return (
+        <>
             <nav>
                 <Link className="logo floating" to={'/'}>
                     <img src="/public/media/icons8-opportunity-24.png" alt="" />
                 </Link>
             </nav>
-            <div className="form-container" id="authentication-form-container" onSubmit={() => handleFormSubmit()}>
+            <div className="form-container" id="authentication-form-container">
 
                 {success ? (
                     <SuccessMessage message={"You have successfully changed your password"}/>
                 ) : (
-                    <form action="" id="change-password-form">
+                    <form action="" id="change-password-form" onSubmit={handleFormSubmit}>
                         <header>
                             <h1>Create a new password</h1>
                             <h3>For {email}</h3>
@@ -135,7 +136,7 @@ import { useData } from "../DataProvider"
                             </ul>
                         </div>
 
-                        <button type="button">Change password</button>
+                        <button type="submit">Change password</button>
 
                     </form>
                 )}

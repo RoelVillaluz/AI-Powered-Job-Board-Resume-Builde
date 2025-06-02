@@ -139,5 +139,17 @@ userSchema.pre("deleteOne", { document: true, query: false }, async function (ne
     next();
 }); 
 
+userSchema.pre('save', function(next) {
+  if (this.role === 'employer') {
+    this.resumes = undefined;
+    this.savedJobs = undefined;
+    this.appliedJobs = undefined;
+  } else if (this.role === 'jobseeker') {
+    this.company = undefined;
+  }
+  next();
+});
+
+
 const User = mongoose.models.User || mongoose.model('User', userSchema);
 export default User;

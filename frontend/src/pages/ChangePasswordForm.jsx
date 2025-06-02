@@ -28,18 +28,33 @@ import { useData } from "../DataProvider"
 
     const isPasswordValid = Object.values(passwordRequirements).every(Boolean);
 
-    const handleFormSubmit = async () => {
+    const handleFormSubmit = async (e) => {
         try {
-            const response = await axios.patch(`${baseUrl}/users/change-password`, {
-                email: email,
-                newPassword: formData.password
-            })
+            if (
+                formData.newPassword &&
+                formData.confirmNewPassword &&
+                passwordMatches &&
+                isPasswordValid
+            ) {
+                const response = await axios.put(`${baseUrl}/users/change-password`, {
+                    email: email,
+                    newPassword: formData.newPassword
+                })
 
-            console.log(response.data)
+                console.log(response.data)
+
+                setSuccess(true)
+                setError(null)
+            } else {
+                setError('Please make sure passwords match and meet the requirements.')
+            }
+
         } catch (error) {
-            console.error('Error: ', error)
+            console.error('Error: ', error);
+            setError(error.response?.data?.message || error.message || 'Something went wrong')
         }
     }
+
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value })

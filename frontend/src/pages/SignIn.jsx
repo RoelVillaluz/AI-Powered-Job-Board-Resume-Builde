@@ -30,7 +30,6 @@ function SignIn() {
 
     const handleFormSubmit = async (e) => {
         e.preventDefault();
-        setError('')
         try {
             // Login user
             const response = await axios.post(`${baseUrl}/users/login`, formData)

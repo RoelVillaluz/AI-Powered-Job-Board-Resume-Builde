@@ -2,8 +2,13 @@ import axios, { all } from "axios"
 import { useEffect, useState } from "react"
 import { useData } from "../DataProvider"
 import SuccessMessage from "../components/SuccessMessage";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
+
+function ChangePasswordForm() {
+    const location = useLocation();
+    const email = location.state?.email;
     const { baseUrl } = useData();
+    
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(false);
     const [formData, setFormData] = useState({
@@ -97,11 +102,8 @@ import { Link } from "react-router-dom";
             {success ? (
                 <SuccessMessage message={"You have successfully changed your password."}/>
             ) : (
-            <div className="form-container" id="authentication-form-container">
+                <div className="form-container" id="authentication-form-container">
 
-                {success ? (
-                    <SuccessMessage message={"You have successfully changed your password"}/>
-                ) : (
                     <form action="" id="change-password-form" onSubmit={handleFormSubmit}>
                         <header>
                             <h1>Create a new password</h1>

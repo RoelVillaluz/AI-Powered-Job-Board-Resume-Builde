@@ -7,17 +7,21 @@ import { faL } from "@fortawesome/free-solid-svg-icons";
 import Resume from "../../../backend/models/resumeModel";
 import { useAuth } from "./AuthProvider";
 import Gauge from "./Gauge";
+import ApplicationFormModal from "./ApplicationFormModal";
 
 function JobDetailPage() {
     const { baseUrl } = useData();
     const { jobId } = useParams();
     const { user, setUser, toggleSaveJob, toggleApplyJob } = useAuth();
+
     const [job, setJob] = useState(null);
     const [company, setCompany] = useState(null);
     const hasQuestions = job?.preScreeningQuestions?.length > 0
 
     const [loading, setLoading] = useState(true);
     const [isComparing, setIsComparing] = useState(false);
+    const [showApplicationModal, setShowApplicationModal] = useState(false);
+
     const [resumes, setResumes] = useState([]);
     const [currentResume, setCurrentResume] = useState(null);
     const [resumeScore, setResumeScore] = useState({

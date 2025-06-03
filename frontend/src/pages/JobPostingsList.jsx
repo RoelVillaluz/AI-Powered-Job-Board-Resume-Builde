@@ -262,7 +262,7 @@ function JobPostingsList() {
             case "Newest First":
                 return [...filteredJobs].sort((a, b) => b.postedAt.localeCompare(a.postedAt))
             case "Highest Salary":
-                return [...filteredJobs].sort((a, b) => b.salary - a.salary)
+                return [...filteredJobs].sort((a, b) => b.salary.amount - a.salary.amount)
             default:
                 return filteredJobs // no need to explicitly sort by similarity, already done in the api backend
         }

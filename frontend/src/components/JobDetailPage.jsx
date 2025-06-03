@@ -14,6 +14,8 @@ function JobDetailPage() {
     const { user, setUser, toggleSaveJob, toggleApplyJob } = useAuth();
     const [job, setJob] = useState(null);
     const [company, setCompany] = useState(null);
+    const hasQuestions = job?.preScreeningQuestions?.length > 0
+
     const [loading, setLoading] = useState(true);
     const [isComparing, setIsComparing] = useState(false);
     const [resumes, setResumes] = useState([]);

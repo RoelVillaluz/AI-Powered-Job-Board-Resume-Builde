@@ -76,7 +76,7 @@ export const AuthProvider = ({ children }) => {
         navigate('/')
     };
 
-    const handleJobAction = async (e, jobId, resume, actionType) => {
+    const handleJobAction = async (e, jobId, resume, actionType, hasQuestions = false, showModal) => {
         e.preventDefault();
         e.stopPropagation();
 
@@ -89,6 +89,12 @@ export const AuthProvider = ({ children }) => {
             const token = localStorage.getItem("authToken")
             if (!token) {
                 console.log('Token not found')
+                return;
+            }
+
+            // If applying and there are questions, show modal instead of submitting
+            if (actionType === 'apply' && hasQuestions) {
+                showModal(); // Call the function to show ApplicationFormModal
                 return;
             }
 
@@ -134,7 +140,7 @@ export const AuthProvider = ({ children }) => {
         }
     }
     const toggleSaveJob = (e, jobId) => handleJobAction(e, jobId, null, "save")
-    const toggleApplyJob = (e, jobId, resume) => handleJobAction(e, jobId, resume, "apply");
+    const toggleApplyJob = (e, jobId, resume, hasQuestions, showModal) => handleJobAction(e, jobId, resume, "apply", hasQuestions, showModal);
 
     return (
         <AuthContext.Provider value={{ user, setUser, login, logout, loading, refreshUser, toggleSaveJob, toggleApplyJob }}>

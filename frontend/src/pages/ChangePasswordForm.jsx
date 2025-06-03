@@ -32,6 +32,8 @@ import { Link } from "react-router-dom";
     const isPasswordValid = Object.values(passwordRequirements).every(Boolean);
 
     const handleFormSubmit = async (e) => {
+        e.preventDefault();
+
         try {
             if (
                 formData.newPassword &&

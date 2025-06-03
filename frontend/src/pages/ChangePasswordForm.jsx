@@ -92,6 +92,9 @@ import { Link } from "react-router-dom";
                     <img src="/public/media/icons8-opportunity-24.png" alt="" />
                 </Link>
             </nav>
+            {success ? (
+                <SuccessMessage message={"You have successfully changed your password."}/>
+            ) : (
             <div className="form-container" id="authentication-form-container">
 
                 {success ? (
@@ -142,9 +145,9 @@ import { Link } from "react-router-dom";
                         <button type="submit">Change password</button>
 
                     </form>
-                )}
 
-            </div>
+                </div>
+            )}
         </>
     )
 }

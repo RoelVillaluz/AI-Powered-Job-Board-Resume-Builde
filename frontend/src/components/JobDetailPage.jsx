@@ -87,9 +87,6 @@ function JobDetailPage() {
         }
     }, [job, company])
 
-    console.log('Applied jobs: ', user.appliedJobs)
-    console.log('Saved jobs: ', user.savedJobs)
-
     useEffect(() => {
         const compareResumeAndJob = async () => {
             setIsComparing(true)
@@ -187,7 +184,11 @@ function JobDetailPage() {
         const displayText = remainingCount > 0 ? `${firstFour}, +${remainingCount}` : firstFour
 
         return displayText
-    };      
+    };  
+    
+    const handleShowModal = () => {
+        setShowApplicationModal(true)
+    }
       
     useEffect(() => {
         if (job && company) {
@@ -284,7 +285,7 @@ function JobDetailPage() {
                                                 <h4>{job.location}</h4>
                                             </div>
                                             <div className="actions">
-                                                <button className="apply-btn" onClick={(e) => toggleApplyJob(e, job._id, currentResume._id )}>
+                                                <button className="apply-btn" onClick={(e) => toggleApplyJob(e, job._id, currentResume._id, hasQuestions, handleShowModal )}>
                                                     {user.appliedJobs.includes(job._id) ? 'Unapply' : 'Apply Now'}
                                                 </button>
                                                 <button className="save-btn" onClick={(e) => toggleSaveJob(e, job._id)} aria-label="Save job">
@@ -495,6 +496,7 @@ function JobDetailPage() {
                             <Gauge progress={resumeScore.totalScore} messages={messages} loading={isComparing} objectName={"Resume"}/>
                             
                             <div>
+                                <h6>Change Resume scorer later to make this have dynamic feedback</h6>
                                 <p>Strengths: High skill similarity</p>
                                 <p>Weaknesses: Low relevant work experience. No college degree yet.</p>
                             </div>
@@ -524,6 +526,9 @@ function JobDetailPage() {
 
                 </main> 
             </Layout>
+            {!showApplicationModal && hasQuestions && (
+                <ApplicationFormModal job={job}/>
+            )}
         </>
     )
 }

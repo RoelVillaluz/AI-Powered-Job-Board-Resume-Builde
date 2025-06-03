@@ -969,3 +969,67 @@ textarea
     color: var(--success);
 }
 
+.application-form-container {
+    display: flex;
+    width: 65vw;
+    height: 75vh;
+    z-index: 1000;
+}
+
+.application-form-container .image-container {
+    flex: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.application-form-container .image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 16px 0 0 16px;
+    filter: brightness(82%) saturate(125%);
+}
+
+.application-form-modal {
+    flex: 3;
+    background-color: white;
+    padding: 2rem;
+    border-radius: 0 16px 16px 0;
+}
+
+.application-form-modal header {
+    border-bottom: solid 1px rgba(0,0,0,0.1);
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+}
+
+.application-form-modal header h1 {
+    font-size: clamp(2rem, 1.5vw, 5rem);
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+}
+
+.application-form-modal header h3 {
+    color: rgb(40, 40, 40);
+    font-size: clamp(0.75rem, 0.9vw, 2.5rem);
+    font-weight: 500;
+}
+
+.application-form-modal .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 1.5rem;
+}
+
+.application-form-modal .form-group label {
+    font-size: clamp(0.5rem, 0.8vw, 1.4rem);
+    font-weight: 600;
+}
+
+.application-form-modal .form-group input {
+    border-radius: 4px;
+    font-size: clamp(0.5rem, 0.8vw, 1.4rem);
+    padding: 8px 16px;
+}

@@ -186,8 +186,8 @@ function JobDetailPage() {
         return displayText
     };  
     
-    const handleShowModal = () => {
-        setShowApplicationModal(true)
+    const showModal = () => {
+        setShowApplicationModal(prev => !prev)
     }
       
     useEffect(() => {

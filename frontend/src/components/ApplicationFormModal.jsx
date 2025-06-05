@@ -1,4 +1,4 @@
-function ApplicationFormModal({ job }) {
+function ApplicationFormModal({ job, onClose }) {
 
     return (
         <div className="blurry-overlay">
@@ -9,7 +9,7 @@ function ApplicationFormModal({ job }) {
                 </div>
 
                 <form action="" className="application-form-modal">
-                    
+
                     <header>
                         <div className="row">
                             <h1>Apply for this role</h1>

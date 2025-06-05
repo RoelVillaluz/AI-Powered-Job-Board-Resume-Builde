@@ -1004,6 +1004,11 @@ textarea
     padding-bottom: 1rem;
 }
 
+.application-form-modal header .row {
+    align-items: start;
+    justify-content: space-between;
+}
+
 .application-form-modal header h1 {
     font-size: clamp(2rem, 1.5vw, 5rem);
     font-weight: 700;
@@ -1014,6 +1019,16 @@ textarea
     color: rgb(40, 40, 40);
     font-size: clamp(0.75rem, 0.9vw, 2.5rem);
     font-weight: 500;
+}
+
+.application-form-modal #close-btn {
+    border: none;
+    outline: none;
+}
+
+.application-form-modal .fa-xmark {
+    cursor: pointer;
+    font-size: clamp(0.75rem, 0.9vw, 1.5rem);
 }
 
 .application-form-modal .form-group {

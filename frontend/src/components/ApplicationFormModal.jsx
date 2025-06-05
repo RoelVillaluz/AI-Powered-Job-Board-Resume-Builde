@@ -11,7 +11,12 @@ function ApplicationFormModal({ job }) {
                 <form action="" className="application-form-modal">
                     
                     <header>
-                        <h1>Apply for this role</h1>
+                        <div className="row">
+                            <h1>Apply for this role</h1>
+                            <button type="button" id="close-btn" onClick={onClose}>
+                                <i className="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>
                         <h3>{job?.title} - {job?.company.name}</h3>
                     </header>
 

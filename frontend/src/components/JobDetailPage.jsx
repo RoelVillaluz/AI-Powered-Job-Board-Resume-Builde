@@ -285,7 +285,7 @@ function JobDetailPage() {
                                                 <h4>{job.location}</h4>
                                             </div>
                                             <div className="actions">
-                                                <button className="apply-btn" onClick={(e) => toggleApplyJob(e, job._id, currentResume._id, hasQuestions, handleShowModal )}>
+                                                <button className="apply-btn" onClick={(e) => toggleApplyJob(e, job._id, currentResume._id, hasQuestions, showModal )}>
                                                     {user.appliedJobs.includes(job._id) ? 'Unapply' : 'Apply Now'}
                                                 </button>
                                                 <button className="save-btn" onClick={(e) => toggleSaveJob(e, job._id)} aria-label="Save job">
@@ -526,8 +526,8 @@ function JobDetailPage() {
 
                 </main> 
             </Layout>
-            {!showApplicationModal && hasQuestions && (
-                <ApplicationFormModal job={job}/>
+            {showApplicationModal && hasQuestions && (
+                <ApplicationFormModal job={job} onClose={() => showModal()}/>
             )}
         </>
     )

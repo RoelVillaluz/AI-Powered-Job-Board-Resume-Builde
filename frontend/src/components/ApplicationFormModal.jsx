@@ -21,7 +21,7 @@ function ApplicationFormModal({ job, onClose }) {
                     </header>
 
                     {job?.preScreeningQuestions.map((question, index) => (
-                        <div className="form-group">
+                        <div className="form-group" key={index}>
                             <label htmlFor="" key={index}>{question.question}</label>
                             <input type="text" />
                         </div>

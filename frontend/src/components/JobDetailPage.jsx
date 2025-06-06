@@ -12,7 +12,7 @@ import ApplicationFormModal from "./ApplicationFormModal";
 function JobDetailPage() {
     const { baseUrl } = useData();
     const { jobId } = useParams();
-    const { user, setUser, toggleSaveJob, toggleApplyJob } = useAuth();
+    const { user, setUser, toggleSaveJob, toggleApplyJob, handleJobAction } = useAuth();
 
     const [job, setJob] = useState(null);
     const [company, setCompany] = useState(null);

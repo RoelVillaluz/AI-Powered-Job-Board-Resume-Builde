@@ -50,6 +50,7 @@ const jobPostingSchema = new mongoose.Schema({
     preScreeningQuestions: [{
         question: { type: String, required: true },
         required: { type: Boolean, default: false }, // Flag to indicate if answering the question is mandatory
+        default: {}
     }],
     applicants: [{
         type: mongoose.Schema.Types.ObjectId,

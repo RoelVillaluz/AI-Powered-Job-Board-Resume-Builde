@@ -527,7 +527,19 @@ function JobDetailPage() {
                 </main> 
             </Layout>
             {showApplicationModal && hasQuestions && (
-                <ApplicationFormModal job={job} onClose={() => showModal()}/>
+                <ApplicationFormModal 
+                    job={job} 
+                    onClose={() => showModal()} 
+                    onSubmit={(answers) => handleJobAction(
+                        new Event("submit"),
+                        job._id,
+                        currentResume._id,
+                        "apply", // actionType
+                        hasQuestions,
+                        showModal, 
+                        answers // answers from modal
+                    )}
+                />
             )}
         </>
     )

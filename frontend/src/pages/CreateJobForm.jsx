@@ -142,11 +142,6 @@ function CreateJobForm() {
         addActiveClass()
     }, [currentStepIndex])
 
-    useEffect(() => {
-        setCurrentStepIndex(3)
-    }, [])
-
-
     return(
         <>
             <Layout>

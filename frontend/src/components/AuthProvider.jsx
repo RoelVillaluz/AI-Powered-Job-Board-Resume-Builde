@@ -113,12 +113,19 @@ export const AuthProvider = ({ children }) => {
                 return;
             }
 
+            const payload = {
+                applicant: String(user._id),
+                resume: resume,
+            };
+
+            // Only include answers if they exist
+            if (answers) {
+                payload.answers = answers;
+            }
+
             const response = await axios.post(
                 endpoints[actionType],
-                { 
-                    applicant : String(user._id),
-                    resume: resume
-                }, 
+                payload,
                 {
                     headers: {
                         Authorization: `Bearer ${token}`

@@ -135,10 +135,16 @@ export const AuthProvider = ({ children }) => {
                     : [...prevUser[userStateKeys[actionType]], jobId] // Add if not added
             }));
 
+            // Close the modal after successful submission
+            if (actionType === 'apply' && hasQuestions && showModal) {
+                showModal();
+            }
+
         } catch (error) {
             console.error('Error', error)
         }
     }
+
     const toggleSaveJob = (e, jobId) => handleJobAction(e, jobId, null, "save")
     const toggleApplyJob = (e, jobId, resume, hasQuestions, showModal) => handleJobAction(e, jobId, resume, "apply", hasQuestions, showModal);
 

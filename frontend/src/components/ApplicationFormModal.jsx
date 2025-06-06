@@ -1,4 +1,11 @@
-function ApplicationFormModal({ job, onClose }) {
+    const [answers, setAnswers] = useState({})
+
+    const handleChange = (index, value) => {
+        setAnswers(prev => ({
+            ...prev,
+            [index]: value
+        }));
+    };
 
     return (
         <div className="blurry-overlay">
@@ -22,8 +29,12 @@ function ApplicationFormModal({ job, onClose }) {
 
                     {job?.preScreeningQuestions.map((question, index) => (
                         <div className="form-group" key={index}>
-                            <label htmlFor="" key={index}>{question.question}</label>
-                            <input type="text" />
+                            <label>{question.question}</label>
+                            <input
+                                type="text"
+                                value={answers[index] || ""}
+                                onChange={(e) => handleChange(index, e.target.value)}
+                            />
                         </div>
                     ))}
                 </form>

@@ -143,7 +143,7 @@ export const AuthProvider = ({ children }) => {
     const toggleApplyJob = (e, jobId, resume, hasQuestions, showModal) => handleJobAction(e, jobId, resume, "apply", hasQuestions, showModal);
 
     return (
-        <AuthContext.Provider value={{ user, setUser, login, logout, loading, refreshUser, toggleSaveJob, toggleApplyJob }}>
+        <AuthContext.Provider value={{ user, setUser, login, logout, loading, refreshUser, toggleSaveJob, toggleApplyJob, handleJobAction }}>
             {!loading && children}
         </AuthContext.Provider>
     );

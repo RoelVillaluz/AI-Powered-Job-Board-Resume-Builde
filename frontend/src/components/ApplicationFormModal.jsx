@@ -7,6 +7,11 @@
         }));
     };
 
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        onSubmit(answers)
+    }
+
     return (
         <div className="blurry-overlay">
             <div className="application-form-container">
@@ -15,7 +20,7 @@
                     <img src="/media/pexels-cytonn-955389.jpg" alt="" />
                 </div>
 
-                <form action="" className="application-form-modal">
+                <form onSubmit={handleSubmit} className="application-form-modal">
 
                     <header>
                         <div className="row">
@@ -37,6 +42,7 @@
                             />
                         </div>
                     ))}
+                    <button type="submit">Submit</button>
                 </form>
 
             </div>

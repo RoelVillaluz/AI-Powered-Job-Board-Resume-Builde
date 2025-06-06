@@ -93,7 +93,8 @@ export const AuthProvider = ({ children }) => {
             }
 
             // If applying and there are questions, show modal instead of submitting
-            if (actionType === 'apply' && hasQuestions) {
+            // But only if we don't already have answers
+            if (actionType === 'apply' && hasQuestions && !answers) {
                 showModal(); // Call the function to show ApplicationFormModal
                 return;
             }

@@ -271,6 +271,7 @@ export const applyToJob = async (req, res) => {
             // Create the new application and associate it with the job posting
             newApplication = new Application({
                 ...jobApplicationData,
+                preScreeningAnswers: answers,
                 jobPosting: new mongoose.Types.ObjectId(jobId),
                 applicant: new mongoose.Types.ObjectId(userId)
             })

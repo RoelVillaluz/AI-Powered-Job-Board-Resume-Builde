@@ -76,7 +76,7 @@ export const AuthProvider = ({ children }) => {
         navigate('/')
     };
 
-    const handleJobAction = async (e, jobId, resume, actionType, hasQuestions = false, showModal) => {
+    const handleJobAction = async (e, jobId, resume, actionType, hasQuestions = false, showModal, answers = null) => {
         e.preventDefault();
         e.stopPropagation();
 

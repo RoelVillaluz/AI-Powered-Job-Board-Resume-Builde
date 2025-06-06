@@ -239,6 +239,7 @@ export const toggleSaveJob = async (req, res) => {
 export const applyToJob = async (req, res) => {
     const jobApplicationData = req.body;
     const { jobId } = req.params;
+    const { answers } = req.body;
 
     const requiredFields = ['applicant', 'resume']
 

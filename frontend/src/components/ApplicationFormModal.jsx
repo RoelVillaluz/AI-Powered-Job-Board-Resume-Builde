@@ -1,3 +1,6 @@
+import { useState } from "react"
+
+function ApplicationFormModal({ job, onClose, onSubmit }) {
     const [answers, setAnswers] = useState({})
 
     const handleChange = (index, value) => {

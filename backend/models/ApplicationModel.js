@@ -22,6 +22,11 @@ const applicationSchema = new mongoose.Schema({
         enum: ['Pending', 'Reviewed', 'Interviewing', 'Accepted', 'Rejected'],
         default: 'Pending'
     },
+    preScreeningAnswers: {
+        type: Map,
+        of: String,
+        default: {}
+    },
     appliedAt: {
         type: Date,
         default: Date.now

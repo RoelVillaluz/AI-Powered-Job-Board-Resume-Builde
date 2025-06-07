@@ -1,10 +1,13 @@
 import Application from "../models/applicationModel.js";
 import { STATUS_MESSAGES, sendResponse } from '../constants.js';
+import { formatApplicationData } from "../utils.js";
 import mongoose from "mongoose";
 
 export const getApplications = async (req, res) => {
     try {
-        const applications = await Application.find({})
+        let applications = await Application.find({}).populate('jobPosting');
+
+        applications = formatApplicationData(applications)
 
         return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.FETCH, data: applications }, 'Applications');
     } catch (error) {
@@ -17,7 +20,9 @@ export const getApplicationById = async (req, res) => {
     const { applicationId } = req.params;
 
     try {
-        const application = await Application.findById(applicationId)
+        let application = await Application.findById(applicationId).populate('jobPosting')
+
+        application = formatApplicationData(application)
 
         if (!application) {
             return sendResponse(res, { ...STATUS_MESSAGES.ERROR.NOT_FOUND, success: false}, 'Application')
@@ -34,7 +39,9 @@ export const getApplicationsByUser = async (req, res) => {
     const { userId } = req.params;
 
     try {
-        const applications = await Application.find({ applicant: new mongoose.Types.ObjectId(userId) })
+        let applications = await Application.find({ applicant: new mongoose.Types.ObjectId(userId) }).populate('jobPosting')
+
+        applications = formatApplicationData(applications)
         
         if (!applications) {
             return sendResponse(res, { ...STATUS_MESSAGES.ERROR.NOT_FOUND, success: false}, 'Application')

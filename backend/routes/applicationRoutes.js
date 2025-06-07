@@ -4,7 +4,7 @@ import { getApplications, getApplicationById, getApplicationsByUser } from "../c
 const router = express.Router();
 
 router.get('/', getApplications)
-router.get('/:id', getApplicationById)
+router.get('/:applicationId', getApplicationById)
 router.get('/user/:userId', getApplicationsByUser)
 
 export default router

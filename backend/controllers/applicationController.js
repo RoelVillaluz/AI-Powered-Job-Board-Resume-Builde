@@ -18,6 +18,10 @@ export const getApplicationById = async (req, res) => {
     try {
         const application = await Application.findById(applicationId)
 
+        if (!application) {
+            return sendResponse(res, { ...STATUS_MESSAGES.ERROR.NOT_FOUND, success: false}, 'Application')
+        }
+
         return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.FETCH, data: application }, 'Application');
     } catch (error) {
         console.error('Error fetching application: ', error)
@@ -29,7 +33,9 @@ export const getApplicationsByUser = async (req, res) => {
     const { userId } = req.params;
 
     try {
-        const application = await Application.findById(applicationId)
+        if (!applications) {
+            return sendResponse(res, { ...STATUS_MESSAGES.ERROR.NOT_FOUND, success: false}, 'Application')
+        }
 
         return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.FETCH, data: application }, 'Application');
     } catch (error) {

@@ -36,3 +36,28 @@ export const sendVerificationEmail = async (user, verificationCode) => {
         console.error('Error sending verification email:', error);
     }
 };
+
+// Helper function that takes in a single application (or an array of applications) and transforms the preScreeningAnswers the way you want.
+export const formatApplicationData = (application) => {
+    if (Array.isArray(application)) {
+        return application.map(formatSingleApplication)
+    } else {
+        return formatSingleApplication(application)
+    }
+}
+
+const formatSingleApplication = (app) => {
+    if (!app || !app.jobPosting) return app;
+
+    const preScreeningQA = app.jobPosting.preScreeningQuestions.map((q, index) => ({
+        question: q.question,
+        answer: app.preScreeningAnswers.get(index.toString()) || null
+    }));
+
+    const appObj = app.toObject ? app.toObject() : app;
+
+    return {
+        ...appObj,
+        preScreeningQA
+    }
+}

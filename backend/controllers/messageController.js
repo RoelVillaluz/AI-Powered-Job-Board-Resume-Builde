@@ -49,3 +49,66 @@ export const getMessagesByUser = async (req, res) => {
         return sendResponse(res, { ...STATUS_MESSAGES.ERROR.SERVER, success: false })
     }
 }
+
+
+export const createMessage = async (req, res) => {
+    const messageData = req.body;
+    const requiredFields = ["sender", "receivers", "content"];
+
+    try {
+        const missingField = checkMissingFields(requiredFields, messageData)
+        if (missingField) {
+            return sendResponse(res, { ...STATUS_MESSAGES.ERROR.MISSING_FIELD(missingField), success: false}, 'Message')
+        }
+
+        // Validate and extract sender ID
+        const senderId = messageData.sender?.id || messageData.sender;
+        if (!mongoose.Types.ObjectId.isValid(senderId)) {
+            console.error('Invalid sender ID:', senderId);
+            return res.status(400).json({ message: 'Invalid sender ID format', success: false });
+        }
+
+        // Validate receiver IDs
+        const receiverIds = messageData.receivers;
+        const invalidReceiver = receiverIds.find(id => !mongoose.Types.ObjectId.isValid(id));
+        if (invalidReceiver) {
+            return res.status(400).json({ message: `Invalid receiver ID format: ${invalidReceiver}`, success: false });
+        }
+
+        // Check if conversation exists (participants = sender + receivers)
+        const participantIds = [senderId, ...receiverIds]
+
+        const existingConversation = await Conversation.findOne({
+            users: { $all: participantIds },
+            $expr: { $eq: [{ $size: "$users" }, participantIds.length] }
+        })
+        
+        let conversation;
+        if (!existingConversation) {
+            // Create new conversation
+            conversation = new Conversation({
+                users: participantIds
+            });
+            await conversation.save();
+        } else {
+            conversation = existingConversation;
+        }
+
+        const newMessage = new Message({
+            ...messageData,
+            user: new mongoose.Types.ObjectId(userId)
+        })
+
+        await newMessage.save()
+
+        // Add message to conversation
+        conversation.messages.push(newMessage._id)
+        await conversation.save()
+
+        return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.CREATE, data: newCompany }, 'Company');
+    } catch (error) {
+        console.error('Error', error)
+        return sendResponse(res, { ...STATUS_MESSAGES.ERROR.SERVER, success: false})
+    }
+
+}

@@ -1870,3 +1870,39 @@ button {
     padding: 0.75rem 2rem;
     margin-top: 0.5rem;
 }
+#chat-list {
+    width: 20%;
+    display: flex;
+    flex-direction: column;
+}
+
+#chat-list header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding-bottom: 2rem;
+    border-bottom: solid 2px rgba(0, 0, 0, 0.1);
+}
+
+#chat-list header h1 {
+    font-weight: 600;
+}
+
+#chat-list header i {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--light-gray);
+    color: rgb(110, 110, 110);
+    width: clamp(1.5rem, 2.5vw, 4rem);
+    height: clamp(1.5rem, 2.5vw, 4rem);
+    padding: 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+#chat-list header i:hover {
+    background-color: var(--tertiary);
+    color: var(--secondary-light);
+}

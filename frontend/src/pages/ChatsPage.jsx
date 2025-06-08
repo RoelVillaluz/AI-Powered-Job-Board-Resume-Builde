@@ -12,17 +12,22 @@ function ChatsPage() {
 
                 {/* Chat List */}
                 <aside id="chat-list">
+
                     <header>
                         <i className="fa-solid fa-angle-left"></i>
                         <h1>My Chats</h1>
                     </header>
+
                     <section id="user-summary">
                         <i className="fa-solid fa-gear"></i>
                         <figure className="user-avatar">
                             <img src="/media/pexels-felix-young-449360607-32448620.jpg" alt="" />
-                            <span className="status"></span>
+                            <span className="status-circle active"></span>
                         </figure>
+                        <h1>Ava Carter</h1>
+                        <h3 className="status-text">Online</h3>
                     </section>
+
                 </aside>
 
             </main>

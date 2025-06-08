@@ -1870,6 +1870,11 @@ button {
     padding: 0.75rem 2rem;
     margin-top: 0.5rem;
 }
+
+.main-content {
+    padding: 1rem;
+}
+
 #chat-list {
     width: 20%;
     display: flex;

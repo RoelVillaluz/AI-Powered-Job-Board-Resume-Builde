@@ -1977,3 +1977,30 @@ button {
     background-color: rgb(211, 250, 239);
     color: rgb(0, 163, 122);
 }
+
+.message-search-bar {
+    position: relative;
+    width: 100%;
+    margin-top: 1rem;
+}
+
+.message-search-bar input[type="text"] {
+    width: 100%;
+    padding: 12px 16px;
+    padding-right: 3.5rem;
+    background-color: rgb(237, 237, 237);
+    color: rgb(100, 100, 100);
+    font-size: clamp(0.75rem, 0.8vw, 2rem);
+    font-weight: 500;
+    border: none;
+    border-radius: 10px;
+    outline: none;
+}
+
+.message-search-bar i {
+    color: rgb(170, 170, 170);
+    position: absolute;
+    transform: translate(-50%, -50%);
+    top: 50%;
+    right: 2.5%;
+}

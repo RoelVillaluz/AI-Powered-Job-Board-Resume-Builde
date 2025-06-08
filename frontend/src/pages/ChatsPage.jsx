@@ -25,7 +25,14 @@ function ChatsPage() {
                             <span className="status-circle active"></span>
                         </figure>
                         <h1>Ava Carter</h1>
-                        <h3 className="status-text">Online</h3>
+                        <h3 className="status-text active">Online</h3>
+                    </section>
+
+                    <section id="search-message">
+                        <div className="message-search-bar">
+                            <input type="text" placeholder="Search"/>
+                            <i className="fa-solid fa-magnifying-glass"></i>
+                        </div>
                     </section>
 
                 </aside>

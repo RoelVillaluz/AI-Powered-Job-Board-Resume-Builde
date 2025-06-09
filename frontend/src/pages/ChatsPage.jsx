@@ -56,6 +56,33 @@ function ChatsPage() {
                         </div>
                     </section>
 
+                    <section id="chat-list">
+
+                        <div className="row">
+                            <h4>Last Messages</h4>
+                            <div className="actions">
+                                <i className="fa-solid fa-plus"></i>
+                                <i className="fa-solid fa-ellipsis-vertical"></i>
+                            </div>
+                        </div>
+
+                        <ul>
+                            {sampleMessages.map((message, index) => (
+                                <li className="message-preview" key={index}>
+                                    <img src={message.imageSrc} alt="" />
+                                    <div className="message-details">
+                                        <div className="row">
+                                            <strong>{message.name}</strong>
+                                            <time datetime="">{message.time}</time>
+                                        </div>
+                                        <span class="message-content">{message.content}</span>
+                                    </div>
+                                </li>
+                            ))}
+                        </ul>
+                        
+                    </section>
+
                 </aside>
 
             </main>

@@ -6,6 +6,27 @@ function ChatsPage() {
         document.title = 'Messages'
     }, [])
 
+    const sampleMessages = [
+        {
+            name: 'Ava Carter',
+            imageSrc: '/media/pexels-felix-young-449360607-32448620.jpg',
+            content: 'Hello, I saw your job application',
+            time: '3:18 PM' 
+        },
+        {
+            name: 'Joe Murray',
+            imageSrc: '/media/pexels-nappy-936117.jpg',
+            content: 'Hello, I hope you are doing well',
+            time: '11:23 AM',
+        },
+        {
+            name: 'Jasmine Reed',
+            imageSrc: '/media/pexels-mikhail-nilov-7736027.jpg',
+            content: 'Good morning. I hope this message finds you well.',
+            time: '9:42 AM',
+        },
+    ]
+
     return (
         <Layout>
             <main className="main-content" id="chats-page">

@@ -11,7 +11,7 @@ function ChatsPage() {
             <main className="main-content" id="chats-page">
 
                 {/* Chat List */}
-                <aside id="chat-list">
+                <aside id="chat-sidebar">
 
                     <header>
                         <i className="fa-solid fa-angle-left"></i>

@@ -2004,3 +2004,100 @@ button {
     top: 50%;
     right: 2.5%;
 }
+
+#chat-list {
+    margin-top: 2.5rem;
+}
+
+#chat-list .row {
+    align-items: center;
+    justify-content: space-between;
+}
+
+#chat-list h4 {
+    color: rgb(170, 170, 170);
+    font-size: clamp(0.5rem, 0.75vw, 1.5rem);
+    font-weight: 500;
+}
+
+#chat-list .actions {
+    display: flex;
+    align-items: center;
+    gap: 1.75rem;
+}
+
+#chat-list i {
+    color: rgb(170, 170, 170);
+    cursor: pointer;
+}
+
+#chat-list ul {
+    display: flex;
+    flex-direction: column;
+    list-style-type: none;
+    overflow-y: scroll;
+    margin-top: 2rem;
+    width: 100%;
+}
+
+#chat-list .message-preview {
+    display: flex;
+    align-items: start;
+    gap: 1rem;
+    padding: 1rem;
+    padding-right: 1.5rem;
+    border-radius: 1000px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+#chat-list .message-preview:hover {
+    background-color: rgb(235, 235, 235);
+}
+
+#chat-list .message-preview img {
+    width: clamp(3rem, 2vw, 6rem);
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+#chat-list .message-preview .message-details {
+    flex: 1 1 auto;
+    margin-top: 2px;
+    min-width: 0; /* To allow proper shrinking */
+}
+
+#chat-list .message-preview .row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center; 
+    margin-bottom: 0.25rem;
+}
+
+#chat-list .message-preview strong {
+    color: rgb(40, 40, 40);
+    font-size: clamp(1rem, 1vw, 2.5rem);
+    font-weight: 600;
+    flex: 1; 
+    min-width: 0; /* To allow proper text truncation */
+}
+
+#chat-list .message-preview time {
+    color: rgb(150, 150, 150);
+    font-size: clamp(0.65rem, 0.75vw, 1.75rem);
+    font-weight: 500;
+    flex-shrink: 0; /* To prevent the time from shrinking */
+    white-space: nowrap; /* To keep time on one line */
+}
+
+#chat-list .message-preview .message-content  {
+    display: inline-block;
+    color: rgb(150, 150, 150);
+    font-size: clamp(0.75rem, 0.75vw, 2rem);
+    font-weight: 500;
+    max-width: 75%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}

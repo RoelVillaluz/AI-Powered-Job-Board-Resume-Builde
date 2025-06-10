@@ -90,6 +90,7 @@ function ChatsPage() {
                     <header>
                         <h1>Chat Name</h1>
                         <div className="actions">
+                            <i className="fa-solid fa-phone"></i>
                             <i className="fa-solid fa-video"></i>
                             <i className="fa-solid fa-ellipsis"></i>
                         </div>

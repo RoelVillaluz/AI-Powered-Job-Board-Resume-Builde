@@ -2126,13 +2126,37 @@ button {
     align-items: center;
     justify-content: space-between;
     padding-bottom: 1.5rem;
-    border-bottom: solid 2px rgba(0, 0, 0, 0.1);
 }
 
-.chat-window header h1 {
-    color: rgb(40, 40, 40);
-    font-size: clamp(1rem, 1.15vw, 4rem);
+.chat-window .user {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.chat-window .user img {
+    width: clamp(1.5rem, 2.5vw, 6rem);
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.chat-window .user address {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-style: normal;
+}
+
+.chat-window .user address strong {
+    font-size: clamp(0.75rem, 0.75vw, 1.75rem);
     font-weight: 600;
+}
+
+.chat-window .user address span {
+    color: rgb(130, 130, 130);
+    font-size: clamp(0.65rem, 0.7vw, 1.25rem);
+    font-weight: 500;
 }
 
 .chat-window header .actions {

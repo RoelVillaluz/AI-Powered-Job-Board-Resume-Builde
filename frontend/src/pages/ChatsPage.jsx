@@ -88,7 +88,13 @@ function ChatsPage() {
                 {/* Current Chat Window */}
                 <section className="chat-window">
                     <header>
-                        <h1>Chat Name</h1>
+                        <div className="user">
+                            <img src="/media/pexels-felix-young-449360607-32448620.jpg" alt="" />
+                            <address>
+                                <strong>Ava Carter</strong>
+                                <span>avacarter@apple.com</span>
+                            </address>
+                        </div>
                         <div className="actions">
                             <i className="fa-solid fa-phone"></i>
                             <i className="fa-solid fa-video"></i>

@@ -1875,6 +1875,12 @@ button {
     padding: 1rem;
 }
 
+#chats-page {
+    display: flex;
+    height: 100vh;
+    gap: 1.5rem;
+}
+
 #chat-sidebar {
     width: 20%;
     display: flex;

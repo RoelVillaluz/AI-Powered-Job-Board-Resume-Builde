@@ -119,6 +119,19 @@ function ChatsPage() {
                             <i className="fa-solid fa-ellipsis"></i>
                         </div>
                     </header>
+                    <div className="messages-container">
+                        <ul>
+                            {sampleChatWindowMessages.map((message, index) => (
+                                <li className={message.sender === 'Me' ? 'receiver' : ''} key={index}>
+                                    <img src={message.imageSrc} alt="" />
+                                    <div className="message">
+                                        <time datetime="">{message.time}</time>
+                                        <p>{message.content}</p>
+                                    </div>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
                     <div className="typing-bar">
                         <input type="text" placeholder="Write your message..."/>
                         <div className="actions">

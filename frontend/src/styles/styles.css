@@ -2108,3 +2108,39 @@ button {
     white-space: nowrap;
     text-overflow: ellipsis;
 }
+
+.chat-window {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 55%;
+    height: 100%;
+    padding: 1.5rem;
+    background-color: rgb(236, 236, 236);
+    border: solid 1px rgba(220, 220, 220, 0.1);
+    border-radius: 20px;
+}
+
+.chat-window header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 1.5rem;
+    border-bottom: solid 2px rgba(0, 0, 0, 0.1);
+}
+
+.chat-window header h1 {
+    color: rgb(40, 40, 40);
+    font-size: clamp(1rem, 1.15vw, 4rem);
+    font-weight: 600;
+}
+
+.chat-window header .actions {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.chat-window header .actions i {
+    color: rgb(90, 90, 90);
+}

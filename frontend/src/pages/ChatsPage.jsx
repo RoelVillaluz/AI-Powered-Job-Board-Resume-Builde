@@ -30,6 +30,21 @@ function ChatsPage() {
         },
     ]
 
+    const sampleChatWindowMessages = [
+        {
+            sender: 'Ava Carter',
+            imageSrc: '/media/pexels-felix-young-449360607-32448620.jpg',
+            content: 'Hello, I saw your job application',
+            time: '3:18 PM' 
+        },
+        {
+            sender: 'Me',
+            imageSrc: user.profilePicture,
+            content: 'Hello, thank you for taking your time reading my application',
+            time: '3:51 PM',
+        }
+    ]
+
     return (
         <Layout>
             <main className="main-content" id="chats-page">

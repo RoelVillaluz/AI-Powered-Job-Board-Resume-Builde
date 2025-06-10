@@ -1,7 +1,10 @@
 import { useEffect } from "react"
 import Layout from "../components/Layout"
+import { useAuth } from "../components/AuthProvider"
 
 function ChatsPage() {
+    const { user } = useAuth();
+
     useEffect(() => {
         document.title = 'Messages'
     }, [])

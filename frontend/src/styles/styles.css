@@ -2184,6 +2184,7 @@ button {
     display: flex;
     align-items: end;
     gap: 0.5rem;
+    max-width: 75%;
 }
 
 .messages-container li img {
@@ -2193,36 +2194,52 @@ button {
     border-radius: 50%;
 }
 
-.messages-container .message {
+.messages-container .message-group {
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
 }
 
-.messages-container .message time {
-    color: rgb(130, 130, 130);
+.messages-container .message-group time {
+    color: rgb(40, 40, 40);
     font-size: clamp(0.5rem, 0.65vw, 1.25rem);
     font-weight: 500;
 }
 
-.messages-container .message p {
+.messages-container .messages {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.messages-container .messages p {
     background-color: white;
     box-shadow: 0px 10px 20px -12px rgba(0,0,0,0.1);
+    font-weight: 500;
+    line-height: 1.5rem;
     border-radius: 12px;
+    padding: 1.25rem;
+}
+
+.messages-container .messages p:last-of-type {
     border-bottom-left-radius: 0;
-    padding: 1rem;
 }
 
 .messages-container li.receiver {
     display: flex;
     flex-direction: row-reverse;
+    margin-left: auto;
 }
 
-.messages-container li.receiver .message p {
+.messages-container li.receiver .messages p {
     background-color: rgb(42, 50, 92);
     box-shadow: 0px 10px 20px 4px rgba(0,0,0,0.1);
     color: white;
+    font-weight: 400;
     border-bottom-left-radius: 12px;
+}
+
+.messages-container li.receiver .messages p:last-of-type {
     border-bottom-right-radius: 0;
 }
 

@@ -42,6 +42,57 @@ function ChatsPage() {
             imageSrc: user.profilePicture,
             content: 'Hello, thank you for taking your time reading my application',
             time: '3:51 PM',
+        },
+        {
+            sender: 'Me',
+            imageSrc: user.profilePicture,
+            content: 'I am very interested in this position, however I am currently taking my final project in college which will make me busy.',
+            time: '3:51 PM',
+        },
+        {
+            sender: 'Ava Carter',
+            imageSrc: '/media/pexels-felix-young-449360607-32448620.jpg',
+            content: 'What the joma-hell!',
+            time: '3:18 PM' 
+        },
+        {
+            sender: 'Ava Carter',
+            imageSrc: '/media/pexels-felix-young-449360607-32448620.jpg',
+            content: 'Nuh uh, hell no-mari!',
+            time: '3:18 PM' 
+        },
+    ]
+
+    const groupMessages = (messages) => {
+        const grouped = [];
+        let currentGroup = null;
+        
+        messages.forEach((message, index) => {
+            const prevMessage = messages[index - 1];
+            
+            // Check if this message should be grouped with the previous one
+            const shouldGroup = prevMessage && 
+                            prevMessage.sender === message.sender &&
+                            shouldGroupByTime(prevMessage.time, message.time);
+            
+            if (shouldGroup) {
+                // Add to existing group
+                currentGroup.messages.push(message);
+            } else {
+                // Start new group
+                currentGroup = {
+                    sender: message.sender,
+                    imageSrc: message.imageSrc,
+                    time: message.time,
+                    messages: [message]
+                };
+                grouped.push(currentGroup);
+            }
+        });
+        
+        return grouped;
+    };
+
     const shouldGroupByTime = (time1, time2) => {
         const parseTime = (timeStr) => {
             const [time, period] = timeStr.split(' ')
@@ -59,6 +110,8 @@ function ChatsPage() {
         // Group messages within 1 minute of each other
         return Math.abs(time2Minutes - time1Minutes) <= 1;
     }
+
+   const groupedMessages = groupMessages(sampleChatWindowMessages);
 
     return (
         <Layout>
@@ -136,12 +189,16 @@ function ChatsPage() {
                     </header>
                     <div className="messages-container">
                         <ul>
-                            {sampleChatWindowMessages.map((message, index) => (
-                                <li className={message.sender === 'Me' ? 'receiver' : ''} key={index}>
-                                    <img src={message.imageSrc} alt="" />
-                                    <div className="message">
-                                        <time datetime="">{message.time}</time>
-                                        <p>{message.content}</p>
+                            {groupedMessages.map((group, groupIndex) => (
+                                <li className={group.sender === 'Me' ? 'receiver' : ''} key={groupIndex}>
+                                    <img src={group.imageSrc} alt="" />
+                                    <div className="message-group">
+                                        <time datetime="">{group.time}</time>
+                                        <div className="messages">
+                                            {group.messages.map((message, messageIndex) => (
+                                                <p key={messageIndex}>{message.content}</p>
+                                            ))}
+                                        </div>
                                     </div>
                                 </li>
                             ))}

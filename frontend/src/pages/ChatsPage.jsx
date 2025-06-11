@@ -204,14 +204,14 @@ function ChatsPage() {
                             ))}
                         </ul>
                     </div>
-                    <div className="typing-bar">
+                    <form className="typing-bar">
                         <input type="text" placeholder="Write your message..."/>
                         <div className="actions">
                             <i className="fa-solid fa-paperclip"></i>
                             <i className="fa-solid fa-microphone"></i>
                             <i className="fa-solid fa-paper-plane"></i>
                         </div>
-                    </div>
+                    </form>
                 </section>
 
                 {/* Chat Resources */}

@@ -1892,7 +1892,7 @@ button {
     display: flex;
     align-items: center;
     gap: 1rem;
-    padding-bottom: 2rem;
+    padding-bottom: 0.5rem;
     border-bottom: solid 2px rgba(0, 0, 0, 0.1);
 }
 

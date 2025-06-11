@@ -42,8 +42,23 @@ function ChatsPage() {
             imageSrc: user.profilePicture,
             content: 'Hello, thank you for taking your time reading my application',
             time: '3:51 PM',
+    const shouldGroupByTime = (time1, time2) => {
+        const parseTime = (timeStr) => {
+            const [time, period] = timeStr.split(' ')
+            let [hours, minutes] = time.split(':').map(Number)
+
+            if (period === 'PM' && hours !== 12) hours += 12;
+            if (period === 'AM' && hours === 12) hours = 0;
+            
+            return hours * 60 + minutes; // Convert to minutes
         }
-    ]
+
+        const time1Minutes = parseTime(time1);
+        const time2Minutes = parseTime(time2);
+        
+        // Group messages within 1 minute of each other
+        return Math.abs(time2Minutes - time1Minutes) <= 1;
+    }
 
     return (
         <Layout>

@@ -29,6 +29,30 @@ export const getUsers = async (req, res) => {
     }
 };
 
+export const searchUsers = async (req, res) => {
+    try {
+        const { q, limit } = req.query;
+
+        // If no query provided, return empty array
+        if (!q) {
+            return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.FETCH, data: [] }, 'Search Results')
+        }
+
+        const searchRegex = new RegExp(q, 'i') // case-insensitive partial match
+
+        const users = await User.find({
+            name: { $regex: searchRegex }
+        })
+        .select('_id name company') // only fetch necessary fields
+        .limit(parseInt(limit) || 10); // default to 10 if no limit provided
+
+        return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.FETCH, data: users }, 'Search Results')
+    } catch (error) {
+        console.error('Error fetching search results', error)
+        return sendResponse(res, STATUS_MESSAGES.ERROR.SERVER, 'Search Results')
+    }
+}
+
 export const getUser = async (req, res) => {
     const { id } = req.params;
     try {

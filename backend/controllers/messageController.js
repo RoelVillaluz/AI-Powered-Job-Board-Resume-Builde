@@ -93,7 +93,7 @@ export const createMessage = async (req, res) => {
 
         const newMessage = new Message({
             ...messageData,
-            user: new mongoose.Types.ObjectId(senderId), // corrected userId to senderId
+            sender: new mongoose.Types.ObjectId(senderId), // corrected userId to senderId
             receiver: new mongoose.Types.ObjectId(receiverId),
             content: content
         });

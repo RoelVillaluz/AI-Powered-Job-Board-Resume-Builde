@@ -53,12 +53,12 @@ export const getMessagesByUser = async (req, res) => {
 
 export const createMessage = async (req, res) => {
     const messageData = req.body;
-    const requiredFields = ["sender", "receivers", "content"];
+    const requiredFields = ["sender", "receiver", "content"];
 
     try {
-        const missingField = checkMissingFields(requiredFields, messageData)
+        const missingField = checkMissingFields(requiredFields, messageData);
         if (missingField) {
-            return sendResponse(res, { ...STATUS_MESSAGES.ERROR.MISSING_FIELD(missingField), success: false}, 'Message')
+            return sendResponse(res, { ...STATUS_MESSAGES.ERROR.MISSING_FIELD(missingField), success: false }, 'Message');
         }
 
         // Validate and extract sender ID
@@ -68,27 +68,24 @@ export const createMessage = async (req, res) => {
             return res.status(400).json({ message: 'Invalid sender ID format', success: false });
         }
 
-        // Validate receiver IDs
-        const receiverIds = messageData.receivers;
-        const invalidReceiver = receiverIds.find(id => !mongoose.Types.ObjectId.isValid(id));
-        if (invalidReceiver) {
-            return res.status(400).json({ message: `Invalid receiver ID format: ${invalidReceiver}`, success: false });
+        // Validate receiver ID
+        const receiverId = messageData.receiver?.id || messageData.receiver;
+        if (!mongoose.Types.ObjectId.isValid(receiverId)) {
+            console.error('Invalid receiver ID:', receiverId);
+            return res.status(400).json({ message: 'Invalid receiver ID format', success: false });
         }
 
-        // Check if conversation exists (participants = sender + receivers)
-        const participantIds = [senderId, ...receiverIds]
+        // Check if conversation exists
+        const participantIds = [senderId, receiverId];
 
         const existingConversation = await Conversation.findOne({
             users: { $all: participantIds },
             $expr: { $eq: [{ $size: "$users" }, participantIds.length] }
-        })
-        
+        });
+
         let conversation;
         if (!existingConversation) {
-            // Create new conversation
-            conversation = new Conversation({
-                users: participantIds
-            });
+            conversation = new Conversation({ users: participantIds });
             await conversation.save();
         } else {
             conversation = existingConversation;
@@ -96,19 +93,20 @@ export const createMessage = async (req, res) => {
 
         const newMessage = new Message({
             ...messageData,
-            user: new mongoose.Types.ObjectId(userId)
-        })
+            user: new mongoose.Types.ObjectId(senderId), // corrected userId to senderId
+            receiver: new mongoose.Types.ObjectId(receiverId),
+            content: content
+        });
 
-        await newMessage.save()
+        await newMessage.save();
 
         // Add message to conversation
-        conversation.messages.push(newMessage._id)
-        await conversation.save()
+        conversation.messages.push(newMessage._id);
+        await conversation.save();
 
-        return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.CREATE, data: newCompany }, 'Company');
+        return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.CREATE, data: newMessage }, 'Message'); // corrected response
     } catch (error) {
-        console.error('Error', error)
-        return sendResponse(res, { ...STATUS_MESSAGES.ERROR.SERVER, success: false})
+        console.error('Error', error);
+        return sendResponse(res, { ...STATUS_MESSAGES.ERROR.SERVER, success: false });
     }
-
-}
+};

@@ -103,15 +103,17 @@ function ChatsPage() {
                         <h1>My Chats</h1>
                     </header>
 
-                    <section id="user-summary">
-                        <i className="fa-solid fa-gear"></i>
-                        <figure className="user-avatar">
-                            <img src="/media/pexels-felix-young-449360607-32448620.jpg" alt="" />
-                            <span className="status-circle active"></span>
-                        </figure>
-                        <h1>Ava Carter</h1>
-                        <h3 className="status-text active">Online</h3>
-                    </section>
+                    {currentConversation && (
+                        <section id="user-summary">
+                            <i className="fa-solid fa-gear"></i>
+                            <figure className="user-avatar">
+                                <img src="/media/pexels-felix-young-449360607-32448620.jpg" alt="" />
+                                <span className="status-circle active"></span>
+                            </figure>
+                            <h1>Ava Carter</h1>
+                            <h3 className="status-text active">Online</h3>
+                        </section>
+                    )}
 
                     <section id="search-message">
                         <div className="message-search-bar">
@@ -131,18 +133,20 @@ function ChatsPage() {
                         </div>
 
                         <ul>
-                            {sampleMessages.map((message, index) => (
-                                <li className="message-preview" key={index}>
-                                    <img src={message.imageSrc} alt="" />
-                                    <div className="message-details">
-                                        <div className="row">
-                                            <strong>{message.name}</strong>
-                                            <time datetime="">{message.time}</time>
+                            {messages.length > 0 && (
+                                messages.map((message, index) => (
+                                    <li className="message-preview" key={index}>
+                                        <img src={message.imageSrc} alt="" />
+                                        <div className="message-details">
+                                            <div className="row">
+                                                <strong>{message.name}</strong>
+                                                <time datetime="">{message.time}</time>
+                                            </div>
+                                            <span class="message-content">{message.content}</span>
                                         </div>
-                                        <span class="message-content">{message.content}</span>
-                                    </div>
-                                </li>
-                            ))}
+                                    </li>
+                                ))
+                            )}
                         </ul>
                         
                     </section>
@@ -152,34 +156,40 @@ function ChatsPage() {
                 {/* Current Chat Window */}
                 <section className="chat-window">
                     <header>
-                        <div className="user">
-                            <img src="/media/pexels-felix-young-449360607-32448620.jpg" alt="" />
-                            <address>
-                                <strong>Ava Carter</strong>
-                                <span>avacarter@apple.com</span>
-                            </address>
-                        </div>
-                        <div className="actions">
-                            <i className="fa-solid fa-phone"></i>
-                            <i className="fa-solid fa-video"></i>
-                            <i className="fa-solid fa-ellipsis"></i>
-                        </div>
+                        {currentConversation && (
+                            <>
+                                <div className="user">
+                                    <img src="/media/pexels-felix-young-449360607-32448620.jpg" alt="" />
+                                    <address>
+                                        <strong>Ava Carter</strong>
+                                        <span>avacarter@apple.com</span>
+                                    </address>
+                                </div>
+                                <div className="actions">
+                                    <i className="fa-solid fa-phone"></i>
+                                    <i className="fa-solid fa-video"></i>
+                                    <i className="fa-solid fa-ellipsis"></i>
+                                </div>
+                            </>
+                        )}
                     </header>
                     <div className="messages-container">
                         <ul>
-                            {groupedMessages.map((group, groupIndex) => (
-                                <li className={group.sender === 'Me' ? 'receiver' : ''} key={groupIndex}>
-                                    <img src={group.imageSrc} alt="" />
-                                    <div className="message-group">
-                                        <time datetime="">{group.time}</time>
-                                        <div className="messages">
-                                            {group.messages.map((message, messageIndex) => (
-                                                <p key={messageIndex}>{message.content}</p>
-                                            ))}
+                            {groupedMessages.length > 0 && (
+                                groupedMessages.map((group, groupIndex) => (
+                                    <li className={group.sender === 'Me' ? 'receiver' : ''} key={groupIndex}>
+                                        <img src={group.imageSrc} alt="" />
+                                        <div className="message-group">
+                                            <time datetime="">{group.time}</time>
+                                            <div className="messages">
+                                                {group.messages.map((message, messageIndex) => (
+                                                    <p key={messageIndex}>{message.content}</p>
+                                                ))}
+                                            </div>
                                         </div>
-                                    </div>
-                                </li>
-                            ))}
+                                    </li>
+                                ))
+                            )}
                         </ul>
                     </div>
                     <form className="typing-bar">

@@ -6,13 +6,11 @@ const messageSchema = new mongoose.Schema({
         ref: 'User',
         required: true
     },
-    receivers: [
-        {
+    receiver: {
             type: mongoose.Types.ObjectId,
             ref: 'User',
             required: true
-        }
-    ],
+    },
     content: {
         type: String,
         required: true

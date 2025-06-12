@@ -18,14 +18,27 @@ function ChatsPage() {
         const fetchUserConversations = async () => {
             try {
                 const response = await axios.get(`${baseUrl}/conversations/user/${user._id}`)
-                console.log('User conversations: ', response.data.data)
+                const fetchedConversations = response.data.data;
 
-                setConversations(response.data.data)
+                // Sort conversations by latest message timestamp descending
+                const sortedConversations = fetchedConversations.sort((a, b) => {
+                    return new Date(b.updatedAt) - new Date(a.updatedAt);
+                })
+
+                setConversations(sortedConversations)
+
+                if (sortedConversations.length > 0) {
+                    setCurrentConversation(sortedConversations[0])
+                }
+
+                console.log('User conversations: ', fetchedConversations)
             } catch (error) {
                 console.log('Error fetching conversations')
             }
         }
-        fetchUserConversations()
+        if (user?._id) {
+            fetchUserConversations();
+        }
     }, [user])
 
     const groupMessages = (messages) => {

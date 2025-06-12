@@ -1,67 +1,32 @@
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import Layout from "../components/Layout"
 import { useAuth } from "../components/AuthProvider"
+import { useData } from "../DataProvider";
+import axios from "axios";
 
 function ChatsPage() {
+    const { baseUrl } = useData();
     const { user } = useAuth();
+    const [conversations, setConversations] = useState([]);
+    const [currentConversation, setCurrentConversation] = useState(null);
 
     useEffect(() => {
         document.title = 'Messages'
     }, [])
 
-    const sampleMessages = [
-        {
-            name: 'Ava Carter',
-            imageSrc: '/media/pexels-felix-young-449360607-32448620.jpg',
-            content: 'Hello, I saw your job application',
-            time: '3:18 PM' 
-        },
-        {
-            name: 'Joe Murray',
-            imageSrc: '/media/pexels-nappy-936117.jpg',
-            content: 'Hello, I hope you are doing well',
-            time: '11:23 AM',
-        },
-        {
-            name: 'Jasmine Reed',
-            imageSrc: '/media/pexels-mikhail-nilov-7736027.jpg',
-            content: 'Good morning. I hope this message finds you well.',
-            time: '9:42 AM',
-        },
-    ]
+    useEffect(() => {
+        const fetchUserConversations = async () => {
+            try {
+                const response = await axios.get(`${baseUrl}/conversations/user/${user._id}`)
+                console.log('User conversations: ', response.data.data)
 
-    const sampleChatWindowMessages = [
-        {
-            sender: 'Ava Carter',
-            imageSrc: '/media/pexels-felix-young-449360607-32448620.jpg',
-            content: 'Hello, I saw your job application',
-            time: '3:18 PM' 
-        },
-        {
-            sender: 'Me',
-            imageSrc: user.profilePicture,
-            content: 'Hello, thank you for taking your time reading my application',
-            time: '3:51 PM',
-        },
-        {
-            sender: 'Me',
-            imageSrc: user.profilePicture,
-            content: 'I am very interested in this position, however I am currently taking my final project in college which will make me busy.',
-            time: '3:51 PM',
-        },
-        {
-            sender: 'Ava Carter',
-            imageSrc: '/media/pexels-felix-young-449360607-32448620.jpg',
-            content: 'What the joma-hell!',
-            time: '3:18 PM' 
-        },
-        {
-            sender: 'Ava Carter',
-            imageSrc: '/media/pexels-felix-young-449360607-32448620.jpg',
-            content: 'Nuh uh, hell no-mari!',
-            time: '3:18 PM' 
-        },
-    ]
+                setConversations(response.data.data)
+            } catch (error) {
+                console.log('Error fetching conversations')
+            }
+        }
+        fetchUserConversations()
+    }, [user])
 
     const groupMessages = (messages) => {
         const grouped = [];

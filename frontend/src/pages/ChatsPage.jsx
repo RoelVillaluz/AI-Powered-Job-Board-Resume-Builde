@@ -9,6 +9,8 @@ function ChatsPage() {
     const { user } = useAuth();
     const [conversations, setConversations] = useState([]);
     const [currentConversation, setCurrentConversation] = useState(null);
+    const [searchReceiverQuery, setSearchReceiverQuery] = useState('')
+    const [searchReceiverResults, setSearchReceiverResults] = useState([]);
 
     useEffect(() => {
         document.title = 'Messages'
@@ -40,6 +42,31 @@ function ChatsPage() {
             fetchUserConversations();
         }
     }, [user])
+
+    // Fetch users based on search input in compose message section
+    useEffect(() => {
+        if (!searchReceiverQuery.trim()) {
+            setSearchReceiverResults([])
+            return
+        }
+
+        const timeoutId = setTimeout(async() => {
+            try {
+                const response = await axios.get(`${baseUrl}/users/search`, {
+                    params: { q: searchReceiverQuery, limit: 10 }
+                });
+                
+                console.log(`Search results for query: ${searchReceiverQuery}`, searchReceiverResults)
+
+                setSearchReceiverResults(response.data.data)
+            } catch (error) {
+                console.error("Search error", error);
+            }
+        }, 300) 
+
+        
+        return () => clearTimeout(timeoutId)
+    }, [searchReceiverQuery])
 
     const groupMessages = (messages) => {
         const grouped = [];
@@ -175,7 +202,7 @@ function ChatsPage() {
                             <h1>New Message</h1>
                             <div className="send-to">
                                 <label>To:</label>
-                                <input type="text" placeholder="Search for a name"/>
+                                <input type="text" placeholder="Search for a name" value={searchReceiverQuery} onChange={(e) => setSearchReceiverQuery(e.target.value)}/>
                             </div>
                         </header>
                     )}

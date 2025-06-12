@@ -155,24 +155,30 @@ function ChatsPage() {
 
                 {/* Current Chat Window */}
                 <section className="chat-window">
-                    <header>
-                        {currentConversation && (
-                            <>
-                                <div className="user">
-                                    <img src="/media/pexels-felix-young-449360607-32448620.jpg" alt="" />
-                                    <address>
-                                        <strong>Ava Carter</strong>
-                                        <span>avacarter@apple.com</span>
-                                    </address>
+                    {currentConversation ? (
+                        <header>
+                            <div className="user">
+                                <img src="/media/pexels-felix-young-449360607-32448620.jpg" alt="" />
+                                <address>
+                                    <strong>Ava Carter</strong>
+                                    <span>avacarter@apple.com</span>
+                                </address>
+                            </div>
+                            <div className="actions">
+                                <i className="fa-solid fa-phone"></i>
+                                <i className="fa-solid fa-video"></i>
+                                <i className="fa-solid fa-ellipsis"></i>
                                 </div>
-                                <div className="actions">
-                                    <i className="fa-solid fa-phone"></i>
-                                    <i className="fa-solid fa-video"></i>
-                                    <i className="fa-solid fa-ellipsis"></i>
-                                </div>
-                            </>
-                        )}
-                    </header>
+                        </header>
+                    ) : (
+                        <header className="compose-message">
+                            <h1>New Message</h1>
+                            <div className="send-to">
+                                <label>To:</label>
+                                <input type="text" placeholder="Search for a name"/>
+                            </div>
+                        </header>
+                    )}
                     <div className="messages-container">
                         <ul>
                             {groupedMessages.length > 0 && (

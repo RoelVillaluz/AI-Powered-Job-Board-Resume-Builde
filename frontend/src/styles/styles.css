@@ -2127,6 +2127,48 @@ button {
     padding-bottom: 1.5rem;
 }
 
+.chat-window .compose-message {
+    display: flex;
+    align-items: start;
+    justify-self: start;
+    flex-direction: column;
+    background-color: white;
+    border-radius: 12px 12px 0 0;
+    margin: -1.5rem;
+    padding: 1rem;
+}
+
+.chat-window .compose-message h1 {
+    font-size: clamp(1rem, 1.25vw, 3rem);
+    font-weight: 600;
+}
+
+.chat-window .send-to {
+    border-top: solid 2px rgba(0, 0, 0, 0.1);
+    margin-top: 0.5rem;
+    padding-top: 0.75rem;
+    width: 100%;
+}
+
+.chat-window .send-to label {
+    color: rgb(170, 170, 170);
+    font-size: clamp(0.75rem, 0.75vw, 2rem);
+    font-weight: 600;
+}
+
+.chat-window .send-to input {
+    color: rgb(170, 170, 170);
+    font-size: clamp(0.75rem, 0.75vw, 2rem);
+    font-weight: 600;
+    border: none;
+    outline: none;
+    margin-left: 0.5rem;
+}
+
+.chat-window .send-to input::placeholder {
+    color: rgb(170, 170, 170);
+}
+
 .chat-window .user {
     display: flex;
     align-items: center;

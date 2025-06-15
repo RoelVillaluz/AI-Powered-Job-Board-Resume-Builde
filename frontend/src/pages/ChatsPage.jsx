@@ -279,7 +279,7 @@ function ChatsPage() {
                         </ul>
                     </div>
                     <form className="typing-bar">
-                        <input type="text" placeholder="Write your message..."/>
+                        <input type="text" placeholder="Write your message..." value={formData.content} onChange={(e) => handleChange("content", e.target.value)}/>
                         <div className="actions">
                             <i className="fa-solid fa-paperclip"></i>
                             <i className="fa-solid fa-microphone"></i>

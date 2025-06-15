@@ -10,6 +10,7 @@ function ChatsPage() {
 
     const [conversations, setConversations] = useState([]);
     const [currentConversation, setCurrentConversation] = useState(null);
+    const [currentReceiver, setCurrentReceiver] = useState(null);
 
     const [searchReceiverQuery, setSearchReceiverQuery] = useState('')
     const [searchReceiverResults, setSearchReceiverResults] = useState([]);

@@ -78,6 +78,10 @@ function ChatsPage() {
         return () => clearTimeout(timeoutId)
     }, [searchReceiverQuery])
 
+    useEffect(() => {
+        console.log('Form data: ', formData)
+    }, [formData])
+
     const groupMessages = (messages) => {
         const grouped = [];
         let currentGroup = null;

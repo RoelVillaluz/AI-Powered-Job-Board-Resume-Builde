@@ -128,6 +128,13 @@ function ChatsPage() {
     // const groupedMessages = groupMessages(sampleChatWindowMessages);
     const groupedMessages = [];
 
+    const handleChange = (name, value) => {
+        setFormData((prev) => ({
+            ...prev,
+            [name]: value,
+        }));
+    };
+
     return (
         <Layout>
             <main className="main-content" id="chats-page">

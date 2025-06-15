@@ -224,9 +224,8 @@ function ChatsPage() {
                                 {searchReceiverResults.length > 0 && ( 
                                     <ul className="results">
                                         {searchReceiverResults.map((result, index) => (
-                                            <li>
-                                                <img src={result.profilePicture} alt="" />
-                                                <strong>{result.name}</strong>
+                                                    <img src={result.profilePicture} alt={`${result.name}'s profile picture`} />
+                                                    <strong>{result.name}</strong>
                                             </li>
                                         ))}
                                     </ul>

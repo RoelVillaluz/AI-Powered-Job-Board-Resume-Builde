@@ -231,7 +231,7 @@ function ChatsPage() {
 
                                 {searchReceiverResults.length > 0 && ( 
                                     <ul className="results">
-                                        {searchReceiverResults.map((result, index) => (
+                                        {searchReceiverResults.filter(r => r._id !== user._id).map((result, index) => (
                                             <li key={index}>
                                                 <button onClick={() => {
                                                         handleChange("receiver", result._id)

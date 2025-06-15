@@ -230,6 +230,12 @@ function ChatsPage() {
                                     <div className="selected-receiver">
                                         <img src={currentReceiver.profilePicture} alt={`${currentReceiver.name}'s profile picture`} />
                                         <strong>{currentReceiver.name}</strong>
+                                        <button className="remove-receiver-btn" onClick={() => {
+                                            handleChange("receiver", "")
+                                            setCurrentReceiver(null)
+                                        }}>
+                                            <i className="fa-solid fa-xmark"></i>
+                                        </button>
                                     </div>
                                 )}
 

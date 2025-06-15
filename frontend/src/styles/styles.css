@@ -2169,7 +2169,38 @@ button {
     color: rgb(170, 170, 170);
 }
 
-.chat-window .send-to .results {
+.chat-window .selected-receiver {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: rgb(230, 230, 230);
+    border: solid 1px rgba(204, 201, 176, 0.3);
+    border-radius: 8px;
+    padding: 8px;
+    padding-right: 16px;
+}
+
+.chat-window .selected-receiver img {
+    width: clamp(1rem, 1.25vw, 3rem);
+    aspect-ratio: 1 / 1;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.chat-window .selected-receiver strong {
+    color: rgb(70, 70, 70);
+    font-size: clamp(0.5rem, 0.6vw, 1.5rem);
+    font-weight: 600;
+}
+
+.chat-window .remove-receiver-btn {
+    background-color: transparent;
+    border: none;
+    outline: none;
+    cursor: pointer;
+}
+
+.chat-window .results {
     position: absolute;
     left: 2%;
     top: 175%;

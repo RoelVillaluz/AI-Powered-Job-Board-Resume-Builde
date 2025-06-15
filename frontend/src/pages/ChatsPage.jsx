@@ -233,7 +233,11 @@ function ChatsPage() {
                                     <ul className="results">
                                         {searchReceiverResults.map((result, index) => (
                                             <li key={index}>
-                                                <button onClick={() => handleChange("receiver", result._id)}>
+                                                <button onClick={() => {
+                                                        handleChange("receiver", result._id)
+                                                        setCurrentReceiver(result)
+                                                        setSearchReceiverQuery('')
+                                                    }}>
                                                     <img src={result.profilePicture} alt={`${result.name}'s profile picture`} />
                                                     <strong>{result.name}</strong>
                                                 </button>

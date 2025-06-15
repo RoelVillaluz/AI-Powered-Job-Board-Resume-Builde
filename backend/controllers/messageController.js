@@ -1,6 +1,7 @@
+import mongoose from 'mongoose'
 import Message from '../models/messageModel.js'
 import Conversation from '../models/conversationModel.js'
-import { STATUS_MESSAGES } from '../constants.js'
+import { STATUS_MESSAGES, sendResponse } from '../constants.js'
 import { checkMissingFields } from '../utils.js'
 
 export const getMessages = async (req, res) => {

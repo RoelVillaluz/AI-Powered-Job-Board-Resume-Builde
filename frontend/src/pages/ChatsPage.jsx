@@ -220,7 +220,14 @@ function ChatsPage() {
                             <h1>New Message</h1>
                             <div className="send-to">
                                 <label>To:</label>
-                                <input type="text" placeholder="Search for a name" value={searchReceiverQuery} onChange={(e) => setSearchReceiverQuery(e.target.value)}/>
+                                {formData.receiver === '' ? (
+                                    <input type="text" placeholder="Search for a name" value={searchReceiverQuery} onChange={(e) => setSearchReceiverQuery(e.target.value)}/>
+                                ) : (
+                                    <div className="selected-receiver">
+                                        <img src={currentReceiver.profilePicture} alt={`${currentReceiver.name}'s profile picture`} />
+                                        <strong>{currentReceiver.name}</strong>
+                                    </div>
+                                )}
 
                                 {searchReceiverResults.length > 0 && ( 
                                     <ul className="results">

@@ -17,7 +17,7 @@ function ChatsPage() {
 
     const [messages, setMessages] = useState([]);
     const [formData, setFormData] = useState({
-        sender: user,
+        sender: user._id,
         receiver: '',
         content: '',
     })

@@ -7,10 +7,19 @@ import axios from "axios";
 function ChatsPage() {
     const { baseUrl } = useData();
     const { user } = useAuth();
+
     const [conversations, setConversations] = useState([]);
     const [currentConversation, setCurrentConversation] = useState(null);
+
     const [searchReceiverQuery, setSearchReceiverQuery] = useState('')
     const [searchReceiverResults, setSearchReceiverResults] = useState([]);
+
+    const [messages, setMessages] = useState([]);
+    const [formData, setFormData] = useState({
+        sender: user,
+        receivers: [],
+        content: '',
+    })
 
     useEffect(() => {
         document.title = 'Messages'
@@ -55,14 +64,14 @@ function ChatsPage() {
                 const response = await axios.get(`${baseUrl}/users/search`, {
                     params: { q: searchReceiverQuery, limit: 10 }
                 });
-                
+
                 console.log(`Search results for query: ${searchReceiverQuery}`, searchReceiverResults)
 
                 setSearchReceiverResults(response.data.data)
             } catch (error) {
                 console.error("Search error", error);
             }
-        }, 300) 
+        }, 200) 
 
         
         return () => clearTimeout(timeoutId)
@@ -116,7 +125,8 @@ function ChatsPage() {
         return Math.abs(time2Minutes - time1Minutes) <= 1;
     }
 
-   const groupedMessages = groupMessages(sampleChatWindowMessages);
+    // const groupedMessages = groupMessages(sampleChatWindowMessages);
+    const groupedMessages = [];
 
     return (
         <Layout>
@@ -203,6 +213,18 @@ function ChatsPage() {
                             <div className="send-to">
                                 <label>To:</label>
                                 <input type="text" placeholder="Search for a name" value={searchReceiverQuery} onChange={(e) => setSearchReceiverQuery(e.target.value)}/>
+
+                                {searchReceiverResults.length > 0 && ( 
+                                    <ul className="results">
+                                        {searchReceiverResults.map((result, index) => (
+                                            <li>
+                                                <img src={result.profilePicture} alt="" />
+                                                <strong>{result.name}</strong>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                )} 
+
                             </div>
                         </header>
                     )}

@@ -123,25 +123,15 @@ function ChatsPage() {
     };
 
     const shouldGroupByTime = (time1, time2) => {
-        const parseTime = (timeStr) => {
-            const [time, period] = timeStr.split(' ')
-            let [hours, minutes] = time.split(':').map(Number)
+        const date1 = new Date(time1);
+        const date2 = new Date(time2);
 
-            if (period === 'PM' && hours !== 12) hours += 12;
-            if (period === 'AM' && hours === 12) hours = 0;
-            
-            return hours * 60 + minutes; // Convert to minutes
-        }
+        const diffInMinutes = Math.abs((date2 - date1) / (1000 * 60)); // convert ms to minutes
 
-        const time1Minutes = parseTime(time1);
-        const time2Minutes = parseTime(time2);
-        
         // Group messages within 1 minute of each other
-        return Math.abs(time2Minutes - time1Minutes) <= 1;
+        return diffInMinutes <= 1;
     }
 
-    // const groupedMessages = groupMessages(sampleChatWindowMessages);
-    const groupedMessages = [];
 
     const handleChange = (name, value) => {
         setFormData((prev) => ({

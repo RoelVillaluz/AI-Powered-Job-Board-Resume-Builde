@@ -140,6 +140,19 @@ function ChatsPage() {
         }));
     };
 
+    const handleFormSubmit = async (e) => {
+        e.preventDefault();
+
+        try {
+            const response = await axios.post(`${baseUrl}/messages`, formData)
+            console.log(`New message sent to ${currentReceiver.name}: `, response.data.data)    
+
+            handleChange("content", "")
+        } catch (error) {
+            console.error('Error sending message: ', error)
+        }
+    }
+
     return (
         <Layout>
             <main className="main-content" id="chats-page">

@@ -153,6 +153,12 @@ function ChatsPage() {
         }
     }
 
+    const handleKeyDown = (e) => {
+        if (e.key === 'Enter') {
+            handleFormSubmit()
+        }
+    }
+
     return (
         <Layout>
             <main className="main-content" id="chats-page">
@@ -292,7 +298,11 @@ function ChatsPage() {
                         </ul>
                     </div>
                     <form className="typing-bar" onSubmit={handleFormSubmit}>
-                        <input type="text" placeholder="Write your message..." value={formData.content} onChange={(e) => handleChange("content", e.target.value)}/>
+                        <input type="text" placeholder="Write your message..." 
+                            value={formData.content} 
+                            onChange={(e) => handleChange("content", e.target.value)}
+                            onKeyDown={handleKeyDown}
+                        />
                         <div className="actions">
                             <i className="fa-solid fa-paperclip"></i>
                             <i className="fa-solid fa-microphone"></i>

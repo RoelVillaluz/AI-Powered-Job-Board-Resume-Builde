@@ -82,6 +82,16 @@ function ChatsPage() {
         console.log('Form data: ', formData)
     }, [formData])
 
+    useEffect(() => {
+        if (currentConversation) {
+            setFormData((prev) => ({
+                ...prev,
+                receiver: currentConversation.receiver._id
+            }))
+            setMessages(groupMessages(currentConversation.messages))
+        }
+    }, [currentConversation])
+    
     const groupMessages = (messages) => {
         const grouped = [];
         let currentGroup = null;

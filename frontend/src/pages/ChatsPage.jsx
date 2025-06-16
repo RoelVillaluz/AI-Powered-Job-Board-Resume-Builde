@@ -291,12 +291,14 @@ function ChatsPage() {
                             )}
                         </ul>
                     </div>
-                    <form className="typing-bar">
+                    <form className="typing-bar" onSubmit={handleFormSubmit}>
                         <input type="text" placeholder="Write your message..." value={formData.content} onChange={(e) => handleChange("content", e.target.value)}/>
                         <div className="actions">
                             <i className="fa-solid fa-paperclip"></i>
                             <i className="fa-solid fa-microphone"></i>
-                            <i className="fa-solid fa-paper-plane"></i>
+                            <button className="send-message-btn">
+                                <i className="fa-solid fa-paper-plane"></i>
+                            </button>
                         </div>
                     </form>
                 </section>

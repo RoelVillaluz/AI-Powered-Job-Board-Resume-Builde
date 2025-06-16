@@ -38,7 +38,22 @@ export const getConversationsByUser = async (req, res) => {
     const { userId } = req.params;
 
     try {
-        const conversations = await Conversation.find({ users: userId })
+        let conversations = await Conversation.find({ users: userId }).populate('users', 'name email profilePicture').lean();;
+
+        conversations = conversations.map(convo => {
+            const receiver = convo.users.find(user => user._id.toString() !== userId)
+
+            if (receiver.profilePicture) {
+                receiver.profilePicture = receiver.profilePicture.replace(/\\/g, '/');
+                receiver.profilePicture = `profile_pictures/${receiver.profilePicture.split('/').pop()}`;
+            } else {
+                receiver.profilePicture ='profile_pictures/default.jpg';
+            }
+            return {
+                ...convo,
+                receiver, // this is the "other" user in the conversation
+            }
+        })
 
         return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.FETCH, data: conversations }, 'Conversations')
 

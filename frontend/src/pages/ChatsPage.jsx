@@ -145,7 +145,7 @@ function ChatsPage() {
 
         try {
             const response = await axios.post(`${baseUrl}/messages`, formData)
-            console.log(`New message sent to ${currentReceiver.name}: `, response.data.data)    
+            console.log(`New message sent to ${currentConversation.receiver.name}: `, response.data.data)    
 
             handleChange("content", "")
         } catch (error) {

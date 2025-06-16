@@ -38,7 +38,17 @@ export const getConversationsByUser = async (req, res) => {
     const { userId } = req.params;
 
     try {
-        let conversations = await Conversation.find({ users: userId }).populate('users', 'name email profilePicture').lean();;
+        let conversations = await Conversation.find({ users: userId })
+            .populate('users', 'name email profilePicture')
+            .populate({
+                path: 'messages',
+                select: '_id sender content createdAt',
+                populate: {
+                    path: 'sender',
+                    populate: 'name profilePicture'
+                }
+            })
+            .lean();;
 
         conversations = conversations.map(convo => {
             const receiver = convo.users.find(user => user._id.toString() !== userId)

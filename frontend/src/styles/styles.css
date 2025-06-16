@@ -2398,6 +2398,13 @@ button {
     gap: 1.75rem;
 }
 
+.typing-bar button {
+    background-color: transparent;
+    border: none;
+    outline: none;
+    cursor: pointer;
+}
+
 .typing-bar .actions i:not(.fa-paper-plane) {
     color: rgb(200, 200, 200);
     font-size: clamp(1rem, 1vw, 2rem);

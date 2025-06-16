@@ -220,17 +220,17 @@ function ChatsPage() {
                     {currentConversation ? (
                         <header>
                             <div className="user">
-                                <img src="/media/pexels-felix-young-449360607-32448620.jpg" alt="" />
+                                <img src={currentConversation.receiver.profilePicture} alt="" />
                                 <address>
-                                    <strong>Ava Carter</strong>
-                                    <span>avacarter@apple.com</span>
+                                    <strong>{currentConversation.receiver.name}</strong>
+                                    <span>{currentConversation.receiver.email}</span>
                                 </address>
                             </div>
                             <div className="actions">
                                 <i className="fa-solid fa-phone"></i>
                                 <i className="fa-solid fa-video"></i>
                                 <i className="fa-solid fa-ellipsis"></i>
-                                </div>
+                            </div>
                         </header>
                     ) : (
                         <header className="compose-message">

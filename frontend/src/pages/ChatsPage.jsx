@@ -141,7 +141,7 @@ function ChatsPage() {
     };
 
     const handleFormSubmit = async (e) => {
-        e.preventDefault();
+        if (e) e.preventDefault();
 
         try {
             const response = await axios.post(`${baseUrl}/messages`, formData)

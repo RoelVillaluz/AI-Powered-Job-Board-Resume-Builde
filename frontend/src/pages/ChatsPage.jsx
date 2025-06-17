@@ -230,20 +230,23 @@ function ChatsPage() {
                         </div>
 
                         <ul>
-                            {messages.length > 0 && (
-                                messages.map((message, index) => (
-                                    <li className="message-preview" key={index}>
-                                        <img src={message.imageSrc} alt="" />
+                            {conversations.map((convo) => {
+                                const lastMessage = convo.messages.at(-1);
+
+                                return (
+                                    <li className="message-preview" key={convo._id}>
+                                        <img src={convo.receiver.profilePicture} alt={convo.receiver.profilePicture} />
                                         <div className="message-details">
                                             <div className="row">
-                                                <strong>{message.name}</strong>
-                                                <time datetime="">{message.time}</time>
+                                                <strong>{convo.receiver.name}</strong>
+                                                <time datetime={lastMessage.createdAt}>{formatDate(lastMessage.createdAt, "short", true)}</time> 
                                             </div>
-                                            <span class="message-content">{message.content}</span>
+                                            <span class="message-content">{lastMessage.content}</span>
                                         </div>
                                     </li>
-                                ))
-                            )}
+                                )
+
+                            })}
                         </ul>
                         
                     </section>

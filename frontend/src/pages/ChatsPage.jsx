@@ -102,7 +102,7 @@ function ChatsPage() {
             // Check if this message should be grouped with the previous one
             const shouldGroup = prevMessage && 
                             prevMessage.sender === message.sender &&
-                            shouldGroupByTime(prevMessage.time, message.time);
+                            shouldGroupByTime(prevMessage.createdAt, message.createdAt);
             
             if (shouldGroup) {
                 // Add to existing group

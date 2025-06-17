@@ -183,10 +183,10 @@ function ChatsPage() {
                         <section id="user-summary">
                             <i className="fa-solid fa-gear"></i>
                             <figure className="user-avatar">
-                                <img src="/media/pexels-felix-young-449360607-32448620.jpg" alt="" />
+                                <img src={currentConversation.receiver.profilePicture} alt={`${currentConversation.receiver.name}'s profile picture`} />
                                 <span className="status-circle active"></span>
                             </figure>
-                            <h1>Ava Carter</h1>
+                            <h1>{currentConversation.receiver.name}</h1>
                             <h3 className="status-text active">Online</h3>
                         </section>
                     )}

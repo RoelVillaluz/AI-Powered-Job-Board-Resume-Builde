@@ -91,6 +91,16 @@ function ChatsPage() {
             setMessages(groupMessages(currentConversation.messages))
         }
     }, [currentConversation])
+
+    const formatDate = (time, mode = "long") => {
+        const formattedDate = new Date(time).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: mode === "long" ? 'long' : 'short',
+            day: 'numeric'
+        })
+
+        return formattedDate
+    }
     
     const groupMessages = (messages) => {
         const grouped = [];
@@ -109,11 +119,7 @@ function ChatsPage() {
                 currentGroup.messages.push(message);
             } else {
 
-                const formattedDate = new Date(message.createdAt).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                });
+                const formattedDate = formatDate(message.createdAt);
 
                 // Start new group
                 currentGroup = {

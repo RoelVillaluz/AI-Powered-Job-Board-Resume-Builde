@@ -108,11 +108,18 @@ function ChatsPage() {
                 // Add to existing group
                 currentGroup.messages.push(message);
             } else {
+
+                const formattedDate = new Date(message.createdAt).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+
                 // Start new group
                 currentGroup = {
-                    sender: message.sender,
-                    imageSrc: message.imageSrc,
-                    time: message.time,
+                    sender: message.sender.name,
+                    profilePicture: message.sender.profilePicture,
+                    createdAt: formattedDate,
                     messages: [message]
                 };
                 grouped.push(currentGroup);

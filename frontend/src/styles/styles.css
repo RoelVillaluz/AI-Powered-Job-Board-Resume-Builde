@@ -2344,6 +2344,7 @@ button {
     line-height: 1.5rem;
     border-radius: 12px;
     padding: 1.25rem;
+    cursor: pointer;
 }
 
 .messages-container .messages p:last-of-type {

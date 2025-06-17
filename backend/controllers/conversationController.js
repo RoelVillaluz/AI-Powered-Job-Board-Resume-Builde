@@ -45,7 +45,7 @@ export const getConversationsByUser = async (req, res) => {
                 select: '_id sender content createdAt',
                 populate: {
                     path: 'sender',
-                    populate: 'name profilePicture'
+                    select: 'name profilePicture'  
                 }
             })
             .lean();;
@@ -57,13 +57,24 @@ export const getConversationsByUser = async (req, res) => {
                 receiver.profilePicture = receiver.profilePicture.replace(/\\/g, '/');
                 receiver.profilePicture = `profile_pictures/${receiver.profilePicture.split('/').pop()}`;
             } else {
-                receiver.profilePicture ='profile_pictures/default.jpg';
+                receiver.profilePicture = 'profile_pictures/default.jpg';
             }
+
+            convo.messages.forEach(message => {
+                if (message.sender.profilePicture) {
+                message.sender.profilePicture = message.sender.profilePicture.replace(/\\/g, '/');
+                message.sender.profilePicture = `profile_pictures/${message.sender.profilePicture.split('/').pop()}`;
+                } else {
+                message.sender.profilePicture = 'profile_pictures/default.jpg';
+                }
+            });
+
             return {
                 ...convo,
-                receiver, // this is the "other" user in the conversation
+                receiver,
             }
         })
+
 
         return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.FETCH, data: conversations }, 'Conversations')
 

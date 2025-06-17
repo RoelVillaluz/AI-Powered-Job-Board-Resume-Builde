@@ -287,12 +287,12 @@ function ChatsPage() {
                     )}
                     <div className="messages-container">
                         <ul>
-                            {groupedMessages.length > 0 && (
-                                groupedMessages.map((group, groupIndex) => (
-                                    <li className={group.sender === 'Me' ? 'receiver' : ''} key={groupIndex}>
-                                        <img src={group.imageSrc} alt="" />
+                            {messages.length > 0 && (
+                                messages.map((group, groupIndex) => (
+                                    <li className={group.sender === user.name ? 'receiver' : ''} key={groupIndex}>
+                                        <img src={`/${group.profilePicture}`} alt={`${group.sender}'s profile picture`} />
                                         <div className="message-group">
-                                            <time datetime="">{group.time}</time>
+                                            <time datetime="">{group.createdAt}</time>
                                             <div className="messages">
                                                 {group.messages.map((message, messageIndex) => (
                                                     <p key={messageIndex}>{message.content}</p>

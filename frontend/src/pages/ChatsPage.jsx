@@ -93,13 +93,19 @@ function ChatsPage() {
     }, [currentConversation])
 
     const formatDate = (time, mode = "long") => {
-        const formattedDate = new Date(time).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: mode === "long" ? 'long' : 'short',
-            day: 'numeric'
-        })
+        const date = new Date(time);
+        const currentYear = new Date().getFullYear(date);
 
-        return formattedDate
+        const options = {
+            month: mode === "long" ? 'long' : 'short',
+            day: 'numeric',
+        };
+
+        if (date.getFullYear() !== currentYear) {
+            options.year = 'numeric'
+        }
+
+        return date.toLocaleDateString('en-US', options)
     }
     
     const groupMessages = (messages) => {

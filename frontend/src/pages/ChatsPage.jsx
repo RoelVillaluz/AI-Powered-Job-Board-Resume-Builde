@@ -120,6 +120,7 @@ function ChatsPage() {
                     sender: message.sender.name,
                     profilePicture: message.sender.profilePicture,
                     createdAt: formattedDate,
+                    rawDateTime: message.createdAt,
                     messages: [message]
                 };
                 grouped.push(currentGroup);
@@ -292,7 +293,7 @@ function ChatsPage() {
                                     <li className={group.sender === user.name ? 'receiver' : ''} key={groupIndex}>
                                         <img src={`/${group.profilePicture}`} alt={`${group.sender}'s profile picture`} />
                                         <div className="message-group">
-                                            <time datetime="">{group.createdAt}</time>
+                                            <time datetime={group.rawDateTime}>{group.createdAt}</time>
                                             <div className="messages">
                                                 {group.messages.map((message, messageIndex) => (
                                                     <p key={messageIndex}>{message.content}</p>

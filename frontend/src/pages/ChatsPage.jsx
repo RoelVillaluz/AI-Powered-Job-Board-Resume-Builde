@@ -92,21 +92,30 @@ function ChatsPage() {
         }
     }, [currentConversation])
 
-    const formatDate = (time, mode = "long") => {
+    const formatDate = (time, mode = "long", getTimeDiff = false) => {
         const date = new Date(time);
-        const currentYear = new Date().getFullYear(date);
+        const currentYear = new Date().getFullYear();
+
+        // Check if less than 24 hours ago
+        const timeDiff = Math.abs(new Date() - date);
+        const diffInHours = timeDiff / (1000 * 60 * 60);
+
+        if (getTimeDiff === true && diffInHours < 24) {
+            return `${Math.floor(diffInHours)} hrs ago`;
+        }
 
         const options = {
             month: mode === "long" ? 'long' : 'short',
-            day: 'numeric',
+            day: 'numeric'
         };
 
         if (date.getFullYear() !== currentYear) {
-            options.year = 'numeric'
+            options.year = 'numeric';
         }
 
-        return date.toLocaleDateString('en-US', options)
-    }
+        return date.toLocaleDateString('en-US', options);
+    };
+
     
     const groupMessages = (messages) => {
         const grouped = [];

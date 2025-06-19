@@ -363,7 +363,9 @@ function ChatsPage() {
                                             <time datetime={group.rawDateTime}>{group.createdAt}</time>
                                             <div className="messages">
                                                 {group.messages.map((message, messageIndex) => (
-                                                    <p key={messageIndex}>{message.content}</p>
+                                                    <div className="message-bubble" key={messageIndex}>
+                                                        <span>{message.content}</span>
+                                                    </div>
                                                 ))}
                                             </div>
                                         </div>

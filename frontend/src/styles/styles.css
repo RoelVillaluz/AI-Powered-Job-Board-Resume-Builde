@@ -2337,7 +2337,13 @@ button {
     gap: 0.5rem;
 }
 
-.messages-container .messages p {
+.messages-container .message-bubble {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.messages-container .message-bubble span {
     background-color: white;
     box-shadow: 0px 10px 20px -12px rgba(0,0,0,0.1);
     font-weight: 500;
@@ -2347,7 +2353,7 @@ button {
     cursor: pointer;
 }
 
-.messages-container .messages p:last-of-type {
+.messages-container .message-bubble span:last-of-type {
     border-bottom-left-radius: 0;
 }
 
@@ -2357,7 +2363,15 @@ button {
     margin-left: auto;
 }
 
-.messages-container li.receiver .messages p {
+.messages-container li.receiver time {
+    margin-left: auto;
+}
+
+.messages-container li.receiver .message-bubble {
+    flex-direction: row-reverse;
+}
+
+.messages-container li.receiver .message-bubble span {
     background-color: rgb(42, 50, 92);
     box-shadow: 0px 10px 20px 4px rgba(0,0,0,0.1);
     color: white;
@@ -2365,7 +2379,7 @@ button {
     border-bottom-left-radius: 12px;
 }
 
-.messages-container li.receiver .messages p:last-of-type {
+.messages-container li.receiver .message-bubble span:last-of-type {
     border-bottom-right-radius: 0;
 }
 

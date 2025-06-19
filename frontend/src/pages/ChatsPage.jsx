@@ -100,10 +100,6 @@ function ChatsPage() {
         const timeDiff = Math.abs(new Date() - date);
         const diffInHours = timeDiff / (1000 * 60 * 60);
 
-        if (getTimeDiff === true && diffInHours < 24) {
-            return `${Math.floor(diffInHours)} hrs ago`;
-        }
-
         const options = {
             month: mode === "long" ? 'long' : 'short',
             day: 'numeric'
@@ -111,6 +107,16 @@ function ChatsPage() {
 
         if (date.getFullYear() !== currentYear) {
             options.year = 'numeric';
+        }
+
+        if (mode === 'long') {
+            options.hour = '2-digit';
+            options.minute = '2-digit';
+            options.hour12 = true;
+        }
+
+        if (getTimeDiff === true && diffInHours < 24) {
+            return `${Math.floor(diffInHours)} hrs ago`;
         }
 
         return date.toLocaleDateString('en-US', options);

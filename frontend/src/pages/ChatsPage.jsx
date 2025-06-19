@@ -179,10 +179,45 @@ function ChatsPage() {
         if (e) e.preventDefault();
 
         try {
-            const response = await axios.post(`${baseUrl}/messages`, formData)
-            console.log(`New message sent to ${currentConversation.receiver.name}: `, response.data.data)    
+            const response = await axios.post(`${baseUrl}/messages`, formData);
+            const newMessage = response.data.data;
 
-            handleChange("content", "")
+            console.log(`New message sent to ${currentConversation.receiver.name}: `, response.data.data)    ;
+
+            // Optimistically add new message locally to message groups
+            setMessages((prevGroups) => {
+                const lastGroup = prevGroups[prevGroups.length] - 1
+
+                if (
+                        lastGroup && 
+                        lastGroup.sender === user.name &&
+                        shouldGroupByTime(lastGroup.rawDateTime, newMessage.createdAt)
+                ) {
+                    // Append to existing group
+                    const updatedGroups = [...prevGroups]
+                    updatedGroups[updatedGroups.length - 1] = {
+                        ...lastGroup,
+                        messages: [...lastGroup.messages, newMessage],
+                        rawDateTime: newMessage.createdAt
+                    };
+                    return updatedGroups
+                } else {
+                    // Create new message group
+                    return [
+                        ...prevGroups,
+                        {
+                            sender: user.name,
+                            profilePicture: user.profilePicture, // assuming this exists
+                            createdAt: formatDate(newMessage.createdAt),
+                            rawDateTime: newMessage.createdAt,
+                            messages: [newMessage]
+                        }
+                    ]
+                }
+
+            })
+
+            handleChange("content", "");
         } catch (error) {
             console.error('Error sending message: ', error)
         }

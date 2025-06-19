@@ -337,11 +337,13 @@ function ChatsPage() {
                             )}
                         </ul>
                     </div>
-                    <form className="typing-bar" onSubmit={handleFormSubmit}>
+                    <form className="typing-bar" onSubmit={(e) => {
+                        e.preventDefault();
+                        handleFormSubmit();
+                    }}>
                         <input type="text" placeholder="Write your message..." 
                             value={formData.content} 
                             onChange={(e) => handleChange("content", e.target.value)}
-                            onKeyDown={handleKeyDown}
                         />
                         <div className="actions">
                             <i className="fa-solid fa-paperclip"></i>

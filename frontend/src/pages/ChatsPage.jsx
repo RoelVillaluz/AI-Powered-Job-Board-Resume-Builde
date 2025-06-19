@@ -282,7 +282,7 @@ function ChatsPage() {
                                                 <strong>{convo.receiver.name}</strong>
                                                 <time datetime={lastMessage.createdAt}>{formatDate(lastMessage.createdAt, "short", true)}</time> 
                                             </div>
-                                            <span class="message-content">
+                                            <span className="message-content">
                                                 {`${lastMessage.sender._id === user._id ? 'You: ': ''} ${lastMessage.content}`}
                                             </span>
                                         </div>

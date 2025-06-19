@@ -365,6 +365,22 @@ function ChatsPage() {
                                                 {group.messages.map((message, messageIndex) => (
                                                     <div className="message-bubble" key={messageIndex}>
                                                         <span>{message.content}</span>
+                                                        <div className="actions">
+                                                            {message.sender._id === user._id ? (
+                                                                <>
+                                                                <button id="edit-message-btn">
+                                                                    <i className="fa-solid fa-pen-to-square"></i>
+                                                                </button>
+                                                                <button className="negative" id="edit-message-btn">
+                                                                    <i className="fa-solid fa-trash"></i>
+                                                                </button>
+                                                                </>
+                                                            ) : (
+                                                                <button className="negative" id="report-message-btn">
+                                                                    <i className="fa-solid fa-bullhorn"></i>
+                                                                </button>
+                                                            )}
+                                                        </div>
                                                     </div>
                                                 ))}
                                             </div>

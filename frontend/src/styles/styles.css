@@ -2357,6 +2357,38 @@ button {
     border-bottom-left-radius: 0;
 }
 
+.messages-container .messages .actions {
+    display: flex;
+    align-items: center;
+}
+
+.messages-container .messages .actions button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: transparent;
+    color: rgb(200, 200, 200);
+    cursor: pointer;
+    width: clamp(1rem, 1vw, 2.25rem);
+    height: clamp(1rem, 1vw, 2.25rem);
+    padding: 1.25rem;
+    font-size: clamp(0.75rem, 0.75vw, 2rem);
+    border: none;
+    border-radius: 50%;
+    outline: none;
+    transition: 0.25s ease-in-out;
+}
+
+.messages-container .messages .actions button:hover {
+    background-color: rgb(225, 225, 225);
+    backdrop-filter: blur(5px);
+}
+
+.messages-container .messages .actions button.negative:hover {
+    background-color: rgb(236, 219, 219);
+    color: var(--error);
+}
+
 .messages-container li.receiver {
     display: flex;
     flex-direction: row-reverse;

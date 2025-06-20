@@ -15,6 +15,8 @@ function ChatsPage() {
     const [searchReceiverQuery, setSearchReceiverQuery] = useState('')
     const [searchReceiverResults, setSearchReceiverResults] = useState([]);
 
+    const [selectedMessage, setSelectedMessage] = useState(null);
+
     const [messages, setMessages] = useState([]);
     const [formData, setFormData] = useState({
         sender: user._id,
@@ -363,9 +365,9 @@ function ChatsPage() {
                                             <time datetime={group.rawDateTime}>{group.createdAt}</time>
                                             <div className="messages">
                                                 {group.messages.map((message, messageIndex) => (
-                                                    <div className="message-bubble" key={messageIndex}>
+                                                    <div className="message-bubble" key={messageIndex} onClick={() => setSelectedMessage(message)}>
                                                         <span>{message.content}</span>
-                                                        <div className="actions">
+                                                        <div className={`${selectedMessage === message ? 'actions visible': 'actions'}`}>
                                                             {message.sender._id === user._id ? (
                                                                 <>
                                                                 <button id="edit-message-btn">

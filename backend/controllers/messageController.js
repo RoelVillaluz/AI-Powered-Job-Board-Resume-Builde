@@ -111,3 +111,18 @@ export const createMessage = async (req, res) => {
         return sendResponse(res, { ...STATUS_MESSAGES.ERROR.SERVER, success: false });
     }
 };
+
+export const deleteMessage = async (req, res) => {
+    const { messageId } = req.params;
+
+    try {
+        const deletedMessage = await Message.findOneAndDelete(messageId)
+        if (!deletedMessage) {
+            return sendResponse(res, { ...STATUS_MESSAGES.ERROR.NOT_FOUND, success: false }, 'Message')
+        }
+
+        return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.DELETE, data: deletedMessage }, 'Message')
+    } catch (error) {
+        console.error(error)
+    }
+}

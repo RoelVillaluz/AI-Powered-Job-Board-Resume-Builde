@@ -231,6 +231,37 @@ function ChatsPage() {
         }
     }
 
+    const handleMessageButtonAction = async (e, action) => {
+        e.stopPropagation();
+
+        try {
+            if (action === 'delete') {
+                const response = await axios.delete(`${baseUrl}/messages/${selectedMessage._id}`)
+                console.log('Deleted message: ', response.data.data)
+
+                // Remove from local state - properly handle message groups
+                setMessages((prevGroups) => {
+                    return prevGroups.map(group => {
+                        // Filter out the deleted message from this group
+                        const filteredMessages = group.messages.filter((msg) => msg._id !== selectedMessage._id)
+
+                        // Return the group with filtered messages
+                        return ({
+                            ...group,
+                            messages: filteredMessages
+                        })
+                    })
+                })
+
+                // Reset selectedMessage state
+                setSelectedMessage(null)
+            }
+        } catch (error) {
+            console.error(`Error! Failed to ${action} message: ${selectedMessage}`)
+        }
+    }
+
+
     return (
         <Layout>
             <main className="main-content" id="chats-page">

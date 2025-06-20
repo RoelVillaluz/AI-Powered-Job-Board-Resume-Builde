@@ -2361,10 +2361,23 @@ button {
     display: flex;
     align-items: center;
     visibility: hidden;
+    transition: 0.3s;
+    opacity: 0;
+    transform: translateX(-5px);
 }
 
 .messages-container .messages .actions.visible {
     visibility: visible;
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.messages-container .receiver .actions {
+    transform: translateX(0);
+}
+
+.messages-container .receiver .actions.visible {
+    transform: translateX(-5px);
 }
 
 .messages-container .messages .actions button {

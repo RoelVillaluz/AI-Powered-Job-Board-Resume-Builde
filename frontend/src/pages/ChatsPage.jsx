@@ -413,7 +413,7 @@ function ChatsPage() {
                                                                 <button id="edit-message-btn">
                                                                     <i className="fa-solid fa-pen-to-square"></i>
                                                                 </button>
-                                                                <button className="negative" id="edit-message-btn">
+                                                                <button className="negative" id="delete-message-btn" onClick={(e) => handleMessageButtonAction(e, "delete")}>
                                                                     <i className="fa-solid fa-trash"></i>
                                                                 </button>
                                                                 </>

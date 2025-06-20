@@ -2360,6 +2360,11 @@ button {
 .messages-container .messages .actions {
     display: flex;
     align-items: center;
+    visibility: hidden;
+}
+
+.messages-container .messages .actions.visible {
+    visibility: visible;
 }
 
 .messages-container .messages .actions button {

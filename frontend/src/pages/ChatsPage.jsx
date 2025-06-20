@@ -365,7 +365,16 @@ function ChatsPage() {
                                             <time datetime={group.rawDateTime}>{group.createdAt}</time>
                                             <div className="messages">
                                                 {group.messages.map((message, messageIndex) => (
-                                                    <div className="message-bubble" key={messageIndex} onClick={() => setSelectedMessage(message)}>
+                                                    <div className="message-bubble" 
+                                                        key={messageIndex} 
+                                                        onClick={() => {
+                                                            if (selectedMessage === message) {
+                                                                setSelectedMessage(null)
+                                                            } else {
+                                                                setSelectedMessage(message)
+                                                            }
+                                                        }}
+                                                    >
                                                         <span>{message.content}</span>
                                                         <div className={`${selectedMessage === message ? 'actions visible': 'actions'}`}>
                                                             {message.sender._id === user._id ? (

@@ -3,6 +3,7 @@ import Layout from "../components/Layout"
 import { useAuth } from "../components/AuthProvider"
 import { useData } from "../DataProvider";
 import axios from "axios";
+import MessageConfirmationModal from "../components/MessageConfirmationModal";
 
 function ChatsPage() {
     const { baseUrl } = useData();
@@ -264,6 +265,7 @@ function ChatsPage() {
 
     return (
         <Layout>
+            <MessageConfirmationModal/>
             <main className="main-content" id="chats-page">
 
                 {/* Chat List */}

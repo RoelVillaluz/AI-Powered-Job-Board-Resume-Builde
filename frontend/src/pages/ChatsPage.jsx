@@ -400,9 +400,9 @@ function ChatsPage() {
                                         <div className="message-group">
                                             <time datetime={group.rawDateTime}>{group.createdAt}</time>
                                             <div className="messages">
-                                                {group.messages.map((message, messageIndex) => (
+                                                {group.messages.map((message) => (
                                                     <div className="message-bubble" 
-                                                        key={messageIndex} 
+                                                        key={message._id} 
                                                         onClick={() => {
                                                             if (selectedMessage === message) {
                                                                 setSelectedMessage(null)

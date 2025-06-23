@@ -239,13 +239,15 @@ function ChatsPage() {
         }
     }
 
-    const handleMessageButtonAction = async (e, action) => {
+    const handleMessageButtonAction = (e, actionType, message) => {
         e.stopPropagation();
+        setAction(actionType);
+        setSelectedMessage(message);
 
-        try {
-            if (action === 'delete') {
-                const response = await axios.delete(`${baseUrl}/messages/${selectedMessage._id}`)
-                console.log('Deleted message: ', response.data.data)
+        if (actionType === 'delete') {
+            handleShowConfirmationModal();
+        }
+    }
 
                 // Remove from local state - properly handle message groups
                 setMessages((prevGroups) => {

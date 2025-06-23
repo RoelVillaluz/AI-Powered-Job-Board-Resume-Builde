@@ -248,6 +248,9 @@ function ChatsPage() {
             handleShowConfirmationModal();
         }
     }
+    const handleShowConfirmationModal = () => {
+        setShowConfirmationModal((prev) => !prev)
+    }
 
                 // Remove from local state - properly handle message groups
                 setMessages((prevGroups) => {

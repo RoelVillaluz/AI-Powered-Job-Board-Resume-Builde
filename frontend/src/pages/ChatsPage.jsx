@@ -97,6 +97,10 @@ function ChatsPage() {
             setMessages(groupMessages(currentConversation.messages))
         }
     }, [currentConversation])
+        
+    useEffect(() => {
+        console.log('Selected message: ', selectedMessage)
+    }, [selectedMessage])
 
     const formatDate = (time, mode = "long", getTimeDiff = false) => {
         const date = new Date(time);

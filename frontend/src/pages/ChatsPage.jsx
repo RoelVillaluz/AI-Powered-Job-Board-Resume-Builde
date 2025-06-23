@@ -17,6 +17,9 @@ function ChatsPage() {
     const [searchReceiverResults, setSearchReceiverResults] = useState([]);
 
     const [selectedMessage, setSelectedMessage] = useState(null);
+    const [action, setAction] = useState(null);
+
+    const [showConfirmationModal, setShowConfirmationModal] = useState(false);
 
     const [messages, setMessages] = useState([]);
     const [formData, setFormData] = useState({
@@ -415,7 +418,7 @@ function ChatsPage() {
                                                                 <button id="edit-message-btn">
                                                                     <i className="fa-solid fa-pen-to-square"></i>
                                                                 </button>
-                                                                <button className="negative" id="delete-message-btn" onClick={(e) => handleMessageButtonAction(e, "delete")}>
+                                                                <button className="negative" id="delete-message-btn" onClick={(e) => handleMessageButtonAction(e, "delete", message)}>
                                                                     <i className="fa-solid fa-trash"></i>
                                                                 </button>
                                                                 </>

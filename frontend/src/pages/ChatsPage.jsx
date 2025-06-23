@@ -248,36 +248,51 @@ function ChatsPage() {
             handleShowConfirmationModal();
         }
     }
+    
     const handleShowConfirmationModal = () => {
         setShowConfirmationModal((prev) => !prev)
     }
 
-                // Remove from local state - properly handle message groups
-                setMessages((prevGroups) => {
-                    return prevGroups.map(group => {
-                        // Filter out the deleted message from this group
-                        const filteredMessages = group.messages.filter((msg) => msg._id !== selectedMessage._id)
+    const handleDeleteMessage = async (message) => {
+        try {
+            console.log('Message to delete: ', message)
+            const response = await axios.delete(`${baseUrl}/messages/${message._id}`)
+            console.log('Deleted message: ', response.data.data)
 
-                        // Return the group with filtered messages
-                        return ({
-                            ...group,
-                            messages: filteredMessages
-                        })
-                    })
-                })
+            // Remove from local state - properly handle message groups
+            setMessages((prevGroups) => {
+                return prevGroups.map(group => {
+                    // Filter out the deleted message from this group
+                    const filteredMessages = group.messages.filter((msg) => msg._id !== message._id)
 
-                // Reset selectedMessage state
-                setSelectedMessage(null)
-            }
+                    // Return the group with filtered messages
+                   return ({
+                       ...group,
+                       messages: filteredMessages
+                   })
+               })
+            })
+            .filter(group => group.messages.length > 0) // Remove empty groups
+
+            // Reset selectedMessage state
+            setSelectedMessage(null)
         } catch (error) {
-            console.error(`Error! Failed to ${action} message: ${selectedMessage}`)
+            
         }
     }
-
-
     return (
         <Layout>
-            <MessageConfirmationModal/>
+            {showConfirmationModal && (
+                <MessageConfirmationModal 
+                    message={selectedMessage} 
+                    action={action} 
+                    onClose={() => handleShowConfirmationModal()}
+                    onSubmit={(messageToDelete) => {
+                        handleDeleteMessage(messageToDelete); // Use the message passed from modal
+                        handleShowConfirmationModal();
+                    }}
+                />
+            )}
             <main className="main-content" id="chats-page">
 
                 {/* Chat List */}
@@ -413,7 +428,7 @@ function ChatsPage() {
                                                     <div className="message-bubble" 
                                                         key={message._id} 
                                                         onClick={() => {
-                                                            if (selectedMessage === message) {
+                                                            if (selectedMessage?._id === message._id) {
                                                                 setSelectedMessage(null)
                                                             } else {
                                                                 setSelectedMessage(message)
@@ -421,7 +436,7 @@ function ChatsPage() {
                                                         }}
                                                     >
                                                         <span>{message.content}</span>
-                                                        <div className={`${selectedMessage === message ? 'actions visible': 'actions'}`}>
+                                                        <div className={`${selectedMessage?._id === message._id ? 'actions visible': 'actions'}`}>
                                                             {message.sender._id === user._id ? (
                                                                 <>
                                                                 <button id="edit-message-btn">

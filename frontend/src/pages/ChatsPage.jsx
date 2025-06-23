@@ -115,34 +115,9 @@ const useConversations = (baseUrl, userId) => {
     return { conversations, currentConversation, setCurrentConversation };
 }
 
-function ChatsPage() {
-    const { baseUrl } = useData();
-    const { user } = useAuth();
-
-    // Use custom hooks
-    const { conversations, currentConversation, setCurrentConversation } = useConversations(baseUrl, user?._id)
-
-    
-    const [currentReceiver, setCurrentReceiver] = useState(null);
-
+const useUserSearch = (baseUrl) => {
     const [searchReceiverQuery, setSearchReceiverQuery] = useState('')
     const [searchReceiverResults, setSearchReceiverResults] = useState([]);
-
-    const [selectedMessage, setSelectedMessage] = useState(null);
-    const [action, setAction] = useState(null);
-
-    const [showConfirmationModal, setShowConfirmationModal] = useState(false);
-
-    const [messages, setMessages] = useState([]);
-    const [formData, setFormData] = useState({
-        sender: user._id,
-        receiver: '',
-        content: '',
-    })
-
-    useEffect(() => {
-        document.title = 'Messages'
-    }, [])
 
     // Fetch users based on search input in compose message section
     useEffect(() => {
@@ -167,7 +142,36 @@ function ChatsPage() {
 
         
         return () => clearTimeout(timeoutId)
-    }, [searchReceiverQuery])
+    }, [baseUrl, searchReceiverQuery])
+
+    return { searchReceiverQuery, setSearchReceiverQuery, searchReceiverResults }
+}
+
+function ChatsPage() {
+    const { baseUrl } = useData();
+    const { user } = useAuth();
+
+    // Use custom hooks
+    const { conversations, currentConversation, setCurrentConversation } = useConversations(baseUrl, user?._id)
+    const { searchReceiverQuery, setSearchReceiverQuery, searchReceiverResults } = useUserSearch(baseUrl)
+
+    const [currentReceiver, setCurrentReceiver] = useState(null);
+
+    const [selectedMessage, setSelectedMessage] = useState(null);
+    const [action, setAction] = useState(null);
+
+    const [showConfirmationModal, setShowConfirmationModal] = useState(false);
+
+    const [messages, setMessages] = useState([]);
+    const [formData, setFormData] = useState({
+        sender: user._id,
+        receiver: '',
+        content: '',
+    })
+
+    useEffect(() => {
+        document.title = 'Messages'
+    }, [])
 
     useEffect(() => {
         console.log('Form data: ', formData)

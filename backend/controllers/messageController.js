@@ -112,11 +112,31 @@ export const createMessage = async (req, res) => {
     }
 };
 
+
+export const updateMessage = async (req, res) => {
+    const { messageId } = req.params;
+    const { messageData } = req.body;
+    
+    try {
+        const updatedMessage = await Message.findOneAndUpdate(messageId, messageData, { new: true })
+
+        if (!updatedMessage) {
+            return sendResponse(res, { ...STATUS_MESSAGES.ERROR.NOT_FOUND, success: false }, 'Message');
+        }
+        
+
+        return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.UPDATE, data: updatedMessage }, 'Message');
+    } catch (error) {
+        console.error('Error updating message: ', error);
+        return sendResponse(res, { ...STATUS_MESSAGES.ERROR.SERVER, success: false });
+    }
+}
+
 export const deleteMessage = async (req, res) => {
     const { messageId } = req.params;
 
     try {
-        const deletedMessage = await Message.findOneAndDelete(messageId)
+        const deletedMessage = await Message.findOneAndDelete({ _id: messageId })
         if (!deletedMessage) {
             return sendResponse(res, { ...STATUS_MESSAGES.ERROR.NOT_FOUND, success: false }, 'Message')
         }

@@ -80,12 +80,49 @@ const shouldGroupByTime = (time1, time2) => {
     return diffInMinutes <= 1;
 }
 
+// Custom hooks for better organization
+const useConversations = (baseUrl, userId) => {
+    const [conversations, setConversations] = useState([]);
+    const [currentConversation, setCurrentConversation] = useState(null);
+
+    useEffect(() => {
+        const fetchUserConversations = async () => {
+            try {
+                const response = await axios.get(`${baseUrl}/conversations/user/${userId}`)
+                const fetchedConversations = response.data.data;
+
+                // Sort conversations by latest message timestamp descending
+                const sortedConversations = fetchedConversations.sort((a, b) => {
+                    return new Date(b.updatedAt) - new Date(a.updatedAt);
+                })
+
+                setConversations(sortedConversations)
+
+                if (sortedConversations.length > 0) {
+                    setCurrentConversation(sortedConversations[0])
+                }
+
+                console.log('User conversations: ', fetchedConversations)
+            } catch (error) {
+                console.log('Error fetching conversations')
+            }
+        }
+        if (userId) {
+            fetchUserConversations();
+        }
+    }, [baseUrl, userId])
+
+    return { conversations, currentConversation, setCurrentConversation };
+}
+
 function ChatsPage() {
     const { baseUrl } = useData();
     const { user } = useAuth();
 
-    const [conversations, setConversations] = useState([]);
-    const [currentConversation, setCurrentConversation] = useState(null);
+    // Use custom hooks
+    const { conversations, currentConversation, setCurrentConversation } = useConversations(baseUrl, user?._id)
+
+    
     const [currentReceiver, setCurrentReceiver] = useState(null);
 
     const [searchReceiverQuery, setSearchReceiverQuery] = useState('')
@@ -106,33 +143,6 @@ function ChatsPage() {
     useEffect(() => {
         document.title = 'Messages'
     }, [])
-
-    useEffect(() => {
-        const fetchUserConversations = async () => {
-            try {
-                const response = await axios.get(`${baseUrl}/conversations/user/${user._id}`)
-                const fetchedConversations = response.data.data;
-
-                // Sort conversations by latest message timestamp descending
-                const sortedConversations = fetchedConversations.sort((a, b) => {
-                    return new Date(b.updatedAt) - new Date(a.updatedAt);
-                })
-
-                setConversations(sortedConversations)
-
-                if (sortedConversations.length > 0) {
-                    setCurrentConversation(sortedConversations[0])
-                }
-
-                console.log('User conversations: ', fetchedConversations)
-            } catch (error) {
-                console.log('Error fetching conversations')
-            }
-        }
-        if (user?._id) {
-            fetchUserConversations();
-        }
-    }, [user])
 
     // Fetch users based on search input in compose message section
     useEffect(() => {
@@ -279,6 +289,7 @@ function ChatsPage() {
             
         }
     }
+
     return (
         <Layout>
             {showConfirmationModal && (

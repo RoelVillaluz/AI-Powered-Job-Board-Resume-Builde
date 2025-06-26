@@ -115,10 +115,10 @@ export const createMessage = async (req, res) => {
 
 export const updateMessage = async (req, res) => {
     const { messageId } = req.params;
-    const { messageData } = req.body;
+    const { content } = req.body;
     
     try {
-        const updatedMessage = await Message.findOneAndUpdate({ _id: messageId }, messageData, { new: true })
+        const updatedMessage = await Message.findOneAndUpdate({ _id: messageId }, content, { new: true })
 
         if (!updatedMessage) {
             return sendResponse(res, { ...STATUS_MESSAGES.ERROR.NOT_FOUND, success: false }, 'Message');

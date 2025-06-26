@@ -118,7 +118,11 @@ export const updateMessage = async (req, res) => {
     const { content } = req.body;
     
     try {
-        const updatedMessage = await Message.findOneAndUpdate({ _id: messageId }, content, { new: true })
+        const updatedMessage = await Message.findOneAndUpdate(
+            { _id: messageId },
+            { content: content },
+            { new: true }
+        );
 
         if (!updatedMessage) {
             return sendResponse(res, { ...STATUS_MESSAGES.ERROR.NOT_FOUND, success: false }, 'Message');

@@ -9,6 +9,8 @@ router.get('/user/:userId', getMessagesByUser)
 
 router.post('/', createMessage)
 
+router.patch('/:messageId', updateMessage)
+
 router.delete('/:messageId', deleteMessage)
 
 export default router

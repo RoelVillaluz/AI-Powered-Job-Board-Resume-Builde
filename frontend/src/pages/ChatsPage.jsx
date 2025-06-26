@@ -484,8 +484,24 @@ function ChatsPage() {
                             onChange={(e) => handleChange("content", e.target.value)}
                         />
                         <div className="actions">
-                            <i className="fa-solid fa-paperclip"></i>
-                            <i className="fa-solid fa-microphone"></i>
+                            {!editMode ? (
+                                <>
+                                    <i className="fa-solid fa-paperclip"></i>
+                                    <i className="fa-solid fa-microphone"></i>
+                                    
+                                </>
+                            ) : (
+                                <button type="button" id="cancel-edit-btn" onClick={() => {
+                                    setEditMode((prev) => !prev)
+                                    setFormData((prev) => ({
+                                        ...prev,
+                                        content: ''
+                                    }))
+                                    setSelectedMessage(null); 
+                                }}>
+                                    Cancel
+                                </button>
+                            )}
                             <button className="send-message-btn">
                                 <i className="fa-solid fa-paper-plane"></i>
                             </button>

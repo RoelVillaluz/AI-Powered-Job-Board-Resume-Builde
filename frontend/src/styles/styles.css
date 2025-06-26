@@ -2471,6 +2471,12 @@ button {
     cursor: pointer;
 }
 
+.typing-bar #cancel-edit-btn {
+    color: rgb(40, 40, 40);
+    font-size: clamp(0.5rem, 0.75vw, 2rem);
+    font-weight: 500;
+}
+
 .typing-bar .actions i:not(.fa-paper-plane) {
     color: rgb(200, 200, 200);
     font-size: clamp(1rem, 1vw, 2rem);

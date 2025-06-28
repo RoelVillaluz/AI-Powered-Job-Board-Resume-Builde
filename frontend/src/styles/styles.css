@@ -2450,6 +2450,7 @@ button {
 }
 
 .typing-bar input[type="text"] {
+    background-color: transparent;
     color: rgb(130, 130, 130);
     border: none;
     outline: none;

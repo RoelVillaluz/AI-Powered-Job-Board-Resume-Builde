@@ -15,7 +15,11 @@ const messageSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-}, { timestamps: true })
+    updatedAt: {
+        type: Date,
+        default: null
+    }
+}, { timestamps: { createdAt: true, updatedAt: false } })
 
 const Message = mongoose.model('Message', messageSchema)
 export default Message

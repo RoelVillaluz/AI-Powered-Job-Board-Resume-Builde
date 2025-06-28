@@ -260,6 +260,12 @@ function ChatsPage() {
 
         if (actionType === 'delete') {
             handleShowConfirmationModal();
+        } else if (actionType === 'edit') {
+            setEditMode(true);
+            setFormData((prev) => ({
+                ...prev,
+                content: message.content
+            }))
         }
     }
 

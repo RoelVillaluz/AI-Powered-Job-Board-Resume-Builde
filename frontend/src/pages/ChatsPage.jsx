@@ -161,6 +161,7 @@ function ChatsPage() {
     const [action, setAction] = useState(null);
 
     const [showConfirmationModal, setShowConfirmationModal] = useState(false);
+    const [editMode, setEditMode] = useState(false);
 
     const [messages, setMessages] = useState([]);
     const [formData, setFormData] = useState({
@@ -475,11 +476,12 @@ function ChatsPage() {
                             )}
                         </ul>
                     </div>
-                    <form className="typing-bar" onSubmit={(e) => {
+                    <form className='typing-bar' onSubmit={(e) => {
                         e.preventDefault();
-                        handleFormSubmit();
+                        editMode ?  handleEditMessage(selectedMessage) : handleFormSubmit();
                     }}>
-                        <input type="text" placeholder="Write your message..." 
+                        <input type="text" 
+                            placeholder='Write your message...'
                             value={formData.content} 
                             onChange={(e) => handleChange("content", e.target.value)}
                         />

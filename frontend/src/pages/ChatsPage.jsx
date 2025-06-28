@@ -290,6 +290,10 @@ function ChatsPage() {
             console.log("Edited message: ", response.data.data)
 
             setEditMode(false)
+            setFormData((prev) => ({
+                ...prev,
+                content: ''
+            }))
         } catch (error) {
             console.log('Error editing message: ', message)
         }

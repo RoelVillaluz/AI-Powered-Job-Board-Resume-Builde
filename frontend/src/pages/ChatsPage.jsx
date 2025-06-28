@@ -319,7 +319,7 @@ function ChatsPage() {
             // Reset selectedMessage state
             setSelectedMessage(null)
         } catch (error) {
-            
+            console.log('Error deleting message: ', message)
         }
     }
 
@@ -482,7 +482,7 @@ function ChatsPage() {
                                                         <div className={`${selectedMessage?._id === message._id ? 'actions visible': 'actions'}`}>
                                                             {message.sender._id === user._id ? (
                                                                 <>
-                                                                <button id="edit-message-btn">
+                                                                <button id="edit-message-btn" onClick={(e) => handleMessageButtonAction(e, "edit", message)}>
                                                                     <i className="fa-solid fa-pen-to-square"></i>
                                                                 </button>
                                                                 <button className="negative" id="delete-message-btn" onClick={(e) => handleMessageButtonAction(e, "delete", message)}>
@@ -510,7 +510,7 @@ function ChatsPage() {
                     }}>
                         <input type="text" 
                             placeholder='Write your message...'
-                            value={formData.content} 
+                            value={formData.content}
                             onChange={(e) => handleChange("content", e.target.value)}
                         />
                         <div className="actions">

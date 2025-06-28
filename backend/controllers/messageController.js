@@ -120,7 +120,12 @@ export const updateMessage = async (req, res) => {
     try {
         const updatedMessage = await Message.findOneAndUpdate(
             { _id: messageId },
-            { content: content },
+            {
+                $set: {
+                    content: content,
+                    updatedAt: new Date()
+                }
+            },
             { new: true }
         );
 

@@ -273,6 +273,28 @@ function ChatsPage() {
         setShowConfirmationModal((prev) => !prev)
     }
 
+    const handleEditMessage = async (message) => {
+        try {
+            console.log('Message to edit: ', message)
+            const response = await axios.patch(`${baseUrl}/messages/${message._id}`, {
+                content: formData.content
+            })
+
+            setMessages((prevGroups) => 
+                prevGroups.map((group) => ({
+                    ...group,
+                    messages: group.messages.map((m) => m._id === message._id ? { ...m, content: formData.content } : m)
+                }))
+            )
+
+            console.log("Edited message: ", response.data.data)
+
+            setEditMode(false)
+        } catch (error) {
+            console.log('Error editing message: ', message)
+        }
+    }
+
     const handleDeleteMessage = async (message) => {
         try {
             console.log('Message to delete: ', message)

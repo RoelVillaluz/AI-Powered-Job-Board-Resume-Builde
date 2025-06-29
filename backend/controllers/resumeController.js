@@ -125,3 +125,8 @@ export const deleteResume = async (req, res) => {
         return sendResponse(res, { ...STATUS_MESSAGES.ERROR.SERVER, success: false });
     }
 }
+
+// uploads user resume created outside this website and uses AI to match the content with their corresponding fields in the resume model schema
+export const uploadResume = async (req, res) => {
+
+}

@@ -12,6 +12,8 @@ import messageRoutes from './routes/messageRoutes.js'
 import path from 'path';
 import { connectDB } from "./config/db.js";
 import { fileURLToPath } from "url";
+import { createServer } from "http";
+import { Server } from "socket.io";
 
 dotenv.config();
 const app = express();
@@ -38,7 +40,35 @@ app.use('/api/applications', applicationRoutes)
 app.use('/api/conversations', conversationRoutes)
 app.use('/api/messages', messageRoutes)
 
-app.listen(5000, () => {
-    connectDB();
+// Create HTTP server
+const server = createServer(app)
+
+// Initialize Socket.IO server and attach it to the HTTP server
+const io = new Server(server, {
+    cors: {
+        origin: "http://localhost:5173",
+        methods: ["GET", "POST"]
+    }
+});
+
+// Socket.IO connection logic
+io.on("connection", (socket) => {
+    console.log(`User connected: ${socket.id}`);
+
+    socket.on("join-user-room", (userId) => {
+        console.log(`User ${userId} joined their room`);
+        socket.join(userId)
+    })
+
+    socket.on("disconnect", () => {
+        console.log(`User disconnected: ${socket.id}`);
+    })
+})
+
+// Connect to DB before starting server
+connectDB();
+
+// Start server
+server.listen(5000, () => {
     console.log("Server started at http://localhost:5000")
 })

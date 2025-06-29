@@ -13,6 +13,7 @@ import JobDetailPage from "./components/JobDetailPage";
 import { useEffect } from "react";
 import ChangePasswordForm from "./pages/ChangePasswordForm";
 import ChatsPage from "./pages/ChatsPage";
+import { SocketProvider } from "./hooks/SocketContext.jsx";
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -31,21 +32,23 @@ function App() {
         <SideNavbar />
         <DataProvider>
 
-          {/* Scroll to top on every route change */}
-          <ScrollToTop />
+          <SocketProvider>
+            {/* Scroll to top on every route change */}
+            <ScrollToTop />
 
-          <Routes>
-            <Route path="/" element={<AppRoutes />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/sign-in" element={<SignIn />} />
-            <Route path="/get-started" element={<GetStartedForm />} />
-            <Route path="/create-job-posting" element={<CreateJobForm />} />
-            <Route path="/job-postings" element={<JobPostingsList />} />
-            <Route path="/job-postings/:jobId" element={<JobDetailPage />} />
-            <Route path="/change-password" element={<ChangePasswordForm />} />
-            <Route path="/messages" element={<ChatsPage/>}/>
+            <Routes>
+              <Route path="/" element={<AppRoutes />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/sign-in" element={<SignIn />} />
+              <Route path="/get-started" element={<GetStartedForm />} />
+              <Route path="/create-job-posting" element={<CreateJobForm />} />
+              <Route path="/job-postings" element={<JobPostingsList />} />
+              <Route path="/job-postings/:jobId" element={<JobDetailPage />} />
+              <Route path="/change-password" element={<ChangePasswordForm />} />
+              <Route path="/messages" element={<ChatsPage/>}/>
 
-          </Routes>
+            </Routes>
+          </SocketProvider>
           
         </DataProvider>
       </AuthProvider>

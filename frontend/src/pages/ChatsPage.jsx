@@ -4,6 +4,7 @@ import { useAuth } from "../components/AuthProvider"
 import { useData } from "../DataProvider";
 import axios from "axios";
 import MessageConfirmationModal from "../components/MessageConfirmationModal";
+import { useSocket } from "../hooks/useSocket"; 
 
 const formatDate = (time, mode = "long", getTimeDiff = false) => {
     const date = new Date(time);
@@ -150,6 +151,7 @@ const useUserSearch = (baseUrl) => {
 function ChatsPage() {
     const { baseUrl } = useData();
     const { user } = useAuth();
+    const socket = useSocket(); 
 
     // Use custom hooks
     const { conversations, currentConversation, setCurrentConversation } = useConversations(baseUrl, user?._id)
@@ -169,6 +171,62 @@ function ChatsPage() {
         receiver: '',
         content: '',
     })
+
+    // Socket event listeners for real-time updates
+    useEffect(() => {
+        if (!socket) return;
+
+        console.log('Setting up socket listeners...')
+
+        // Listen for new messages
+        const handleNewMessage = (newMessage) => {
+            console.log('Received new message:', newMessage);
+            
+            // Only update if this message is for the current conversation
+            if (currentConversation && 
+                (newMessage.sender._id === currentConversation.receiver._id || 
+                 newMessage.receiver._id === currentConversation.receiver._id)) {
+                
+                setMessages((prevGroups) => {
+                    const lastGroup = prevGroups[prevGroups.length - 1];
+
+                    if (
+                        lastGroup && 
+                        lastGroup.sender === newMessage.sender.name &&
+                        shouldGroupByTime(lastGroup.rawDateTime, newMessage.createdAt)
+                    ) {
+                        // Append to existing group
+                        const updatedGroups = [...prevGroups];
+                        updatedGroups[updatedGroups.length - 1] = {
+                            ...lastGroup,
+                            messages: [...lastGroup.messages, newMessage],
+                            rawDateTime: newMessage.createdAt
+                        };
+                        return updatedGroups;
+                    } else {
+                        // Create new message group
+                        return [
+                            ...prevGroups,
+                            {
+                                sender: newMessage.sender.name,
+                                profilePicture: newMessage.sender.profilePicture,
+                                createdAt: formatDate(newMessage.createdAt),
+                                rawDateTime: newMessage.createdAt,
+                                messages: [newMessage]
+                            }
+                        ];
+                    }
+                });
+            }
+        };
+
+        // Add event listeners
+        socket.on('new-message', handleNewMessage);
+        // Cleanup function
+        return () => {
+            socket.off('new-message', handleNewMessage);
+        }
+    }, [socket, currentConversation]); // Re-run when socket or currentConversation changes
 
     useEffect(() => {
         document.title = 'Messages'

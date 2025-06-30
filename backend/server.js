@@ -55,14 +55,26 @@ const io = new Server(server, {
 io.on("connection", (socket) => {
     console.log(`User connected: ${socket.id}`);
 
+    // Join user's personal room
     socket.on("join-user-room", (userId) => {
         console.log(`User ${userId} joined their room`);
         socket.join(userId)
-    })
+    });
 
     socket.on("disconnect", () => {
         console.log(`User disconnected: ${socket.id}`);
-    })
+    });
+
+    // Handle send-message event
+    socket.on('send-message', (message) => {
+        console.log(`Message sent successfully from ${message.sender.name} to ${message.receiverId}`)
+
+        // Emit to receiver's room
+        io.to(message.receiverId).emit('new-message', message)
+
+        // Optionally echo to sender's room as well
+        io.to(message.sender._id).emit('new-message', message)
+    });
 })
 
 // Connect to DB before starting server

@@ -447,7 +447,7 @@ function ChatsPage() {
                                         <div className="message-details">
                                             <div className="row">
                                                 <strong>{convo.receiver.name}</strong>
-                                                <time datetime={lastMessage.createdAt}>{formatDate(lastMessage.createdAt, "short", true)}</time> 
+                                                <time dateTime={lastMessage.createdAt}>{formatDate(lastMessage.createdAt, "short", true)}</time> 
                                             </div>
                                             <span className="message-content">
                                                 {`${lastMessage.sender._id === user._id ? 'You: ': ''} ${lastMessage.content}`}
@@ -527,7 +527,7 @@ function ChatsPage() {
                                     <li className={group.sender === user.name ? 'receiver' : ''} key={groupIndex}>
                                         <img src={`/${group.profilePicture}`} alt={`${group.sender}'s profile picture`} />
                                         <div className="message-group">
-                                            <time datetime={group.rawDateTime}>{group.createdAt}</time>
+                                            <time dateTime={group.rawDateTime}>{group.createdAt}</time>
                                             <div className="messages">
                                                 {group.messages.map((message) => (
                                                     <React.Fragment key={message._id}>

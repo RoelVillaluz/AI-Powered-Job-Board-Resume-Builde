@@ -1,3 +1,4 @@
+import React from "react";
 import { useEffect, useState } from "react"
 import Layout from "../components/Layout"
 import { useAuth } from "../components/AuthProvider"
@@ -5,6 +6,7 @@ import { useData } from "../DataProvider";
 import axios from "axios";
 import MessageConfirmationModal from "../components/MessageConfirmationModal";
 import { useSocket } from "../hooks/useSocket"; 
+import { createMessageHandlers, messageUtils } from "../components/utils/messageUtils";
 
 const formatDate = (time, mode = "long", getTimeDiff = false) => {
     const date = new Date(time);
@@ -178,73 +180,7 @@ function ChatsPage() {
 
         console.log('Setting up socket listeners...')
 
-        // Listen for new messages
-        const handleNewMessage = (newMessage) => {
-            console.log('Received new message:', newMessage);
-            
-            // Check if this message belongs to the current conversation
-            // Handle both cases: sender/receiver as strings OR as objects with _id
-            const senderId = typeof newMessage.sender === 'string' ? newMessage.sender : newMessage.sender._id;
-            const receiverId = typeof newMessage.receiver === 'string' ? newMessage.receiver : newMessage.receiver._id;
-            
-            const isRelevantMessage = currentConversation && (
-                // Message from current conversation partner to me
-                (senderId === currentConversation.receiver._id && receiverId === user._id) ||
-                // Message from me to current conversation partner  
-                (senderId === user._id && receiverId === currentConversation.receiver._id)
-            );
-            
-            if (isRelevantMessage) {
-                console.log('Message is relevant, updating UI...');
-                
-                setMessages((prevGroups) => {
-                    const lastGroup = prevGroups[prevGroups.length - 1];
-                    
-                    // Get sender info - handle both string ID and object cases
-                    const senderName = typeof newMessage.sender === 'string' 
-                        ? (senderId === user._id ? user.name : currentConversation.receiver.name)
-                        : newMessage.sender.name;
-                        
-                    const senderProfilePicture = typeof newMessage.sender === 'string'
-                        ? (senderId === user._id ? user.profilePicture : currentConversation.receiver.profilePicture)
-                        : newMessage.sender.profilePicture;
-
-                    if (
-                        lastGroup && 
-                        lastGroup.sender === senderName &&
-                        shouldGroupByTime(lastGroup.rawDateTime, newMessage.createdAt)
-                    ) {
-                        // Append to existing group
-                        const updatedGroups = [...prevGroups];
-                        updatedGroups[updatedGroups.length - 1] = {
-                            ...lastGroup,
-                            messages: [...lastGroup.messages, newMessage],
-                            rawDateTime: newMessage.createdAt
-                        };
-                        return updatedGroups;
-                    } else {
-                        // Create new message group
-                        return [
-                            ...prevGroups,
-                            {
-                                sender: senderName,
-                                profilePicture: senderProfilePicture,
-                                createdAt: formatDate(newMessage.createdAt),
-                                rawDateTime: newMessage.createdAt,
-                                messages: [newMessage]
-                            }
-                        ];
-                    }
-                });
-            } else {
-                console.log('Message not relevant to current conversation', {
-                    currentReceiver: currentConversation?.receiver._id,
-                    messageSender: senderId,
-                    messageReceiver: receiverId,
-                    currentUser: user._id
-                });
-            }
-        };
+        const { handleNewMessage } = createMessageHandlers(user, currentConversation, setMessages, formatDate, shouldGroupByTime);
 
         // Listen for message updates (edits)
         const handleMessageUpdated = (updatedMessage) => {

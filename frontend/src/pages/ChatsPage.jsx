@@ -182,17 +182,36 @@ function ChatsPage() {
         const handleNewMessage = (newMessage) => {
             console.log('Received new message:', newMessage);
             
-            // Only update if this message is for the current conversation
-            if (currentConversation && 
-                (newMessage.sender._id === currentConversation.receiver._id || 
-                 newMessage.receiver._id === currentConversation.receiver._id)) {
+            // Check if this message belongs to the current conversation
+            // Handle both cases: sender/receiver as strings OR as objects with _id
+            const senderId = typeof newMessage.sender === 'string' ? newMessage.sender : newMessage.sender._id;
+            const receiverId = typeof newMessage.receiver === 'string' ? newMessage.receiver : newMessage.receiver._id;
+            
+            const isRelevantMessage = currentConversation && (
+                // Message from current conversation partner to me
+                (senderId === currentConversation.receiver._id && receiverId === user._id) ||
+                // Message from me to current conversation partner  
+                (senderId === user._id && receiverId === currentConversation.receiver._id)
+            );
+            
+            if (isRelevantMessage) {
+                console.log('Message is relevant, updating UI...');
                 
                 setMessages((prevGroups) => {
                     const lastGroup = prevGroups[prevGroups.length - 1];
+                    
+                    // Get sender info - handle both string ID and object cases
+                    const senderName = typeof newMessage.sender === 'string' 
+                        ? (senderId === user._id ? user.name : currentConversation.receiver.name)
+                        : newMessage.sender.name;
+                        
+                    const senderProfilePicture = typeof newMessage.sender === 'string'
+                        ? (senderId === user._id ? user.profilePicture : currentConversation.receiver.profilePicture)
+                        : newMessage.sender.profilePicture;
 
                     if (
                         lastGroup && 
-                        lastGroup.sender === newMessage.sender.name &&
+                        lastGroup.sender === senderName &&
                         shouldGroupByTime(lastGroup.rawDateTime, newMessage.createdAt)
                     ) {
                         // Append to existing group
@@ -208,8 +227,8 @@ function ChatsPage() {
                         return [
                             ...prevGroups,
                             {
-                                sender: newMessage.sender.name,
-                                profilePicture: newMessage.sender.profilePicture,
+                                sender: senderName,
+                                profilePicture: senderProfilePicture,
                                 createdAt: formatDate(newMessage.createdAt),
                                 rawDateTime: newMessage.createdAt,
                                 messages: [newMessage]
@@ -217,7 +236,38 @@ function ChatsPage() {
                         ];
                     }
                 });
+            } else {
+                console.log('Message not relevant to current conversation', {
+                    currentReceiver: currentConversation?.receiver._id,
+                    messageSender: senderId,
+                    messageReceiver: receiverId,
+                    currentUser: user._id
+                });
             }
+        };
+
+        // Listen for message updates (edits)
+        const handleMessageUpdated = (updatedMessage) => {
+            console.log('Message updated:', updatedMessage);
+
+            setMessages((prevGroups) => 
+                prevGroups.map((group) => ({
+                    ...group,
+                    messages: group.messages.map((m) => m._id === updatedMessage._id ? updatedMessage : m)
+                })
+            ));
+        };
+
+        // Listen for message deletions
+        const handleMessageDeleted = (deletedMessageId) => {
+            console.log('Message deleted:', deletedMessageId);
+            
+            setMessages((prevGroups) => {
+                return prevGroups.map(group => ({
+                    ...group,
+                    messages: group.messages.filter((msg) => msg._id !== deletedMessageId)
+                })).filter(group => group.messages.length > 0);
+            });
         };
 
         // Add event listeners

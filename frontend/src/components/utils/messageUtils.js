@@ -86,5 +86,16 @@ export const createMessageHandlers = (user, currentConversation, setMessages, fo
         );
     };
 
-    return { handleNewMessage }
+    const handleMessageUpdated = (updatedMessage) => {
+        console.log('Message updated:', updatedMessage);
+
+        setMessages((prevGroups) => 
+            prevGroups.map((group) => ({
+                ...group,
+                messages: group.messages.map((m) => m._id === updatedMessage._id ? updatedMessage : m)
+            })
+        ));
+    };
+
+    return { handleNewMessage, handleMessageUpdated }
 }

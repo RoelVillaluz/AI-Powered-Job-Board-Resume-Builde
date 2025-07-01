@@ -180,19 +180,7 @@ function ChatsPage() {
 
         console.log('Setting up socket listeners...')
 
-        const { handleNewMessage } = createMessageHandlers(user, currentConversation, setMessages, formatDate, shouldGroupByTime);
-
-        // Listen for message updates (edits)
-        const handleMessageUpdated = (updatedMessage) => {
-            console.log('Message updated:', updatedMessage);
-
-            setMessages((prevGroups) => 
-                prevGroups.map((group) => ({
-                    ...group,
-                    messages: group.messages.map((m) => m._id === updatedMessage._id ? updatedMessage : m)
-                })
-            ));
-        };
+        const { handleNewMessage, handleMessageUpdated } = createMessageHandlers(user, currentConversation, setMessages, formatDate, shouldGroupByTime);        
 
         // Listen for message deletions
         const handleMessageDeleted = (deletedMessageId) => {
@@ -208,9 +196,13 @@ function ChatsPage() {
 
         // Add event listeners
         socket.on('new-message', handleNewMessage);
+        socket.on('update-message', handleMessageUpdated);
+        socket.on('message-deleted', handleMessageDeleted);
         // Cleanup function
         return () => {
             socket.off('new-message', handleNewMessage);
+            socket.off('update-message', handleMessageUpdated);
+            socket.off('message-deleted', handleMessageDeleted);
         }
     }, [socket, currentConversation]); // Re-run when socket or currentConversation changes
 
@@ -323,6 +315,16 @@ function ChatsPage() {
             const response = await axios.patch(`${baseUrl}/messages/${message._id}`, {
                 content: formData.content
             })
+
+            const updatedMessage = response.data.data;
+
+            // Emit the update to the server for real-time delivery
+            if (socket) {
+                socket.emit('update-message', {
+                    ...updatedMessage,
+                    receiverId: currentConversation.receiver._id
+                })
+            }
 
             setMessages((prevGroups) => 
                 prevGroups.map((group) => ({

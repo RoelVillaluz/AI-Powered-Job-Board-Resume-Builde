@@ -180,31 +180,20 @@ function ChatsPage() {
 
         console.log('Setting up socket listeners...')
 
-        const { handleNewMessage, handleMessageUpdated } = createMessageHandlers(user, currentConversation, setMessages, formatDate, shouldGroupByTime);        
-
-        // Listen for message deletions
-        const handleMessageDeleted = (deletedMessageId) => {
-            console.log('Message deleted:', deletedMessageId);
-            
-            setMessages((prevGroups) => {
-                return prevGroups.map(group => ({
-                    ...group,
-                    messages: group.messages.filter((msg) => msg._id !== deletedMessageId)
-                })).filter(group => group.messages.length > 0);
-            });
-        };
+        const { handleNewMessage, handleMessageUpdated, handleMessageDeleted } = createMessageHandlers(user, currentConversation, setMessages, formatDate, shouldGroupByTime);                
 
         // Add event listeners
         socket.on('new-message', handleNewMessage);
         socket.on('update-message', handleMessageUpdated);
-        socket.on('message-deleted', handleMessageDeleted);
+        socket.on('delete-message', handleMessageDeleted);
+
         // Cleanup function
         return () => {
             socket.off('new-message', handleNewMessage);
             socket.off('update-message', handleMessageUpdated);
-            socket.off('message-deleted', handleMessageDeleted);
+            socket.off('delete-message', handleMessageDeleted);
         }
-    }, [socket, currentConversation]); // Re-run when socket or currentConversation changes
+    }, [socket, currentConversation, user._id]); // Re-run when socket or currentConversation changes
 
     useEffect(() => {
         document.title = 'Messages'
@@ -350,6 +339,16 @@ function ChatsPage() {
             console.log('Message to delete: ', message)
             const response = await axios.delete(`${baseUrl}/messages/${message._id}`)
             console.log('Deleted message: ', response.data.data)
+
+            const deletedMessage = response.data.data;
+
+            // Emit the deletion to the server for real-time delivery
+            if (socket) {
+                socket.emit('delete-message', {
+                    ...deletedMessage,
+                    receiverId: currentConversation.receiver._id
+                })
+            }
 
             // Remove from local state - properly handle message groups
             setMessages((prevGroups) => {

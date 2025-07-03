@@ -97,5 +97,16 @@ export const createMessageHandlers = (user, currentConversation, setMessages, fo
         ));
     };
 
-    return { handleNewMessage, handleMessageUpdated }
+    const handleMessageDeleted = (deletedMessage) => {
+        console.log('Message deleted:', deletedMessage);
+        
+        setMessages((prevGroups) => {
+            return prevGroups.map(group => ({
+                ...group,
+                messages: group.messages.filter((msg) => msg._id !== deletedMessage._id)
+            })).filter(group => group.messages.length > 0);
+        });
+    };
+
+    return { handleNewMessage, handleMessageUpdated, handleMessageDeleted }
 }

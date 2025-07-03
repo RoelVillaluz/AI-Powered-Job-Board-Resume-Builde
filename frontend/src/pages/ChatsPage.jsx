@@ -437,7 +437,7 @@ function ChatsPage() {
                                 const lastMessage = convo.messages.at(-1);
 
                                 return (
-                                    <li className="message-preview" key={convo._id}>
+                                    <li className="message-preview" key={convo._id} onClick={() => setCurrentConversation(convo)}>
                                         <img src={convo.receiver.profilePicture} alt={convo.receiver.profilePicture} />
                                         <div className="message-details">
                                             <div className="row">

@@ -231,11 +231,19 @@ function ChatsPage() {
             const response = await axios.post(`${baseUrl}/messages`, formData);
             const newMessage = response.data.data;
 
-            console.log(`New message sent to ${currentConversation.receiver.name}: `, response.data.data)    ;
+            console.log(`New message sent to ${currentConversation.receiver.name}: `, response.data.data);
+
+            // Emit the message to the server for real-time delivery
+            if (socket) {
+                socket.emit('send-message', {
+                    ...newMessage,
+                    receiverId: formData.receiver
+                })
+            }
 
             // Optimistically add new message locally to message groups
             setMessages((prevGroups) => {
-                const lastGroup = prevGroups[prevGroups.length] - 1
+                const lastGroup = prevGroups[prevGroups.length - 1]
 
                 if (
                         lastGroup && 

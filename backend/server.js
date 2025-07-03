@@ -65,7 +65,7 @@ io.on("connection", (socket) => {
         console.log(`User disconnected: ${socket.id}`);
     });
 
-    // Handle send-message event
+    // Send message event
     socket.on('send-message', (message) => {
         console.log(`Message sent successfully from ${message.sender.name} to ${message.receiverId}`)
 
@@ -75,6 +75,28 @@ io.on("connection", (socket) => {
         // Optionally echo to sender's room as well
         io.to(message.sender._id).emit('new-message', message)
     });
+
+    // Update message event
+    socket.on('update-message', (updatedMessage) => {
+        console.log('Message edited successfully: ', updatedMessage)
+
+        // Emit to receiver's room
+        io.to(updatedMessage.receiverId).emit('update-message', updatedMessage)
+        
+        // Optionally echo to sender's room as well
+        io.to(updatedMessage.sender._id).emit('update-message', updatedMessage)
+    })
+
+    // Delete message event
+    socket.on('delete-message', (deletedMessage) => {
+        console.log('Message deleted successfully: ', deletedMessage)
+
+        // Emit to receiver's room
+        io.to(deletedMessage.receiverId).emit('delete-message', deletedMessage)
+        
+        // Optionally echo to sender's room as well
+        io.to(deletedMessage.sender).emit('delete-message', deletedMessage)
+    })
 })
 
 // Connect to DB before starting server

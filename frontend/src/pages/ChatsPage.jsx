@@ -166,6 +166,7 @@ function ChatsPage() {
 
     const [showConfirmationModal, setShowConfirmationModal] = useState(false);
     const [editMode, setEditMode] = useState(false);
+    const [showComposeMessage, setShowComposeMessage] = useState(false);
 
     const [messages, setMessages] = useState([]);
     const [formData, setFormData] = useState({
@@ -489,7 +490,7 @@ function ChatsPage() {
 
                 {/* Current Chat Window */}
                 <section className="chat-window">
-                    {currentConversation ? (
+                    {(currentConversation && !showComposeMessage) ? (
                         <header>
                             <div className="user">
                                 <img src={currentConversation.receiver.profilePicture} alt="" />
@@ -545,54 +546,56 @@ function ChatsPage() {
                         </header>
                     )}
                     <div className="messages-container">
-                        <ul>
-                            {messages.length > 0 && (
-                                messages.map((group, groupIndex) => (
-                                    <li className={group.sender === user.name ? 'receiver' : ''} key={groupIndex}>
-                                        <img src={`/${group.profilePicture}`} alt={`${group.sender}'s profile picture`} />
-                                        <div className="message-group">
-                                            <time dateTime={group.rawDateTime}>{group.createdAt}</time>
-                                            <div className="messages">
-                                                {group.messages.map((message) => (
-                                                    <React.Fragment key={message._id}>
-                                                        {message.updatedAt !== null && (
-                                                            <time dateTime={message.updatedAt}>Edited on {formatDate(message.updatedAt)}</time>
-                                                        )}
-                                                        <div className="message-bubble"
-                                                            onClick={() => {
-                                                                if (selectedMessage?._id === message._id) {
-                                                                    setSelectedMessage(null)
-                                                                } else {
-                                                                    setSelectedMessage(message)
-                                                                }
-                                                            }}
-                                                        >
-                                                            <span>{message.content}</span>
-                                                            <div className={`${selectedMessage?._id === message._id ? 'actions visible': 'actions'}`}>
-                                                                {message.sender._id === user._id ? (
-                                                                    <>
-                                                                    <button id="edit-message-btn" onClick={(e) => handleMessageButtonAction(e, "edit", message)}>
-                                                                        <i className="fa-solid fa-pen-to-square"></i>
-                                                                    </button>
-                                                                    <button className="negative" id="delete-message-btn" onClick={(e) => handleMessageButtonAction(e, "delete", message)}>
-                                                                        <i className="fa-solid fa-trash"></i>
-                                                                    </button>
-                                                                    </>
-                                                                ) : (
-                                                                    <button className="negative" id="report-message-btn">
-                                                                        <i className="fa-solid fa-bullhorn"></i>
-                                                                    </button>
-                                                                )}
+                        {!showComposeMessage && (
+                            <ul>
+                                {messages.length > 0 && (
+                                    messages.map((group, groupIndex) => (
+                                        <li className={group.sender === user.name ? 'receiver' : ''} key={groupIndex}>
+                                            <img src={`/${group.profilePicture}`} alt={`${group.sender}'s profile picture`} />
+                                            <div className="message-group">
+                                                <time dateTime={group.rawDateTime}>{group.createdAt}</time>
+                                                <div className="messages">
+                                                    {group.messages.map((message) => (
+                                                        <React.Fragment key={message._id}>
+                                                            {message.updatedAt !== null && (
+                                                                <time dateTime={message.updatedAt}>Edited on {formatDate(message.updatedAt)}</time>
+                                                            )}
+                                                            <div className="message-bubble"
+                                                                onClick={() => {
+                                                                    if (selectedMessage?._id === message._id) {
+                                                                        setSelectedMessage(null)
+                                                                    } else {
+                                                                        setSelectedMessage(message)
+                                                                    }
+                                                                }}
+                                                            >
+                                                                <span>{message.content}</span>
+                                                                <div className={`${selectedMessage?._id === message._id ? 'actions visible': 'actions'}`}>
+                                                                    {message.sender._id === user._id ? (
+                                                                        <>
+                                                                        <button id="edit-message-btn" onClick={(e) => handleMessageButtonAction(e, "edit", message)}>
+                                                                            <i className="fa-solid fa-pen-to-square"></i>
+                                                                        </button>
+                                                                        <button className="negative" id="delete-message-btn" onClick={(e) => handleMessageButtonAction(e, "delete", message)}>
+                                                                            <i className="fa-solid fa-trash"></i>
+                                                                        </button>
+                                                                        </>
+                                                                    ) : (
+                                                                        <button className="negative" id="report-message-btn">
+                                                                            <i className="fa-solid fa-bullhorn"></i>
+                                                                        </button>
+                                                                    )}
+                                                                </div>
                                                             </div>
-                                                        </div>
-                                                    </React.Fragment>
-                                                ))}
+                                                        </React.Fragment>
+                                                    ))}
+                                                </div>
                                             </div>
-                                        </div>
-                                    </li>
-                                ))
-                            )}
-                        </ul>
+                                        </li>
+                                    ))
+                                )}
+                            </ul>
+                        )}
                     </div>
                     <form className='typing-bar' onSubmit={(e) => {
                         e.preventDefault();

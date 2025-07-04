@@ -403,6 +403,19 @@ function ChatsPage() {
             })
             .filter(group => group.messages.length > 0) // Remove empty groups
 
+            // UPDATE CONVERSATIONS LIST 
+            setConversations((prevConvos) => {
+                const updatedConvos = prevConvos.map((convo) => 
+                    convo._id === currentConversation._id
+                    ? {
+                        ...convo,
+                        messages: convo.messages.filter((msg) => msg._id !== message._id),
+                    } : convo
+                )
+                
+                return updatedConvos
+            })
+
             // Reset selectedMessage state
             setSelectedMessage(null)
         } catch (error) {

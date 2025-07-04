@@ -34,7 +34,6 @@ export const messageUtils = {
     },
 
     // Add message to groups
-    // Add message to groups
     addMessageToGroups: (prevGroups, newMessage, senderInfo, formatDate, shouldGroupByTime) => {
         const lastGroup = prevGroups[prevGroups.length - 1];
 
@@ -64,11 +63,30 @@ export const messageUtils = {
                 }
             ];
         }
+    },
+
+    // Find conversation ID
+    findConversationId: (message, conversations) => {
+        const senderId = message.sender._id;
+        const receiverId = message.receiver._id;
+
+        const foundConvo = conversations.find((convo) => {
+            // Check if this conversation involves both the sender and receiver
+            if (convo.users && Array.isArray(convo.users)) {
+                const userIds = convo.users.map(u => typeof u === 'object' ? u._id : u)
+                return userIds.includes(senderId) && userIds.includes(receiverId);
+            } 
+
+            return false;
+        })
+
+        return foundConvo?._id
     }
 };
 
 // Create message event handlers
-export const createMessageHandlers = (user, currentConversation, setMessages, formatDate, shouldGroupByTime) => {
+export const createMessageHandlers = (user, currentConversation, conversations, setConversations, setMessages, formatDate, shouldGroupByTime) => {
+
     const handleNewMessage = (newMessage) => {
         console.log('Received new message:', newMessage);
 
@@ -84,6 +102,26 @@ export const createMessageHandlers = (user, currentConversation, setMessages, fo
         setMessages((prevGroups) => 
             messageUtils.addMessageToGroups(prevGroups, newMessage, senderInfo, formatDate, shouldGroupByTime)
         );
+
+        // Update last message in conversations list and move to top
+        setConversations((prevConvos) => {
+            const updatedConvos = prevConvos.map((convo) =>
+                convo._id === currentConversation._id
+                ? {
+                    ...convo,
+                    messages: [...convo.messages, newMessage],
+                    updatedAt: newMessage.createdAt // set to message time!
+                    }
+                : convo
+            );
+
+            // Sort conversations by latest message (most recent first)
+            return [...updatedConvos].sort((a, b) => {
+                const dateA = new Date(a.updatedAt || a.messages.at(-1)?.createdAt || 0);
+                const dateB = new Date(b.updatedAt || b.messages.at(-1)?.createdAt || 0);
+                return dateB - dateA;
+            });
+        });
     };
 
     const handleMessageUpdated = (updatedMessage) => {

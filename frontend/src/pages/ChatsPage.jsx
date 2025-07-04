@@ -115,7 +115,7 @@ const useConversations = (baseUrl, userId) => {
         }
     }, [baseUrl, userId])
 
-    return { conversations, currentConversation, setCurrentConversation };
+    return { conversations, setConversations, currentConversation, setCurrentConversation };
 }
 
 const useUserSearch = (baseUrl) => {
@@ -156,7 +156,7 @@ function ChatsPage() {
     const socket = useSocket(); 
 
     // Use custom hooks
-    const { conversations, currentConversation, setCurrentConversation } = useConversations(baseUrl, user?._id)
+    const { conversations, setConversations, currentConversation, setCurrentConversation } = useConversations(baseUrl, user?._id)
     const { searchReceiverQuery, setSearchReceiverQuery, searchReceiverResults } = useUserSearch(baseUrl)
 
     const [currentReceiver, setCurrentReceiver] = useState(null);
@@ -180,7 +180,15 @@ function ChatsPage() {
 
         console.log('Setting up socket listeners...')
 
-        const { handleNewMessage, handleMessageUpdated, handleMessageDeleted } = createMessageHandlers(user, currentConversation, setMessages, formatDate, shouldGroupByTime);                
+        const { handleNewMessage, handleMessageUpdated, handleMessageDeleted } = createMessageHandlers(
+            user,
+            currentConversation, 
+            conversations, 
+            setConversations, 
+            setMessages, 
+            formatDate, 
+            shouldGroupByTime
+        );                
 
         // Add event listeners
         socket.on('new-message', handleNewMessage);
@@ -273,6 +281,27 @@ function ChatsPage() {
                 }
 
             })
+
+            // UPDATE CONVERSATIONS LIST
+            setConversations((prevConvos) => {
+            const updatedConvos = prevConvos.map((convo) =>
+                convo._id === currentConversation._id
+                    ? {
+                        ...convo,
+                        messages: [...convo.messages, newMessage],
+                        updatedAt: newMessage.createdAt // set to message time!
+                        }
+                    : convo
+                );
+
+                // Sort conversations by latest message (most recent first)
+                return [...updatedConvos].sort((a, b) => {
+                    const dateA = new Date(a.updatedAt || a.messages.at(-1)?.createdAt || 0);
+                    const dateB = new Date(b.updatedAt || b.messages.at(-1)?.createdAt || 0);
+                    return dateB - dateA;
+                });
+            });
+
 
             handleChange("content", "");
         } catch (error) {

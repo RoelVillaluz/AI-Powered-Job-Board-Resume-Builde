@@ -360,6 +360,26 @@ function ChatsPage() {
                 }))
             )
 
+            // UPDATE CONVERSATIONS LIST 
+            setConversations((prevConvos) => {
+                const updatedConvos = prevConvos.map((convo) => 
+                    convo._id === currentConversation._id
+                    ? {
+                        ...convo,
+                        messages: messageUtils.updateMessageContent(convo.messages, message._id, formData.content),
+                        updatedAt: updatedMessage.updatedAt
+                    }
+                    : convo
+                );
+
+                // Move most recently updated to top
+                const sortedConvos = [...updatedConvos].sort(
+                    (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
+                );
+
+                return sortedConvos;
+            })
+
             console.log("Edited message: ", response.data.data)
 
             setEditMode(false)

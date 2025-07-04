@@ -65,6 +65,12 @@ export const messageUtils = {
         }
     },
 
+    updateMessageContent: (messages, messageId, newContent) => {
+        return messages.map((m) => 
+            m._id === messageId ? { ...m, content: newContent } : m
+        )
+    },
+
     // Find conversation ID
     findConversationId: (message, conversations) => {
         const senderId = message.sender._id;
@@ -133,6 +139,21 @@ export const createMessageHandlers = (user, currentConversation, conversations, 
                 messages: group.messages.map((m) => m._id === updatedMessage._id ? updatedMessage : m)
             })
         ));
+
+        // Update last message in conversations list and move to top
+        setConversations((prevConvos) => {
+            const updatedConvos = prevConvos.map((convo) => 
+                convo._id === currentConversation._id
+                ? {
+                    ...convo,
+                    messages: messageUtils.updateMessageContent(convo.messages, message._id, formData.content),
+                    updatedAt: updatedMessage.updatedAt
+                }
+                : convo
+            );
+
+            return updatedConvos;
+        })
     };
 
     const handleMessageDeleted = (deletedMessage) => {
@@ -144,6 +165,18 @@ export const createMessageHandlers = (user, currentConversation, conversations, 
                 messages: group.messages.filter((msg) => msg._id !== deletedMessage._id)
             })).filter(group => group.messages.length > 0);
         });
+
+        setConversations((prevConvos) => {
+            const updatedConvos = prevConvos.map((convo) => 
+                convo._id === currentConversation._id
+                ? {
+                    ...convo,
+                    messages: convo.messages.filter((msg) => msg._id !== deletedMessage._id),
+                } : convo
+            )
+            
+            return updatedConvos
+        })
     };
 
     return { handleNewMessage, handleMessageUpdated, handleMessageDeleted }

@@ -67,7 +67,7 @@ io.on("connection", (socket) => {
 
     // Send message event
     socket.on('send-message', (message) => {
-        console.log(`Message sent successfully from ${message.sender.name} to ${message.receiverId}`)
+        console.log(`Message sent successfully from ${message.sender} to ${message.receiverId}`)
 
         // Emit to receiver's room
         io.to(message.receiverId).emit('new-message', message)
@@ -106,3 +106,11 @@ connectDB();
 server.listen(5000, () => {
     console.log("Server started at http://localhost:5000")
 })
+
+const deleteMessagesFromConvo = async () => {
+    const allConvos = await Conversation.find({})
+
+    for (const convo of allConvos) {
+        
+    }
+}

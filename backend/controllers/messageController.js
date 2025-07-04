@@ -150,6 +150,15 @@ export const deleteMessage = async (req, res) => {
             return sendResponse(res, { ...STATUS_MESSAGES.ERROR.NOT_FOUND, success: false }, 'Message')
         }
 
+        const conversation = await Conversation.findOne({ messages: messageId })
+
+        if (conversation) {
+            await Conversation.updateOne(
+                { _id: conversation._id },
+                { $pull: { messages: messageId }}
+            )
+        }
+
         return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.DELETE, data: deletedMessage }, 'Message')
     } catch (error) {
         console.error(error)

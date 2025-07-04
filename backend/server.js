@@ -106,11 +106,3 @@ connectDB();
 server.listen(5000, () => {
     console.log("Server started at http://localhost:5000")
 })
-
-const deleteMessagesFromConvo = async () => {
-    const allConvos = await Conversation.find({})
-
-    for (const convo of allConvos) {
-        
-    }
-}

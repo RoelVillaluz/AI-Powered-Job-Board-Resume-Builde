@@ -10,6 +10,7 @@ import { formatDate } from "../components/utils/dateUtils.js";
 
 import { useConversations } from "../hooks/useConversations.jsx"
 import { useUserSearch } from "../hooks/useUserSearch.jsx"
+import ChatSidebar from "../components/Chat/ChatSidebar.jsx";
 
 function ChatsPage() {
     const { baseUrl } = useData();
@@ -320,67 +321,16 @@ function ChatsPage() {
             <main className="main-content" id="chats-page">
 
                 {/* Chat List */}
-                <aside id="chat-sidebar">
-
-                    <header>
-                        <i className="fa-solid fa-angle-left"></i>
-                        <h1>My Chats</h1>
-                    </header>
-
-                    {currentConversation && (
-                        <section id="user-summary">
-                            <i className="fa-solid fa-gear"></i>
-                            <figure className="user-avatar">
-                                <img src={currentConversation.receiver.profilePicture} alt={`${currentConversation.receiver.name}'s profile picture`} />
-                                <span className="status-circle active"></span>
-                            </figure>
-                            <h1>{currentConversation.receiver.name}</h1>
-                            <h3 className="status-text active">Online</h3>
-                        </section>
-                    )}
-
-                    <section id="search-message">
-                        <div className="message-search-bar">
-                            <input type="text" placeholder="Search"/>
-                            <i className="fa-solid fa-magnifying-glass"></i>
-                        </div>
-                    </section>
-
-                    <section id="chat-list">
-
-                        <div className="row">
-                            <h4>Last Messages</h4>
-                            <div className="actions">
-                                <i className="fa-solid fa-plus"></i>
-                                <i className="fa-solid fa-ellipsis-vertical"></i>
-                            </div>
-                        </div>
-
-                        <ul>
-                            {conversations.map((convo) => {
-                                const lastMessage = convo.messages.at(-1);
-
-                                return (
-                                    <li className="message-preview" key={convo._id} onClick={() => setCurrentConversation(convo)}>
-                                        <img src={convo.receiver.profilePicture} alt={convo.receiver.profilePicture} />
-                                        <div className="message-details">
-                                            <div className="row">
-                                                <strong>{convo.receiver.name}</strong>
-                                                <time dateTime={lastMessage.createdAt}>{formatDate(lastMessage.createdAt, "short", true)}</time> 
-                                            </div>
-                                            <span className="message-content">
-                                                {`${lastMessage.sender._id === user._id ? 'You: ': ''} ${lastMessage.content}`}
-                                            </span>
-                                        </div>
-                                    </li>
-                                )
-
-                            })}
-                        </ul>
-                        
-                    </section>
-
-                </aside>
+                <ChatSidebar 
+                    user={user}
+                    currentConversation={currentConversation }
+                    setCurrentConversation={setCurrentConversation}
+                    conversations={conversations}
+                    setShowComposeMessage={setShowComposeMessage}
+                    setCurrentReceiver={setCurrentReceiver}
+                    handleChange={handleChange}
+                    formatDate={formatDate}
+                />
 
                 {/* Current Chat Window */}
                 <section className="chat-window">

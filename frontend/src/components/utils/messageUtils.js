@@ -1,3 +1,5 @@
+import { formatDate } from "./dateUtils";
+
 export const messageUtils = {
     // Extract sender info from message (handles both string ID and object cases)
     getSenderInfo: (message, user, currentConversation) => {
@@ -180,4 +182,48 @@ export const createMessageHandlers = (user, currentConversation, conversations, 
     };
 
     return { handleNewMessage, handleMessageUpdated, handleMessageDeleted }
+}
+
+export const groupMessages = (messages) => {
+    const grouped = [];
+    let currentGroup = null;
+    
+    messages.forEach((message, index) => {
+        const prevMessage = messages[index - 1];
+        
+        // Check if this message should be grouped with the previous one
+        const shouldGroup = prevMessage && 
+                        prevMessage.sender.name === message.sender.name &&
+                        shouldGroupByTime(prevMessage.createdAt, message.createdAt);
+        
+        if (shouldGroup) {
+            // Add to existing group
+            currentGroup.messages.push(message);
+        } else {
+
+            const formattedDate = formatDate(message.createdAt);
+
+            // Start new group
+            currentGroup = {
+                sender: message.sender.name,
+                profilePicture: message.sender.profilePicture,
+                createdAt: formattedDate,
+                rawDateTime: message.createdAt,
+                messages: [message]
+            };
+            grouped.push(currentGroup);
+        }
+    });
+    
+    return grouped;
+};
+
+export const shouldGroupByTime = (time1, time2) => {
+    const date1 = new Date(time1);
+    const date2 = new Date(time2);
+
+    const diffInMinutes = Math.abs((date2 - date1) / (1000 * 60)); // convert ms to minutes
+
+    // Group messages within 1 minute of each other
+    return diffInMinutes <= 1;
 }

@@ -7,7 +7,7 @@ import axios from "axios";
 import MessageConfirmationModal from "../components/MessageConfirmationModal";
 import { useSocket } from "../hooks/useSocket"; 
 import { formatDate } from "../components/utils/dateUtils.js";
-
+import MessageGroup from "../components/Chat/MessageGroup";
 import { useConversations } from "../hooks/useConversations.jsx"
 import { useUserSearch } from "../hooks/useUserSearch.jsx"
 import ChatSidebar from "../components/Chat/ChatSidebar.jsx";
@@ -394,48 +394,14 @@ function ChatsPage() {
                             <ul>
                                 {messages.length > 0 && (
                                     messages.map((group, groupIndex) => (
-                                        <li className={group.sender === user.name ? 'receiver' : ''} key={groupIndex}>
-                                            <img src={`/${group.profilePicture}`} alt={`${group.sender}'s profile picture`} />
-                                            <div className="message-group">
-                                                <time dateTime={group.rawDateTime}>{group.createdAt}</time>
-                                                <div className="messages">
-                                                    {group.messages.map((message) => (
-                                                        <React.Fragment key={message._id}>
-                                                            {message.updatedAt !== null && (
-                                                                <time dateTime={message.updatedAt}>Edited on {formatDate(message.updatedAt)}</time>
-                                                            )}
-                                                            <div className="message-bubble"
-                                                                onClick={() => {
-                                                                    if (selectedMessage?._id === message._id) {
-                                                                        setSelectedMessage(null)
-                                                                    } else {
-                                                                        setSelectedMessage(message)
-                                                                    }
-                                                                }}
-                                                            >
-                                                                <span>{message.content}</span>
-                                                                <div className={`${selectedMessage?._id === message._id ? 'actions visible': 'actions'}`}>
-                                                                    {message.sender._id === user._id ? (
-                                                                        <>
-                                                                        <button id="edit-message-btn" onClick={(e) => handleMessageButtonAction(e, "edit", message)}>
-                                                                            <i className="fa-solid fa-pen-to-square"></i>
-                                                                        </button>
-                                                                        <button className="negative" id="delete-message-btn" onClick={(e) => handleMessageButtonAction(e, "delete", message)}>
-                                                                            <i className="fa-solid fa-trash"></i>
-                                                                        </button>
-                                                                        </>
-                                                                    ) : (
-                                                                        <button className="negative" id="report-message-btn">
-                                                                            <i className="fa-solid fa-bullhorn"></i>
-                                                                        </button>
-                                                                    )}
-                                                                </div>
-                                                            </div>
-                                                        </React.Fragment>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                        </li>
+                                        <MessageGroup 
+                                            group={group} 
+                                            key={groupIndex} 
+                                            selectedMessage={selectedMessage}
+                                            setSelectedMessage={setSelectedMessage}
+                                            user={user} 
+                                            formatDate={formatDate}
+                                        />
                                     ))
                                 )}
                             </ul>

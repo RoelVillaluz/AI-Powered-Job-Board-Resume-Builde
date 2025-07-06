@@ -1,19 +1,30 @@
 import { createContext, useContext, useState, useCallback, Children } from "react";
+import { useAuth } from "./AuthProvider";
 
 const ChatContext = createContext();
 export const useChatContext = () => useContext(ChatContext)
 
 export const ChatProvider = ({ children }) => {
+    const { user } = useAuth();
+
+    const [conversations, setConversations] = useState([]);
+    const [currentConversation, setCurrentConversation] = useState(null);
     const [selectedMessage, setSelectedMessage] = useState(null);
     const [editMode, setEditMode] = useState(false);
     const [action, setAction] = useState(null);
     const [showConfirmationModal, setShowConfirmationModal] = useState(false);
+    const [formData, setFormData] = useState({
+        sender: user._id,
+        receiver: '',
+        content: '',
+    });
 
     const handleShowConfirmationModal = useCallback(() => {
-        setShowConfirmationModal((prev) => !prev)
-    }, [])
+        setShowConfirmationModal((prev) => !prev);
+    }, []);
 
-    const handleMessageButtonAction = useCallback((e, actionType, message) => {
+    const handleMessageButtonAction = useCallback(
+        (e, actionType, message) => {
         e.stopPropagation();
         setAction(actionType);
         setSelectedMessage(message);
@@ -23,26 +34,36 @@ export const ChatProvider = ({ children }) => {
         } else if (actionType === 'edit') {
             setEditMode(true);
             setFormData((prev) => ({
-                ...prev,
-                content: message.content
-            }))
+            ...prev,
+            content: message.content,
+            }));
         }
-    }, [handleShowConfirmationModal])
+        },
+        [handleShowConfirmationModal]
+    );
 
     return (
-        <ChatContext.Provider value={{
-            selectedMessage,
-            setSelectedMessage,
-            editMode,
-            setEditMode,
-            action,
-            setAction,
-            showConfirmationModal,
-            setShowConfirmationModal,
-            handleMessageButtonAction
-        }}>
+        <ChatContext.Provider
+            value={{
+                conversations,
+                setConversations,
+                currentConversation,
+                setCurrentConversation,
+                selectedMessage,
+                setSelectedMessage,
+                editMode,
+                setEditMode,
+                action,
+                setAction,
+                showConfirmationModal,
+                setShowConfirmationModal,
+                formData,
+                setFormData,
+                handleMessageButtonAction,
+                handleShowConfirmationModal,
+            }}
+        >
             {children}
         </ChatContext.Provider>
     );
-
-}
+};

@@ -35,15 +35,13 @@ function ChatsPage() {
         handleFormSubmit,
         handleEditMessage,
         handleDeleteMessage
-    } = useMessageOperations({
+        } = useMessageOperations({
         baseUrl,
         user,
         socket,
         currentConversation,
-        setConversations,
-        selectedMessage,
-        setSelectedMessage
-    })
+        setConversations
+    });
 
     useEffect(() => {
         document.title = 'Messages'
@@ -68,7 +66,6 @@ function ChatsPage() {
             {showConfirmationModal && (
                 <MessageConfirmationModal 
                     message={selectedMessage} 
-                    action={action} 
                     onClose={() => handleShowConfirmationModal()}
                     onSubmit={(messageToDelete) => {
                         handleDeleteMessage(messageToDelete); // Use the message passed from modal

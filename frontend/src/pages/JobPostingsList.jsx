@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react"
-import { useAuth } from "../components/AuthProvider"
-import { useData } from "../DataProvider";
+import { useAuth } from "../contexts/AuthProvider"
+import { useData } from "../contexts/DataProvider";
 import axios, { all } from "axios";
 import Layout from "../components/Layout";
 import { Link } from "react-router-dom";

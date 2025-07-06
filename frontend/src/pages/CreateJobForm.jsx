@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from 'react-router-dom';
-import { useData } from "../DataProvider.jsx"
+import { useData } from "../contexts/DataProvider.jsx";
 import axios from "axios";
-import { useAuth } from "../components/AuthProvider.jsx";
+import { useAuth } from "../contexts/AuthProvider.jsx";
 import Layout from "../components/Layout.jsx";
 import JobDetailsSection from "../components/MultiStepForm/CreateJobForm/JobDetailsSection.jsx";
 import SkillsAndRequirementsSection from "../components/MultiStepForm/CreateJobForm/SkillsAndRequirementsSection.jsx";

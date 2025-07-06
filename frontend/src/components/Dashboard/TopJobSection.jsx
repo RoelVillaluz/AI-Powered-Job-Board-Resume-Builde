@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react"
-import { useAuth } from "../AuthProvider";
+import { useAuth } from "../../contexts/AuthProvider";
 import { Link } from "react-router-dom";
-import { useData } from "../../DataProvider";
+import { useData } from "../../contexts/DataProvider";
 import { formattedSalary } from "../../../../backend/constants";
 
 function TopJobSection({ user, resume, shuffledSkills }) {

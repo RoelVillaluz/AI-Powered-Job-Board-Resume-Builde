@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { useData } from "../DataProvider.jsx"
+import { useData } from "../contexts/DataProvider.jsx"
 import { useNavigate } from "react-router-dom"
 import Layout from "../components/Layout.jsx"
 import axios from "axios"
@@ -8,7 +8,7 @@ import UserDetailsSection from "../components/MultiStepForm/GetStartedForm/UserD
 import SkillsSection from "../components/MultiStepForm/GetStartedForm/SkillsSection.jsx"
 import WorkExperience from "../components/MultiStepForm/GetStartedForm/WorkExperience.jsx"
 import WelcomeSection from "../components/MultiStepForm/GetStartedForm/WelcomeSection.jsx"
-import { useAuth } from "../components/AuthProvider.jsx"
+import { useAuth } from "../contexts/AuthProvider.jsx"
 import IndustrySection from "../components/Dashboard/IndustrySection.jsx"
 
 function GetStartedForm({ role }) {

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
-import { useAuth } from "../AuthProvider";
+import { useAuth } from "../../contexts/AuthProvider";
 
 function GoalsSection({ loading }) {
     const { user } = useAuth();

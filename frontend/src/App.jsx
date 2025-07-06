@@ -1,4 +1,4 @@
-import { DataProvider } from "./DataProvider";
+import { DataProvider } from "./contexts/DataProvider.jsx";
 import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 import LandingPage from "./pages/LandingPage";
 import SideNavbar from "./components/SideNavbar";
@@ -6,7 +6,7 @@ import Register from "./pages/Register";
 import SignIn from "./pages/SignIn";
 import GetStartedForm from "./pages/GetStartedForm";
 import Dashboard from "./pages/Dashboard";
-import { AuthProvider, useAuth } from "./components/AuthProvider";
+import { AuthProvider, useAuth } from "./contexts/AuthProvider.jsx";
 import CreateJobForm from "./pages/CreateJobForm";
 import JobPostingsList from "./pages/JobPostingsList";
 import JobDetailPage from "./components/JobDetailPage";

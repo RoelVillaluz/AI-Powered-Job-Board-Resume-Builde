@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
-import { useData } from "../../DataProvider"
+import { useData } from "../../contexts/DataProvider"
 import axios from "axios";
-import { useAuth } from "../AuthProvider";
+import { useAuth } from "../../contexts/AuthProvider";
 
 function NetworkSection({ user, baseUrl }) {
     const { setUser } = useAuth();

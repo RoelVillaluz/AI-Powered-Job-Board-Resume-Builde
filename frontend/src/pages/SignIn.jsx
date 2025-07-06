@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
-import { useData } from "../DataProvider"
-import { useAuth } from "../components/AuthProvider"
+import { useData} from "../contexts/DataProvider"
+import { useAuth } from "../contexts/AuthProvider"
 import axios from "axios"
 import VerifyUser from "../components/VerifyUser"
 function SignIn() {

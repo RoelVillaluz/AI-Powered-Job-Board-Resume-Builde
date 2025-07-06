@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import axios from "axios";
-import { useAuth } from "./components/AuthProvider";
+import { useAuth } from "./AuthProvider";
 
 const DataContext = createContext();
 export const useData = () => useContext(DataContext);

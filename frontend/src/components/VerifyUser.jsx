@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { useData } from "../DataProvider";
-import { useAuth } from "./AuthProvider";
+import { useData } from "../contexts//DataProvider";
+import { useAuth } from "../contexts/AuthProvider";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 

@@ -1,6 +1,6 @@
 import axios, { all } from "axios"
 import { useEffect, useState } from "react"
-import { useData } from "../DataProvider"
+import { useData } from "../contexts/DataProvider";
 import SuccessMessage from "../components/SuccessMessage";
 import { Link, useLocation } from "react-router-dom";
 

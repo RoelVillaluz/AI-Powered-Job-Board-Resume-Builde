@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react"
 import Layout from "./Layout"
 import axios from "axios";
-import { useData } from "../DataProvider";
+import { useData } from "../contexts/DataProvider";
 import { useParams } from "react-router-dom";
 import { faL } from "@fortawesome/free-solid-svg-icons";
 import Resume from "../../../backend/models/resumeModel";
-import { useAuth } from "./AuthProvider";
+import { useAuth } from "../contexts/AuthProvider";
 import Gauge from "./Gauge";
 import ApplicationFormModal from "./ApplicationFormModal";
 

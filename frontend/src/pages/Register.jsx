@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useData } from "../DataProvider";
+import { useData } from "../contexts/DataProvider";
 import axios from "axios";
 import Layout from "../components/Layout";
 import VerifyUser from "../components/VerifyUser";

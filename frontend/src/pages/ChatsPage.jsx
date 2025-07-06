@@ -1,8 +1,9 @@
 import React from "react";
 import { useEffect, useState } from "react"
 import Layout from "../components/Layout"
-import { useAuth } from "../components/AuthProvider"
-import { useData } from "../DataProvider";
+import { useAuth } from "../contexts/AuthProvider.jsx"
+import { useData } from "../contexts/DataProvider.jsx";
+import { useChatContext } from "../contexts/ChatContext.jsx";
 import axios from "axios";
 import MessageConfirmationModal from "../components/MessageConfirmationModal";
 import { useSocket } from "../hooks/useSocket.js"; 
@@ -18,12 +19,9 @@ function ChatsPage() {
     const { baseUrl } = useData();
     const { user } = useAuth();
     const socket = useSocket(); 
+    const { showConfirmationModal, handleShowConfirmationModal, editMode, setEditMode, selectedMessage, setSelectedMessage } = useChatContext();
 
-    const [selectedMessage, setSelectedMessage] = useState(null);
-    const [editMode, setEditMode] = useState(false);
     const [currentReceiver, setCurrentReceiver] = useState(null);
-    const [action, setAction] = useState(null);
-    const [showConfirmationModal, setShowConfirmationModal] = useState(false);
     const [showComposeMessage, setShowComposeMessage] = useState(false);
 
     // Use custom hooks
@@ -43,8 +41,6 @@ function ChatsPage() {
         socket,
         currentConversation,
         setConversations,
-        editMode,
-        setEditMode,
         selectedMessage,
         setSelectedMessage
     })
@@ -65,26 +61,6 @@ function ChatsPage() {
         if (e.key === 'Enter') {
             handleFormSubmit()
         }
-    }
-
-    const handleMessageButtonAction = (e, actionType, message) => {
-        e.stopPropagation();
-        setAction(actionType);
-        setSelectedMessage(message);
-
-        if (actionType === 'delete') {
-            handleShowConfirmationModal();
-        } else if (actionType === 'edit') {
-            setEditMode(true);
-            setFormData((prev) => ({
-                ...prev,
-                content: message.content
-            }))
-        }
-    }
-
-    const handleShowConfirmationModal = () => {
-        setShowConfirmationModal((prev) => !prev)
     }
 
     return (

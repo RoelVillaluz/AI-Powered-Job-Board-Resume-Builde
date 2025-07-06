@@ -30,41 +30,28 @@ function ChatsPage() {
     const [editMode, setEditMode] = useState(false);
     const [showComposeMessage, setShowComposeMessage] = useState(false);
 
-    const [messages, setMessages] = useState([]);
-    const [formData, setFormData] = useState({
-        sender: user._id,
-        receiver: '',
-        content: '',
+    // Use custom hooks
+    const { conversations, setConversations, currentConversation, setCurrentConversation } = useConversations(baseUrl, user?._id)
+    const { searchReceiverQuery, setSearchReceiverQuery, searchReceiverResults } = useUserSearch(baseUrl)
+    const {
+        messages,
+        setMessages,
+        formData,
+        handleChange,
+        handleFormSubmit,
+        handleEditMessage,
+        handleDeleteMessage
+    } = useMessageOperations({
+        baseUrl,
+        user,
+        socket,
+        currentConversation,
+        setConversations,
+        editMode,
+        setEditMode,
+        selectedMessage,
+        setSelectedMessage
     })
-
-    // Socket event listeners for real-time updates
-    useEffect(() => {
-        if (!socket) return;
-
-        console.log('Setting up socket listeners...')
-
-        const { handleNewMessage, handleMessageUpdated, handleMessageDeleted } = createMessageHandlers(
-            user,
-            currentConversation, 
-            conversations, 
-            setConversations, 
-            setMessages, 
-            formatDate, 
-            shouldGroupByTime
-        );                
-
-        // Add event listeners
-        socket.on('new-message', handleNewMessage);
-        socket.on('update-message', handleMessageUpdated);
-        socket.on('delete-message', handleMessageDeleted);
-
-        // Cleanup function
-        return () => {
-            socket.off('new-message', handleNewMessage);
-            socket.off('update-message', handleMessageUpdated);
-            socket.off('delete-message', handleMessageDeleted);
-        }
-    }, [socket, currentConversation, user._id]); // Re-run when socket or currentConversation changes
 
     useEffect(() => {
         document.title = 'Messages'

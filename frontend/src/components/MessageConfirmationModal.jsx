@@ -1,4 +1,8 @@
-function MessageConfirmationModal({ message, action, onClose, onSubmit }) {
+import { useChatContext } from "../contexts/ChatContext"
+
+function MessageConfirmationModal({ message, onClose, onSubmit }) {
+    const { action } = useChatContext();
+    
     const formatAction = (action) => {
         return `${action[0].toUpperCase()}${action.slice(1)}`
     }

@@ -1,7 +1,8 @@
 import React from "react"
 import { useChatContext } from "../../contexts/ChatContext"
+import { formatDate } from "../utils/dateUtils";
 
-function MessageBubble({ message, selectedMessage, setSelectedMessage, user, formatDate }) {
+function MessageBubble({ message, selectedMessage, setSelectedMessage, user }) {
 
     const { handleMessageButtonAction } = useChatContext();
 

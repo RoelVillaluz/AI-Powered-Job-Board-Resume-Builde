@@ -1,6 +1,6 @@
 import MessageBubble from "./MessageBubble"
 
-function MessageGroup({ group, message, selectedMessage, setSelectedMessage, user, formatDate }) {
+function MessageGroup({ group, message, selectedMessage, setSelectedMessage, user }) {
     return (
         <li className={group.sender === user.name ? 'receiver' : ''}>
             <img src={`/${group.profilePicture}`} alt={`${group.sender}'s profile picture`} />
@@ -13,7 +13,6 @@ function MessageGroup({ group, message, selectedMessage, setSelectedMessage, use
                             selectedMessage={selectedMessage}
                             setSelectedMessage={setSelectedMessage}
                             user={user}
-                            formatDate={formatDate}
                         />  
                     ))}
                 </div>

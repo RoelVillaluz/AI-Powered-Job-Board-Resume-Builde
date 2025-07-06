@@ -155,8 +155,7 @@ function ChatsPage() {
                                             key={groupIndex} 
                                             selectedMessage={selectedMessage}
                                             setSelectedMessage={setSelectedMessage}
-                                            user={user} 
-                                            formatDate={formatDate}
+                                            user={user}
                                         />
                                     ))
                                 )}

@@ -14,6 +14,7 @@ import { useConversations } from "../hooks/chats/useConversations.jsx"
 import { useUserSearch } from "../hooks/chats/useUserSearch.jsx"
 import { useMessageOperations } from "../hooks/chats/useMessageOperations.jsx";
 import ChatSidebar from "../components/Chat/ChatSidebar.jsx";
+import TypingBar from "../components/Chat/TypingBar.jsx";
 
 function ChatsPage() {
     const { baseUrl } = useData();
@@ -162,39 +163,11 @@ function ChatsPage() {
                             </ul>
                         )}
                     </div>
-                    <form className='typing-bar' onSubmit={(e) => {
-                        e.preventDefault();
-                        editMode ?  handleEditMessage(selectedMessage) : handleFormSubmit();
-                    }}>
-                        <input type="text" 
-                            placeholder='Write your message...'
-                            value={formData.content}
-                            onChange={(e) => handleChange("content", e.target.value)}
-                        />
-                        <div className="actions">
-                            {!editMode ? (
-                                <>
-                                    <i className="fa-solid fa-paperclip"></i>
-                                    <i className="fa-solid fa-microphone"></i>
-                                    
-                                </>
-                            ) : (
-                                <button type="button" id="cancel-edit-btn" onClick={() => {
-                                    setEditMode((prev) => !prev)
-                                    setFormData((prev) => ({
-                                        ...prev,
-                                        content: ''
-                                    }))
-                                    setSelectedMessage(null); 
-                                }}>
-                                    Cancel
-                                </button>
-                            )}
-                            <button className="send-message-btn">
-                                <i className="fa-solid fa-paper-plane"></i>
-                            </button>
-                        </div>
-                    </form>
+                    <TypingBar 
+                        handleFormSubmit={handleFormSubmit}
+                        handleEditMessage={handleEditMessage}
+                        handleChange={handleChange}
+                    />
                 </section>
 
                 {/* Chat Resources */}

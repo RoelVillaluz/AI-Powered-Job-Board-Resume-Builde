@@ -25,19 +25,19 @@ export const ChatProvider = ({ children }) => {
 
     const handleMessageButtonAction = useCallback(
         (e, actionType, message) => {
-        e.stopPropagation();
-        setAction(actionType);
-        setSelectedMessage(message);
+            e.stopPropagation();
+            setAction(actionType);
+            setSelectedMessage(message);
 
-        if (actionType === 'delete') {
-            handleShowConfirmationModal();
-        } else if (actionType === 'edit') {
-            setEditMode(true);
-            setFormData((prev) => ({
-            ...prev,
-            content: message.content,
-            }));
-        }
+            if (actionType === 'delete') {
+                handleShowConfirmationModal();
+            } else if (actionType === 'edit') {
+                setEditMode(true);
+                setFormData((prev) => ({
+                ...prev,
+                content: message.content,
+                }));
+            }
         },
         [handleShowConfirmationModal]
     );

@@ -1,4 +1,6 @@
 import { DataProvider } from "./contexts/DataProvider.jsx";
+import { SocketProvider } from "./contexts/SocketContext.jsx";
+import { ChatProvider } from "./contexts/ChatContext.jsx";
 import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 import LandingPage from "./pages/LandingPage";
 import SideNavbar from "./components/SideNavbar";
@@ -13,7 +15,6 @@ import JobDetailPage from "./components/JobDetailPage";
 import { useEffect } from "react";
 import ChangePasswordForm from "./pages/ChangePasswordForm";
 import ChatsPage from "./pages/ChatsPage";
-import { SocketProvider } from "./hooks/SocketContext.jsx";
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -45,7 +46,13 @@ function App() {
               <Route path="/job-postings" element={<JobPostingsList />} />
               <Route path="/job-postings/:jobId" element={<JobDetailPage />} />
               <Route path="/change-password" element={<ChangePasswordForm />} />
-              <Route path="/messages" element={<ChatsPage/>}/>
+
+              <Route path="/messages" element={
+              <ChatProvider>
+                <ChatsPage />
+              </ChatProvider>
+            } />
+
 
             </Routes>
           </SocketProvider>

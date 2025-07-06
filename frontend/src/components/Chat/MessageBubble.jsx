@@ -1,6 +1,10 @@
 import React from "react"
+import { useChatContext } from "../../contexts/ChatContext"
 
 function MessageBubble({ message, selectedMessage, setSelectedMessage, user, formatDate }) {
+
+    const { handleMessageButtonAction } = useChatContext();
+
     return (
         <React.Fragment key={message._id}>
             {message.updatedAt !== null && (

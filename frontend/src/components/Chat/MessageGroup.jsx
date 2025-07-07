@@ -1,11 +1,9 @@
-import { useAuth } from "../../contexts/AuthProvider";
-import { useChatContext } from "../../contexts/ChatContext"
 import MessageBubble from "./MessageBubble"
-import { React, memo, useMemo, useCallback } from "react";
+import { React, memo, useMemo, useCallback, useRef } from "react";
 
-const MessageGroup = memo(({ group, message }) => {
-    const { selectedMessage, setSelectedMessage } = useChatContext();
-    const { user } = useAuth();
+const MessageGroup = memo(({ group, user }) => {
+    // Destructure group properties early
+    const { sender, profilePicture, rawDateTime, createdAt, messages } = group;
 
     // Memoize the class calculation
     const containerClass = useMemo(() => {
@@ -14,23 +12,16 @@ const MessageGroup = memo(({ group, message }) => {
 
     // Memoize the message rendering
     const renderedMessages = useMemo(() => {
-        return group.messages.map((message) => (
-            <MessageBubble 
-                key={message._id}
-                message={message}
-                selectedMessage={selectedMessage}
-                setSelectedMessage={setSelectedMessage}
-                user={user}
-            />
+        return messages.map((message) => (
+            <MessageBubble key={message._id} message={message} user={user}/>
         ));
-    }, [group.messages, selectedMessage, setSelectedMessage, user]);
-
+    }, [messages, user])
 
     return (
         <li className={containerClass}>
-            <img src={`/${group.profilePicture}`} alt={`${group.sender}'s profile picture`} />
+            <img src={`/${profilePicture}`} alt={`${sender}'s profile picture`} />
             <div className="message-group">
-                <time dateTime={group.rawDateTime}>{group.createdAt}</time>
+                <time dateTime={rawDateTime}>{createdAt}</time>
                 <div className="messages">
                     {renderedMessages}
                 </div>

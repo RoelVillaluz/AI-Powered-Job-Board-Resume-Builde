@@ -1,7 +1,9 @@
+import { useAuth } from "../../contexts/AuthProvider";
 import MessageBubble from "./MessageBubble"
 import { React, memo, useMemo, useCallback, useRef } from "react";
 
-const MessageGroup = memo(({ group, user }) => {
+const MessageGroup = memo(({ group}) => {
+    const { user } = useAuth();
     // Destructure group properties early
     const { sender, profilePicture, rawDateTime, createdAt, messages } = group;
 

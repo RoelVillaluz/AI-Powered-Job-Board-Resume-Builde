@@ -103,10 +103,7 @@ function ChatsPage() {
                                     messages.map((group, groupIndex) => (
                                         <MessageGroup 
                                             group={group} 
-                                            key={groupIndex} 
-                                            selectedMessage={selectedMessage}
-                                            setSelectedMessage={setSelectedMessage}
-                                            user={user}
+                                            key={groupIndex}
                                         />
                                     ))
                                 )}

@@ -92,6 +92,8 @@ function ChatsPage() {
                         user={user}
                         currentConversation={currentConversation} 
                         showComposeMessage={showComposeMessage}
+                        currentReceiver={currentReceiver}
+                        setCurrentReceiver={setCurrentReceiver}
                     />
 
                     <div className="messages-container">

@@ -1,34 +1,30 @@
-import React from "react";
 import { useEffect, useState } from "react"
 import Layout from "../components/Layout"
 import { useAuth } from "../contexts/AuthProvider.jsx"
 import { useData } from "../contexts/DataProvider.jsx";
 import { useChatContext } from "../contexts/ChatContext.jsx";
-import axios from "axios";
 import MessageConfirmationModal from "../components/MessageConfirmationModal";
 import { useSocket } from "../hooks/useSocket.js"; 
-import { createMessageHandlers, messageUtils, groupMessages, shouldGroupByTime } from "../components/utils/messageUtils";
 import { formatDate } from "../components/utils/dateUtils.js";
 import MessageGroup from "../components/Chat/MessageGroup";
 import { useConversations } from "../hooks/chats/useConversations.jsx"
-import { useUserSearch } from "../hooks/chats/useUserSearch.jsx"
 import { useMessageOperations } from "../hooks/chats/useMessageOperations.jsx";
 import ChatSidebar from "../components/Chat/ChatSidebar.jsx";
 import TypingBar from "../components/Chat/TypingBar.jsx";
 import ChatResources from "../components/Chat/ChatResources.jsx";
+import ChatWindowHeader from "../components/Chat/ChatWindowHeader.jsx";
 
 function ChatsPage() {
     const { baseUrl } = useData();
     const { user } = useAuth();
     const socket = useSocket(); 
-    const { showConfirmationModal, handleShowConfirmationModal, editMode, setEditMode, selectedMessage, setSelectedMessage } = useChatContext();
+    const { showConfirmationModal, handleShowConfirmationModal, selectedMessage, setSelectedMessage } = useChatContext();
 
     const [currentReceiver, setCurrentReceiver] = useState(null);
     const [showComposeMessage, setShowComposeMessage] = useState(false);
 
     // Use custom hooks
     const { conversations, setConversations, currentConversation, setCurrentConversation } = useConversations(baseUrl, user?._id)
-    const { searchReceiverQuery, setSearchReceiverQuery, searchReceiverResults } = useUserSearch(baseUrl)
     const {
         messages,
         setMessages,
@@ -91,61 +87,13 @@ function ChatsPage() {
 
                 {/* Current Chat Window */}
                 <section className="chat-window">
-                    {(currentConversation && !showComposeMessage) ? (
-                        <header>
-                            <div className="user">
-                                <img src={currentConversation.receiver.profilePicture} alt="" />
-                                <address>
-                                    <strong>{currentConversation.receiver.name}</strong>
-                                    <span>{currentConversation.receiver.email}</span>
-                                </address>
-                            </div>
-                            <div className="actions">
-                                <i className="fa-solid fa-phone"></i>
-                                <i className="fa-solid fa-video"></i>
-                                <i className="fa-solid fa-ellipsis"></i>
-                            </div>
-                        </header>
-                    ) : (
-                        <header className="compose-message">
-                            <h1>New Message</h1>
-                            <div className="send-to">
-                                <label>To:</label>
-                                {formData.receiver === '' ? (
-                                    <input type="text" placeholder="Search for a name" value={searchReceiverQuery} onChange={(e) => setSearchReceiverQuery(e.target.value)}/>
-                                ) : (
-                                    <div className="selected-receiver">
-                                        <img src={currentReceiver.profilePicture} alt={`${currentReceiver.name}'s profile picture`} />
-                                        <strong>{currentReceiver.name}</strong>
-                                        <button className="remove-receiver-btn" onClick={() => {
-                                            handleChange("receiver", "")
-                                            setCurrentReceiver(null)
-                                        }}>
-                                            <i className="fa-solid fa-xmark"></i>
-                                        </button>
-                                    </div>
-                                )}
 
-                                {searchReceiverResults.length > 0 && ( 
-                                    <ul className="results">
-                                        {searchReceiverResults.filter(r => r._id !== user._id).map((result, index) => (
-                                            <li key={index}>
-                                                <button onClick={() => {
-                                                        handleChange("receiver", result._id)
-                                                        setCurrentReceiver(result)
-                                                        setSearchReceiverQuery('')
-                                                    }}>
-                                                    <img src={result.profilePicture} alt={`${result.name}'s profile picture`} />
-                                                    <strong>{result.name}</strong>
-                                                </button>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                )} 
+                    <ChatWindowHeader 
+                        user={user}
+                        currentConversation={currentConversation} 
+                        showComposeMessage={showComposeMessage}
+                    />
 
-                            </div>
-                        </header>
-                    )}
                     <div className="messages-container">
                         {!showComposeMessage && (
                             <ul>
@@ -163,6 +111,7 @@ function ChatsPage() {
                             </ul>
                         )}
                     </div>
+                    
                     <TypingBar 
                         handleFormSubmit={handleFormSubmit}
                         handleEditMessage={handleEditMessage}

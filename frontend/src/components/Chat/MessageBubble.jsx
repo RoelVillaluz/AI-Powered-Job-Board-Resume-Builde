@@ -1,8 +1,11 @@
 import React, { memo, useMemo, useCallback } from "react"
 import { useChatContext } from "../../contexts/ChatContext"
 import { formatDate } from "../utils/dateUtils";
+import MessageActions from "./MessageActions";
+
 const MessageBubble = (({ message ,selectedMessage, setSelectedMessage, user }) => {
 
+    const { handleMessageButtonAction }= useChatContext();
 
     // Memoize computed values
     const isSelected = useMemo(() => {
@@ -30,6 +33,15 @@ const MessageBubble = (({ message ,selectedMessage, setSelectedMessage, user }) 
         }
     }, [isSelected, selectedMessage, message])
 
+    // Memoize button handlers
+    const handleEdit = useCallback((e) => {
+        handleMessageButtonAction(e, "edit", message)
+    }, [handleMessageButtonAction, message])
+
+    const handleDelete = useCallback((e) => {
+        handleMessageButtonAction(e, "delete", message)
+    }, [handleMessageButtonAction, message]);
+
     return (
         <React.Fragment key={message._id}>
             {formattedEditTime && (
@@ -37,32 +49,14 @@ const MessageBubble = (({ message ,selectedMessage, setSelectedMessage, user }) 
                     Edited on {formattedEditTime}
                 </time>
             )}
-            <div className="message-bubble"
-                onClick={() => {
-                    if (selectedMessage?._id === message._id) {
-                        setSelectedMessage(null)
-                    } else {
-                        setSelectedMessage(message)
-                    }
-                }}
-            >
+            <div className="message-bubble" onClick={handleMessageClick}>
                 <span>{message.content}</span>
-                <div className={`${selectedMessage?._id === message._id ? 'actions visible': 'actions'}`}>
-                    {message.sender._id === user._id ? (
-                        <>
-                        <button id="edit-message-btn" onClick={(e) => handleMessageButtonAction(e, "edit", message)}>
-                            <i className="fa-solid fa-pen-to-square"></i>
-                        </button>
-                        <button className="negative" id="delete-message-btn" onClick={(e) => handleMessageButtonAction(e, "delete", message)}>
-                            <i className="fa-solid fa-trash"></i>
-                        </button>
-                        </>
-                    ) : (
-                        <button className="negative" id="report-message-btn">
-                            <i className="fa-solid fa-bullhorn"></i>
-                        </button>
-                    )}
-                </div>
+                <MessageActions
+                    isVisible={isSelected}
+                    isOwnMessage={isOwnMessage}
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
+                />
             </div>
         </React.Fragment>
     )

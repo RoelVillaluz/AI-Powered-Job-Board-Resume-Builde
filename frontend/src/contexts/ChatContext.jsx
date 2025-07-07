@@ -19,6 +19,13 @@ export const ChatProvider = ({ children }) => {
         content: '',
     });
 
+    const handleChange = useCallback((name, value) => {
+        setFormData(prev => ({
+            ...prev,
+            [name]: value
+        }));
+    }, []);
+
     const handleShowConfirmationModal = useCallback(() => {
         setShowConfirmationModal((prev) => !prev);
     }, []);
@@ -61,6 +68,7 @@ export const ChatProvider = ({ children }) => {
                 setFormData,
                 handleMessageButtonAction,
                 handleShowConfirmationModal,
+                handleChange,
             }}
         >
             {children}

@@ -11,7 +11,8 @@ export const useMessageOperations = ({ baseUrl, user, socket, currentConversatio
         editMode,
         setEditMode,
         formData,
-        setFormData
+        setFormData,
+        handleChange
     } = useChatContext();
 
     const [messages, setMessages] = useState([]);
@@ -25,13 +26,6 @@ export const useMessageOperations = ({ baseUrl, user, socket, currentConversatio
             setMessages(groupMessages(currentConversation.messages));
         }
     }, [currentConversation]);
-
-    const handleChange = useCallback((name, value) => {
-        setFormData(prev => ({
-            ...prev,
-            [name]: value
-        }));
-    }, []);
 
     const updateConversationsList = useCallback((newMessage, isEdit = false) => {
         if (!currentConversation?._id) return;

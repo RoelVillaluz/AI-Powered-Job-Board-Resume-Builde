@@ -3,9 +3,9 @@ import { useChatContext } from "../../contexts/ChatContext"
 import { formatDate } from "../utils/dateUtils";
 import MessageActions from "./MessageActions";
 
-const MessageBubble = (({ message ,selectedMessage, setSelectedMessage, user }) => {
+const MessageBubble = (({ message, user }) => {
+    const { handleMessageButtonAction, selectedMessage, setSelectedMessage } = useChatContext();
 
-    const { handleMessageButtonAction }= useChatContext();
 
     // Memoize computed values
     const isSelected = useMemo(() => {

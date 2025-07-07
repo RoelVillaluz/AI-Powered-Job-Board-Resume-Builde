@@ -1,4 +1,11 @@
-function ChatSidebar({ user, currentConversation, setCurrentConversation, conversations, setShowComposeMessage, setCurrentReceiver, handleChange, formatDate }) {
+import { useCallback, useMemo } from "react";
+import { formatDate } from "../utils/dateUtils"
+    const handleShowComposeHeader = useCallback(() => {
+        setShowComposeMessage((prev) => !prev)
+        setCurrentReceiver(null)
+        handleChange("receiver", "")
+    }, [setShowComposeMessage, setCurrentReceiver, handleChange]);
+
     return (
         <aside id="chat-sidebar">
 
@@ -31,11 +38,7 @@ function ChatSidebar({ user, currentConversation, setCurrentConversation, conver
                 <div className="row">
                     <h4>Last Messages</h4>
                     <div className="actions">
-                        <button id="show-compose-message-btn" onClick={() => {
-                            setShowComposeMessage((prev) => !prev)
-                            setCurrentReceiver(null)
-                            handleChange("receiver", "")
-                        }}>
+                        <button id="show-compose-message-btn" onClick={handleShowComposeHeader}>
                             <i className="fa-solid fa-plus"></i> 
                         </button>
                         <i className="fa-solid fa-ellipsis-vertical"></i>

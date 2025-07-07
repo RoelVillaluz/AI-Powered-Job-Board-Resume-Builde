@@ -35,39 +35,42 @@ function ChatWindowHeader({ user, currentConversation, showComposeMessage, curre
                 </div>
             </header>
         )
-    }
-
-    <header className="compose-message">
-        <h1>New Message</h1>
-        <div className="send-to">
-            <label>To:</label>
-            {formData.receiver === '' ? (
-                <input type="text" placeholder="Search for a name" value={searchReceiverQuery} onChange={(e) => setSearchReceiverQuery(e.target.value)}/>
-            ) : (
-                <div className="selected-receiver">
-                    <img src={currentReceiver.profilePicture} alt={`${currentReceiver.name}'s profile picture`} />
-                    <strong>{currentReceiver.name}</strong>
+    } else {
+        return (
+            <header className="compose-message">
+                <h1>New Message</h1>
+                <div className="send-to">
+                    <label>To:</label>
+                    {formData.receiver === '' ? (
+                        <input type="text" placeholder="Search for a name" value={searchReceiverQuery} onChange={(e) => setSearchReceiverQuery(e.target.value)}/>
+                    ) : (
+                        <div className="selected-receiver">
+                            <img src={currentReceiver.profilePicture} alt={`${currentReceiver.name}'s profile picture`} />
+                            <strong>{currentReceiver.name}</strong>
                             <button className="remove-receiver-btn" onClick={() => handleRemoveReceiver()}>
                                 <i className="fa-solid fa-xmark"></i>
-                    </button>
-                </div>
-            )}
+                            </button>
+                        </div>
+                    )}
 
-            {searchReceiverResults.length > 0 && ( 
-                <ul className="results">
-                    {searchReceiverResults.filter(r => r._id !== user._id).map((result, index) => (
-                        <li key={index}>
+                    {searchReceiverResults.length > 0 && ( 
+                        <ul className="results">
+                            {searchReceiverResults.filter(r => r._id !== user._id).map((result, index) => (
+                                <li key={index}>
                                     <button onClick={() => handleReceiverSelect(result)}>
                                         <img src={result.profilePicture} alt={`${result.name}'s profile picture`} />
-                                <strong>{result.name}</strong>
-                            </button>
-                        </li>
-                    ))}
-                </ul>
-            )} 
+                                        <strong>{result.name}</strong>
+                                    </button>
+                                </li>
+                            ))}
+                        </ul>
+                    )} 
 
-        </div>
-    </header>
+                </div>
+            </header>
+        )
+    }
+    
 }
 
 export default ChatWindowHeader

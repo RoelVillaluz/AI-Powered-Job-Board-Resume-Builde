@@ -113,7 +113,7 @@ function ChatsPage() {
                             </ul>
                         )}
                     </div>
-                    
+
                     <TypingBar 
                         handleFormSubmit={handleFormSubmit}
                         handleEditMessage={handleEditMessage}

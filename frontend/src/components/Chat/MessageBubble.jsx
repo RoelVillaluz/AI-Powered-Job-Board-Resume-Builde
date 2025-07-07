@@ -2,10 +2,16 @@ import React, { memo, useMemo, useCallback } from "react"
 import { useChatContext } from "../../contexts/ChatContext"
 import { formatDate } from "../utils/dateUtils";
 import MessageActions from "./MessageActions";
+import { useAuth } from "../../contexts/AuthProvider";
 
 const MessageBubble = (({ message, user }) => {
     const { handleMessageButtonAction, selectedMessage, setSelectedMessage } = useChatContext();
 
+    if (process.env.NODE_ENV === 'development') {
+        const renderCount = React.useRef(0);
+        renderCount.current++;
+        console.log(`MessageBubble ${message._id} rendered ${renderCount.current} times`);
+    }
 
     // Memoize computed values
     const isSelected = useMemo(() => {

@@ -3,6 +3,7 @@ import { useChatContext } from "../../contexts/ChatContext";
 function TypingBar({ handleFormSubmit, handleEditMessage, handleChange }) {
     const { formData, setFormData, selectedMessage, setSelectedMessage, editMode, setEditMode } = useChatContext();
 
+
     return (
         <form className='typing-bar' onSubmit={(e) => {
             e.preventDefault();
@@ -32,7 +33,7 @@ function TypingBar({ handleFormSubmit, handleEditMessage, handleChange }) {
                         Cancel
                     </button>
                 )}
-                <button className="send-message-btn">
+                <button className="send-message-btn" disabled={!formData.content.trim()}>
                     <i className="fa-solid fa-paper-plane"></i>
                 </button>
             </div>

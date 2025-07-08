@@ -31,7 +31,7 @@ function ChatSidebar({ user, currentConversation, setCurrentConversation, conver
                             <div className="skeleton circle"></div>
                             <div className="skeleton rectangle"></div>
                         </>
-                    ) : currentConversation ? (
+                    ) : currentConversation && (
                             <>
                                 <figure className="user-avatar">
                                 <img
@@ -43,9 +43,7 @@ function ChatSidebar({ user, currentConversation, setCurrentConversation, conver
                                 <h1>{currentConversation.receiver.name}</h1>
                                 <h3 className="status-text active">Online</h3>
                             </>
-                    ) : (
-                    <h3>No conversation selected.</h3>
-                )}
+                    )}
             </section>
 
 
@@ -73,12 +71,15 @@ function ChatSidebar({ user, currentConversation, setCurrentConversation, conver
                     </div>
                 </div>
 
-                <ConversationList
-                    filteredConvos={filteredConvos}
-                    user={user}
-                    currentConversation={currentConversation}
-                    onConversationClick={handleConversationClick}
-                />
+                {
+                    <ConversationList
+                        filteredConvos={filteredConvos}
+                        user={user}
+                        currentConversation={currentConversation}
+                        onConversationClick={handleConversationClick}
+                        loading={loading}
+                    />
+                }
                 
             </section>
 

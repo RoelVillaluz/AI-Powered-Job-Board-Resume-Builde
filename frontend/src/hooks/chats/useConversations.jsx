@@ -4,9 +4,11 @@ import axios from "axios";
 export const useConversations = (baseUrl, userId) => {
     const [conversations, setConversations] = useState([]);
     const [currentConversation, setCurrentConversation] = useState(null);
+    const [loading, setLoading] = useState(true)
 
     useEffect(() => {
         const fetchUserConversations = async () => {
+
             try {
                 const response = await axios.get(`${baseUrl}/conversations/user/${userId}`)
                 const fetchedConversations = response.data.data;
@@ -25,12 +27,18 @@ export const useConversations = (baseUrl, userId) => {
                 console.log('User conversations: ', fetchedConversations)
             } catch (error) {
                 console.log('Error fetching conversations')
+            } finally {
+                // setLoading(false)
+                console.log('Loading: False')
             }
+
         }
+
         if (userId) {
             fetchUserConversations();
         }
+
     }, [baseUrl, userId])
 
-    return { conversations, setConversations, currentConversation, setCurrentConversation };
+    return { conversations, setConversations, currentConversation, setCurrentConversation, loading, setLoading };
 }

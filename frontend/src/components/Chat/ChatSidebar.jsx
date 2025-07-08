@@ -24,28 +24,10 @@ function ChatSidebar({ user, currentConversation, setCurrentConversation, conver
                 <h1>My Chats</h1>
             </header>
 
-            <section id="user-summary">
-                <i className="fa-solid fa-gear"></i>
-                {loading ? (
-                        <>
-                            <div className="skeleton circle"></div>
-                            <div className="skeleton rectangle"></div>
-                        </>
-                    ) : currentConversation && (
-                            <>
-                                <figure className="user-avatar">
-                                <img
-                                    src={currentConversation.receiver.profilePicture}
-                                    alt={`${currentConversation.receiver.name}'s profile picture`}
-                                />
-                                <span className="status-circle active"></span>
-                                </figure>
-                                <h1>{currentConversation.receiver.name}</h1>
-                                <h3 className="status-text active">Online</h3>
-                            </>
-                    )}
-            </section>
-
+            <UserSummary 
+                currentConversation={currentConversation}
+                loading={loading}
+            />
 
             <section id="search-message">
                 <div className="message-search-bar">

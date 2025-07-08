@@ -28,7 +28,7 @@ export const useConversations = (baseUrl, userId) => {
             } catch (error) {
                 console.log('Error fetching conversations')
             } finally {
-                // setLoading(false)
+                setLoading(false)
                 console.log('Loading: False')
             }
 

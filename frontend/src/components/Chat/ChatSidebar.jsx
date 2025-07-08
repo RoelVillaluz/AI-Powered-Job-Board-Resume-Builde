@@ -2,6 +2,7 @@ import { useCallback, useMemo, useRef, useEffect } from "react";
 import { formatDate } from "../utils/dateUtils"
 import { useConversationSearch } from "../../hooks/chats/useConversationSearch";
 import ConversationList from "./ConversationList";
+import UserSummary from "./UserSummary";
 
 function ChatSidebar({ user, currentConversation, setCurrentConversation, conversations, setShowComposeMessage, setCurrentReceiver, handleChange, loading }) {
     const { searchConversationQuery, setSearchConversationQuery, filteredConvos } = useConversationSearch(conversations, user);
@@ -10,11 +11,11 @@ function ChatSidebar({ user, currentConversation, setCurrentConversation, conver
         setShowComposeMessage((prev) => !prev)
         setCurrentReceiver(null)
         handleChange("receiver", "")
-    }, []); // Empty dependencies since these should be stable
+    }, [setShowComposeMessage, setCurrentReceiver, handleChange]);
 
     const handleConversationClick = useCallback((convo) => {
         setCurrentConversation(convo);
-    }, []); // Empty dependency since setCurrentConversation should be stable
+    }, [setCurrentConversation]);
 
     return (
         <aside id="chat-sidebar">
@@ -53,15 +54,15 @@ function ChatSidebar({ user, currentConversation, setCurrentConversation, conver
                     </div>
                 </div>
 
-                {
-                    <ConversationList
-                        filteredConvos={filteredConvos}
-                        user={user}
-                        currentConversation={currentConversation}
-                        onConversationClick={handleConversationClick}
-                        loading={loading}
-                    />
-                }
+                
+                <ConversationList
+                    filteredConvos={filteredConvos}
+                    user={user}
+                    currentConversation={currentConversation}
+                    onConversationClick={handleConversationClick}
+                    loading={loading}
+                />
+                
                 
             </section>
 

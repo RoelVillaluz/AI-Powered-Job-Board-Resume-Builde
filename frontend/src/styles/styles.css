@@ -2033,6 +2033,11 @@ button {
     gap: 1.75rem;
 }
 
+#chat-list .actions button {
+    border: none;
+    outline: none;
+}
+
 #chat-list i {
     color: rgb(170, 170, 170);
     cursor: pointer;
@@ -2041,6 +2046,7 @@ button {
 #chat-list ul {
     display: flex;
     flex-direction: column;
+    gap: 0.5rem;
     list-style-type: none;
     margin-top: 2rem;
     width: 100%;
@@ -2057,7 +2063,9 @@ button {
     transition: 0.3s;
 }
 
-#chat-list .message-preview:hover {
+#chat-list .message-preview:hover,
+#chat-list .message-preview.current
+{
     background-color: rgb(235, 235, 235);
 }
 
@@ -2617,10 +2625,6 @@ button {
 
 .message-confirmation-modal h2 {
     font-size: clamp(1.5rem, 1.5vw, 4rem);
-}
-
-.message-confirmation-modal p {
-    color: rgb(110, 110, 110);
 }
 
 .message-confirmation-modal .actions {

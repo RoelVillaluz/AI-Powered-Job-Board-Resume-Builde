@@ -3,7 +3,7 @@ import { formatDate } from "../utils/dateUtils"
 import { useConversationSearch } from "../../hooks/chats/useConversationSearch";
 import ConversationList from "./ConversationList";
 
-function ChatSidebar({ user, currentConversation, setCurrentConversation, conversations, setShowComposeMessage, setCurrentReceiver, handleChange }) {
+function ChatSidebar({ user, currentConversation, setCurrentConversation, conversations, setShowComposeMessage, setCurrentReceiver, handleChange, loading }) {
     const { searchConversationQuery, setSearchConversationQuery, filteredConvos } = useConversationSearch(conversations, user);
 
     const handleShowComposeHeader = useCallback(() => {
@@ -24,17 +24,30 @@ function ChatSidebar({ user, currentConversation, setCurrentConversation, conver
                 <h1>My Chats</h1>
             </header>
 
-            {currentConversation && (
-                <section id="user-summary">
-                    <i className="fa-solid fa-gear"></i>
-                    <figure className="user-avatar">
-                        <img src={currentConversation.receiver.profilePicture} alt={`${currentConversation.receiver.name}'s profile picture`} />
-                        <span className="status-circle active"></span>
-                    </figure>
-                    <h1>{currentConversation.receiver.name}</h1>
-                    <h3 className="status-text active">Online</h3>
-                </section>
-            )}
+            <section id="user-summary">
+                <i className="fa-solid fa-gear"></i>
+                {loading ? (
+                        <>
+                            <div className="skeleton circle"></div>
+                            <div className="skeleton rectangle"></div>
+                        </>
+                    ) : currentConversation ? (
+                            <>
+                                <figure className="user-avatar">
+                                <img
+                                    src={currentConversation.receiver.profilePicture}
+                                    alt={`${currentConversation.receiver.name}'s profile picture`}
+                                />
+                                <span className="status-circle active"></span>
+                                </figure>
+                                <h1>{currentConversation.receiver.name}</h1>
+                                <h3 className="status-text active">Online</h3>
+                            </>
+                    ) : (
+                    <h3>No conversation selected.</h3>
+                )}
+            </section>
+
 
             <section id="search-message">
                 <div className="message-search-bar">

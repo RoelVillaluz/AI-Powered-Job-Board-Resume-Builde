@@ -5,7 +5,6 @@ import { useData } from "../contexts/DataProvider.jsx";
 import { useChatContext } from "../contexts/ChatContext.jsx";
 import MessageConfirmationModal from "../components/MessageConfirmationModal";
 import { useSocket } from "../hooks/useSocket.js"; 
-import { formatDate } from "../components/utils/dateUtils.js";
 import MessageGroup from "../components/Chat/MessageGroup";
 import { useConversations } from "../hooks/chats/useConversations.jsx"
 import { useMessageOperations } from "../hooks/chats/useMessageOperations.jsx";
@@ -24,7 +23,7 @@ function ChatsPage() {
     const [showComposeMessage, setShowComposeMessage] = useState(false);
 
     // Use custom hooks
-    const { conversations, setConversations, currentConversation, setCurrentConversation } = useConversations(baseUrl, user?._id)
+    const { conversations, setConversations, currentConversation, setCurrentConversation, loading, setLoading } = useConversations(baseUrl, user?._id)
     const {
         messages,
         setMessages,
@@ -82,7 +81,7 @@ function ChatsPage() {
                     setShowComposeMessage={setShowComposeMessage}
                     setCurrentReceiver={setCurrentReceiver}
                     handleChange={handleChange}
-                    formatDate={formatDate}
+                    loading={loading}
                 />
 
                 {/* Current Chat Window */}

@@ -76,6 +76,18 @@
     width: 100%;
 }
 
+#chat-sidebar .skeleton.circle {
+    width: clamp(2.5rem, 8vw, 10rem);
+    height: clamp(2.5rem, 8vw, 10rem);
+    margin: 0 auto;
+}
+
+#chat-sidebar .skeleton.skeleton.rectangle {
+    height: clamp(1rem, 1.5vw, 3rem);
+    width: 50%;
+    margin-top: 0.5rem;
+}
+
 @keyframes skeleton-shimmer {
     0% {
       left: -150px;

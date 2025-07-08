@@ -55,31 +55,12 @@ function ChatSidebar({ user, currentConversation, setCurrentConversation, conver
                     </div>
                 </div>
 
-                <ul>
-                    {filteredConvos.map((convo) => {
-                        const receiver = convo.users.find((u) => u._id !== user._id);
-                        const lastMessage = convo.messages.at(-1);
-                        const isCurrentConvo = currentConversation?._id === convo._id;
-                        const convoClass = isCurrentConvo ? 'current' : '';
-
-                        return (
-                        <li className={`message-preview ${convoClass}`} key={convo._id} onClick={() => setCurrentConversation(convo)}>
-                            <img src={receiver.profilePicture} alt={receiver.profilePicture} />
-                            <div className="message-details">
-                            <div className="row">
-                                <strong>{receiver.name}</strong>
-                                <time dateTime={lastMessage.createdAt}>
-                                {formatDate(lastMessage.updatedAt ?? lastMessage.createdAt, "short", true)}
-                                </time>
-                            </div>
-                            <span className="message-content">
-                                {`${lastMessage.sender._id === user._id ? 'You: ' : ''}${lastMessage.content}`}
-                            </span>
-                            </div>
-                        </li>
-                        )
-                    })}
-                </ul>
+                <ConversationList
+                    filteredConvos={filteredConvos}
+                    user={user}
+                    currentConversation={currentConversation}
+                    onConversationClick={handleConversationClick}
+                />
                 
             </section>
 

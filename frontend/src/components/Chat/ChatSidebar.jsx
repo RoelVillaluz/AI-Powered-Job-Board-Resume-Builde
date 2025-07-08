@@ -1,6 +1,7 @@
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useRef, useEffect } from "react";
 import { formatDate } from "../utils/dateUtils"
 import { useConversationSearch } from "../../hooks/chats/useConversationSearch";
+import ConversationList from "./ConversationList";
 
 function ChatSidebar({ user, currentConversation, setCurrentConversation, conversations, setShowComposeMessage, setCurrentReceiver, handleChange }) {
     const { searchConversationQuery, setSearchConversationQuery, filteredConvos } = useConversationSearch(conversations, user);
@@ -9,7 +10,11 @@ function ChatSidebar({ user, currentConversation, setCurrentConversation, conver
         setShowComposeMessage((prev) => !prev)
         setCurrentReceiver(null)
         handleChange("receiver", "")
-    }, [setShowComposeMessage, setCurrentReceiver, handleChange]);
+    }, []); // Empty dependencies since these should be stable
+
+    const handleConversationClick = useCallback((convo) => {
+        setCurrentConversation(convo);
+    }, []); // Empty dependency since setCurrentConversation should be stable
 
     return (
         <aside id="chat-sidebar">

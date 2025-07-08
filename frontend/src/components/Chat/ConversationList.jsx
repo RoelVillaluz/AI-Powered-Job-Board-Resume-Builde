@@ -3,14 +3,6 @@ import { formatDate } from "../utils/dateUtils";
 
 // Individual conversation item component
 const ConversationItem = memo(({ convo, user, currentConversation, onConversationClick, loading }) => {
-    
-    if (!loading) {
-        const receiver = convo.users.find((u) => u._id !== user._id);
-        const lastMessage = convo.messages.at(-1);
-        const isCurrentConvo = currentConversation?._id === convo._id;
-        const convoClass = isCurrentConvo ? 'current' : '';
-    }
-
     const handleClick = useCallback(() => {
         onConversationClick(convo)
     }, [convo, onConversationClick])
@@ -27,9 +19,31 @@ const ConversationItem = memo(({ convo, user, currentConversation, onConversatio
         )
     }
 
+    // Early return if required data is missing
+    if (!convo?.users || !convo?.messages || !user) {
+        return null;
+    }
+
+    const receiver = convo.users.find((u) => u._id !== user._id);
+    const lastMessage = convo.messages.at(-1);
+    
+    // Additional safety checks
+    if (!receiver || !lastMessage) {
+        return null;
+    }
+
+    const isCurrentConvo = currentConversation?._id === convo._id;
+    const convoClass = isCurrentConvo ? 'current' : '';
+
     return (
         <li className={`message-preview ${convoClass}`} onClick={handleClick}>
-            <img src={receiver.profilePicture} alt={receiver.profilePicture} />
+            <img 
+                src={receiver.profilePicture} 
+                alt={`${receiver.name}'s profile`} 
+                onError={(e) => {
+                    e.target.src = '/default-avatar.png'; // Fallback image
+                }}
+            />
             <div className="message-details">
                 <div className="row">
                     <strong>{receiver.name}</strong>
@@ -43,8 +57,7 @@ const ConversationItem = memo(({ convo, user, currentConversation, onConversatio
             </div>
         </li>
     );
-
-})
+});
 
 ConversationItem.displayName = 'ConversationItem';
 
@@ -60,6 +73,12 @@ const ConversationList = memo(({ filteredConvos, user, currentConversation, onCo
             </ul>
         );
     }
+
+    if (!filteredConvos) {
+        return (
+            <p>No conversations found</p>
+        )
+    }
     
     return (
         <ul>
@@ -70,7 +89,7 @@ const ConversationList = memo(({ filteredConvos, user, currentConversation, onCo
                     user={user}
                     currentConversation={currentConversation}
                     onConversationClick={onConversationClick}
-                    loading={loading}
+                    loading={false} // Explicitly pass false when not loading
                 />
             ))}
         </ul>

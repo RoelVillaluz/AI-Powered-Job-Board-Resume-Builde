@@ -1950,7 +1950,7 @@ button {
     cursor: pointer;
 }
 
-#chat-sidebar .status-circle {
+#chat-sidebar #user-summary .status-circle {
     position: absolute;
     bottom: 10%;
     right: 10%;
@@ -1961,7 +1961,7 @@ button {
     outline: solid 2px white;
 }
 
-#chat-sidebar .status-circle.active {
+#chat-sidebar #user-summary .status-circle.online {
     background-color: var(--success);
 }
 
@@ -1980,7 +1980,7 @@ button {
     font-weight: 600;
 }
 
-#chat-sidebar #user-summary .status-text.active {
+#chat-sidebar #user-summary .status-text.online {
     background-color: rgb(211, 250, 239);
     color: rgb(0, 163, 122);
 }
@@ -2069,11 +2069,26 @@ button {
     background-color: rgb(235, 235, 235);
 }
 
+#chat-list .message-preview figure {
+    position: relative;
+}
+
 #chat-list .message-preview img {
     width: clamp(3rem, 2vw, 6rem);
     aspect-ratio: 1 / 1;
     object-fit: cover;
     border-radius: 50%;
+}
+
+#chat-list .message-preview .status-circle.online {
+    position: absolute;
+    right: 2px;
+    bottom: 8px;
+    width: 8px;
+    aspect-ratio: 1 / 1;
+    border-radius: 50%;
+    outline: solid 1px white;
+    background-color: var(--success);
 }
 
 #chat-list .message-preview .message-details {

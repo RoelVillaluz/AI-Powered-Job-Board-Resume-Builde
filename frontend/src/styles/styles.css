@@ -2122,13 +2122,17 @@ button {
 
 #chat-list .message-preview .message-content  {
     display: inline-block;
-    color: rgb(150, 150, 150);
+    color: black;
     font-size: clamp(0.75rem, 0.75vw, 2rem);
     font-weight: 500;
     max-width: 75%;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
+}
+
+#chat-list .message-preview .message-content.seen {
+    color: rgb(150, 150, 150);
 }
 
 .chat-window {

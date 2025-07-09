@@ -32,6 +32,10 @@ const ConversationItem = memo(({ convo, user, currentConversation, onConversatio
     }, [convo.users, user._id])
 
     const lastMessage = convo.messages.at(-1);
+
+    const isSeen = useMemo(() => {
+        return lastMessage.seen
+    }, [lastMessage.seen])
     
     // Additional safety checks
     if (!receiver || !lastMessage) {
@@ -66,7 +70,7 @@ const ConversationItem = memo(({ convo, user, currentConversation, onConversatio
                         {formatDate(lastMessage.updatedAt ?? lastMessage.createdAt, "short", true)}
                     </time>
                 </div>
-                <span className="message-content">
+                <span className={`message-content ${isSeen ? 'seen' : ''}`}>
                     {`${lastMessage.sender._id === user._id ? 'You: ' : ''}${lastMessage.content}`}
                 </span>
             </div>

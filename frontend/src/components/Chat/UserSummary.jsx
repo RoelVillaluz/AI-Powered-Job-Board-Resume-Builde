@@ -5,6 +5,8 @@ const UserSummary = memo(({ currentConversation, loading }) => {
     const { onlineUsers } = useSocket();
 
     const isOnline = useMemo(() => {
+        if (!currentConversation || !currentConversation.receiver) return false;
+
         return onlineUsers.has(currentConversation.receiver._id)
     }, [onlineUsers, currentConversation])
 

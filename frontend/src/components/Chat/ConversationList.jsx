@@ -24,7 +24,10 @@ const ConversationItem = memo(({ convo, user, currentConversation, onConversatio
         return null;
     }
 
-    const receiver = convo.users.find((u) => u._id !== user._id);
+    const receiver = useMemo(() => {
+        return convo.users.find((u) => u._id !== user._id);
+    }, [convo.users, user._id])
+
     const lastMessage = convo.messages.at(-1);
     
     // Additional safety checks

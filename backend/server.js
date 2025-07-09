@@ -51,8 +51,19 @@ const io = new Server(server, {
     }
 });
 
+const connectedUsers = {}
+
 // Socket.IO connection logic
 io.on("connection", (socket) => {
+    const { userId } = socket.handshake.auth;
+
+    if (userId) {
+        connectedUsers[userId] = socket.id;
+        io.emit('user-online', userId) // Notify all clients
+
+        console.log(`${userId} connected with socket ID: ${socket.id}`) 
+    }
+
     console.log(`User connected: ${socket.id}`);
 
     // Join user's personal room
@@ -62,6 +73,12 @@ io.on("connection", (socket) => {
     });
 
     socket.on("disconnect", () => {
+
+        if (userId) {
+            delete connectedUsers[userId];
+            io.emit('user-offline', userId) // Notify all clients
+        }
+
         console.log(`User disconnected: ${socket.id}`);
     });
 

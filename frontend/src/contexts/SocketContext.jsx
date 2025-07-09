@@ -9,11 +9,11 @@ export const SocketProvider = ({ children }) => {
   const { user } = useAuth();
   const socketUrl = "http://localhost:5000";
   const [connected, setConnected] = useState(false);
+  const [onlineUsers, setOnlineUsers] = useState(new Set());
 
   // Connect to socket server when user + socketUrl available
   useEffect(() => {
     if (!user || !user._id || !socketUrl) {
-      // Clean up if user logs out or url not ready
       if (socketRef.current) {
         console.log('Disconnecting socket since user is unavailable.');
         socketRef.current.disconnect();
@@ -23,7 +23,6 @@ export const SocketProvider = ({ children }) => {
       return;
     }
 
-    // Initialize socket connection
     console.log('Initializing socket connection...', { socketUrl, userId: user._id });
 
     const socket = io(socketUrl, {
@@ -49,7 +48,6 @@ export const SocketProvider = ({ children }) => {
       setConnected(false);
     });
 
-    // Cleanup on unmount
     return () => {
       if (socket) {
         console.log('Cleaning up socket connection...');
@@ -58,7 +56,7 @@ export const SocketProvider = ({ children }) => {
     };
   }, [socketUrl, user?._id, user?.name]);
 
-  // Emit join-user-room event when both socket and user ready
+  // Emit join-user-room event
   useEffect(() => {
     if (socketRef.current && user && user._id && connected) {
       console.log('Joining room for user:', user._id);
@@ -66,8 +64,41 @@ export const SocketProvider = ({ children }) => {
     }
   }, [connected, user?._id]);
 
+  // Online / offline events handling
+  useEffect(() => {
+    if (!socketRef.current) return;
+
+    const handleUserOnline = (onlineUserId) => {
+      console.log(`${onlineUserId} is online`);
+      setOnlineUsers((prev) => {
+        const updated = new Set(prev);
+        updated.add(onlineUserId);
+        return updated;
+      });
+    };
+
+    const handleUserOffline = (offlineUserId) => {
+      console.log(`${offlineUserId} went offline`);
+      setOnlineUsers((prev) => {
+        const updated = new Set(prev);
+        updated.delete(offlineUserId);
+        return updated;
+      });
+    };
+
+    socketRef.current.on('user-online', handleUserOnline);
+    socketRef.current.on('user-offline', handleUserOffline);
+
+    return () => {
+      if (socketRef.current) {
+        socketRef.current.off('user-online', handleUserOnline);
+        socketRef.current.off('user-offline', handleUserOffline);
+      }
+    };
+  }, [connected]);
+
   return (
-    <SocketContext.Provider value={socketRef.current}>
+    <SocketContext.Provider value={{ socket: socketRef.current, onlineUsers }}>
       {children}
     </SocketContext.Provider>
   );

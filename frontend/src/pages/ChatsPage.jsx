@@ -23,11 +23,9 @@ function ChatsPage() {
     const [showComposeMessage, setShowComposeMessage] = useState(false);
 
     // Use custom hooks
-    const { conversations, setConversations, currentConversation, setCurrentConversation, loading, setLoading } = useConversations(baseUrl, user?._id)
+    const { conversations, setConversations, currentConversation, setCurrentConversation, loading } = useConversations(baseUrl, user?._id)
     const {
         messages,
-        setMessages,
-        formData,
         handleChange,
         handleFormSubmit,
         handleEditMessage,
@@ -43,14 +41,6 @@ function ChatsPage() {
     useEffect(() => {
         document.title = 'Messages'
     }, [])
-
-    useEffect(() => {
-        console.log('Form data: ', formData)
-    }, [formData])
-        
-    useEffect(() => {
-        console.log('Selected message: ', selectedMessage)
-    }, [selectedMessage])
 
     const handleKeyDown = (e) => {
         if (e.key === 'Enter') {

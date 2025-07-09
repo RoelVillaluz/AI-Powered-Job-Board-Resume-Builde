@@ -1,8 +1,11 @@
-import { memo, useCallback } from "react"
+import { act, memo, useCallback, useMemo } from "react"
 import { formatDate } from "../utils/dateUtils";
+import { useSocket } from "../../hooks/useSocket";
 
 // Individual conversation item component
 const ConversationItem = memo(({ convo, user, currentConversation, onConversationClick, loading }) => {
+    const { onlineUsers } = useSocket();
+
     const handleClick = useCallback(() => {
         onConversationClick(convo)
     }, [convo, onConversationClick])
@@ -38,15 +41,24 @@ const ConversationItem = memo(({ convo, user, currentConversation, onConversatio
     const isCurrentConvo = currentConversation?._id === convo._id;
     const convoClass = isCurrentConvo ? 'current' : '';
 
+    const isOnline = useMemo(() => {
+        return onlineUsers.has(receiver._id)
+    }, [onlineUsers, receiver._id])
+
     return (
         <li className={`message-preview ${convoClass}`} onClick={handleClick}>
-            <img 
-                src={receiver.profilePicture} 
-                alt={`${receiver.name}'s profile`} 
-                onError={(e) => {
-                    e.target.src = '/default-avatar.png'; // Fallback image
-                }}
-            />
+            <figure>
+                <img 
+                    src={receiver.profilePicture} 
+                    alt={`${receiver.name}'s profile`} 
+                    onError={(e) => {
+                        e.target.src = '/default-avatar.png'; // Fallback image
+                    }}
+                />
+                {isOnline && (
+                    <span className="status-circle online"></span>
+                )}
+            </figure>
             <div className="message-details">
                 <div className="row">
                     <strong>{receiver.name}</strong>

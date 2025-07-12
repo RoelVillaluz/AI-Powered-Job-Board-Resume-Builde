@@ -12,6 +12,7 @@ import ChatSidebar from "../components/Chat/ChatSidebar.jsx";
 import TypingBar from "../components/Chat/TypingBar.jsx";
 import ChatResources from "../components/Chat/ChatResources.jsx";
 import ChatWindowHeader from "../components/Chat/ChatWindowHeader.jsx";
+import MessagesContainer from "../components/Chat/MessagesContainer.jsx";
 
 function ChatsPage() {
     const { baseUrl } = useData();
@@ -85,20 +86,7 @@ function ChatsPage() {
                         setCurrentReceiver={setCurrentReceiver}
                     />
 
-                    <div className="messages-container">
-                        {!showComposeMessage && (
-                            <ul>
-                                {messages.length > 0 && (
-                                    messages.map((group, groupIndex) => (
-                                        <MessageGroup 
-                                            group={group} 
-                                            key={groupIndex}
-                                        />
-                                    ))
-                                )}
-                            </ul>
-                        )}
-                    </div>
+                    <MessagesContainer showComposeMessage={showComposeMessage} messages={messages}/>
 
                     <TypingBar 
                         handleFormSubmit={handleFormSubmit}

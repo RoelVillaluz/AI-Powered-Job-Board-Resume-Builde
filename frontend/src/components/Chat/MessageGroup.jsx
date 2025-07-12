@@ -1,9 +1,13 @@
 import { useAuth } from "../../contexts/AuthProvider";
 import MessageBubble from "./MessageBubble"
+import { markMessagesAsSeen } from "../../services/messageServices";
 import { React, memo, useMemo, useCallback, useRef } from "react";
+import { useData } from "../../contexts/DataProvider";
 
-const MessageGroup = memo(({ group}) => {
+const MessageGroup = memo(({ group }) => {
     const { user } = useAuth();
+    const { baseUrl } = useData();
+
     // Destructure group properties early
     const { sender, profilePicture, rawDateTime, createdAt, messages } = group;
 
@@ -18,6 +22,25 @@ const MessageGroup = memo(({ group}) => {
             <MessageBubble key={message._id} message={message} user={user}/>
         ));
     }, [messages, user])
+
+    const markAsSeen = useCallback(async() => {
+        try {
+            const unseenMessages = messages.filter((m) => m.sender !== user._id && !m.seen)
+
+            if (!unseenMessages) return;
+
+            const messageIds = unseenMessages.map(m => m._id)
+
+            const response = markMessagesAsSeen(baseUrl, {
+                messageIds,
+                userId: user._id
+            })
+
+            console.log(response.data.data)
+        } catch (error) {
+            console.error('Error marking messages as seen', error)
+        }
+    }, [messages])
 
     return (
         <li className={containerClass}>

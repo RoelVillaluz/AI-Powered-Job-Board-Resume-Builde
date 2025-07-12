@@ -112,7 +112,6 @@ export const createMessage = async (req, res) => {
     }
 };
 
-
 export const updateMessage = async (req, res) => {
     const { messageId } = req.params;
     const { content } = req.body;
@@ -138,6 +137,31 @@ export const updateMessage = async (req, res) => {
     } catch (error) {
         console.error('Error updating message: ', error);
         return sendResponse(res, { ...STATUS_MESSAGES.ERROR.SERVER, success: false });
+    }
+}
+
+export const markMessagesAsSeen = async (req, res) => {
+    const { messageIds, userId } = req.body;
+
+    try {
+        // Update multiple messages in a single query
+        const result = await Message.updateMany(
+            {
+                _id: { $in: messageIds },
+                sender: { $ne: userId }, // Don't mark own messages as seen
+                seen: { $ne: true }
+            },
+            {
+                $set: {
+                    seen: true,
+                    seenAt: new Date()
+                },
+            }
+        )
+
+        return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.UPDATE, data: result }, 'Messages')
+    } catch (error) {
+        console.error('Error: ', error)
     }
 }
 

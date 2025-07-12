@@ -1,11 +1,13 @@
-import React, { memo, useMemo, useCallback } from "react"
+import React, { memo, useMemo, useCallback, useRef, useEffect } from "react"
 import { useChatContext } from "../../contexts/ChatContext"
 import { formatDate } from "../utils/dateUtils";
 import MessageActions from "./MessageActions";
-import { useAuth } from "../../contexts/AuthProvider";
+import { useReadReceipts } from "../../contexts/ReadReciptsContext";
 
-const MessageBubble = (({ message, user }) => {
+const MessageBubble = ({ message, user }) => {
     const { handleMessageButtonAction, selectedMessage, setSelectedMessage } = useChatContext();
+    const bubbleRef = useRef();
+    const { registerMessage } = useReadReceipts();
 
     if (process.env.NODE_ENV === 'development') {
         const renderCount = React.useRef(0);
@@ -48,6 +50,13 @@ const MessageBubble = (({ message, user }) => {
         handleMessageButtonAction(e, "delete", message)
     }, [handleMessageButtonAction, message]);
 
+    // Register message
+    useEffect(() => {
+        if (bubbleRef.current) {
+            registerMessage(bubbleRef.current, message._id, message)
+        }
+    }, [message._id, message, registerMessage])
+
     return (
         <React.Fragment key={message._id}>
             {formattedEditTime && (
@@ -55,7 +64,7 @@ const MessageBubble = (({ message, user }) => {
                     Edited on {formattedEditTime}
                 </time>
             )}
-            <div className="message-bubble" onClick={handleMessageClick}>
+            <div className="message-bubble" onClick={handleMessageClick} ref={bubbleRef}>
                 <span>{message.content}</span>
                 <MessageActions
                     isVisible={isSelected}
@@ -66,8 +75,7 @@ const MessageBubble = (({ message, user }) => {
             </div>
         </React.Fragment>
     )
-
-});
+};
 
 
 export default MessageBubble

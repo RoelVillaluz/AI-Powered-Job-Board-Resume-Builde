@@ -187,7 +187,11 @@ export const useMessageOperations = ({ baseUrl, user, socket, currentConversatio
         const handleNewMessage = (newMessage) => {
             if (currentConversation?.receiver?._id !== newMessage.sender && currentConversation?.receiver?._id !== newMessage.receiverId) return;
 
-            setMessages(addMessageToGroups(newMessage, newMessage.sender, newMessage.sender.profilePicture));
+            setMessages(addMessageToGroups(
+                newMessage, 
+                newMessage.sender, 
+                currentConversation.receiver.profilePicture
+            ));
             updateConversationsList(newMessage);
         };
 

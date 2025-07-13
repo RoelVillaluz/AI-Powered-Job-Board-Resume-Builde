@@ -101,7 +101,7 @@ io.on("connection", (socket) => {
         io.to(updatedMessage.receiverId).emit('update-message', updatedMessage)
         
         // Optionally echo to sender's room as well
-        io.to(updatedMessage.sender._id).emit('update-message', updatedMessage)
+        io.to(updatedMessage.sender).emit('update-message', updatedMessage)
     })
 
     // Delete message event

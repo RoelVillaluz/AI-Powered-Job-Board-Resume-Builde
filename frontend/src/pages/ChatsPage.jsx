@@ -17,7 +17,7 @@ import MessagesContainer from "../components/Chat/MessagesContainer.jsx";
 function ChatsPage() {
     const { baseUrl } = useData();
     const { user } = useAuth();
-    const socket = useSocket(); 
+    const { socket } = useSocket(); 
     const { showConfirmationModal, handleShowConfirmationModal, selectedMessage, setSelectedMessage } = useChatContext();
 
     const [currentReceiver, setCurrentReceiver] = useState(null);

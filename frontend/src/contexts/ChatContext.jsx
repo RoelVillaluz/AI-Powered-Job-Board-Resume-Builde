@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback, Children } from "react";
+import { createContext, useContext, useState, useCallback, Children, useEffect } from "react";
 import { useAuth } from "./AuthProvider";
 
 const ChatContext = createContext();

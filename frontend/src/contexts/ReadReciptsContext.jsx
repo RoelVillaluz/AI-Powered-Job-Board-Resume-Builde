@@ -24,7 +24,12 @@ export const ReadReceiptsProvider = ({ children }) => {
 
     const markMessagesAsSeen = useCallback(async (messageIds) => {
         try {
-            const messageIdsArray = Array.from(messageIds);
+            const messageIdsArray = Array.isArray(messageIds)
+                                ? messageIds
+                                : Array.from(messageIds)
+
+
+            console.log('Message IDs Array: ',messageIdsArray)
 
             const response = await markMessagesAsSeenAPI(baseUrl, {
                 messageIds: messageIdsArray,

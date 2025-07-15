@@ -1,4 +1,4 @@
-import mongoose from 'mongoose'
+import mongoose, { mongo } from 'mongoose'
 import Message from '../models/messageModel.js'
 import Conversation from '../models/conversationModel.js'
 import { STATUS_MESSAGES, sendResponse } from '../constants.js'
@@ -144,6 +144,12 @@ export const markMessagesAsSeen = async (req, res) => {
     const { messageIds, userId } = req.body;
 
     try {
+        console.log('Received req.body:', req.body);
+
+        if (!messageIds || !Array.isArray(messageIds) || messageIds.length === 0) {
+            return sendResponse(res, { ...STATUS_MESSAGES.ERROR.INVALID_INPUT, success: false})
+        }
+
         // Update multiple messages in a single query
         const result = await Message.updateMany(
             {

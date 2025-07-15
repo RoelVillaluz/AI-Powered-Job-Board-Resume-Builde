@@ -15,6 +15,7 @@ export const STATUS_MESSAGES = {
         EMAIL_EXISTS: { code: 400, message: "Email is already being used" },
         INVALID_CODE: { code: 400, message: "The code you entered is incorrect"},
         INVALID_CREDENTIALS: { code: 400, message: "Invalid credentials"},
+        INVALID_INPUT: { code: 400, message: "The inputs are wrong format"},
         WEAK_PASSWORD: { code: 400, message: "Password is too weak"},
         MISSING_FIELD: (field) => ({ 
             code: 400, 

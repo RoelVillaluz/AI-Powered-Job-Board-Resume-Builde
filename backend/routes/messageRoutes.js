@@ -9,8 +9,8 @@ router.get('/user/:userId', getMessagesByUser)
 
 router.post('/', createMessage)
 
-router.patch('/:messageId', updateMessage)
 router.patch('/mark-as-seen', markMessagesAsSeen)
+router.patch('/:messageId', updateMessage)
 
 router.delete('/:messageId', deleteMessage)
 

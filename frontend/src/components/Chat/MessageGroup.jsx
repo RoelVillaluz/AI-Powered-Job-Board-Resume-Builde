@@ -23,24 +23,6 @@ const MessageGroup = memo(({ group }) => {
         ));
     }, [messages, user])
 
-    const markAsSeen = useCallback(async() => {
-        try {
-            const unseenMessages = messages.filter((m) => m.sender !== user._id && !m.seen)
-
-            if (!unseenMessages) return;
-
-            const messageIds = unseenMessages.map(m => m._id)
-
-            const response = markMessagesAsSeen(baseUrl, {
-                messageIds,
-                userId: user._id
-            })
-
-            console.log(response.data.data)
-        } catch (error) {
-            console.error('Error marking messages as seen', error)
-        }
-    }, [messages])
 
     return (
         <li className={containerClass}>

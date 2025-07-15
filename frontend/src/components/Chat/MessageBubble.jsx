@@ -52,7 +52,7 @@ const MessageBubble = ({ message, user }) => {
 
     // Register message
     useEffect(() => {
-        if (bubbleRef.current) {
+        if (bubbleRef.current && !isOwnMessage && message.sender) {
             registerMessage(bubbleRef.current, message._id, message)
         }
     }, [message._id, message, registerMessage])

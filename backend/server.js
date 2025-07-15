@@ -84,7 +84,7 @@ io.on("connection", (socket) => {
 
     // Send message event
     socket.on('send-message', (message) => {
-        console.log(`Message sent successfully from ${message.sender} to ${message.receiverId}`)
+        console.log(`Message sent successfully from ${message.sender} to ${message.receiverId}`, message)
 
         // Emit to receiver's room
         io.to(message.receiverId).emit('new-message', message)

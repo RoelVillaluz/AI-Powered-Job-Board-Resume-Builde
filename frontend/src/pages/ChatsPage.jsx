@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import Layout from "../components/Layout"
 import { useAuth } from "../contexts/AuthProvider.jsx"
 import { useData } from "../contexts/DataProvider.jsx";
-import { useChatContext } from "../contexts/ChatContext.jsx";
+import { useChatState } from "../contexts/ChatContext.jsx";
 import MessageConfirmationModal from "../components/MessageConfirmationModal";
 import { useSocket } from "../hooks/useSocket.js"; 
 import MessageGroup from "../components/Chat/MessageGroup";
@@ -18,7 +18,7 @@ function ChatsPage() {
     const { baseUrl } = useData();
     const { user } = useAuth();
     const { socket } = useSocket(); 
-    const { showConfirmationModal, handleShowConfirmationModal, selectedMessage, setSelectedMessage } = useChatContext();
+    const { showConfirmationModal, handleShowConfirmationModal, selectedMessage, setSelectedMessage } = useChatState();
 
     const [currentReceiver, setCurrentReceiver] = useState(null);
     const [showComposeMessage, setShowComposeMessage] = useState(false);
@@ -27,11 +27,10 @@ function ChatsPage() {
     const { conversations, setConversations, currentConversation, setCurrentConversation, loading } = useConversations(baseUrl, user?._id)
     const {
         messages,
-        handleChange,
         handleFormSubmit,
         handleEditMessage,
         handleDeleteMessage
-        } = useMessageOperations({
+    } = useMessageOperations({
         baseUrl,
         user,
         socket,
@@ -56,7 +55,7 @@ function ChatsPage() {
                     message={selectedMessage} 
                     onClose={() => handleShowConfirmationModal()}
                     onSubmit={(messageToDelete) => {
-                        handleDeleteMessage(messageToDelete); // Use the message passed from modal
+                        handleDeleteMessage(messageToDelete);
                         handleShowConfirmationModal();
                     }}
                 />
@@ -66,12 +65,11 @@ function ChatsPage() {
                 {/* Chat List */}
                 <ChatSidebar 
                     user={user}
-                    currentConversation={currentConversation }
+                    currentConversation={currentConversation}
                     setCurrentConversation={setCurrentConversation}
                     conversations={conversations}
                     setShowComposeMessage={setShowComposeMessage}
                     setCurrentReceiver={setCurrentReceiver}
-                    handleChange={handleChange}
                     loading={loading}
                 />
 
@@ -91,7 +89,6 @@ function ChatsPage() {
                     <TypingBar 
                         handleFormSubmit={handleFormSubmit}
                         handleEditMessage={handleEditMessage}
-                        handleChange={handleChange}
                     />
                 </section>
 

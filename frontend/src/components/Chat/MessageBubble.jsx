@@ -1,10 +1,10 @@
 import React, { memo, useMemo, useCallback, useRef, useEffect } from "react"
-import { useChatContext } from "../../contexts/ChatContext"
+import { useChatState } from "../../contexts/ChatContext"
 import MessageActions from "./MessageActions";
 import { useReadReceipts } from "../../contexts/ReadReciptsContext";
 
 const MessageBubble = ({ message, user }) => {
-    const { handleMessageButtonAction, selectedMessage, setSelectedMessage } = useChatContext();
+    const { handleMessageButtonAction, selectedMessage, setSelectedMessage } = useChatState();
     const bubbleRef = useRef();
     const { registerMessage } = useReadReceipts();
 
@@ -34,7 +34,7 @@ const MessageBubble = ({ message, user }) => {
         } else {
             setSelectedMessage(message)
         }
-    }, [isSelected, selectedMessage, message])
+    }, [isSelected, setSelectedMessage, message])
 
     // Memoize button handlers
     const handleEdit = useCallback((e) => {

@@ -1,10 +1,10 @@
-import { useChatContext } from "../../contexts/ChatContext";
+import { useChatFormData } from "../../contexts/ChatContext";
 import { useData } from "../../contexts/DataProvider"
 import { useUserSearch } from "../../hooks/chats/useUserSearch.jsx"
 
 function ChatWindowHeader({ user, currentConversation, showComposeMessage, currentReceiver, setCurrentReceiver }) {
     const { baseUrl } = useData();
-    const { formData, handleChange } = useChatContext();
+    const { formData, handleChange } = useChatFormData();
     const { searchReceiverQuery, setSearchReceiverQuery, searchReceiverResults } = useUserSearch(baseUrl)
 
     const handleRemoveReceiver = () => {

@@ -1,6 +1,5 @@
 import React, { memo, useMemo, useCallback, useRef, useEffect } from "react"
 import { useChatContext } from "../../contexts/ChatContext"
-import { formatDate } from "../utils/dateUtils";
 import MessageActions from "./MessageActions";
 import { useReadReceipts } from "../../contexts/ReadReciptsContext";
 
@@ -28,10 +27,6 @@ const MessageBubble = ({ message, user }) => {
         return isSelected ? 'actions visible' : 'actions'
     }, [isSelected])
 
-    const formattedEditTime = useMemo(() => {
-        return message.updatedAt ? formatDate(message.updatedAt) : null
-    }, [message.updatedAt])
-
     // Memoize click handler
     const handleMessageClick = useCallback(() => {
         if (isSelected) {
@@ -52,28 +47,23 @@ const MessageBubble = ({ message, user }) => {
 
     // Register message
     useEffect(() => {
-        if (bubbleRef.current && !isOwnMessage && message.sender) {
+        if (bubbleRef.current && !isOwnMessage && message.sender
+
+        ) {
             registerMessage(bubbleRef.current, message._id, message)
         }
     }, [message._id, message, registerMessage])
 
     return (
-        <React.Fragment key={message._id}>
-            {formattedEditTime && (
-                <time dateTime={message.updatedAt}>
-                    Edited on {formattedEditTime}
-                </time>
-            )}
-            <div className="message-bubble" onClick={handleMessageClick} ref={bubbleRef}>
-                <span>{message.content}</span>
-                <MessageActions
-                    isVisible={isSelected}
-                    isOwnMessage={isOwnMessage}
-                    onEdit={handleEdit}
-                    onDelete={handleDelete}
-                />
-            </div>
-        </React.Fragment>
+        <div className="message-bubble" onClick={handleMessageClick} ref={bubbleRef}>
+            <span>{message.content}</span>
+            <MessageActions
+                isVisible={isSelected}
+                isOwnMessage={isOwnMessage}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+            />
+        </div>
     )
 };
 

@@ -1,23 +1,49 @@
-import { createContext, useContext, useState, useCallback, Children, useEffect } from "react";
+import { createContext, useContext, useState, useCallback, useEffect, useMemo } from "react";
 import { useAuth } from "./AuthProvider";
 
-const ChatContext = createContext();
-export const useChatContext = () => useContext(ChatContext)
+const ChatStateContext = createContext();
+const ChatFormContext = createContext();
+
+export const useChatState = () => useContext(ChatStateContext);
+export const useChatFormData = () => useContext(ChatFormContext);
+
+// Backward compatibility hook
+export const useChatContext = () => {
+    const chatState = useChatState();
+    const chatFormData = useChatFormData();
+
+    return { ...chatState, ...chatFormData }
+}
 
 export const ChatProvider = ({ children }) => {
     const { user } = useAuth();
 
+    // chat related state (stable)
     const [conversations, setConversations] = useState([]);
     const [currentConversation, setCurrentConversation] = useState(null);
     const [selectedMessage, setSelectedMessage] = useState(null);
     const [editMode, setEditMode] = useState(false);
     const [action, setAction] = useState(null);
     const [showConfirmationModal, setShowConfirmationModal] = useState(false);
+
+    // Form-related state (frequently changing)
     const [formData, setFormData] = useState({
         sender: user._id,
         receiver: '',
         content: '',
     });
+
+    // Update receiver when current conversation changes
+    useEffect(() => {
+        if (currentConversation?.receiver?._id) {
+            setFormData(prev => ({
+                ...prev,
+                receiver: currentConversation.receiver._id
+            }));
+        } else {
+            console.log('Current Conversation: ', currentConversation)
+        }
+    }, [currentConversation]);
 
     const handleChange = useCallback((name, value) => {
         setFormData(prev => ({
@@ -49,29 +75,44 @@ export const ChatProvider = ({ children }) => {
         [handleShowConfirmationModal]
     );
 
+    // Memoize chat state context (rarely changes)
+    const chatStateValue = useMemo(() => ({
+        conversations,
+        setConversations,
+        currentConversation,
+        setCurrentConversation,
+        selectedMessage,
+        setSelectedMessage,
+        editMode,
+        setEditMode,
+        action,
+        setAction,
+        showConfirmationModal,
+        setShowConfirmationModal,
+        handleMessageButtonAction,
+        handleShowConfirmationModal,
+    }), [
+        conversations,
+        currentConversation,
+        selectedMessage,
+        editMode,
+        action,
+        showConfirmationModal,
+        handleMessageButtonAction,
+        handleShowConfirmationModal,
+    ]);
+
+    const chatFormValue = useMemo(() => ({
+        formData,
+        setFormData,
+        handleChange,
+    }), [formData, handleChange]);
+
     return (
-        <ChatContext.Provider
-            value={{
-                conversations,
-                setConversations,
-                currentConversation,
-                setCurrentConversation,
-                selectedMessage,
-                setSelectedMessage,
-                editMode,
-                setEditMode,
-                action,
-                setAction,
-                showConfirmationModal,
-                setShowConfirmationModal,
-                formData,
-                setFormData,
-                handleMessageButtonAction,
-                handleShowConfirmationModal,
-                handleChange,
-            }}
-        >
-            {children}
-        </ChatContext.Provider>
+        <ChatStateContext.Provider value={chatStateValue}>
+            <ChatFormContext.Provider value={chatFormValue}>
+                {children}
+            </ChatFormContext.Provider>
+        </ChatStateContext.Provider>
     );
 };

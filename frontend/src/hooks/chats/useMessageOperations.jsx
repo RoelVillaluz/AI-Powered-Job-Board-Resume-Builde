@@ -1,28 +1,17 @@
 import { useState, useEffect, useCallback } from "react";
 import * as messageService from '../../services/messageServices.js';
 import { groupMessages, shouldGroupByTime } from "../../components/utils/messageUtils.js";
-import { useChatContext } from "../../contexts/ChatContext.jsx";
+import { useChatState } from "../../contexts/ChatContext.jsx";
 import { formatDate } from "../../components/utils/dateUtils.js";
 
 export const useMessageOperations = ({ baseUrl, user, socket, currentConversation, setConversations }) => {
-    const {
-        selectedMessage,
-        setSelectedMessage,
-        editMode,
-        setEditMode,
-        formData,
-        setFormData,
-        handleChange
-    } = useChatContext();
+    const { setSelectedMessage, setEditMode } = useChatState();
+    // REMOVED: useChatFormData from here - let components handle their own form state
 
     const [messages, setMessages] = useState([]);
 
     useEffect(() => {
         if (currentConversation?.receiver?._id) {
-            setFormData(prev => ({
-                ...prev,
-                receiver: currentConversation.receiver._id
-            }));
             setMessages(groupMessages(currentConversation.messages));
         }
     }, [currentConversation]);
@@ -124,8 +113,8 @@ export const useMessageOperations = ({ baseUrl, user, socket, currentConversatio
         });
     }, [currentConversation?._id, setConversations]);
 
-    const handleFormSubmit = useCallback(async (e) => {
-        if (e) e.preventDefault();
+    // MODIFIED: Accept formData as parameter instead of using context
+    const handleFormSubmit = useCallback(async (formData) => {
         if (!formData.content.trim() || !currentConversation) return;
 
         try {
@@ -138,30 +127,29 @@ export const useMessageOperations = ({ baseUrl, user, socket, currentConversatio
             emitSocketEvent('send-message', newMessage, formData.receiver);
             setMessages(addMessageToGroups(newMessage, user.name, user.profilePicture));
             updateConversationsList(newMessage);
-            handleChange("content", "");
         } catch (error) {
             console.error("Error sending message: ", error);
         }
-    }, [formData, currentConversation, baseUrl, user, emitSocketEvent, addMessageToGroups, updateConversationsList, handleChange, handleMessageApiCall]);
+    }, [currentConversation, baseUrl, user, emitSocketEvent, addMessageToGroups, updateConversationsList, handleMessageApiCall]);
 
-    const handleEditMessage = useCallback(async (message) => {
+    // MODIFIED: Accept message and content as parameters
+    const handleEditMessage = useCallback(async (message, content) => {
         try {
             const updatedMessage = await handleMessageApiCall(
                 messageService.editMessage,
                 baseUrl,
                 message._id,
-                { content: formData.content }
+                { content }
             );
 
             emitSocketEvent("update-message", updatedMessage, updatedMessage.receiver);
-            setMessages(updateMessageInGroups(message._id, formData.content));
+            setMessages(updateMessageInGroups(message._id, content));
             updateConversationsList(updatedMessage, true);
             setEditMode(false);
-            setFormData(prev => ({ ...prev, content: "" }));
         } catch (error) {
             console.error("Error editing message: ", error);
         }
-    }, [formData.content, baseUrl, emitSocketEvent, updateMessageInGroups, updateConversationsList, setEditMode, setFormData, handleMessageApiCall]);
+    }, [baseUrl, emitSocketEvent, updateMessageInGroups, updateConversationsList, setEditMode, handleMessageApiCall]);
 
     const handleDeleteMessage = useCallback(async (message) => {
         try {
@@ -219,8 +207,7 @@ export const useMessageOperations = ({ baseUrl, user, socket, currentConversatio
     return {
         messages,
         setMessages,
-        formData,
-        handleChange,
+        // REMOVED: formData and handleChange - let components handle their own form state
         handleFormSubmit,
         handleEditMessage,
         handleDeleteMessage

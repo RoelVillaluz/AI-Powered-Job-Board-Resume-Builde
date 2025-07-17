@@ -1,5 +1,7 @@
 import { createContext, useContext, useState, useCallback, useEffect, useMemo } from "react";
 import { useAuth } from "./AuthProvider";
+import { useData } from "./DataProvider";
+import axios from "axios"
 
 const ChatStateContext = createContext();
 const ChatFormContext = createContext();
@@ -17,6 +19,7 @@ export const useChatContext = () => {
 
 export const ChatProvider = ({ children }) => {
     const { user } = useAuth();
+    const { baseUrl } = useData();
 
     // chat related state (stable)
     const [conversations, setConversations] = useState([]);
@@ -25,6 +28,7 @@ export const ChatProvider = ({ children }) => {
     const [editMode, setEditMode] = useState(false);
     const [action, setAction] = useState(null);
     const [showConfirmationModal, setShowConfirmationModal] = useState(false);
+    const [loading, setLoading] = useState(true);
 
     // Form-related state (frequently changing)
     const [formData, setFormData] = useState({
@@ -33,7 +37,35 @@ export const ChatProvider = ({ children }) => {
         content: '',
     });
 
-    // Update receiver when current conversation changes
+    useEffect(() => {
+        const fetchUserConversations = async () => {
+            if (!user?._id) return;
+
+            setLoading(true);
+            try {
+                const response = await axios.get(`${baseUrl}/conversations/user/${user._id}`);
+                const fetchedConversations = response.data.data || [];
+
+                const sortedConversations = fetchedConversations.sort((a, b) =>
+                    new Date(b.updatedAt) - new Date(a.updatedAt)
+                );
+
+                setConversations(sortedConversations);
+
+                if (sortedConversations.length > 0) {
+                    setCurrentConversation(sortedConversations[0]);
+                }
+            } catch (error) {
+                console.error('Error fetching conversations:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchUserConversations();
+    }, [user?._id]);
+
+    // Update receiver when current conversation changes 
     useEffect(() => {
         if (currentConversation?.receiver?._id) {
             setFormData(prev => ({
@@ -41,7 +73,7 @@ export const ChatProvider = ({ children }) => {
                 receiver: currentConversation.receiver._id
             }));
         } else {
-            console.log('Current Conversation: ', currentConversation)
+            console.log('Chat Context Current Conversation: ', currentConversation)
         }
     }, [currentConversation]);
 
@@ -91,6 +123,7 @@ export const ChatProvider = ({ children }) => {
         setShowConfirmationModal,
         handleMessageButtonAction,
         handleShowConfirmationModal,
+        loading,
     }), [
         conversations,
         currentConversation,

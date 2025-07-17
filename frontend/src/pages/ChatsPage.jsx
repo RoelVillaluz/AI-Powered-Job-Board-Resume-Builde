@@ -6,7 +6,7 @@ import { useChatState } from "../contexts/ChatContext.jsx";
 import MessageConfirmationModal from "../components/MessageConfirmationModal";
 import { useSocket } from "../hooks/useSocket.js"; 
 import MessageGroup from "../components/Chat/MessageGroup";
-import { useConversations } from "../hooks/chats/useConversations.jsx"
+// import { useConversations } from "../hooks/chats/useConversations.jsx"
 import { useMessageOperations } from "../hooks/chats/useMessageOperations.jsx";
 import ChatSidebar from "../components/Chat/ChatSidebar.jsx";
 import TypingBar from "../components/Chat/TypingBar.jsx";
@@ -18,13 +18,22 @@ function ChatsPage() {
     const { baseUrl } = useData();
     const { user } = useAuth();
     const { socket } = useSocket(); 
-    const { showConfirmationModal, handleShowConfirmationModal, selectedMessage, setSelectedMessage } = useChatState();
+    const { 
+        conversations, 
+        setConversations, 
+        currentConversation, 
+        setCurrentConversation, 
+        loading, 
+        showConfirmationModal, 
+        handleShowConfirmationModal, 
+        selectedMessage, 
+        setSelectedMessage 
+    } = useChatState();
 
     const [currentReceiver, setCurrentReceiver] = useState(null);
     const [showComposeMessage, setShowComposeMessage] = useState(false);
 
     // Use custom hooks
-    const { conversations, setConversations, currentConversation, setCurrentConversation, loading } = useConversations(baseUrl, user?._id)
     const {
         messages,
         handleFormSubmit,

@@ -114,6 +114,18 @@ io.on("connection", (socket) => {
         // Optionally echo to sender's room as well
         io.to(deletedMessage.sender).emit('delete-message', deletedMessage)
     })
+
+    // Update Seen
+    socket.on('messages-seen', (data) => {
+        console.log('Received messages-seen event:', data);
+
+        const eventData = {
+            ...data,
+            seenAt: data.seenAt || new Date().toISOString()
+        }
+        
+        io.emit('messages-seen', eventData);
+    });
 })
 
 // Connect to DB before starting server

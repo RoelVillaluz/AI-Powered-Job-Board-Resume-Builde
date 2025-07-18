@@ -32,11 +32,22 @@ const MessageGroup = memo(({ group }) => {
         return senderId === user._id
     }, [group.messages, user])
 
-    const isSeen = useMemo(() => {
-        if (!group.messages || group.messages.length === 0) return false;
+    const lastMessage = useMemo(() => {
+        if (!group.messages || group.messages.length === 0) return;
 
-        return group.messages[0].seen
-    }, [group.messages])
+        console.log("Last Message:", group.messages[group.messages.length - 1]);
+
+        return group.messages[group.messages.length - 1];
+    }, [group.messages]);
+
+
+    const isSeen = useMemo(() => {
+        return lastMessage.seen || false
+    }, [lastMessage])
+
+    const seenAt = useMemo(() => {
+        return formatDate(lastMessage?.seenAt)
+    }, [lastMessage])
 
     return (
         <li className={containerClass}>
@@ -45,7 +56,7 @@ const MessageGroup = memo(({ group }) => {
                 <div className="wrapper" style={{ gap: '0rem' }}>
                     <time dateTime={rawDateTime}>{createdAt}</time>
                     {isOwnMessages && isSeen && (
-                        <time>| Seen at {formatDate(group.messages[0].seenAt)}</time>
+                        <time>| Seen at {seenAt}</time>
                     )}
                 </div>
                 <div className="messages">

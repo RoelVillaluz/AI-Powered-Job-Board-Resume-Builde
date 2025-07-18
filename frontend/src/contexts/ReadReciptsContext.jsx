@@ -2,6 +2,7 @@ import { createContext, useContext, useCallback, useRef, useEffect } from 'react
 import { useIntersectionObserver } from "../hooks/chats/useIntersectionObserver"
 import { useAuth } from './AuthProvider';
 import { useData } from './DataProvider';
+import { useSocket } from '../hooks/useSocket';
 import { markMessagesAsSeen as markMessagesAsSeenAPI } from '../services/messageServices';
 
 const ReadReceiptsContext = createContext();
@@ -9,6 +10,7 @@ const ReadReceiptsContext = createContext();
 export const ReadReceiptsProvider = ({ children }) => {
     const { user } = useAuth();
     const { baseUrl } = useData();
+    const { socket } = useSocket();
     const { visibleElements, observe, unobserve } = useIntersectionObserver();
     const pendingMessages = useRef(new Set());
     const timeoutRef = useRef();
@@ -24,6 +26,7 @@ export const ReadReceiptsProvider = ({ children }) => {
 
     const markMessagesAsSeen = useCallback(async (messageIds) => {
         try {
+            const seenAt = new Date().toISOString()
             const messageIdsArray = Array.isArray(messageIds)
                                 ? messageIds
                                 : Array.from(messageIds)
@@ -40,11 +43,19 @@ export const ReadReceiptsProvider = ({ children }) => {
                 messageIdsArray.forEach(id => {
                     processedMessages.current.add(id);
                 });
+
+                if (socket) {
+                    socket.emit('messages-seen', {
+                        messageIds: messageIdsArray,
+                        seenBy: user._id,
+                        seenAt: seenAt
+                    })
+                }
             }
         } catch (error) {
             console.error('Error marking messages as seen:', error);
         }
-    }, [baseUrl, user._id]);
+    }, [baseUrl, user._id, socket]);
 
     useEffect(() => {
         visibleElements.forEach(messageId => {

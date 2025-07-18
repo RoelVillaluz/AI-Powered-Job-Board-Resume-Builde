@@ -63,6 +63,13 @@ export const useMessageOperations = ({ baseUrl, user, socket, currentConversatio
         }));
     }, []);
 
+    const updateMessageSeenStatus = useCallback((messageIds, seenStatus = true, seenAt = null) => {
+        return (prevGroups) => prevGroups.map(group => ({
+            ...group,
+            messages: group.messages.map(m => messageIds.includes(m._id) ? { ...m, seen: seenStatus, seenAt: seenAt } : m)
+        }));
+    }, []);
+
     // Helper function to delete message from groups
     const deleteMessageFromGroups = useCallback((messageId) => {
         return (prevGroups) => prevGroups
@@ -84,7 +91,7 @@ export const useMessageOperations = ({ baseUrl, user, socket, currentConversatio
         }
     }, []);
 
-    const updateConversationsList = useCallback((newMessage, isEdit = false, isDelete = false) => {
+    const updateConversationsList = useCallback((messageData, isEdit = false, isDelete = false, isSeenUpdate = false, seenAt = null) => {
         if (!currentConversation?._id) return;
 
         setConversations(prevConvos => {
@@ -93,14 +100,21 @@ export const useMessageOperations = ({ baseUrl, user, socket, currentConversatio
                     ? {
                         ...convo,
                         messages: isDelete
-                            ? convo.messages.filter(msg => msg._id !== newMessage._id)
+                            ? convo.messages.filter(msg => msg._id !== messageData._id)
                             : isEdit
                                 ? convo.messages.map(msg =>
-                                    msg._id === newMessage._id
-                                        ? { ...msg, content: newMessage.content }
+                                    msg._id === messageData._id
+                                        ? { ...msg, content: messageData.content }
                                         : msg
                                 )
-                                : [...convo.messages, newMessage]
+                                : isSeenUpdate
+                                    ? convo.messages.map(msg =>
+                                        // messageData should be an array of message IDs for seen updates
+                                        Array.isArray(messageData) && messageData.includes(msg._id)
+                                            ? { ...msg, seen: true, seenAt: seenAt }
+                                            : msg
+                                    )
+                                    : [...convo.messages, messageData]
                     }
                     : convo
             );
@@ -193,21 +207,29 @@ export const useMessageOperations = ({ baseUrl, user, socket, currentConversatio
             updateConversationsList(deletedMessage, false, true);
         };
 
+        const handleMessagesSeen = (data) => {
+            const { messageIds, seenBy, seenAt } = data;
+
+            setMessages(updateMessageSeenStatus(messageIds, true, seenAt));
+            updateConversationsList(messageIds, false, false, true, seenAt)
+        }
+
         socket.on("new-message", handleNewMessage);
         socket.on("update-message", handleUpdateMessage);
         socket.on("delete-message", handleDeleteMessage);
+        socket.on("messages-seen", handleMessagesSeen);
 
         return () => {
             socket.off("new-message", handleNewMessage);
             socket.off("update-message", handleUpdateMessage);
             socket.off("delete-message", handleDeleteMessage);
+            socket.off("messages-seen", handleMessagesSeen);
         };
-    }, [socket, currentConversation, updateConversationsList, addMessageToGroups, updateMessageInGroups, deleteMessageFromGroups]);
+    }, [socket, currentConversation, user._id, updateConversationsList, addMessageToGroups, updateMessageInGroups, deleteMessageFromGroups, updateMessageSeenStatus]);
 
     return {
         messages,
         setMessages,
-        // REMOVED: formData and handleChange - let components handle their own form state
         handleFormSubmit,
         handleEditMessage,
         handleDeleteMessage

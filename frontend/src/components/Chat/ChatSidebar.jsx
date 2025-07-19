@@ -3,9 +3,11 @@ import { formatDate } from "../utils/dateUtils"
 import { useConversationSearch } from "../../hooks/chats/useConversationSearch";
 import ConversationList from "./ConversationList";
 import UserSummary from "./UserSummary";
+import { useChatFormData } from "../../contexts/ChatContext";
 
-function ChatSidebar({ user, currentConversation, setCurrentConversation, conversations, setShowComposeMessage, setCurrentReceiver, handleChange, loading }) {
+function ChatSidebar({ user, currentConversation, setCurrentConversation, conversations, setShowComposeMessage, setCurrentReceiver, loading }) {
     const { searchConversationQuery, setSearchConversationQuery, filteredConvos } = useConversationSearch(conversations, user);
+    const { handleChange } = useChatFormData();
 
     const handleShowComposeHeader = useCallback(() => {
         setShowComposeMessage((prev) => !prev)

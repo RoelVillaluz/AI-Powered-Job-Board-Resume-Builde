@@ -1,10 +1,12 @@
-import { useChatFormData } from "../../contexts/ChatContext";
+import { useEffect } from "react";
+import { useChatFormData, useChatSelection } from "../../contexts/ChatContext";
 import { useData } from "../../contexts/DataProvider"
 import { useUserSearch } from "../../hooks/chats/useUserSearch.jsx"
 
 function ChatWindowHeader({ user, currentConversation, showComposeMessage, currentReceiver, setCurrentReceiver }) {
     const { baseUrl } = useData();
-    const { formData, handleChange } = useChatFormData();
+    const { formData } = useChatFormData();
+    const { handleChange } = useChatSelection();
     const { searchReceiverQuery, setSearchReceiverQuery, searchReceiverResults } = useUserSearch(baseUrl)
 
     const handleRemoveReceiver = () => {
@@ -17,6 +19,10 @@ function ChatWindowHeader({ user, currentConversation, showComposeMessage, curre
         setCurrentReceiver(result)
         setSearchReceiverQuery('')
     }
+
+    useEffect(() => {
+        console.log('Form Data: ', formData)
+    }, [formData])
 
     if (currentConversation && !showComposeMessage) {
         return (

@@ -1,12 +1,12 @@
 import { useState, useEffect, useCallback } from "react";
 import * as messageService from '../../services/messageServices.js';
 import { groupMessages, shouldGroupByTime } from "../../components/utils/messageUtils.js";
-import { useChatState } from "../../contexts/ChatContext.jsx";
+import { useChatSelection, useChatState } from "../../contexts/ChatContext.jsx";
 import { formatDate } from "../../components/utils/dateUtils.js";
 
 export const useMessageOperations = ({ baseUrl, user, socket, currentConversation, setConversations }) => {
-    const { setSelectedMessage, setEditMode } = useChatState();
-    // REMOVED: useChatFormData from here - let components handle their own form state
+    const { setEditMode } = useChatState();
+    const { setSelectedMessage } = useChatSelection();
 
     const [messages, setMessages] = useState([]);
 

@@ -1,10 +1,11 @@
 import React, { memo, useMemo, useCallback, useRef, useEffect } from "react"
-import { useChatState } from "../../contexts/ChatContext"
+import { useChatSelection, useChatState } from "../../contexts/ChatContext"
 import MessageActions from "./MessageActions";
 import { useReadReceipts } from "../../contexts/ReadReciptsContext";
 
 const MessageBubble = ({ message, user }) => {
-    const { handleMessageButtonAction, selectedMessage, setSelectedMessage } = useChatState();
+    const { selectedMessage, setSelectedMessage, handleMessageButtonAction } = useChatSelection();
+
     const bubbleRef = useRef();
     const { registerMessage } = useReadReceipts();
 

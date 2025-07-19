@@ -1,8 +1,9 @@
-import { useChatFormData, useChatState } from "../../contexts/ChatContext";
+import { useChatFormData, useChatSelection, useChatState } from "../../contexts/ChatContext";
 import { useEffect } from "react";
 function TypingBar({ handleFormSubmit, handleEditMessage }) {
-    const { selectedMessage, setSelectedMessage, editMode, setEditMode } = useChatState();
+    const { editMode, setEditMode } = useChatState();
     const { formData, setFormData, handleChange } = useChatFormData();
+    const { selectedMessage, setSelectedMessage } = useChatSelection();
 
     const onSubmit = (e) => {
         e.preventDefault();
@@ -35,7 +36,10 @@ function TypingBar({ handleFormSubmit, handleEditMessage }) {
             <div className="actions">
                 {!editMode ? (
                     <>
-                        <i className="fa-solid fa-paperclip"></i>
+                        <button type="button" id="send-file-btn">
+                            <i className="fa-solid fa-paperclip"></i>
+                            <input type="file" id="file-input" style={{display: "none"}} multiple/>
+                        </button>
                         <i className="fa-solid fa-microphone"></i>
                     </>
                 ) : (

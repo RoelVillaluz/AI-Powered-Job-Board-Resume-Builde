@@ -2,11 +2,10 @@ import { useEffect, useState } from "react"
 import Layout from "../components/Layout"
 import { useAuth } from "../contexts/AuthProvider.jsx"
 import { useData } from "../contexts/DataProvider.jsx";
-import { useChatState } from "../contexts/ChatContext.jsx";
+import { useChatState, useChatSelection } from "../contexts/ChatContext.jsx";
 import MessageConfirmationModal from "../components/MessageConfirmationModal";
 import { useSocket } from "../hooks/useSocket.js"; 
 import MessageGroup from "../components/Chat/MessageGroup";
-// import { useConversations } from "../hooks/chats/useConversations.jsx"
 import { useMessageOperations } from "../hooks/chats/useMessageOperations.jsx";
 import ChatSidebar from "../components/Chat/ChatSidebar.jsx";
 import TypingBar from "../components/Chat/TypingBar.jsx";
@@ -15,9 +14,14 @@ import ChatWindowHeader from "../components/Chat/ChatWindowHeader.jsx";
 import MessagesContainer from "../components/Chat/MessagesContainer.jsx";
 
 function ChatsPage() {
-    const { baseUrl } = useData();
+    
+    // Call hooks in exact same order every time
+    const { baseUrl } = useData();    
     const { user } = useAuth();
-    const { socket } = useSocket(); 
+    const { socket } = useSocket();
+    const chatSelectionResult = useChatSelection();
+    
+    // Extract values after all hooks are called
     const { 
         conversations, 
         setConversations, 
@@ -26,14 +30,14 @@ function ChatsPage() {
         loading, 
         showConfirmationModal, 
         handleShowConfirmationModal, 
-        selectedMessage, 
-        setSelectedMessage 
-    } = useChatState();
+    } = useChatState() || {};
+    
+    const { selectedMessage } = chatSelectionResult || {};
 
     const [currentReceiver, setCurrentReceiver] = useState(null);
+    
     const [showComposeMessage, setShowComposeMessage] = useState(false);
 
-    // Use custom hooks
     const {
         messages,
         handleFormSubmit,
@@ -49,8 +53,8 @@ function ChatsPage() {
 
     useEffect(() => {
         document.title = 'Messages'
-    }, [])
-
+    }, []);
+    
     const handleKeyDown = (e) => {
         if (e.key === 'Enter') {
             handleFormSubmit()

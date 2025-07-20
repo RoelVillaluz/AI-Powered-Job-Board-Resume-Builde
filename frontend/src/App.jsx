@@ -15,6 +15,7 @@ import JobDetailPage from "./components/JobDetailPage";
 import { useEffect } from "react";
 import ChangePasswordForm from "./pages/ChangePasswordForm";
 import ChatsPage from "./pages/ChatsPage";
+import { JobsListProvider } from "./contexts/JobsListContext.jsx";
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -43,14 +44,20 @@ function App() {
               <Route path="/sign-in" element={<SignIn />} />
               <Route path="/get-started" element={<GetStartedForm />} />
               <Route path="/create-job-posting" element={<CreateJobForm />} />
-              <Route path="/job-postings" element={<JobPostingsList />} />
+
+              <Route path="/job-postings" element={
+                <JobsListProvider>
+                  <JobPostingsList /> 
+                </JobsListProvider>
+              }/>
+
               <Route path="/job-postings/:jobId" element={<JobDetailPage />} />
               <Route path="/change-password" element={<ChangePasswordForm />} />
 
               <Route path="/messages" element={
-              <ChatProvider>
-                <ChatsPage />
-              </ChatProvider>
+                <ChatProvider>
+                  <ChatsPage />
+                </ChatProvider>
             } />
 
 

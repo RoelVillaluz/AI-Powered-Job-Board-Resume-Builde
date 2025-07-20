@@ -87,6 +87,12 @@ function JobPostingsList() {
                             filterRef={filterRef}
                         />  
 
+                        <TopCompanies
+                            baseUrl={baseUrl}
+                            user={user}
+                        />
+
+
                     </main>
 
                 </div>

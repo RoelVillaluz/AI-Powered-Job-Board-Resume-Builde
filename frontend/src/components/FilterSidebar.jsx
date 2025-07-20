@@ -1,98 +1,22 @@
-import { useState, useImperativeHandle, forwardRef } from "react"
-import { industryChoices } from "../../../backend/constants";
+import { useState, useEffect, useImperativeHandle, forwardRef } from "react"
+import { useJobFilters } from "../contexts/JobsListContext";
 
-const FilterSidebar = forwardRef(({ filters, setFilters, allResumeSkills }, ref) => {
+const FilterSidebar = forwardRef(({ user, resumes, filters, setFilters, setAllResumeSkills }, ref) => {
+    const { filterTypes, handleFilterChange } = useJobFilters();
     const [hiddenSections, setHiddenSections] = useState([]);
 
-    const filterTypes =  {
-        // filterType = actual jobPosting fields (jobType, experienceLevel) for filtering
-        "Workplace Type": {
-            "choices": ["Remote", "On-Site", "Hybrid"]
-        },
-        "Working Schedule": {
-            "choices": ['Full-Time', 'Part-Time', 'Contract', 'Internship'],
-            "filterType": "jobType"
-        },
-        "Experience Level": {
-            "choices": ['Intern', 'Entry', 'Mid-Level', 'Senior'],
-            "filterType": "experienceLevel"
-        },
-        "Your Skills": {
-            "choices": allResumeSkills,
-            "filterType": "skills"
-        },
-        "Application Status": {
-            "choices": ['saved', 'applied'],
-            "filterType": "applicationStatus"
-        },
-        "Industry": {
-            "choices": [...Object.keys(industryChoices)],
-            "filterType": "industry"
-        }
-    }
+    const combineResumeSkills = () => {
+        if (!Array.isArray(resumes)) return;
 
-    const handleFilterChange = (filterType, value, key = null) => {
-        setFilters((prevFilters) => {
-            if (filterType === 'minMatchScore') {
-                return {
-                    ...prevFilters,
-                    minMatchScore: parseInt(value)
-                }
-            } else if (filterType === 'salary' && key) {
-                return {
-                    ...prevFilters,
-                    salary: {
-                        amount: {
-                            ...prevFilters.salary.amount,
-                            [key]: value !== null ? parseInt(value) : null
-                        }
-                    }
-                }
-            } else if (filterType === 'jobTitle' || filterType === 'location') {
-                // Handle string values for search
-                return {
-                    ...prevFilters,
-                    [filterType]: value
-                };
-            } else if (filterType === 'applicationStatus') {
-                return {
-                    ...prevFilters,
-                    applicationStatus: {
-                        ...prevFilters.applicationStatus,
-                        [value]: !prevFilters.applicationStatus[value]
-                    }
-                }
-            }
-    
+        const resumeSkills = resumes
+            .flatMap((resume) => Array.isArray(resume.skills)
+            ? resume.skills.map((skill) => skill.name)
+            : []
+            );
 
-            const updatedFilterValues = prevFilters[filterType].includes(value)
-                ? prevFilters[filterType].filter(item => item !== value)
-                : [...prevFilters[filterType], value]
+        const uniqueSkills = [...new Set(resumeSkills)];
 
-            return { ...prevFilters, [filterType]: updatedFilterValues };
-        })
-    } 
-
-    const handleResetFilters = () => {
-        setFilters({
-            salary: {
-                amount: {
-                    min: 0,
-                    max: 0
-                }
-            },
-            jobType: [],
-            experienceLevel: [],
-            skills: [],
-            minMatchScore: 0,
-            jobTitle: "",
-            location: "",
-            applicationStatus: {
-                saved: false,
-                applied: false,
-            },
-            industry: []
-        });
+        setAllResumeSkills(uniqueSkills);
     }
 
     const toggleVisibility = (section) => {
@@ -105,6 +29,10 @@ const FilterSidebar = forwardRef(({ filters, setFilters, allResumeSkills }, ref)
     useImperativeHandle(ref, () => ({
         handleFilterChange
     }))
+
+    useEffect(() => {
+        combineResumeSkills()
+    }, [resumes])
 
     return (
         <aside className="filter-sidebar">

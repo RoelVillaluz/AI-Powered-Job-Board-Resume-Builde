@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react"
-import { industryChoices } from "../../../../backend/constants"
+import { INDUSTRY_CHOICES
+
+ } from "../../../../backend/constants"
 
 function IndustrySection ({ formData, handleChange }) {
     const [selectedIndustries, setSelectedIndustries] = useState(formData.industry || [])
@@ -37,7 +39,9 @@ function IndustrySection ({ formData, handleChange }) {
                 <p>Please choose the industry that best represents your company.</p>
             </header>
             <div className="choice-buttons" id="industry-choice-buttons">
-                {Object.entries(industryChoices).sort(([a], [b]) => a.localeCompare(b)).map(([industry, iconClass], index) => (
+                {Object.entries(INDUSTRY_CHOICES
+
+).sort(([a], [b]) => a.localeCompare(b)).map(([industry, iconClass], index) => (
                     <div className={`choice-button ${selectedIndustries.some((i) => i === industry) ? 'selected' : ''}`} key={index} onClick={() => addOrRemoveIndustry(industry)}>
                         <i className={iconClass}></i>
                         <label htmlFor="">{industry}</label>

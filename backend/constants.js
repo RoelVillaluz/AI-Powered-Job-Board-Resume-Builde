@@ -35,7 +35,11 @@ export const sendResponse = (res, { code, success = true, data = null, message }
     return res.status(code).json(response)
 }
 
-export const industryChoices = {
+export const formattedSalary = (job) => {
+    return `${job.salary.currency}${job.salary.amount.toLocaleString()}/${job.salary.frequency}`
+}
+
+export const INDUSTRY_CHOICES = {
     Technology: "fa-solid fa-microchip",
     Marketing: "fa-solid fa-bullhorn",
     Healthcare: "fa-solid fa-stethoscope",
@@ -50,6 +54,4 @@ export const industryChoices = {
     Government: "fa-solid fa-landmark"
 };
 
-export const formattedSalary = (job) => {
-    return `${job.salary.currency}${job.salary.amount.toLocaleString()}/${job.salary.frequency}`
-}
+export const SORTING_CHOICES = ['Best Match (Default)', 'A-Z', 'Z-A', 'Newest First', 'Highest Salary'];

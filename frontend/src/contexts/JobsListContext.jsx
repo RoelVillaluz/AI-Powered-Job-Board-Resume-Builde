@@ -1,5 +1,7 @@
 import { createContext, useContext, useState, useCallback, useEffect, useMemo, useRef } from "react";
-import { industryChoices } from "../../../backend/constants";
+import { INDUSTRY_CHOICES
+
+ } from "../../../backend/constants";
 import { useData } from "./DataProvider";
 import { useAuth } from "./AuthProvider";
 
@@ -157,7 +159,9 @@ export const JobsListProvider = ({ children }) => {
             "filterType": "applicationStatus"
         },
         "Industry": {
-            "choices": [...Object.keys(industryChoices)],
+            "choices": [...Object.keys(INDUSTRY_CHOICES
+
+)],
             "filterType": "industry"
         }
     }

@@ -2,60 +2,13 @@ import { useState, useMemo, useRef, useEffect } from "react";
 import { useJobFilters } from "../../contexts/JobsListContext";
 import JobPostingCard from "../JobPostingCard";
 import { useAuth } from "../../contexts/AuthProvider";
+import { useJobSorting } from "../../hooks/jobs/useJobSorting";
 
 function JobPostingsListSection() {
     const { user } = useAuth();
     const { filteredJobs } = useJobFilters();
 
-    const sortButtonClickedRef = useRef(false);
-    const sortTypes = ['Best Match (Default)', 'A-Z', 'Z-A', 'Newest First', 'Highest Salary']
-    const [currentSortType, setCurrentSortType] = useState('Best Match (Default)')
-    const [isDropdownVisible, setIsDropdownVisible] = useState(false);
-    const dropdownRef = useRef(null);
-
-    const handleSortButtonClick = (e, type) => {
-        e.stopPropagation();
-        // Set the ref to true to indicate a sort button was clicked
-        sortButtonClickedRef.current = true;
-        setCurrentSortType(type);
-        setIsDropdownVisible(false);
-        console.log("Sort type changed to:", type);
-    }
-
-    const getSortedJobs = useMemo(() => {
-        switch (currentSortType) {
-            case "A-Z":
-                return [...filteredJobs].sort((a, b) => a.title.localeCompare(b.title))
-            case "Z-A":
-                return [...filteredJobs].sort((a, b) => b.title.localeCompare(a.title))
-            case "Newest First":
-                return [...filteredJobs].sort((a, b) => b.postedAt.localeCompare(a.postedAt))
-            case "Highest Salary":
-                return [...filteredJobs].sort((a, b) => b.salary.amount - a.salary.amount)
-            default:
-                return filteredJobs // no need to explicitly sort by similarity, already done in the api backend
-        }
-    }, [currentSortType, filteredJobs])
-
-    // Modified handleClickOutside to respect sort button clicks
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (sortButtonClickedRef.current) {
-                sortButtonClickedRef.current = false;
-                return;
-            }
-            
-            // Otherwise proceed with normal outside click handling
-            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-                setIsDropdownVisible(false);
-            }
-        };
-
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => {
-            document.removeEventListener("mousedown", handleClickOutside);
-        };
-    }, []);  
+    const { sortedJobs, sortTypes, handleSortButtonClick, currentSortType } = useJobSorting(filteredJobs, setIsDropdownVisible, sortButtonClickedRef);
 
     return (
         <section id="job-posting-list">

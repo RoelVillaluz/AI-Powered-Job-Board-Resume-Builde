@@ -14,8 +14,6 @@ import ChatWindowHeader from "../components/Chat/ChatWindowHeader.jsx";
 import MessagesContainer from "../components/Chat/MessagesContainer.jsx";
 
 function ChatsPage() {
-    
-    // Call hooks in exact same order every time
     const { baseUrl } = useData();    
     const { user } = useAuth();
     const { socket } = useSocket();

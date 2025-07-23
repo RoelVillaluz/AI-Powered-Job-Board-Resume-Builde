@@ -25,7 +25,7 @@ function JobPostingsList() {
             <Layout>
                 <div className="container" style={{ alignItems: 'start' }}>
 
-                    <FilterSidebar user={user} filters={filters} setFilters={setFilters} allResumeSkills={allResumeSkills} ref={filterRef}/>
+                    <FilterSidebar ref={filterRef} />
 
                     <main id="job-list-container">
 

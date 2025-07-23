@@ -1,8 +1,8 @@
 import { useState, useEffect, useImperativeHandle, forwardRef } from "react"
 import { useJobFilters } from "../contexts/JobsListContext";
 
-const FilterSidebar = forwardRef(({ user, resumes, filters, setFilters, setAllResumeSkills }, ref) => {
-    const { filterTypes, handleFilterChange } = useJobFilters();
+const FilterSidebar = forwardRef((props, ref) => {
+    const { filters, filterTypes, handleFilterChange, handleResetFilters, allResumeSkills } = useJobFilters();
     const [hiddenSections, setHiddenSections] = useState([]);
 
     const combineResumeSkills = () => {

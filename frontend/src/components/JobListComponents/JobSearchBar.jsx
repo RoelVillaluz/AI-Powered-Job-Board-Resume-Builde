@@ -6,7 +6,6 @@ function JobSearchBar({ filterRef }) {
         jobTitle: "",
         location: ""
     })
-    // const filterRef = useRef(null);
 
     const handleSearchQueryChange = (value, field) => {
         setSearchQuery((prevQuery) => ({

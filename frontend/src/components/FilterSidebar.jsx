@@ -1,23 +1,9 @@
-import { useState, useEffect, useImperativeHandle, forwardRef } from "react"
+import { useState, useImperativeHandle, forwardRef } from "react"
 import { useJobFilters } from "../contexts/JobsListContext";
 
 const FilterSidebar = forwardRef((props, ref) => {
     const { filters, filterTypes, handleFilterChange, handleResetFilters, allResumeSkills } = useJobFilters();
     const [hiddenSections, setHiddenSections] = useState([]);
-
-    const combineResumeSkills = () => {
-        if (!Array.isArray(resumes)) return;
-
-        const resumeSkills = resumes
-            .flatMap((resume) => Array.isArray(resume.skills)
-            ? resume.skills.map((skill) => skill.name)
-            : []
-            );
-
-        const uniqueSkills = [...new Set(resumeSkills)];
-
-        setAllResumeSkills(uniqueSkills);
-    }
 
     const toggleVisibility = (section) => {
         setHiddenSections((prevState) => ({
@@ -29,10 +15,6 @@ const FilterSidebar = forwardRef((props, ref) => {
     useImperativeHandle(ref, () => ({
         handleFilterChange
     }))
-
-    useEffect(() => {
-        combineResumeSkills()
-    }, [resumes])
 
     return (
         <aside className="filter-sidebar">
@@ -46,7 +28,7 @@ const FilterSidebar = forwardRef((props, ref) => {
                     <div className="filter-category">
                         <h4>Date Posted</h4>
                         <div className="select-wrapper">
-                            <select name="" id="date-select">$
+                            <select name="" id="date-select">
                                 <option value="">Anytime</option>
                                 <option value="">This Month</option>
                             </select>

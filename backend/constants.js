@@ -55,3 +55,27 @@ export const INDUSTRY_CHOICES = {
 };
 
 export const SORTING_CHOICES = ['Best Match (Default)', 'A-Z', 'Z-A', 'Newest First', 'Highest Salary'];
+
+export const NO_FILTER_VALUE = 0
+export const DEFAULT_MIN_SALARY = 0
+export const DEFAULT_MAX_SALARY = 0
+
+export const INITIAL_FILTERS = {
+    salary: {
+        amount: {
+            min: 0,
+            max: 0,
+        }
+    },
+    jobType: [],
+    experienceLevel: [],
+    skills: [],
+    minMatchScore: 0,
+    jobTitle: "",
+    location: "",
+    applicationStatus: {
+        saved: false,
+        applied: false
+    },
+    industry: []
+}

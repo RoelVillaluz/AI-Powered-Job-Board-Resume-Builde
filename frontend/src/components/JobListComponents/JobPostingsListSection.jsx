@@ -1,10 +1,10 @@
 import { useState, useMemo, useRef, useEffect, useCallback } from "react";
-import { useJobFilters } from "../../contexts/JobsListContext";
 import JobPostingCard from "../JobPostingCard";
 import { useAuth } from "../../contexts/AuthProvider";
 import { useJobSortDropdown } from "../../hooks/jobs/useJobSortDropdown";
 import { useJobSorting } from "../../hooks/jobs/useJobSorting";
 import JobSorter from "./JobSorter";
+import { useJobFilters } from "../../contexts/JobsListContext";
 
 function JobPostingsListSection() {
     const { user } = useAuth();

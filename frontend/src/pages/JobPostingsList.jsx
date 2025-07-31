@@ -39,7 +39,7 @@ function JobPostingsList() {
                         />
 
                         <JobPostingsListSection
-
+                        
                         />
 
                     </main>

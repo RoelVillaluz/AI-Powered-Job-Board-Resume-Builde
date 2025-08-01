@@ -1,9 +1,18 @@
 import { Link } from "react-router-dom"
 import { useAuth } from "../contexts/AuthProvider"
 import { formattedSalary } from "../../../backend/constants";
+import { useMemo } from "react";
 
 const JobPostingCard = ({ job, user }) => {
     const { toggleSaveJob } = useAuth();
+
+    const isApplied = useMemo(() => {
+        return user.appliedJobs.includes(job._id)
+    }, [user.appliedJobs])
+
+    const appliedJobText = useMemo(() => {
+        return isApplied ? 'Unapply' : 'Apply'
+    }, [isApplied])
     
     return (
         <li className="job-card">
@@ -46,7 +55,7 @@ const JobPostingCard = ({ job, user }) => {
 
             <div className="actions">
 
-                <button className="apply-btn">Apply</button>
+                <button className="apply-btn">{appliedJobText}</button>
                 <button className="save-btn" onClick={(e) => toggleSaveJob(e, job._id)} aria-label="Save job">
                     <i className={`fa-${user.savedJobs.includes(job._id) ? 'solid' : 'regular'} fa-bookmark`}></i>
                 </button>

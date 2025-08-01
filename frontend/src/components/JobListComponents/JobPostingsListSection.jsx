@@ -1,5 +1,5 @@
 import { useState, useMemo, useRef, useEffect, useCallback } from "react";
-import JobPostingCard from "../JobPostingCard";
+import JobPostingCard from "./JobPostingCard";
 import { useAuth } from "../../contexts/AuthProvider";
 import { useJobSortDropdown } from "../../hooks/jobsList/useJobSortDropdown";
 import { useJobSorting } from "../../hooks/jobsList/useJobSorting";

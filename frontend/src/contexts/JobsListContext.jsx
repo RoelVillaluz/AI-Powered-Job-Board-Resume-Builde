@@ -2,7 +2,7 @@ import { createContext, useContext, useState, useCallback, useEffect, useMemo, u
 import { INDUSTRY_CHOICES } from "../../../backend/constants";
 import { useData } from "./DataProvider";
 import { useAuth } from "./AuthProvider";
-import { useJobFilterLogic } from "../hooks/jobs/useJobFilterLogic";
+import { useJobFilterLogic } from "../hooks/jobsList/useJobFilterLogic";
 
 const JobFiltersContext = createContext();
 const JobsStateContext = createContext();

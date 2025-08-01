@@ -91,7 +91,7 @@ const checkSkillsMatch = (filterSkills, jobSkills) => {
 }
 
 const checkIndustryMatch = (filterIndustries, job) => {
-    return filterIndustries.length === 0 || filterIndustries.some(ind => job.company.industry.includes(ind))
+    return filterIndustries.length === 0 || filterIndustries.some(ind => job.company?.industry.includes(ind))
 }
 
 const checkSearchQueryMatch = (filters, job) => {
@@ -149,7 +149,7 @@ export const filterJobs = (allJobs, filters, user) => {
         const matchesExperienceLevel = checkArrayFilterMatch(filters.experienceLevel, job.experienceLevel)
         const matchesSkills = checkSkillsMatch(filters.skills, job.skills)
         const matchesMatchScore = filters.minMatchScore <= 0 || Number(job.similarity) >= filters.minMatchScore
-        const matchesIndustry = checkIndustryMatch(filters.industry, job.company.industry)
+        const matchesIndustry = checkIndustryMatch(filters.industry, job)
         const matchesSearchQuery = checkSearchQueryMatch(filters, job);
         const matchesApplicationStatus = checkApplicationStatusMatch(filters, saved, applied);
         

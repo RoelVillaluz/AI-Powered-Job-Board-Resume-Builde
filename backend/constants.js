@@ -77,5 +77,6 @@ export const INITIAL_FILTERS = {
         saved: false,
         applied: false
     },
-    industry: []
+    industry: [],
+    hasQuestions: false
 }

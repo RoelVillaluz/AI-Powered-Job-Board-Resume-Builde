@@ -120,6 +120,15 @@ const checkApplicationStatusMatch = (filters, saved, applied) => {
     if (filterSaved && filterApplied) return saved || applied;
 }   
 
+const checkHasQuestionsMatch = (hasQuestionsFilter, job) => {
+    // If filter is not enabled, allow all jobs
+    if (!hasQuestionsFilter) return false;
+
+    // If filter is enabled, only allow jobs with pre-screening questions
+    return Array.isArray(job.preScreeningQuestions) && job.preScreeningQuestions.length > 0;
+}
+
+
 const areFiltersApplied = (filters) => {
     return filters.salary?.amount?.min > 0 || 
            filters.salary?.amount?.max > 0 ||
@@ -131,7 +140,8 @@ const areFiltersApplied = (filters) => {
            filters.applicationStatus.applied ||
            (filters.jobTitle && filters.jobTitle !== "") ||
            (filters.location && filters.location !== "") ||
-           filters.industry.length > 0;
+           filters.industry.length > 0 ||
+           filters.hasQuestions;
 };
 
 export const filterJobs = (allJobs, filters, user) => {
@@ -152,18 +162,20 @@ export const filterJobs = (allJobs, filters, user) => {
         const matchesIndustry = checkIndustryMatch(filters.industry, job)
         const matchesSearchQuery = checkSearchQueryMatch(filters, job);
         const matchesApplicationStatus = checkApplicationStatusMatch(filters, saved, applied);
-        
+        const matchesHasQuestions = checkHasQuestionsMatch(filters.hasQuestions, job);
+
         const filtersApplied = areFiltersApplied(filters);
         
         return (
             (!filtersApplied ||
                 (matchesSalary &&
-                 matchesJobType &&
-                 matchesExperienceLevel &&
-                 matchesSkills &&
-                 matchesMatchScore &&
-                 matchesApplicationStatus &&
-                 matchesIndustry)) &&
+                matchesJobType &&
+                matchesExperienceLevel &&
+                matchesSkills &&
+                matchesMatchScore &&
+                matchesApplicationStatus &&
+                matchesIndustry &&
+                matchesHasQuestions)) &&
             matchesSearchQuery
         );
     })

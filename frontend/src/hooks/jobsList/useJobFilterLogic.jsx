@@ -25,6 +25,11 @@ export const useJobFilterLogic = (allResumeSkills, allJobs, user) => {
 
                 case 'applicationStatus':
                     return updateApplicationStatus(prevFilters, value)
+                case 'hasQuestions':
+                    return {
+                        ...prevFilters,
+                        hasQuestions: !prevFilters.hasQuestions
+                    };
 
                 default:
                     return updateArrayFilter(prevFilters, filterType, value)

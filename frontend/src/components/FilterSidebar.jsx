@@ -81,6 +81,20 @@ const FilterSidebar = forwardRef((props, ref) => {
                     </div>
                 </li>
 
+                <li className="filter-category">
+                    <h4>Has Questions</h4>
+                    <ul className="checkbox-list">
+                        <li>
+                            <input
+                                type="checkbox"
+                                value={filters.hasQuestions}
+                                onChange={() => handleFilterChange("hasQuestions")}
+                            />
+                            <label htmlFor="">Has Questions</label>
+                        </li>
+                    </ul>
+                </li>
+
                 <li>
                     {Object.keys(filterTypes).map((section) => (
                         <div className="filter-category" key={section}>

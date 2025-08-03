@@ -122,7 +122,7 @@ const checkApplicationStatusMatch = (filters, saved, applied) => {
 
 const checkHasQuestionsMatch = (hasQuestionsFilter, job) => {
     // If filter is not enabled, allow all jobs
-    if (!hasQuestionsFilter) return false;
+    if (!hasQuestionsFilter) return true;
 
     // If filter is enabled, only allow jobs with pre-screening questions
     return Array.isArray(job.preScreeningQuestions) && job.preScreeningQuestions.length > 0;
@@ -165,7 +165,11 @@ export const filterJobs = (allJobs, filters, user) => {
         const matchesHasQuestions = checkHasQuestionsMatch(filters.hasQuestions, job);
 
         const filtersApplied = areFiltersApplied(filters);
-        
+
+        console.log('User Saved: ', user.savedJobs)
+        console.log('User Applied: ', user.appliedJobs)
+
+
         return (
             (!filtersApplied ||
                 (matchesSalary &&
@@ -178,5 +182,6 @@ export const filterJobs = (allJobs, filters, user) => {
                 matchesHasQuestions)) &&
             matchesSearchQuery
         );
+
     })
 }

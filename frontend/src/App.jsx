@@ -11,7 +11,7 @@ import Dashboard from "./pages/Dashboard";
 import { AuthProvider, useAuth } from "./contexts/AuthProvider.jsx";
 import CreateJobForm from "./pages/CreateJobForm";
 import JobPostingsList from "./pages/JobPostingsList";
-import JobDetailPage from "./components/JobDetailPage";
+import JobDetailPage from "./pages/JobDetailPage.jsx";
 import { useEffect } from "react";
 import ChangePasswordForm from "./pages/ChangePasswordForm";
 import ChatsPage from "./pages/ChatsPage";

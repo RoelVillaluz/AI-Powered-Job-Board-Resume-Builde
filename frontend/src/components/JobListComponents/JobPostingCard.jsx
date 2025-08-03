@@ -2,9 +2,10 @@ import { Link } from "react-router-dom"
 import { useAuth } from "../../contexts/AuthProvider";
 import { formattedSalary } from "../../../../backend/constants";
 import { useMemo } from "react";
+import { useJobActions } from "../../hooks/jobs/useJobActions";
 
 const JobPostingCard = ({ job, user, resume, onShowModal }) => {
-    const { toggleSaveJob, toggleApplyJob } = useAuth();
+    const { toggleSaveJob, toggleApplyJob } = useJobActions();
 
     const isApplied = useMemo(() => {
         return user.appliedJobs.includes(job._id)

@@ -76,7 +76,7 @@ export const AuthProvider = ({ children }) => {
         navigate('/')
     };
 
-    const handleJobAction = async (e, jobId, resume, actionType, hasQuestions = false, showModal, answers = null) => {
+    const handleJobAction = async (e, jobId, resume, actionType, hasQuestions = false, answers = null, isApplied = false) => {
         e.preventDefault();
         e.stopPropagation();
 
@@ -92,10 +92,9 @@ export const AuthProvider = ({ children }) => {
                 return;
             }
 
-            // If applying and there are questions, show modal instead of submitting
-            // But only if we don't already have answers
-            if (actionType === 'apply' && hasQuestions && !answers) {
-                showModal(); // Call the function to show ApplicationFormModal
+            // Only show modal if user is applying for the first time and there are questions
+            if (actionType === 'apply' && hasQuestions && !answers && !isApplied) {
+                showModal(); 
                 return;
             }
 
@@ -119,7 +118,6 @@ export const AuthProvider = ({ children }) => {
                 resume: resume,
             };
 
-            // Only include answers if they exist
             if (answers) {
                 payload.answers = answers;
             }
@@ -132,29 +130,29 @@ export const AuthProvider = ({ children }) => {
                         Authorization: `Bearer ${token}`
                     }
                 }
-            )
+            );
 
             console.log(response.data);
 
             setUser((prevUser) => ({
                 ...prevUser,
                 [userStateKeys[actionType]]: prevUser[userStateKeys[actionType]].includes(jobId)
-                    ? prevUser[userStateKeys[actionType]].filter((id) => id !== jobId) // Remove if already added
-                    : [...prevUser[userStateKeys[actionType]], jobId] // Add if not added
+                    ? prevUser[userStateKeys[actionType]].filter((id) => id !== jobId) // Unapply/Unsave
+                    : [...prevUser[userStateKeys[actionType]], jobId] // Apply/Save
             }));
 
-            // Close the modal after successful submission
-            if (actionType === 'apply' && hasQuestions && showModal) {
-                showModal();
-            }
-
         } catch (error) {
-            console.error('Error', error)
+            console.error('Error', error);
         }
-    }
+    };
+
 
     const toggleSaveJob = (e, jobId) => handleJobAction(e, jobId, null, "save")
-    const toggleApplyJob = (e, jobId, resume, hasQuestions, showModal) => handleJobAction(e, jobId, resume, "apply", hasQuestions, showModal);
+    const toggleApplyJob = (e, jobId, resume, hasQuestions, answers = null) => {
+        const isApplied = user.appliedJobs.includes(jobId);
+        handleJobAction(e, jobId, resume, "apply", hasQuestions, answers, isApplied);
+    };
+
 
     return (
         <AuthContext.Provider value={{ user, setUser, login, logout, loading, refreshUser, toggleSaveJob, toggleApplyJob, handleJobAction }}>

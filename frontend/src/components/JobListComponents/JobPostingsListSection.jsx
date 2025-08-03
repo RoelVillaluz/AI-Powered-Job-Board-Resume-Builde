@@ -6,15 +6,13 @@ import { useJobSorting } from "../../hooks/jobsList/useJobSorting";
 import JobSorter from "./JobSorter";
 import { useJobFilters } from "../../contexts/JobsListContext";
 
-function JobPostingsListSection() {
+function JobPostingsListSection({ currentResume, onShowModal }) {
     const { user } = useAuth();
     const { filteredJobs } = useJobFilters();
-    
+
     const sortButtonClickedRef = useRef(false);
-    
     // Sort Dropdown Hook
     const { dropdownRef, isDropdownVisible, setIsDropdownVisible, toggleDropdown } = useJobSortDropdown(sortButtonClickedRef);
-
     // Actual Sorting Logic Hook
     const { currentSortType, sortedJobs, sortTypes, handleSortButtonClick } = useJobSorting(filteredJobs, setIsDropdownVisible, sortButtonClickedRef);
 
@@ -33,7 +31,7 @@ function JobPostingsListSection() {
             </header>
             <ul>
                 {sortedJobs.map((job) => (
-                    <JobPostingCard job={job} user={user} key={job._id}/>
+                    <JobPostingCard job={job} user={user} key={job._id} resume={currentResume} onShowModal={onShowModal}/>
                 ))}
             </ul>
         </section>

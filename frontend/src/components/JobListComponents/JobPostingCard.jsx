@@ -1,10 +1,10 @@
 import { Link } from "react-router-dom"
-import { useAuth } from "../../contexts/AuthProvider"
+import { useAuth } from "../../contexts/AuthProvider";
 import { formattedSalary } from "../../../../backend/constants";
 import { useMemo } from "react";
 
-const JobPostingCard = ({ job, user, resume }) => {
-    const { toggleSaveJob } = useAuth();
+const JobPostingCard = ({ job, user, resume, onShowModal }) => {
+    const { toggleSaveJob, toggleApplyJob } = useAuth();
 
     const isApplied = useMemo(() => {
         return user.appliedJobs.includes(job._id)
@@ -15,6 +15,17 @@ const JobPostingCard = ({ job, user, resume }) => {
     }, [isApplied])
 
     const hasQuestions = job.preScreeningQuestions.length > 0;
+
+    const handleApplyClick = (e) => {
+        e.preventDefault();
+
+        if (hasQuestions && !user.appliedJobs.includes(job._id)) {
+            onShowModal(job, hasQuestions);
+        } else {
+            toggleApplyJob(e, job._id, resume, hasQuestions);
+        }
+    };
+
     
     return (
         <li className="job-card">
@@ -57,7 +68,7 @@ const JobPostingCard = ({ job, user, resume }) => {
 
             <div className="actions">
 
-                <button className="apply-btn" onClick={(e) => toggleApplyJob(e, job._id, resume, "apply", hasQuestions, showModal)}>{appliedJobText}</button>
+                <button className="apply-btn" onClick={handleApplyClick}>{appliedJobText}</button>
                 <button className="save-btn" onClick={(e) => toggleSaveJob(e, job._id)} aria-label="Save job">
                     <i className={`fa-${user.savedJobs.includes(job._id) ? 'solid' : 'regular'} fa-bookmark`}></i>
                 </button>

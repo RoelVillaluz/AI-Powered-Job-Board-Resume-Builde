@@ -166,9 +166,6 @@ export const filterJobs = (allJobs, filters, user) => {
 
         const filtersApplied = areFiltersApplied(filters);
 
-        console.log('User Saved: ', user.savedJobs)
-        console.log('User Applied: ', user.appliedJobs)
-
 
         return (
             (!filtersApplied ||

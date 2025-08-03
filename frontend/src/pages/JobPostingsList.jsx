@@ -20,24 +20,45 @@ function JobPostingsList() {
     const [hasQuestions, setHasQuestions] = useState(false);
     const [showApplicationModal, setShowApplicationModal] = useState(false);
     const [currentResume, setCurrentResume] = useState(null);
+    const lastEventRef = useRef(null);
+    const [preScreeningAnswers, setPreScreeningAnswers] = useState(null);
+
 
     useEffect(() => {
         document.title = 'All Jobs'
     }, [])
 
     // Toggle application modal visibility
-    const showModal = (job, hasQuestions, currentResume) => {
+    const showModal = (job, hasQuestions, event = null) => {
+        if (event) lastEventRef.current = event;
         setSelectedJob(job);
         setHasQuestions(hasQuestions);
-        setShowApplicationModal(prev => !prev)
-    }
-
+        setShowApplicationModal(true);
+    };
 
     useEffect(() => {
         if (resumes.length === 0) return;
 
         setCurrentResume(resumes[0])
     }, [resumes])
+
+    useEffect(() => {
+        if (preScreeningAnswers) {
+            // Call apply after modal submission
+            handleJobAction(
+                lastEventRef.current || new Event('submit'),  // Use last stored click event
+                selectedJob._id,
+                currentResume._id,
+                'apply',
+                hasQuestions,
+                preScreeningAnswers,
+                false // isApplied
+            );
+            setPreScreeningAnswers(null);  // Reset after submission
+            setShowApplicationModal(false); // Close modal
+        }
+    }, [preScreeningAnswers]);
+
 
     return (
         <>
@@ -69,16 +90,8 @@ function JobPostingsList() {
             {showApplicationModal && hasQuestions && (
                 <ApplicationFormModal 
                     job={selectedJob} 
-                    onClose={() => showModal()} 
-                    onSubmit={(answers) => handleJobAction(
-                        new Event("submit"),
-                        selectedJob._id,
-                        currentResume._id,
-                        "apply", // actionType
-                        hasQuestions,
-                        showModal, 
-                        answers // answers from modal
-                    )}
+                    onClose={() => setShowApplicationModal(false)} 
+                    onSubmit={(answers) => setPreScreeningAnswers(answers)} 
                 />
             )}
         </>

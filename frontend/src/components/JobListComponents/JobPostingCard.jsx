@@ -20,7 +20,7 @@ const JobPostingCard = ({ job, user, resume, onShowModal }) => {
         e.preventDefault();
 
         if (hasQuestions && !user.appliedJobs.includes(job._id)) {
-            onShowModal(job, hasQuestions);
+            onShowModal(job, hasQuestions, e); // Pass the click event
         } else {
             toggleApplyJob(e, job._id, resume, hasQuestions);
         }

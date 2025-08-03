@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react"
-import { useAuth } from "../../contexts/AuthProvider";
+import { useJobActions } from "../../hooks/jobs/useJobActions";
 import { Link } from "react-router-dom";
 import { useData } from "../../contexts/DataProvider";
 import { formattedSalary } from "../../../../backend/constants";
 
 function TopJobSection({ user, resume, shuffledSkills }) {
-    const { toggleApplyJob, toggleSaveJob } = useAuth();
+    const { toggleApplyJob, toggleSaveJob } = useJobActions();
     const { fetchJobRecommendations } = useData();
     const [topJob, setTopJob] = useState(null);
     const [loading, setLoading] = useState(true);

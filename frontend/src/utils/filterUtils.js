@@ -1,4 +1,4 @@
-import { INITIAL_FILTERS, NO_FILTER_VALUE, INDUSTRY_CHOICES } from "../../../backend/constants";
+import { NO_FILTER_VALUE, INDUSTRY_CHOICES, DATE_OPTIONS_MAP } from "../../../backend/constants";
 
 // Update Filter functions
 export const updateMinMatchScore = (prevFilters, value) => ({
@@ -42,6 +42,14 @@ export const updateArrayFilter = (prevFilters, filterType, value) => {
         [filterType]: updatedArray
     }
 }
+
+export const updateDatePostedFilter = (prevFilters, value) => {
+    return {
+        ...prevFilters,
+        datePosted: DATE_OPTIONS_MAP[value] ?? ''
+    };
+};
+
 
 export const createFilterTypes = (allResumeSkills) => ({
     // filterType = actual jobPosting fields (jobType, experienceLevel) for filtering
@@ -128,6 +136,38 @@ const checkHasQuestionsMatch = (hasQuestionsFilter, job) => {
     return Array.isArray(job.preScreeningQuestions) && job.preScreeningQuestions.length > 0;
 }
 
+const checkDateMatches = (datePostedFilter, jobPostedDate) => {
+    if (!datePostedFilter || datePostedFilter === '') return true; // No filter applied
+
+    const jobDate = new Date(jobPostedDate)
+    const now = new Date();
+
+    switch (datePostedFilter) {
+        case 'today':
+            return jobDate.toDateString() === now.toDateString()
+
+        case 'this_week': {
+            const startOfWeek = new Date();
+            startOfWeek.setDate(now.getDate() - now.getDay()) // Sunday
+            startOfWeek.setHours(0, 0, 0, 0)
+            return jobDate >= startOfWeek
+        }
+
+        case 'this_month': {
+            const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+            return jobDate >= startOfMonth
+        }
+
+        case 'last_3_months': {
+            const threeMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 3, now.getDate())
+            return jobDate >= threeMonthsAgo
+        }
+
+        default:
+            return true
+    }
+}
+
 
 const areFiltersApplied = (filters) => {
     return filters.salary?.amount?.min > 0 || 
@@ -141,7 +181,8 @@ const areFiltersApplied = (filters) => {
            (filters.jobTitle && filters.jobTitle !== "") ||
            (filters.location && filters.location !== "") ||
            filters.industry.length > 0 ||
-           filters.hasQuestions;
+           filters.hasQuestions || 
+           filters.datePosted;
 };
 
 export const filterJobs = (allJobs, filters, user) => {
@@ -163,21 +204,25 @@ export const filterJobs = (allJobs, filters, user) => {
         const matchesSearchQuery = checkSearchQueryMatch(filters, job);
         const matchesApplicationStatus = checkApplicationStatusMatch(filters, saved, applied);
         const matchesHasQuestions = checkHasQuestionsMatch(filters.hasQuestions, job);
+        const matchesDatePosted = checkDateMatches(filters.datePosted, job.postedAt)
 
         const filtersApplied = areFiltersApplied(filters);
 
 
         return (
-            (!filtersApplied ||
-                (matchesSalary &&
+            !filtersApplied ||
+            (
+                matchesSalary &&
                 matchesJobType &&
                 matchesExperienceLevel &&
                 matchesSkills &&
                 matchesMatchScore &&
                 matchesApplicationStatus &&
                 matchesIndustry &&
-                matchesHasQuestions)) &&
-            matchesSearchQuery
+                matchesHasQuestions &&
+                matchesDatePosted &&  
+                matchesSearchQuery    
+            )
         );
 
     })

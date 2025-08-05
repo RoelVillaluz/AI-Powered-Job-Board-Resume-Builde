@@ -1,7 +1,7 @@
 
 import { useState, useCallback, useMemo, useRef, useEffect } from "react";
-import { INDUSTRY_CHOICES, NO_FILTER_VALUE, DEFAULT_MIN_SALARY, DEFAULT_MAX_SALARY, INITIAL_FILTERS } from "../../../../backend/constants";
-import { createFilterTypes, filterJobs, updateApplicationStatus, updateArrayFilter, updateMinMatchScore, updateSalaryFilter, updateStringFilter } from "../../utils/filterUtils";
+import { INITIAL_FILTERS } from "../../../../backend/constants";
+import { createFilterTypes, filterJobs, updateApplicationStatus, updateArrayFilter, updateDatePostedFilter, updateMinMatchScore, updateSalaryFilter, updateStringFilter } from "../../utils/filterUtils";
 
 export const useJobFilterLogic = (allResumeSkills, allJobs, user) => {
     const filterRef = useRef(null);
@@ -30,7 +30,8 @@ export const useJobFilterLogic = (allResumeSkills, allJobs, user) => {
                         ...prevFilters,
                         hasQuestions: !prevFilters.hasQuestions
                     };
-
+                case 'datePosted':
+                    return updateDatePostedFilter(prevFilters, value)
                 default:
                     return updateArrayFilter(prevFilters, filterType, value)
             }

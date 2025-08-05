@@ -67,6 +67,7 @@ export const INITIAL_FILTERS = {
             max: 0,
         }
     },
+    datePosted: "Anytime",
     jobType: [],
     experienceLevel: [],
     skills: [],
@@ -80,3 +81,15 @@ export const INITIAL_FILTERS = {
     industry: [],
     hasQuestions: false
 }
+
+export const DATE_OPTIONS_MAP = {
+    'Anytime': '',
+    'Today': 'today',
+    'This Week': 'this_week',
+    'This Month': 'this_month',
+    'Last 3 Months': 'last_3_months'
+}
+
+export const DATE_FILTER_MAP = Object.fromEntries(
+    Object.entries(DATE_OPTIONS_MAP).map(([k, v]) => [v, k])
+);

@@ -1,5 +1,6 @@
-import { useState, useImperativeHandle, forwardRef } from "react"
+import { useState, useImperativeHandle, forwardRef, useMemo } from "react"
 import { useJobFilters } from "../contexts/JobsListContext";
+import { DATE_FILTER_MAP } from "../../../backend/constants";
 
 const FilterSidebar = forwardRef((props, ref) => {
     const { filters, filterTypes, handleFilterChange, handleResetFilters, allResumeSkills } = useJobFilters();
@@ -16,6 +17,15 @@ const FilterSidebar = forwardRef((props, ref) => {
         handleFilterChange
     }))
 
+    const DATE_OPTIONS = ['Anytime', 'Today', 'This Week', 'This Month', 'Last 3 Months']
+
+    const currentDateFilter = useMemo(() => {
+        return DATE_FILTER_MAP[filters.datePosted] || 'Anytime';
+    }, [filters.datePosted]);
+
+    const dateDropdownOptions = DATE_OPTIONS.filter(o => o !== currentDateFilter);
+
+
     return (
         <aside className="filter-sidebar">
             <header>
@@ -28,9 +38,15 @@ const FilterSidebar = forwardRef((props, ref) => {
                     <div className="filter-category">
                         <h4>Date Posted</h4>
                         <div className="select-wrapper">
-                            <select name="" id="date-select">
-                                <option value="">Anytime</option>
-                                <option value="">This Month</option>
+                            <select
+                                name="datePosted"
+                                id="date-select"
+                                value={currentDateFilter}
+                                onChange={(e) => handleFilterChange("datePosted", e.target.value)}
+                            >
+                                {DATE_OPTIONS.map((option, index) => (
+                                    <option value={option} key={index}>{option}</option>
+                                ))}
                             </select>
                             <i className="fa-solid fa-angle-down"></i>
                         </div>

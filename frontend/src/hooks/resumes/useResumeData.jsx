@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-export const useResumes = (baseUrl, jobId, user) => {
+export const useResumeData = (baseUrl, jobId, user) => {
     const [resumes, setResumes] = useState([]);
     const [currentResume, setCurrentResume] = useState(null);
     const [resumeScore, setResumeScore] = useState({

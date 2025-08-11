@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
+import axios from "axios";
 
-export const useJobDetails = (baseUrl, jobId, user) => {
+export const useJobDetails = (baseUrl, jobId) => {
     const [job, setJob] = useState(null);
     const [company, setCompany] = useState(null);
     const hasQuestions = job?.preScreeningQuestions?.length > 0
@@ -49,5 +50,5 @@ export const useJobDetails = (baseUrl, jobId, user) => {
     }, [job, company])
 
     
-
+    return { job, company, loading }
 }

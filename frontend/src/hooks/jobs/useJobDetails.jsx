@@ -50,5 +50,5 @@ export const useJobDetails = (baseUrl, jobId) => {
     }, [job, company])
 
     
-    return { job, company, loading }
+    return { job, company, loading, hasQuestions }
 }

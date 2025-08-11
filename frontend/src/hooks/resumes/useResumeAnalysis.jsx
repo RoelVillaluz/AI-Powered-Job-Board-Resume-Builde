@@ -1,6 +1,20 @@
 import { useState, useEffect } from "react";
+import axios from "axios";
+import { useData } from "../../contexts/DataProvider";
+import { useResume } from "../../contexts/ResumesContext";
+import { useJobDetails } from "../jobs/useJobDetails";
 
 export const useResumeAnalysis = () => {
+    const { baseUrl } = useData();
+    const { currentResume } = useResume();
+    const { job, loading } = useJobDetails();
+
+    const [resumeScore, setResumeScore] = useState({
+        skillSimilarity: 0,
+        experienceSimilarity: 0,
+        requirementsSimilarity: 0,
+        totalScore: 0
+    })
 
     const messages = {
         0: {
@@ -54,4 +68,6 @@ export const useResumeAnalysis = () => {
             compareResumeAndJob();
         }
     }, [currentResume, job, loading])
+
+    return { resumeScore }
 }

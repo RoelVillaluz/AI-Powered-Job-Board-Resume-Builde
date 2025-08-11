@@ -1,5 +1,6 @@
 import { useJobActions } from "../../hooks/jobs/useJobActions"
 import { formatDate } from "../utils/dateUtils";
+
 // Separate component for company banner
 const CompanyBanner = ({ company, loading }) => {
     if (loading) return <div className="banner"/>
@@ -16,6 +17,19 @@ const CompanyBanner = ({ company, loading }) => {
     );
 }
 
+const CompanyLogo = () => {
+    if (loading) return <i className="fa-solid fa-building"></i>
+
+    return company.logo ? (
+        <img 
+            src={`/${company.logo}`} 
+            alt={`${company.name} logo`} 
+            className="company-logo" 
+        />
+    ) : (
+        <i className="fa-solid fa-building"></i>
+    )
+}
 
 function JobDetailHeader({ user, job, company, currentResume, loading, hasQuestions, showModal }) {
     const { toggleApplyJob, toggleSaveJob } = useJobActions();
@@ -25,6 +39,9 @@ function JobDetailHeader({ user, job, company, currentResume, loading, hasQuesti
             {!loading ? (
                 <>                    
                     <CompanyBanner company={company} loading={loading} />
+
+                    <div className="icons">
+                        <CompanyLogo company={company} loading={loading}/>
                         <div className="socials">
                             <div className="social-media-icon">
                             <i className="fa-brands fa-facebook"></i>

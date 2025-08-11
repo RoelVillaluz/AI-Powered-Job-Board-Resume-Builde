@@ -5,6 +5,8 @@ import { useAuth } from './AuthProvider';
 
 const ResumeContext = createContext();
 
+export const useResume = () => useContext(ResumeContext);
+
 const ResumeProvider = ({ children }) => {
     const { baseUrl } = useData();
     const { user, setUser } = useAuth();
@@ -29,5 +31,11 @@ const ResumeProvider = ({ children }) => {
         fetchResumes()
     }, [user?._id])
 
-    return { resumes, currentResume }
+    return (
+        <ResumeContext.Provider value={{ resumes, currentResume }}>
+            {children}
+        </ResumeContext.Provider>
+    );
 }
+
+export default ResumeProvider;

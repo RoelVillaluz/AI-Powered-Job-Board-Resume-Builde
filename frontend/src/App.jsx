@@ -16,6 +16,7 @@ import { useEffect } from "react";
 import ChangePasswordForm from "./pages/ChangePasswordForm";
 import ChatsPage from "./pages/ChatsPage";
 import { JobsListProvider } from "./contexts/JobsListContext.jsx";
+import ResumeProvider from "./contexts/ResumesContext.jsx";
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -35,33 +36,34 @@ function App() {
         <DataProvider>
 
           <SocketProvider>
-            {/* Scroll to top on every route change */}
-            <ScrollToTop />
+            <ResumeProvider>
+              {/* Scroll to top on every route change */}
+                  <ScrollToTop />
 
-            <Routes>
-              <Route path="/" element={<AppRoutes />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="/sign-in" element={<SignIn />} />
-              <Route path="/get-started" element={<GetStartedForm />} />
-              <Route path="/create-job-posting" element={<CreateJobForm />} />
+                  <Routes>
+                  <Route path="/" element={<AppRoutes />} />
+                  <Route path="/register" element={<Register />} />
+                  <Route path="/sign-in" element={<SignIn />} />
+                  <Route path="/get-started" element={<GetStartedForm />} />
+                  <Route path="/create-job-posting" element={<CreateJobForm />} />
 
-              <Route path="/job-postings" element={
-                <JobsListProvider>
-                  <JobPostingsList /> 
-                </JobsListProvider>
-              }/>
+                  <Route path="/job-postings" element={
+                    <JobsListProvider>
+                      <JobPostingsList /> 
+                    </JobsListProvider>
+                  }/>
+                  <Route path="/job-postings/:jobId" element={<JobDetailPage />} />
+                  <Route path="/change-password" element={<ChangePasswordForm />} />
 
-              <Route path="/job-postings/:jobId" element={<JobDetailPage />} />
-              <Route path="/change-password" element={<ChangePasswordForm />} />
+                  <Route path="/messages" element={
+                    <ChatProvider>
+                      <ChatsPage />
+                    </ChatProvider>
+                } />
+              </Routes>
+            </ResumeProvider>
 
-              <Route path="/messages" element={
-                <ChatProvider>
-                  <ChatsPage />
-                </ChatProvider>
-            } />
 
-
-            </Routes>
           </SocketProvider>
           
         </DataProvider>

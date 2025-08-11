@@ -9,12 +9,17 @@ import { useAuth } from "../contexts/AuthProvider";
 import Gauge from "../components/Gauge";
 import ApplicationFormModal from "../components/JobDetailComponents/ApplicationFormModal";
 import { useJobActions } from "../hooks/jobs/useJobActions";
+import { useJobDetails } from "../hooks/jobs/useJobDetails";
+import { useResumeAnalysis } from "../hooks/resumes/useResumeAnalysis";
 
 function JobDetailPage() {
     const { baseUrl } = useData();
     const { jobId } = useParams();
     const { user, setUser  } = useAuth();
+    const { job, company, loading } = useJobDetails(baseUrl, jobId);
+    const { resumeScore } = useResumeAnalysis();
     const { toggleSaveJob, toggleApplyJob, handleJobAction } = useJobActions();
+
     const [showApplicationModal, setShowApplicationModal] = useState(false);
 
     const showModal = () => {
@@ -80,7 +85,7 @@ function JobDetailPage() {
                                     <>
                                         <div className="row">
                                             <h1>{job?.title}</h1>
-                                            <span className="posted-at">{formatDate(job.postedAt)}</span>
+                                            {/* <span className="posted-at">{formatDate(job.postedAt)}</span> */}
                                             <h2>{job.salary.currency}{job.salary.amount.toLocaleString()}<span>/{job.salary.frequency}</span></h2>
                                         </div>
                                         <div className="row">
@@ -117,7 +122,7 @@ function JobDetailPage() {
                                 )}
                             </div>
                         </header>
-                        <section className="job-highlights">
+                        {/* <section className="job-highlights">
                             <ul>
                                 {!loading ? (
                                     <>
@@ -295,7 +300,7 @@ function JobDetailPage() {
                     <section id="similarity-analysis">
                         {/* add gauge here later for similarity percentage */}
                         {/* add feature later here for resume selection */}
-                        <section id="similarity-gauge">
+                        {/* <section id="similarity-gauge">
                             <h3>Resume Analysis</h3>
                             <Gauge progress={resumeScore.totalScore} messages={messages} loading={isComparing} objectName={"Resume"}/>
                             
@@ -324,7 +329,7 @@ function JobDetailPage() {
                                 <span>Or upload new resume</span>
                                 <i className="fa-solid fa-arrow-up"></i>
                             </button>
-                        </section>
+                        </section>  */}
 
                     </section>
 

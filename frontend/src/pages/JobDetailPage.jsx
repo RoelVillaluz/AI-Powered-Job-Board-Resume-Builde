@@ -11,12 +11,13 @@ import ApplicationFormModal from "../components/JobDetailComponents/ApplicationF
 import { useJobActions } from "../hooks/jobs/useJobActions";
 import { useJobDetails } from "../hooks/jobs/useJobDetails";
 import { useResumeAnalysis } from "../hooks/resumes/useResumeAnalysis";
+import { useResume } from "../contexts/ResumesContext";
 
 function JobDetailPage() {
     const { baseUrl } = useData();
     const { jobId } = useParams();
     const { user, setUser  } = useAuth();
-    const { job, company, loading } = useJobDetails(baseUrl, jobId);
+    const { currentResume } = useResume();
     const { resumeScore } = useResumeAnalysis();
     const { toggleSaveJob, toggleApplyJob, handleJobAction } = useJobActions();
 

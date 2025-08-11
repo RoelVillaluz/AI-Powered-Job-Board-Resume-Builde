@@ -1,33 +1,30 @@
 import { useJobActions } from "../../hooks/jobs/useJobActions"
 import { formatDate } from "../utils/dateUtils";
+// Separate component for company banner
+const CompanyBanner = ({ company, loading }) => {
+    if (loading) return <div className="banner"/>
 
-function JobDetailheader({ user, job, company, currentResume, loading, hasQuestions, showModal }) {
+    return company.banner ? (
+        <img 
+            src={`/${company.banner}`} 
+            className="company-banner-image" 
+            alt={`${company.name} banner`}
+            loading="lazy"
+        />
+    ) : (
+        <div className="banner" />
+    );
+}
+
+
+function JobDetailHeader({ user, job, company, currentResume, loading, hasQuestions, showModal }) {
     const { toggleApplyJob, toggleSaveJob } = useJobActions();
 
     return (
         <header>
             {!loading ? (
-                <>
-                    {company.banner ? (
-                    <img 
-                        src={`/${company.banner}`} 
-                        className="company-banner-image" 
-                        alt={`${company.name} banner`}
-                    />
-                    ) : (
-                    <div className="banner"></div>
-                    )}
-                    
-                    <div className="icons">
-                    {company.logo ? (
-                        <img 
-                            src={`/${company.logo}`} 
-                            alt={`${company.name} logo`} 
-                            className="company-logo" 
-                        />
-                    ) : (
-                        <i className="fa-solid fa-building"></i>
-                    )}
+                <>                    
+                    <CompanyBanner company={company} loading={loading} />
                         <div className="socials">
                             <div className="social-media-icon">
                             <i className="fa-brands fa-facebook"></i>

@@ -11,12 +11,14 @@ import ApplicationFormModal from "../components/JobDetailComponents/ApplicationF
 import { useJobActions } from "../hooks/jobs/useJobActions";
 import { useJobDetails } from "../hooks/jobs/useJobDetails";
 import { useResumeAnalysis } from "../hooks/resumes/useResumeAnalysis";
+import JobDetailheader from "../components/JobDetailComponents/JobDetailHeader";
 import { useResume } from "../contexts/ResumesContext";
 
 function JobDetailPage() {
     const { baseUrl } = useData();
     const { jobId } = useParams();
     const { user, setUser  } = useAuth();
+    const { job, company, loading, hasQuestions } = useJobDetails(baseUrl, jobId);
     const { currentResume } = useResume();
     const { resumeScore } = useResumeAnalysis();
     const { toggleSaveJob, toggleApplyJob, handleJobAction } = useJobActions();
@@ -39,90 +41,15 @@ function JobDetailPage() {
                 <main id="job-details-page">
 
                     <section id="job-details">
-                        <header>
-                            {!loading ? (
-                                <>
-                                    {company.banner ? (
-                                    <img 
-                                        src={`/${company.banner}`} 
-                                        className="company-banner-image" 
-                                        alt={`${company.name} banner`}
-                                    />
-                                    ) : (
-                                    <div className="banner"></div>
-                                    )}
-                                    
-                                    <div className="icons">
-                                    {company.logo ? (
-                                        <img 
-                                            src={`/${company.logo}`} 
-                                            alt={`${company.name} logo`} 
-                                            className="company-logo" 
-                                        />
-                                    ) : (
-                                        <i className="fa-solid fa-building"></i>
-                                    )}
-                                        <div className="socials">
-                                            <div className="social-media-icon">
-                                            <i className="fa-brands fa-facebook"></i>
-                                            </div>
-                                            <div className="social-media-icon">
-                                            <i className="fa-brands fa-linkedin-in"></i>
-                                            </div>
-                                            <div className="social-media-icon">
-                                            <i className="fa-solid fa-share-nodes"></i>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </>
-                                ) : (
-                                <>
-                                    <div className="banner"></div>
-                                    <div className="company-logo skeleton"></div>
-                                </>
-                            )}
-                            <div className="job-overview">
-                                {!loading ? (
-                                    <>
-                                        <div className="row">
-                                            <h1>{job?.title}</h1>
-                                            {/* <span className="posted-at">{formatDate(job.postedAt)}</span> */}
-                                            <h2>{job.salary.currency}{job.salary.amount.toLocaleString()}<span>/{job.salary.frequency}</span></h2>
-                                        </div>
-                                        <div className="row">
-                                            <div>
-                                                <h3>{company?.name}</h3>
-                                                <h4>{job.location}</h4>
-                                            </div>
-                                            <div className="actions">
-                                                <button className="apply-btn" onClick={(e) => toggleApplyJob(e, job._id, currentResume._id, hasQuestions, showModal )}>
-                                                    {user.appliedJobs.includes(job._id) ? 'Unapply' : 'Apply Now'}
-                                                </button>
-                                                <button className="save-btn" onClick={(e) => toggleSaveJob(e, job._id)} aria-label="Save job">
-                                                    <i className={`fa-${user?.savedJobs.includes(job?._id) ? 'solid' : 'regular'} fa-bookmark`}></i>
-                                                </button>
-                                                <button className="settings-btn">
-                                                    <i className="fa-solid fa-gear"></i>
-                                                </button>
-                                            </div>
-                                        </div>
-                                        <div className="applicants">
-                                            {job.applicants.map((applicant, index) => (
-                                                <img src={`/${applicant.profilePicture}`} key={index}></img>
-                                            ))}
-                                            <span>{job.applicants.length} {job.applicants.length !== 1 ? 'Applicants' : 'Applicant'}</span>
-                                        </div>
-                                    </>
-                                ) : (
-                                    <>
-                                        <div className="skeleton-text-group">
-                                            <div className="skeleton text long"></div>
-                                            <div className="skeleton text short"></div>
-                                        </div>
-                                    </>
-                                )}
-                            </div>
-                        </header>
+                        <JobDetailheader
+                            user={user}
+                            job={job}
+                            company={company}
+                            currentResume={currentResume}
+                            loading={loading}
+                            hasQuestions={hasQuestions}
+                            showModal={showModal}
+                        />
                         {/* <section className="job-highlights">
                             <ul>
                                 {!loading ? (

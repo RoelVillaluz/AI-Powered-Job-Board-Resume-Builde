@@ -47,6 +47,23 @@ const SocialMediaLinks = ({ company }) => {
     )
 }
 
+const JobActions = ({ job, user, currentResume, toggleApplyJob, toggleSaveJob, hasQuestions, showModal }) => {
+    return (
+        <div className="actions">
+            <button className="apply-btn" onClick={(e) => toggleApplyJob(e, job._id, currentResume._id, hasQuestions, showModal )}>
+                {user.appliedJobs.includes(job._id) ? 'Unapply' : 'Apply Now'}
+            </button>
+            <button className="save-btn" onClick={(e) => toggleSaveJob(e, job._id)} aria-label="Save job">
+                <i className={`fa-${user?.savedJobs.includes(job?._id) ? 'solid' : 'regular'} fa-bookmark`}></i>
+            </button>
+            <button className="settings-btn">
+                <i className="fa-solid fa-gear"></i>
+            </button>
+        </div>
+    )
+}
+
+
 function JobDetailHeader({ user, job, company, currentResume, loading, hasQuestions, showModal }) {
     const { toggleApplyJob, toggleSaveJob } = useJobActions();
 
@@ -83,17 +100,18 @@ function JobDetailHeader({ user, job, company, currentResume, loading, hasQuesti
                                 <h3>{company?.name}</h3>
                                 <h4>{job.location}</h4>
                             </div>
-                            <div className="actions">
-                                <button className="apply-btn" onClick={(e) => toggleApplyJob(e, job._id, currentResume._id, hasQuestions, showModal )}>
-                                    {user.appliedJobs.includes(job._id) ? 'Unapply' : 'Apply Now'}
-                                </button>
-                                <button className="save-btn" onClick={(e) => toggleSaveJob(e, job._id)} aria-label="Save job">
-                                    <i className={`fa-${user?.savedJobs.includes(job?._id) ? 'solid' : 'regular'} fa-bookmark`}></i>
-                                </button>
-                                <button className="settings-btn">
-                                    <i className="fa-solid fa-gear"></i>
-                                </button>
-                            </div>
+                            
+                            <JobActions 
+                                job={job} 
+                                user={user}
+                                company={company} 
+                                currentResume={currentResume} 
+                                toggleApplyJob={toggleApplyJob}
+                                toggleSaveJob={toggleSaveJob}
+                                hasQuestions={hasQuestions} 
+                                showModal={showModal}
+                            />
+
                         </div>
                         <div className="applicants">
                             {job.applicants.map((applicant, index) => (

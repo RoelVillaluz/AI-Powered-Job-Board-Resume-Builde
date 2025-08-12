@@ -1,7 +1,6 @@
 import { useJobActions } from "../../hooks/jobs/useJobActions"
 import { formatDate } from "../utils/dateUtils";
 
-// Separate component for company banner
 const CompanyBanner = ({ company, loading }) => {
     if (loading) return <div className="banner"/>
 
@@ -63,6 +62,16 @@ const JobActions = ({ job, user, currentResume, toggleApplyJob, toggleSaveJob, h
     )
 }
 
+const ApplicantsList = ({ job }) => {
+    return (
+        <div className="applicants">
+            {job.applicants.map((applicant, index) => (
+                <img src={`/${applicant.profilePicture}`} key={index}></img>
+            ))}
+            <span>{job.applicants.length} {job.applicants.length !== 1 ? 'Applicants' : 'Applicant'}</span>
+        </div>
+    )
+}
 
 function JobDetailHeader({ user, job, company, currentResume, loading, hasQuestions, showModal }) {
     const { toggleApplyJob, toggleSaveJob } = useJobActions();
@@ -113,12 +122,7 @@ function JobDetailHeader({ user, job, company, currentResume, loading, hasQuesti
                             />
 
                         </div>
-                        <div className="applicants">
-                            {job.applicants.map((applicant, index) => (
-                                <img src={`/${applicant.profilePicture}`} key={index}></img>
-                            ))}
-                            <span>{job.applicants.length} {job.applicants.length !== 1 ? 'Applicants' : 'Applicant'}</span>
-                        </div>
+                        <ApplicantsList job={job}/>
                     </>
                 ) : (
                     <>
@@ -133,4 +137,4 @@ function JobDetailHeader({ user, job, company, currentResume, loading, hasQuesti
     )
 }
 
-export default JobDetailheader
+export default JobDetailHeader

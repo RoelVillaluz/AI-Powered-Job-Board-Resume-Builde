@@ -41,7 +41,7 @@ function JobDetailPage() {
                 <main id="job-details-page">
 
                     <section id="job-details">
-                        <JobDetailheader
+                        <JobDetailHeader
                             user={user}
                             job={job}
                             company={company}

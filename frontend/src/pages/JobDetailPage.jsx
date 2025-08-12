@@ -11,7 +11,7 @@ import ApplicationFormModal from "../components/JobDetailComponents/ApplicationF
 import { useJobActions } from "../hooks/jobs/useJobActions";
 import { useJobDetails } from "../hooks/jobs/useJobDetails";
 import { useResumeAnalysis } from "../hooks/resumes/useResumeAnalysis";
-import JobDetailheader from "../components/JobDetailComponents/JobDetailHeader";
+import JobDetailHeader from "../components/JobDetailComponents/JobDetailHeader";
 import { useResume } from "../contexts/ResumesContext";
 
 function JobDetailPage() {

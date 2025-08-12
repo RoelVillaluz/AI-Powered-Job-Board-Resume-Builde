@@ -41,18 +41,11 @@ function JobDetailHeader({ user, job, company, currentResume, loading, hasQuesti
                     <CompanyBanner company={company} loading={loading} />
 
                     <div className="icons">
+
                         <CompanyLogo company={company} loading={loading}/>
-                        <div className="socials">
-                            <div className="social-media-icon">
-                            <i className="fa-brands fa-facebook"></i>
-                            </div>
-                            <div className="social-media-icon">
-                            <i className="fa-brands fa-linkedin-in"></i>
-                            </div>
-                            <div className="social-media-icon">
-                            <i className="fa-solid fa-share-nodes"></i>
-                            </div>
-                        </div>
+
+                        <SocialMediaLinks company={company}/>
+                        
                     </div>
                 </>
                 ) : (

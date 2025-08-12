@@ -17,7 +17,7 @@ const CompanyBanner = ({ company, loading }) => {
     );
 }
 
-const CompanyLogo = () => {
+const CompanyLogo = ({ company, loading }) => {
     if (loading) return <i className="fa-solid fa-building"></i>
 
     return company.logo ? (
@@ -28,6 +28,22 @@ const CompanyLogo = () => {
         />
     ) : (
         <i className="fa-solid fa-building"></i>
+    )
+}
+
+const SocialMediaLinks = ({ company }) => {
+    return (
+        <div className="socials">
+            <button className="social-media-icon" aria-label={`Visit ${company.name} on Facebook`}>
+                <i className="fa-brands fa-facebook"></i>
+            </button>
+            <button className="social-media-icon" aria-label={`Visit ${company.name} on Linkedin`}>
+                <i className="fa-brands fa-linkedin-in"></i>
+            </button>
+            <button className="social-media-icon" aria-label={`Share ${company.name}`}>
+                <i className="fa-solid fa-share-nodes"></i>
+            </button>
+        </div>
     )
 }
 

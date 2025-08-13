@@ -14,6 +14,7 @@ import { useResumeAnalysis } from "../hooks/resumes/useResumeAnalysis";
 import JobDetailHeader from "../components/JobDetailComponents/JobDetailHeader";
 import { useResume } from "../contexts/ResumesContext";
 import JobHighlights from "../components/JobDetailComponents/JobHighlights";
+import JobDescription from "../components/JobDetailComponents/JobDescription";
 
 function JobDetailPage() {
     const { baseUrl } = useData();
@@ -51,46 +52,14 @@ function JobDetailPage() {
                             hasQuestions={hasQuestions}
                             showModal={showModal}
                         />
+                        
                         <JobHighlights job={job} company={company} loading={loading}/>
+
+                        <div className="wrapper">
+                            <JobDescription job={job} loading={loading}/>
+                        </div>
                         {/* 
                         <div className="wrapper">
-
-                            <section id="job-description">
-
-                                <div>
-                                    <h3>Description</h3>
-                                    {!loading ? (
-                                        job.description ? (
-                                            <p>{job.description}</p>
-                                        ) : (
-                                            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Perspiciatis facere laborum, impedit iusto fugit porro sequi sint vitae odio ut neque qui, esse mollitia. Corporis cumque veniam enim aliquid adipisci!</p>
-                                        )
-                                    ) : (
-                                        <div className="skeleton-text-group">
-                                            <div className="skeleton text max-width"></div>
-                                            <div className="skeleton text max-width"></div>
-                                            <div className="skeleton text short"></div>
-                                        </div>
-                                    )}
-                                </div>
-
-                                <div>
-                                    <h3>Requirements</h3>
-                                    {!loading ? (
-                                        <ul>
-                                            {job.requirements.map((requirement, index) => (
-                                                <li key={index}>{requirement}</li>
-                                            ))}
-                                    </ul>
-                                    ) : (
-                                        <div className="skeleton-text-group">
-                                            <div className="skeleton text long"></div>
-                                            <div className="skeleton text long"></div>
-                                        </div>
-                                    )}
-                                </div>
-
-                            </section>
 
                             <section id="skills">
                                 

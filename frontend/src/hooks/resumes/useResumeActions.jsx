@@ -39,7 +39,7 @@ export const useResumeActions = (baseUrl, user, setUser, setCurrentResume) => {
         } catch (error) {
             console.error('Failed to add skill:', error);
         }
-    }, [baseUrl, user.resumes, setUser, setCurrentResume]);
+    }, [baseUrl, user, setUser, setCurrentResume]);
 
     return { handleAddSkillToResume }
 }

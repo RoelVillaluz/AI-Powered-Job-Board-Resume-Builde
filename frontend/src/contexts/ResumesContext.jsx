@@ -32,7 +32,7 @@ const ResumeProvider = ({ children }) => {
     }, [user?._id])
 
     return (
-        <ResumeContext.Provider value={{ resumes, currentResume }}>
+        <ResumeContext.Provider value={{ resumes, currentResume, setCurrentResume }}>
             {children}
         </ResumeContext.Provider>
     );

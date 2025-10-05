@@ -15,15 +15,16 @@ import JobDetailHeader from "../components/JobDetailComponents/JobDetailHeader";
 import { useResume } from "../contexts/ResumesContext";
 import JobHighlights from "../components/JobDetailComponents/JobHighlights";
 import JobDescription from "../components/JobDetailComponents/JobDescription";
+import JobSkillsSection from "../components/JobDetailComponents/JobSkillsSection";
 
 function JobDetailPage() {
     const { baseUrl } = useData();
     const { jobId } = useParams();
     const { user, setUser  } = useAuth();
     const { job, company, loading, hasQuestions } = useJobDetails(baseUrl, jobId);
-    const { currentResume } = useResume();
+    const { currentResume, setCurrentResume } = useResume();
     const { resumeScore } = useResumeAnalysis();
-    const { toggleSaveJob, toggleApplyJob, handleJobAction } = useJobActions();
+    const { handleJobAction } = useJobActions();
 
     const [showApplicationModal, setShowApplicationModal] = useState(false);
 
@@ -57,6 +58,17 @@ function JobDetailPage() {
 
                         <div className="wrapper">
                             <JobDescription job={job} loading={loading}/>
+                        </div>
+                        <div className="wrapper">
+                            <JobSkillsSection
+                                baseUrl={baseUrl}
+                                user={user}
+                                setUser={setUser}
+                                job={job} 
+                                loading={loading}
+                                currentResume={currentResume}
+                                setCurrentResume={setCurrentResume}
+                            />
                         </div>
                         {/* 
                         <div className="wrapper">

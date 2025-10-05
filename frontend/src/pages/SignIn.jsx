@@ -4,6 +4,8 @@ import { useData} from "../contexts/DataProvider"
 import { useAuth } from "../contexts/AuthProvider"
 import axios from "axios"
 import VerifyUser from "../components/VerifyUser"
+
+
 function SignIn() {
     const [errorMessage, setErrorMessage] = useState(null);
     const [formData, setFormData] = useState({
@@ -33,14 +35,25 @@ function SignIn() {
         try {
             // Login user
             const response = await axios.post(`${baseUrl}/users/login`, formData)
+
             // extract user and token
             const { user, token } = response.data.data
-
-            login(user, token)
-            navigate('/');
+            
+            if (response.data.success === true) {
+                login(user, token)
+                navigate('/');
+            } else {
+                setErrorMessage(response.data.formattedMessage || 'Incorrect username or password.')
+            }
+            
         } catch (error) {
-            console.error('Error', error)
-            setErrorMessage(error)
+            console.error('Error', error.response || error);
+            // If error.response exists, it means Axios returned a response with error details
+            if (error.response && error.response.data && error.response.data.formattedMessage) {
+                setErrorMessage(error.response.data.formattedMessage);  // Show formatted message from backend
+            } else {
+                setErrorMessage('An unexpected error occurred. Please try again.');
+            }
         }
     }
 

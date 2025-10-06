@@ -1,8 +1,14 @@
 
 import { useMemo } from "react";
 import { useResumeActions } from "../../hooks/resumes/useResumeActions";
+import { useAuth } from "../../contexts/AuthProvider";
+import { useResume } from "../../contexts/ResumesContext";
+import { useData } from "../../contexts/DataProvider";
 
-function JobSkillsSection({ baseUrl, user, setUser, job, loading = false, currentResume, setCurrentResume }) {
+function JobSkillsSection({ job, loading = false }) {
+    const { baseUrl } = useData();
+    const { user, setUser } = useAuth();
+    const { currentResume, setCurrentResume } = useResume();
     const { handleAddSkillToResume } = useResumeActions(baseUrl, user, setUser, setCurrentResume);
 
     // Calculate once per render instead of per-checkbox
@@ -23,11 +29,11 @@ function JobSkillsSection({ baseUrl, user, setUser, job, loading = false, curren
                                 <div className="checkbox-wrapper-19">
                                     <input 
                                         type="checkbox" 
-                                        id={`cbtest-19 ${skill.name}`} 
+                                        id={`cbtest-19-${skill.name}`} 
                                         checked={checkedSkills.has(skill._id)} // 0(1) lookup
                                         onChange={() => handleAddSkillToResume(currentResume?._id, skill)}
                                     />
-                                    <label htmlFor={`cbtest-19 ${skill.name}`} className="check-box" />
+                                    <label htmlFor={`cbtest-19-${skill.name}`} className="check-box" />
                                 </div>
                                 <label htmlFor={`${skill.name}-checkbox`}>{skill.name} {skill.level}</label>
                             </li>

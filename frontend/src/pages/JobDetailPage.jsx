@@ -16,13 +16,14 @@ import { useResume } from "../contexts/ResumesContext";
 import JobHighlights from "../components/JobDetailComponents/JobHighlights";
 import JobDescription from "../components/JobDetailComponents/JobDescription";
 import JobSkillsSection from "../components/JobDetailComponents/JobSkillsSection";
+import JobCompany from "../components/JobDetailComponents/JobCompany";
 
 function JobDetailPage() {
     const { baseUrl } = useData();
     const { jobId } = useParams();
-    const { user, setUser  } = useAuth();
+    const { user } = useAuth();
     const { job, company, loading, hasQuestions } = useJobDetails(baseUrl, jobId);
-    const { currentResume, setCurrentResume } = useResume();
+    const { currentResume } = useResume();
     const { resumeScore } = useResumeAnalysis();
     const { handleJobAction } = useJobActions();
 
@@ -59,15 +60,12 @@ function JobDetailPage() {
                         <div className="wrapper">
                             <JobDescription job={job} loading={loading}/>
                         </div>
+
+                        {/* import statements directly since data is mutated in this specific components */}
                         <div className="wrapper">
                             <JobSkillsSection
-                                baseUrl={baseUrl}
-                                user={user}
-                                setUser={setUser}
                                 job={job} 
                                 loading={loading}
-                                currentResume={currentResume}
-                                setCurrentResume={setCurrentResume}
                             />
                         </div>
 

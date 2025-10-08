@@ -9,7 +9,7 @@ export const useResumeAnalysis = () => {
     const { baseUrl } = useData();
     const { jobId } = useParams();
     const { currentResume } = useResume();
-    const { job, loading } = useJobDetails();
+    const { job, loading } = useJobDetails(baseUrl, jobId);
 
     const [resumeScore, setResumeScore] = useState({
         skillSimilarity: 0,

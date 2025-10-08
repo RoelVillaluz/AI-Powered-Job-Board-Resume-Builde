@@ -5,16 +5,19 @@ import { useMemo } from "react";
 
 const ResumeList = ({ job, resumes, currentResume, setCurrentResume }) => {
 
-    const jobSkillsLowercase = useMemo((job) => 
+    const jobSkillsLowercase = useMemo(() => 
         job?.skills?.map(s => s.name.toLowerCase()) || [],
         [job?.skills]
+
     )
 
     const getMatchedResumeSkills = (resume) => {
         if (!jobSkillsLowercase.length || !resume?.skills) return '';
 
-        const matched = resume.skills.filter(skill => jobSkillsLowercase.includes(skill.name.toLowerCase()))
-
+        const matched = resume.skills.filter(skill => 
+            jobSkillsLowercase.includes(skill.name.toLowerCase())
+        )
+        
         return matched.length > 0 
         ? matched.map(s => s.name).join(', ') 
         : 'No matching skills';

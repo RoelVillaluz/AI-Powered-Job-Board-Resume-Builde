@@ -11,6 +11,7 @@ export const useResumeAnalysis = () => {
     const { currentResume } = useResume();
     const { job, loading } = useJobDetails(baseUrl, jobId);
 
+    const [isComparing, setIsComparing] = useState(false);
     const [resumeScore, setResumeScore] = useState({
         skillSimilarity: 0,
         experienceSimilarity: 0,
@@ -48,28 +49,31 @@ export const useResumeAnalysis = () => {
 
     useEffect(() => {
         const compareResumeAndJob = async () => {
-            setIsComparing(true)
+            
+            setIsComparing(true);
             try {
-                const response = await axios.get(`${baseUrl}/ai/compare/${currentResume?._id}/${job?._id}`)
+                const response = await axios.get(`${baseUrl}/ai/compare/${currentResume._id}/${job._id}`);
+                console.log("Feedback:", response.data);
 
-                console.log('Feedback: ', response.data)
                 setResumeScore({
                     skillSimilarity: response.data.skill_similarity,
                     experienceSimilarity: response.data.experience_similarity,
                     requirementsSimilarity: response.data.requirements_similarity,
-                    totalScore: response.data.total_score
-                })
-                
+                    totalScore: response.data.total_score,
+                });
             } catch (error) {
-                console.error('Error: ', error)
+                console.error("Error:", error);
             } finally {
-                setIsComparing(false)
+                setIsComparing(false);
             }
-        }
-        if (currentResume && job && !loading) {
+        };
+
+        // Only run once both job and resume are ready and loading has *just finished*
+        if (!loading && currentResume?._id && job?._id) {
+            console.log("🚀 Comparing resume and job...");
             compareResumeAndJob();
         }
-    }, [currentResume, job, loading])
+    }, [currentResume._id, job._id, loading])
 
-    return { resumeScore }
+    return { resumeScore, isComparing, messages }
 }

@@ -7,8 +7,6 @@ export const useJobDetails = (baseUrl, jobId) => {
     const hasQuestions = job?.preScreeningQuestions?.length > 0
 
     const [loading, setLoading] = useState(true);
-    const [isComparing, setIsComparing] = useState(false);
-
     const [userPreferences, setUserPreferences] = useState({
     
     })

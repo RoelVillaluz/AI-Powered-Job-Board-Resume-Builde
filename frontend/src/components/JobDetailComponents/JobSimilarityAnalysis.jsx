@@ -49,7 +49,7 @@ const ResumeList = ({ job, resumes, currentResume, setCurrentResume }) => {
     )
 }
 
-function JobSimilarityAnalysis({ job, loading }) {
+function JobSimilarityAnalysis({ job }) {
     const { resumes, currentResume, setCurrentResume } = useResume();
     const { resumeScore, isComparing, messages } = useResumeAnalysis();
 

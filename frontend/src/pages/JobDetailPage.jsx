@@ -81,7 +81,6 @@ function JobDetailPage() {
                     </section>
                     <JobSimilarityAnalysis
                         job={job}
-                        loading={loading}
                     />
 
                 </main> 

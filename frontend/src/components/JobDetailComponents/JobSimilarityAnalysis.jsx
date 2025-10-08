@@ -2,7 +2,7 @@ import { useResume } from "../../contexts/ResumesContext";
 import { useResumeAnalysis } from "../../hooks/resumes/useResumeAnalysis";
 import Gauge from "../Gauge";
 
-function JobSimilarityAnalysis({ loading }) {
+function JobSimilarityAnalysis({ job, loading }) {
     const { resumes, currentResume, setCurrentResume } = useResume();
     const { resumeScore, isComparing, messages } = useResumeAnalysis();
 

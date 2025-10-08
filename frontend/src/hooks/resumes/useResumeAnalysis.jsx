@@ -73,7 +73,7 @@ export const useResumeAnalysis = () => {
             console.log("🚀 Comparing resume and job...");
             compareResumeAndJob();
         }
-    }, [currentResume._id, job._id, loading])
+    }, [currentResume?._id, job?._id, loading])
 
     return { resumeScore, isComparing, messages }
 }

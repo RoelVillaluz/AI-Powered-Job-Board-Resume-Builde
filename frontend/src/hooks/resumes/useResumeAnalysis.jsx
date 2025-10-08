@@ -3,9 +3,11 @@ import axios from "axios";
 import { useData } from "../../contexts/DataProvider";
 import { useResume } from "../../contexts/ResumesContext";
 import { useJobDetails } from "../jobs/useJobDetails";
+import { useParams } from "react-router-dom";
 
 export const useResumeAnalysis = () => {
     const { baseUrl } = useData();
+    const { jobId } = useParams();
     const { currentResume } = useResume();
     const { job, loading } = useJobDetails();
 

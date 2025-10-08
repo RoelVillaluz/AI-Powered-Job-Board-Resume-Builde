@@ -1,13 +1,19 @@
 import { useResume } from "../../contexts/ResumesContext";
 import { useResumeAnalysis } from "../../hooks/resumes/useResumeAnalysis";
 import Gauge from "../Gauge";
+import { useMemo } from "react";
 
 const ResumeList = ({ job, resumes, currentResume, setCurrentResume }) => {
-    const getMatchedResumeSkills = (resume) => {
-        if (!job?.skills || !resume?.skills) return '';
 
-        const jobSkills = job.skills.map(s => s.name.toLowerCase())
-        const matched = resume.skills.filter(skill => jobSkills.includes(skill.name.toLowerCase()))
+    const jobSkillsLowercase = useMemo((job) => 
+        job?.skills?.map(s => s.name.toLowerCase()) || [],
+        [job?.skills]
+    )
+
+    const getMatchedResumeSkills = (resume) => {
+        if (!jobSkillsLowercase.length || !resume?.skills) return '';
+
+        const matched = resume.skills.filter(skill => jobSkillsLowercase.includes(skill.name.toLowerCase()))
 
         return matched.length > 0 
         ? matched.map(s => s.name).join(', ') 

@@ -41,10 +41,10 @@ const ResumeList = ({ job, resumes, currentResume, setCurrentResume }) => {
                     </li>
                 ))}
             </ol>
-            <button className="upload-resume-btn">
-                <span>Or upload new resume</span>
+            <Link to={`/resumes/${user._id}/create`} className="create-resume-link">
+                <span>Or create new resume</span>
                 <i className="fa-solid fa-arrow-up"></i>
-            </button>
+            </Link>
         </section>
     )
 }

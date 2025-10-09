@@ -101,6 +101,15 @@
     margin-top: 0.5rem;
 }
 
+.circle-spinner {
+    width: 0.95rem;
+    height: 0.95rem;
+    border: 1px solid #f3f3f3;
+    border-top: 2px solid black;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
 @keyframes skeleton-shimmer {
     0% {
       left: -150px;
@@ -110,5 +119,13 @@
     }
     100% {
       left: 100%; /* stays at final position from 60%-100% (≈1s pause) */
+    }
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    } 100% {
+        transform: rotate(360deg);
     }
 }

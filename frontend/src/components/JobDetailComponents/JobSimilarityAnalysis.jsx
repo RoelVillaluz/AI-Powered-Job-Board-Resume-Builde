@@ -27,19 +27,21 @@ const ResumeList = ({ job, resumes, currentResume, setCurrentResume }) => {
         <section id="resume-list">
             <h3>Select Resume</h3>
             <ol className="custom-ol">
-                {resumes.map((resume, index) => (
-                    <li 
+                {resumes.length > 0 && (
+                    resumes.map((resume, index) => (
+                        <li 
                             className={`custom-li ${currentResume._id === resume._id ? 'current': ''}`} 
                             key={resume._id}
                             onClick={() => setCurrentResume(resume)}
                         >
-                        <div className="wrapper">
-                            <h4>Resume {index + 1}</h4> 
-                            <i className="fa-solid fa-angle-down" aria-label="Toggle content visibility"></i>
-                        </div>
-                        <span className="joined-skills">Matched skills: {getMatchedResumeSkills(resume)}</span>
-                    </li>
-                ))}
+                            <div className="wrapper">
+                                <h4>Resume {index + 1}</h4> 
+                                <i className="fa-solid fa-angle-down" aria-label="Toggle content visibility"></i>
+                            </div>
+                            <span className="joined-skills">Matched skills: {getMatchedResumeSkills(resume)}</span>
+                        </li>
+                    ))
+                )}
             </ol>
             <Link to={`/resumes/${user._id}/create`} className="create-resume-link">
                 <span>Or create new resume</span>

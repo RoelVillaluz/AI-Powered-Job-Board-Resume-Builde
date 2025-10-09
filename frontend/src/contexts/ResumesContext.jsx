@@ -13,9 +13,14 @@ const ResumeProvider = ({ children }) => {
 
     const [resumes, setResumes] = useState([]);
     const [currentResume, setCurrentResume] = useState(null);
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         const fetchResumes = async () => {
+            if (!user._id) return;
+
+            setLoading(true)
+
             try {
                 const response = await axios.get(`${baseUrl}/resumes/user/${user?._id}`)
                 console.log('User Resumes: ', response.data.data)
@@ -26,13 +31,15 @@ const ResumeProvider = ({ children }) => {
                 }
             } catch (error) {
                 console.error('Error: ', error)
+            } finally {
+                setLoading(false)
             }
         }
         fetchResumes()
     }, [user?._id])
 
     return (
-        <ResumeContext.Provider value={{ resumes, currentResume, setCurrentResume }}>
+        <ResumeContext.Provider value={{ resumes, currentResume, setCurrentResume, loading }}>
             {children}
         </ResumeContext.Provider>
     );

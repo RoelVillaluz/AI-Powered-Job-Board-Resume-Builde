@@ -1,7 +1,9 @@
+import { useAuth } from "../../contexts/AuthProvider";
 import { useResume } from "../../contexts/ResumesContext";
 import { useResumeAnalysis } from "../../hooks/resumes/useResumeAnalysis";
 import Gauge from "../Gauge";
 import { useMemo } from "react";
+import { Link } from "react-router-dom";
 
 const ResumeList = ({ job, resumes, currentResume, setCurrentResume }) => {
     const { user } = useAuth()
@@ -18,7 +20,7 @@ const ResumeList = ({ job, resumes, currentResume, setCurrentResume }) => {
         const matched = resume.skills.filter(skill => 
             jobSkillsLowercase.includes(skill.name.toLowerCase())
         )
-        
+
         return matched.length > 0 
         ? matched.map(s => s.name).join(', ') 
         : 'No matching skills';
@@ -54,11 +56,10 @@ const ResumeList = ({ job, resumes, currentResume, setCurrentResume }) => {
 
 function JobSimilarityAnalysis({ job }) {
     const { resumes, currentResume, setCurrentResume } = useResume();
-    const { resumeScore, isComparing, messages } = useResumeAnalysis();
+    const { resumeScore, isComparing, messages, error } = useResumeAnalysis();
 
     return (
         <section id="similarity-analysis">
-            {/* add gauge here later for similarity percentage */}
             {/* add feature later here for resume selection */}
             <section id="similarity-gauge">
                 <h3>Resume Analysis</h3>
@@ -69,9 +70,12 @@ function JobSimilarityAnalysis({ job }) {
                     <p>Strengths: High skill similarity</p>
                     <p>Weaknesses: Low relevant work experience. No college degree yet.</p>
                 </div>
+
+                <h2>Error: {error}</h2>
                 
             </section>
 
+            {/* fix prop drilling here later, since the props arent getting used just passed, maybe move down directly to the component */}
             <ResumeList job={job} resumes={resumes} currentResume={currentResume} setCurrentResume={setCurrentResume}/>
         </section>
     )

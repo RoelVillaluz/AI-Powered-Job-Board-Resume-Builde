@@ -93,3 +93,30 @@ export const DATE_OPTIONS_MAP = {
 export const DATE_FILTER_MAP = Object.fromEntries(
     Object.entries(DATE_OPTIONS_MAP).map(([k, v]) => [v, k])
 );
+
+export const RESUME_ANALYSIS_MESSAGES = {
+        0: {
+            rating: "No Resume yet",
+            message: "You haven't uploaded a resume for this job. Consider adding one to improve your chances.",
+        },
+        0.25: {
+            rating: "Poor",
+            message: "Your resume has very few matching skills for this job. Try updating it with relevant skills.",
+        },
+        0.5: {
+            rating: "Average",
+            message: "Your resume matches some of the job's skills. A few tweaks could make it stronger.",
+        },
+        0.75: {
+            rating: "Good",
+            message: "Your resume aligns well with this job posting. A couple more relevant skills would make it great.",
+        },
+        0.9: {
+            rating: "Great",
+            message: "Your resume is a strong match for this job. You're just a step away from an excellent fit.",
+        },
+        1: {
+            rating: "Excellent",
+            message: "Your resume perfectly matches the job posting. You’re a top candidate for this role!",
+        },
+    };

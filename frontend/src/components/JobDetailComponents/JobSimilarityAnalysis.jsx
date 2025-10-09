@@ -4,6 +4,7 @@ import Gauge from "../Gauge";
 import { useMemo } from "react";
 
 const ResumeList = ({ job, resumes, currentResume, setCurrentResume }) => {
+    const { user } = useAuth()
 
     const jobSkillsLowercase = useMemo(() => 
         job?.skills?.map(s => s.name.toLowerCase()) || [],

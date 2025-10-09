@@ -5,8 +5,9 @@ import Gauge from "../Gauge";
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
 
-const ResumeList = ({ job, resumes, currentResume, setCurrentResume }) => {
+const ResumeList = ({ job }) => {
     const { user } = useAuth()
+    const { resumes, currentResume, setCurrentResume } = useResume();
 
     const jobSkillsLowercase = useMemo(() => 
         job?.skills?.map(s => s.name.toLowerCase()) || [],
@@ -55,7 +56,6 @@ const ResumeList = ({ job, resumes, currentResume, setCurrentResume }) => {
 }
 
 function JobSimilarityAnalysis({ job }) {
-    const { resumes, currentResume, setCurrentResume } = useResume();
     const { resumeScore, isComparing, messages, error } = useResumeAnalysis();
 
     return (
@@ -75,8 +75,7 @@ function JobSimilarityAnalysis({ job }) {
                 
             </section>
 
-            {/* fix prop drilling here later, since the props arent getting used just passed, maybe move down directly to the component */}
-            <ResumeList job={job} resumes={resumes} currentResume={currentResume} setCurrentResume={setCurrentResume}/>
+            <ResumeList job={job}/>
         </section>
     )
 }

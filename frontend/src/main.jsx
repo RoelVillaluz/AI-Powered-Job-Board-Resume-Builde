@@ -4,7 +4,7 @@ import './styles/styles.css'
 import './styles/navbar.css'
 import './styles/forms.css'
 import './styles/animations.css'
-import './styles/animations.css'
+import './styles/analysis.css'
 import './styles/jobs.css'
 import './styles/skeleton.css'
 

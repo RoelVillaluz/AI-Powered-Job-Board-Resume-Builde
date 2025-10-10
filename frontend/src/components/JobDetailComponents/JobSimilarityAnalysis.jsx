@@ -11,7 +11,7 @@ const LoadingSkeleton = () => {
     return (
         <ol className="custom-ol" style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '1rem' }}>
             {[1, 2, 3].map((i) => (
-                <li className="skeleton text max-width"></li>
+                <li key={i} className="skeleton text max-width"></li>
             ))}
         </ol>
     )
@@ -48,8 +48,11 @@ const ResumeList = ({ job }) => {
                 )}
             </div>
             {loading ? (
+                <LoadingSkeleton/>
+            ) : (
+                
                 <ol className="custom-ol">
-                    {resumes.length > 0 && (
+                    {resumes.length > 0 ? (
                         resumes.map((resume, index) => (
                             <li 
                                 className={`custom-li ${currentResume._id === resume._id ? 'current': ''}`} 
@@ -67,8 +70,6 @@ const ResumeList = ({ job }) => {
                         <span>{EMPTY_STATE_MESSAGE}</span>
                     )}
                 </ol>
-            ) : (
-                <LoadingSkeleton/>
             )}
             <Link to={`/resumes/${user._id}/create`} className="create-resume-link">
                 <span>Or create new resume</span>

@@ -42,8 +42,8 @@ const ResumeList = ({ job }) => {
     return (
         <section id="resume-list">
             <div className="wrapper" style={{ alignItems: 'center', gap: '0.75rem' }}>
-                <h3>{loading ? 'Select Resume' : 'Loading Resumes'}</h3>
-                {!loading && (
+                <h3>{loading ? 'Loading Resumes' : 'Select Resumes'}</h3>
+                {loading && (
                     <div className="circle-spinner" aria-label="Loading"></div>
                 )}
             </div>

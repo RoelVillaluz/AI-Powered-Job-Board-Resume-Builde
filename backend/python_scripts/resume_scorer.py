@@ -183,9 +183,9 @@ def compare_resume_to_job(resume_id, job_id):
 
 
     value_weights = {
-        "skill_similarity": 0.5,
-        "experience_similarity": 0.25,
-        "requirements_similarity": 0.25
+        "skill_similarity": 0.65,
+        "experience_similarity": 0.35,
+        # "requirements_similarity": 0.25
     }
 
     total_score = 0

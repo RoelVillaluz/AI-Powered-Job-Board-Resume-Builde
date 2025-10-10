@@ -93,7 +93,7 @@ function JobSimilarityAnalysis({ job }) {
                 {strengths && !isComparing && (
                     <div className="feedback-messages-container" style={{ paddingTop: '1rem', borderTop: 'solid 1px #dedfe0'}}>
                         <div className="wrapper">
-                            <i class="fa-solid fa-circle-check"></i>
+                            <i className="fa-solid fa-circle-check"></i>
                             <h4>Strengths</h4>
                         </div>
                         <ul>
@@ -110,7 +110,7 @@ function JobSimilarityAnalysis({ job }) {
                 {improvements && !isComparing && (
                     <div className="feedback-messages-container">
                         <div className="wrapper">
-                            <i class="fa-solid fa-circle-exclamation"></i>
+                            <i className="fa-solid fa-circle-exclamation"></i>
                             <h4>Areas for Improvement</h4>
                         </div>
                         <ul>

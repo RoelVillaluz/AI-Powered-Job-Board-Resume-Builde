@@ -66,3 +66,49 @@
     margin-bottom: 0.5rem;
     animation: floatUpAndDown 2s ease-in-out infinite;
 }
+
+.feedback-messages-container .wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.feedback-messages-container .fa-circle-check,
+.feedback-messages-container .fa-check
+{
+    color: rgb(14, 155, 89);
+}
+
+.feedback-messages-container .fa-circle-exclamation,
+.feedback-messages-container .fa-exclamation
+{
+    color: rgb(192, 171, 80);
+}
+
+.feedback-messages-container h4 {
+    font-size: clamp(0.5rem, 0.85vw, 1.25rem);
+    font-weight: 600;
+    letter-spacing: -0.25px;
+}
+
+.feedback-messages-container ul {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    margin-top: 0.75rem;
+}
+
+.feedback-messages-container li {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: clamp(0.5rem, 0.75vw, 1.25rem);
+    font-weight: 400;
+}
+
+.feedback-messages-container li i {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1rem;
+}

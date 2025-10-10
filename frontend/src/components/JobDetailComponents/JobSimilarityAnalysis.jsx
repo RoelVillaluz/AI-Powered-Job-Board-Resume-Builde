@@ -4,6 +4,7 @@ import { useResumeAnalysis } from "../../hooks/resumes/useResumeAnalysis";
 import Gauge from "../Gauge";
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
+import { SKILL_ANALYSIS_MESSAGES, EXPERIENCE_ANALYSIS_MESSAGES } from "../../../../backend/constants";
 
 const EMPTY_STATE_MESSAGE = 'No resumes found, try creating one first.'
 
@@ -89,11 +90,38 @@ function JobSimilarityAnalysis({ job }) {
                 <h3>Resume Analysis</h3>
                 <Gauge progress={resumeScore.totalScore} messages={messages} loading={isComparing} objectName={"Resume"}/>
                 
+                <div className="feedback-messages-container" style={{ paddingTop: '1rem', borderTop: 'solid 1px #dedfe0'}}>
+                    <div className="wrapper">
+                        <i class="fa-solid fa-circle-check"></i>
+                        <h4>Strengths</h4>
+                    </div>
+                    <ul>
+                        <li>
+                            <i class="fa-solid fa-check"></i>
+                            High skill similarity
+                        </li>
+                    </ul>
+                </div>
+
+                <div className="feedback-messages-container">
+                    <div className="wrapper">
+                        <i class="fa-solid fa-circle-exclamation"></i>
+                        <h4>Areas for Improvement</h4>
+                    </div>
+                    <ul>
+                        <li>
+                            <i class="fa-solid fa-exclamation"></i>
+                            Low relevant work experience.
+                        </li>
+                    </ul>
+                </div>
+
                 {/* <div>
                     <h6>Change Resume scorer later to make this have dynamic feedback</h6>
                     <p>Strengths: High skill similarity</p>
                     <p>Weaknesses: Low relevant work experience. No college degree yet.</p>
                 </div>
+                
 
                 <h2>Error: {error}</h2> */}
                 

@@ -120,3 +120,39 @@ export const RESUME_ANALYSIS_MESSAGES = {
             message: "Your resume perfectly matches the job posting. You’re a top candidate for this role!",
         },
     };
+
+export const SKILL_ANALYSIS_MESSAGES = {
+    0: {
+        message: 'No matching skills yet. Check the job description and start building these skills!'
+    },
+    0.25: {
+        message: 'Very few skills match. Consider learning the key skills listed in the job posting.'
+    },
+    0.5: {
+        message: 'Some of your skills align with this position. Adding a few more would strengthen your profile.'
+    },
+    0.75: {
+        message: 'Most of your skills match this job really well. Just a couple more and you\'ll be all set!'
+    },
+    1: {
+        message: 'Your skills are an excellent match! You\'ve got the right tools for this role.'
+    }
+};
+
+export const EXPERIENCE_ANALYSIS_MESSAGES = {
+    0: {
+        message: 'You don\'t have direct experience yet, but don\'t worry! Consider looking for entry-level roles or internships in this field.'
+    },
+    0.25: {
+        message: 'Limited experience in this area. Highlight any transferable skills from your current experience.'
+    },
+    0.5: {
+        message: 'You have some relevant experience. With a bit more growth, you\'ll be a strong candidate.'
+    },
+    0.75: {
+        message: 'Your work experience aligns nicely with this position. You\'re looking like a solid fit!'
+    },
+    1: {
+        message: 'Your experience is a perfect match for this role. You\'re well-positioned to succeed here!'
+    }
+};

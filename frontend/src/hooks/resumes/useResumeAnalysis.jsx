@@ -5,6 +5,7 @@ import { useResume } from "../../contexts/ResumesContext";
 import { useJobDetails } from "../jobs/useJobDetails";
 import { useParams } from "react-router-dom";
 import { RESUME_ANALYSIS_MESSAGES } from "../../../../backend/constants";
+import { SKILL_ANALYSIS_MESSAGES, EXPERIENCE_ANALYSIS_MESSAGES } from "../../../../backend/constants";
 
 export const useResumeAnalysis = () => {
     const { baseUrl } = useData();
@@ -20,6 +21,19 @@ export const useResumeAnalysis = () => {
         requirementsSimilarity: 0,
         totalScore: 0
     })
+    const [strengths, setStrengths] = useState([]);
+    const [improvements, setImprovements] = useState([]);
+
+    // Function to map similarity score to the corresponding message
+    const mapScoreToMessage = (score, analysisMessages) => {
+        // Find the closest threshold
+        const thresholds = [0, 0.25, 0.5, 0.75, 1];
+        const closest = thresholds.reduce((prev, curr) =>
+            Math.abs(curr - score) < Math.abs(prev - score) ? curr : prev
+        );
+        
+        return analysisMessages[closest];
+    };
 
     useEffect(() => {
         let isCancelled = false;
@@ -32,12 +46,46 @@ export const useResumeAnalysis = () => {
                 console.log("Feedback:", response.data);
 
                 if (!isCancelled) {
+                    const skillSim = response.data.skill_similarity;
+                    const expSim = response.data.experience_similarity;
+
                     setResumeScore({
-                        skillSimilarity: response.data.skill_similarity,
-                        experienceSimilarity: response.data.experience_similarity,
+                        skillSimilarity: skillSim,
+                        experienceSimilarity: expSim,
                         requirementsSimilarity: response.data.requirements_similarity,
                         totalScore: response.data.total_score,
                     });
+
+                    // Determine strengths and improvements dynamically
+                    const newStrengths = [];
+                    const newImprovements = [];
+
+                    // Map skill similarity
+                    const skillMsg = mapScoreToMessage(skillSim, SKILL_ANALYSIS_MESSAGES);
+                    if (skillMsg) {
+                        if (skillSim >= 0.5) {
+                            newStrengths.push(skillMsg.message);
+                        } else {
+                            newImprovements.push(skillMsg.message);
+                        }
+                    }
+
+                    // Map experience similarity
+                    const expMsg = mapScoreToMessage(expSim, EXPERIENCE_ANALYSIS_MESSAGES);
+                    if (expMsg) {
+                        if (expSim >= 0.5) {
+                            newStrengths.push(expMsg.message);
+                        } else {
+                            newImprovements.push(expMsg.message);
+                        }
+                    }
+
+                    // Update the state
+                    setStrengths(newStrengths);
+                    setImprovements(newImprovements);
+
+                    console.log("Strengths:", newStrengths);
+                    console.log("Improvements:", newImprovements);
                 }
             } catch (err) {
                 if (!isCancelled) {
@@ -81,6 +129,9 @@ export const useResumeAnalysis = () => {
                         requirementsSimilarity: 0,
                         totalScore: 0,
                     });
+
+                    setStrengths([]);
+                    setImprovements([]);
                 }
             } finally {
                 setIsComparing(false);
@@ -98,5 +149,5 @@ export const useResumeAnalysis = () => {
 
     }, [currentResume?._id, job?._id, loading, baseUrl])
 
-    return { resumeScore, isComparing, messages: RESUME_ANALYSIS_MESSAGES, error }
+    return { resumeScore, isComparing, messages: RESUME_ANALYSIS_MESSAGES, strengths, improvements, error }
 }

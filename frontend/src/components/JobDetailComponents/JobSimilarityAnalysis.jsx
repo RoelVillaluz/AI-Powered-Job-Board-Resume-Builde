@@ -81,7 +81,7 @@ const ResumeList = ({ job }) => {
 }
 
 function JobSimilarityAnalysis({ job }) {
-    const { resumeScore, isComparing, messages, error } = useResumeAnalysis();
+    const { resumeScore, isComparing, messages, strengths, improvements, error } = useResumeAnalysis();
 
     return (
         <section id="similarity-analysis">
@@ -90,40 +90,41 @@ function JobSimilarityAnalysis({ job }) {
                 <h3>Resume Analysis</h3>
                 <Gauge progress={resumeScore.totalScore} messages={messages} loading={isComparing} objectName={"Resume"}/>
                 
-                <div className="feedback-messages-container" style={{ paddingTop: '1rem', borderTop: 'solid 1px #dedfe0'}}>
-                    <div className="wrapper">
-                        <i class="fa-solid fa-circle-check"></i>
-                        <h4>Strengths</h4>
+                {strengths && !isComparing && (
+                    <div className="feedback-messages-container" style={{ paddingTop: '1rem', borderTop: 'solid 1px #dedfe0'}}>
+                        <div className="wrapper">
+                            <i class="fa-solid fa-circle-check"></i>
+                            <h4>Strengths</h4>
+                        </div>
+                        <ul>
+                            {strengths.map((strength, index) => (
+                                <li key={index}>
+                                    <i className="fa-solid fa-check"></i>
+                                    {strength}
+                                </li>
+                            ))}
+                        </ul>
                     </div>
-                    <ul>
-                        <li>
-                            <i class="fa-solid fa-check"></i>
-                            High skill similarity
-                        </li>
-                    </ul>
-                </div>
+                )}
 
-                <div className="feedback-messages-container">
-                    <div className="wrapper">
-                        <i class="fa-solid fa-circle-exclamation"></i>
-                        <h4>Areas for Improvement</h4>
+                {improvements && !isComparing && (
+                    <div className="feedback-messages-container">
+                        <div className="wrapper">
+                            <i class="fa-solid fa-circle-exclamation"></i>
+                            <h4>Areas for Improvement</h4>
+                        </div>
+                        <ul>
+                            {improvements.map((improvement, index) => (
+                                <li key={index}>
+                                    <i className="fa-solid fa-exclamation"></i>
+                                    {improvement}
+                                </li>
+                            ))}
+                        </ul>
                     </div>
-                    <ul>
-                        <li>
-                            <i class="fa-solid fa-exclamation"></i>
-                            Low relevant work experience.
-                        </li>
-                    </ul>
-                </div>
+                )}
 
-                {/* <div>
-                    <h6>Change Resume scorer later to make this have dynamic feedback</h6>
-                    <p>Strengths: High skill similarity</p>
-                    <p>Weaknesses: Low relevant work experience. No college degree yet.</p>
-                </div>
-                
-
-                <h2>Error: {error}</h2> */}
+                {/* <h2>Error: {error}</h2>  */}
                 
             </section>
 

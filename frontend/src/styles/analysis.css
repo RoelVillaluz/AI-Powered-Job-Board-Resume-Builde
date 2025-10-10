@@ -100,7 +100,7 @@
 
 .feedback-messages-container li {
     display: flex;
-    align-items: center;
+    align-items: start;
     gap: 0.25rem;
     font-size: clamp(0.5rem, 0.75vw, 1.25rem);
     font-weight: 400;

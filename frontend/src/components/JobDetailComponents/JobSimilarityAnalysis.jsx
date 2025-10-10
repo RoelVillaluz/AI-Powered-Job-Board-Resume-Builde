@@ -5,6 +5,8 @@ import Gauge from "../Gauge";
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
 
+const EMPTY_STATE_MESSAGE = 'No resumes found, try creating one first.'
+
 const LoadingSkeleton = () => {
     return (
         <ol className="custom-ol" style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '1rem' }}>
@@ -61,6 +63,8 @@ const ResumeList = ({ job }) => {
                                 <span className="joined-skills">Matched skills: {getMatchedResumeSkills(resume)}</span>
                             </li>
                         ))
+                    ) : (
+                        <span>{EMPTY_STATE_MESSAGE}</span>
                     )}
                 </ol>
             ) : (

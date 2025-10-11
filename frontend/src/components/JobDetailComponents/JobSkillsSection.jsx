@@ -13,7 +13,7 @@ function JobSkillsSection({ job, loading = false }) {
 
     // Calculate once per render instead of per-checkbox
     const checkedSkills = useMemo(() => 
-        new Set(currentResume?.skills.map(s => s._id) || []),
+        new Set(currentResume?.skills.map(s => s.name) || []),
         [currentResume?.skills]
     )
 
@@ -30,8 +30,8 @@ function JobSkillsSection({ job, loading = false }) {
                                     <input 
                                         type="checkbox" 
                                         id={`cbtest-19-${skill.name}`} 
-                                        checked={checkedSkills.has(skill._id)} // 0(1) lookup
-                                        onChange={() => handleAddSkillToResume(currentResume?._id, skill)}
+                                        checked={checkedSkills.has(skill.name)} // 0(1) lookup
+                                        onChange={() => handleAddSkillToResume(currentResume?.name, skill)}
                                     />
                                     <label htmlFor={`cbtest-19-${skill.name}`} className="check-box" />
                                 </div>

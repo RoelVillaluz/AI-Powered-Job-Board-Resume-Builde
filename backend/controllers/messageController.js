@@ -54,12 +54,21 @@ export const getMessagesByUser = async (req, res) => {
 
 export const createMessage = async (req, res) => {
     const messageData = req.body;
-    const requiredFields = ["sender", "receiver", "content"];
+    const requiredFields = ["sender", "receiver"];
 
     try {
         const missingField = checkMissingFields(requiredFields, messageData);
         if (missingField) {
             return sendResponse(res, { ...STATUS_MESSAGES.ERROR.MISSING_FIELD(missingField), success: false }, 'Message');
+        }
+
+        // NEW: Validate that at least one of content or attachment exists
+        if ((!messageData.content || !messageData.content.trim()) && !messageData.attachment) {
+            return sendResponse(
+                res, 
+                { message: 'Either content or attachment is required', success: false }, 
+                'Message'
+            );
         }
 
         // Validate and extract sender ID
@@ -96,7 +105,8 @@ export const createMessage = async (req, res) => {
             ...messageData,
             sender: new mongoose.Types.ObjectId(senderId), // corrected userId to senderId
             receiver: new mongoose.Types.ObjectId(receiverId),
-            content: messageData.content
+            content: messageData.content,
+            attachment: messageData.attachment || null
         });
 
         await newMessage.save();

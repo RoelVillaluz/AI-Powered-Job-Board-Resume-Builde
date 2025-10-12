@@ -129,13 +129,25 @@ export const useMessageOperations = ({ baseUrl, user, socket, currentConversatio
 
     // MODIFIED: Accept formData as parameter instead of using context
     const handleFormSubmit = useCallback(async (formData) => {
-        if (!formData.content.trim() || !currentConversation) return;
+        // Prevent submission if both content and attachment are empty, or if there is no current conversation
+        if ((!formData.content.trim() && !formData.attachment) || !currentConversation) return;
 
         try {
+            // Create FormData to handle file upload
+            const submitData = new FormData();
+
+            submitData.append('sender', formData.sender);
+            submitData.append('receiver', formData.receiver);
+            submitData.append('content', formData.content);
+
+            if (formData.attachment) {
+                submitData.append('attachment', formData.attachment)
+            }
+
             const newMessage = await handleMessageApiCall(
                 messageService.sendMessage,
                 baseUrl,
-                formData
+                submitData
             );
 
             emitSocketEvent('send-message', newMessage, formData.receiver);

@@ -26,6 +26,10 @@ const messageSchema = new mongoose.Schema({
     updatedAt: {
         type: Date,
         default: null
+    },
+    attachment: {
+        type: String,
+        default: null
     }
 }, { timestamps: { createdAt: true, updatedAt: false } })
 

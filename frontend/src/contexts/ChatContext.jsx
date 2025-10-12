@@ -60,6 +60,7 @@ export const ChatProvider = ({ children }) => {
         sender: user?._id || '',
         receiver: '',
         content: '',
+        attachment: null,
     });
 
     useEffect(() => {

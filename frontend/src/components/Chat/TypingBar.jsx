@@ -71,12 +71,28 @@ function TypingBar({ handleFormSubmit, handleEditMessage }) {
     }, [formData])
 
     return (
-        <form className='typing-bar' onSubmit={onSubmit}>
-            <input type="text" 
-                placeholder='Write your message...'
-                value={formData.content}
-                onChange={(e) => handleChange("content", e.target.value)}
-            />
+        <form className='typing-bar' style={{ alignItems: previewUrl ? 'end' : 'center' }} onSubmit={onSubmit}>
+
+            <div className="column" style={{ width: '100%' }}>
+                {previewUrl && (
+                    <div className="attachment-preview">
+                        <img src={previewUrl} alt={previewUrl} />
+                        <div className="column">
+                            <strong>{fileName.length > 30 ? fileName.slice(0, 30) + "..." : fileName}</strong>
+                            <p>{fileType}</p>
+                        </div>
+                        <button id="clear-attachment-btn" onClick={handleClearAttachment}>
+                            <i className="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                )}
+                <input type="text" 
+                    placeholder='Write your message...'
+                    value={formData.content}
+                    onChange={(e) => handleChange("content", e.target.value)}
+                />
+            </div>
+
             <div className="actions">
                 {!editMode ? (
                     <>

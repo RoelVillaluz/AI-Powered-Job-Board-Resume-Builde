@@ -57,7 +57,14 @@ const MessageBubble = ({ message, user }) => {
 
     return (
         <div className="message-bubble" onClick={handleMessageClick} ref={bubbleRef}>
-            <span>{message.content}</span>
+            {message.attachment ? (
+                <div className="attachment-and-content">
+                    <img src={message.attachment} alt={message.attachment} />
+                    <span>{message.content}</span>
+                </div>
+            ) : (
+                <span>{message.content}</span>
+            )}
             <MessageActions
                 isVisible={isSelected}
                 isOwnMessage={isOwnMessage}

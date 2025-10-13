@@ -139,3 +139,17 @@
 .messages-container li.receiver .message-bubble span:last-of-type {
     border-bottom-right-radius: 0;
 }
+
+.messages-container .attachment-and-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.messages-container .attachment-and-content img {
+    width: 100%;
+    height: 200px;
+    border-radius: 12px;
+    object-fit: cover;
+    cursor: pointer;
+}

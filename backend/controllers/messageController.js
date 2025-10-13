@@ -53,6 +53,8 @@ export const getMessagesByUser = async (req, res) => {
 
 
 export const createMessage = async (req, res) => {
+    console.log('req.file:', req.file);
+    
     const messageData = req.body;
     const requiredFields = ["sender", "receiver"];
 
@@ -62,8 +64,7 @@ export const createMessage = async (req, res) => {
             return sendResponse(res, { ...STATUS_MESSAGES.ERROR.MISSING_FIELD(missingField), success: false }, 'Message');
         }
 
-        // NEW: Validate that at least one of content or attachment exists
-        if ((!messageData.content || !messageData.content.trim()) && !messageData.attachment) {
+        if ((!messageData.content || !messageData.content.trim()) && !req.file) {
             return sendResponse(
                 res, 
                 { message: 'Either content or attachment is required', success: false }, 
@@ -71,21 +72,18 @@ export const createMessage = async (req, res) => {
             );
         }
 
-        // Validate and extract sender ID
         const senderId = messageData.sender?.id || messageData.sender;
         if (!mongoose.Types.ObjectId.isValid(senderId)) {
             console.error('Invalid sender ID:', senderId);
             return res.status(400).json({ message: 'Invalid sender ID format', success: false });
         }
 
-        // Validate receiver ID
         const receiverId = messageData.receiver?.id || messageData.receiver;
         if (!mongoose.Types.ObjectId.isValid(receiverId)) {
             console.error('Invalid receiver ID:', receiverId);
             return res.status(400).json({ message: 'Invalid receiver ID format', success: false });
         }
 
-        // Check if conversation exists
         const participantIds = [senderId, receiverId];
 
         const existingConversation = await Conversation.findOne({
@@ -101,23 +99,24 @@ export const createMessage = async (req, res) => {
             conversation = existingConversation;
         }
 
+        // Use req.file.path directly if file exists
+        const attachmentPath = req.file ? req.file.path : null;
+
         const newMessage = new Message({
-            ...messageData,
-            sender: new mongoose.Types.ObjectId(senderId), // corrected userId to senderId
+            sender: new mongoose.Types.ObjectId(senderId),
             receiver: new mongoose.Types.ObjectId(receiverId),
             content: messageData.content,
-            attachment: messageData.attachment || null
+            attachment: attachmentPath
         });
 
         await newMessage.save();
 
-        // Add message to conversation
         conversation.messages.push(newMessage._id);
         await conversation.save();
 
-        return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.CREATE, data: newMessage }, 'Message'); // corrected response
+        return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.CREATE, data: newMessage }, 'Message');
     } catch (error) {
-        console.error('Error', error);
+        console.error('Error:', error);
         return sendResponse(res, { ...STATUS_MESSAGES.ERROR.SERVER, success: false });
     }
 };

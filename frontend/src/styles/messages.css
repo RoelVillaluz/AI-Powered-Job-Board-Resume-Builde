@@ -142,8 +142,14 @@
 
 .messages-container .attachment-and-content {
     display: flex;
+    align-items: start;
     flex-direction: column;
+    align-items: end;
     gap: 0.5rem;
+}
+
+.messages-container li.receiver .attachment-and-content {
+    align-items: end;
 }
 
 .messages-container .attachment-and-content img {

@@ -5,7 +5,12 @@ function TypingBar({ handleFormSubmit, handleEditMessage }) {
     const { formData, setFormData, handleChange } = useChatFormData();
     const { selectedMessage, setSelectedMessage } = useChatSelection();
 
-    const onSubmit = (e) => {
+    const fileInputRef = useRef(null);
+    const [fileName, setFileName] = useState();
+    const [fileType, setFileType] = useState();
+    const [previewUrl, setPreviewUrl] = useState(null);
+
+    const onSubmit = async (e) => {
         e.preventDefault();
         
         if (editMode) {
@@ -15,10 +20,23 @@ function TypingBar({ handleFormSubmit, handleEditMessage }) {
             setFormData(prev => ({ ...prev, content: '' }));
             setSelectedMessage(null);
         } else {
-            // Pass the formData to handleFormSubmit
-            handleFormSubmit(formData);
-            // Clear form content
-            setFormData(prev => ({ ...prev, content: '' }));
+            try {
+                await handleFormSubmit(formData);
+
+                // Clear form content
+                setFormData(prev => ({ 
+                    ...prev, 
+                    content: '',
+                    attachment: null,
+                }));
+
+                setFileName('');
+                setFileType('');
+                setPreviewUrl(null);
+                
+            } catch (error) {
+                console.error("Error in onSubmit:", error);
+            }
         }
     };
 

@@ -42,7 +42,7 @@ export const getConversationsByUser = async (req, res) => {
             .populate('users', 'name email profilePicture')
             .populate({
                 path: 'messages',
-                select: '_id sender content createdAt updatedAt seen seenAt',
+                select: '_id sender content createdAt updatedAt seen seenAt attachment',
                 populate: {
                     path: 'sender',
                     select: 'name profilePicture'  
@@ -62,10 +62,16 @@ export const getConversationsByUser = async (req, res) => {
 
             convo.messages.forEach(message => {
                 if (message.sender.profilePicture) {
-                message.sender.profilePicture = message.sender.profilePicture.replace(/\\/g, '/');
-                message.sender.profilePicture = `profile_pictures/${message.sender.profilePicture.split('/').pop()}`;
+                    message.sender.profilePicture = message.sender.profilePicture.replace(/\\/g, '/');
+                    message.sender.profilePicture = `profile_pictures/${message.sender.profilePicture.split('/').pop()}`;
                 } else {
-                message.sender.profilePicture = 'profile_pictures/default.jpg';
+                    message.sender.profilePicture = 'profile_pictures/default.jpg';
+                }
+
+                // Attachment 
+                if (message.attachment) {
+                    message.attachment = message.attachment.replace(/\\/g, '/');
+                    message.attachment = `message_attachments/${message.attachment.split('/').pop()}`;
                 }
             });
 

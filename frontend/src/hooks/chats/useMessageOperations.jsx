@@ -133,21 +133,31 @@ export const useMessageOperations = ({ baseUrl, user, socket, currentConversatio
         if ((!formData.content.trim() && !formData.attachment) || !currentConversation) return;
 
         try {
-            // Create FormData to handle file upload
-            const submitData = new FormData();
-
-            submitData.append('sender', formData.sender);
-            submitData.append('receiver', formData.receiver);
-            submitData.append('content', formData.content);
+            let submitData;
+            let config = {}
 
             if (formData.attachment) {
+                // use formData if there's an attachment
+                submitData = new FormData();
+                
+                submitData.append('sender', formData.sender);
+                submitData.append('receiver', formData.receiver);
+                submitData.append('content', formData.content);
                 submitData.append('attachment', formData.attachment)
+            } else {
+                // Send as JSON if no file
+                submitData = {
+                    sender: formData.sender,
+                    receiver: formData.receiver,
+                    content: formData.content
+                }
             }
-
+            
             const newMessage = await handleMessageApiCall(
                 messageService.sendMessage,
                 baseUrl,
-                submitData
+                submitData,
+                config
             );
 
             emitSocketEvent('send-message', newMessage, formData.receiver);

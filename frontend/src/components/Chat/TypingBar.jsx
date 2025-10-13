@@ -44,6 +44,28 @@ function TypingBar({ handleFormSubmit, handleEditMessage }) {
         fileInputRef.current?.click();
     }
 
+    const handleFileChange = (e) => {
+        const file = e.target.files[0] // assuming single file upload
+        if (!file) return;
+
+        setFormData((prev) => ({
+            ...prev,
+            attachment: file
+        }))
+        setFileName(file.name)
+        setFileType(file.type)
+
+        if (file.type.startsWith('image/')) {
+            const reader = new FileReader()
+            reader.onload = (event) => {
+                setPreviewUrl(event.target.result)
+            };
+            reader.readAsDataURL(file)
+        } else {
+            setPreviewUrl(null)
+        }
+    }
+
     useEffect(() => {
         console.log('Form Data: ',formData)
     }, [formData])

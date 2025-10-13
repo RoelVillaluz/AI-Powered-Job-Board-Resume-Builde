@@ -1,5 +1,6 @@
 import { useChatFormData, useChatSelection, useChatState } from "../../contexts/ChatContext";
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
+
 function TypingBar({ handleFormSubmit, handleEditMessage }) {
     const { editMode, setEditMode } = useChatState();
     const { formData, setFormData, handleChange } = useChatFormData();
@@ -63,6 +64,26 @@ function TypingBar({ handleFormSubmit, handleEditMessage }) {
             reader.readAsDataURL(file)
         } else {
             setPreviewUrl(null)
+        }
+    }
+
+    const handleCancelEdit = () => {
+        setEditMode(false);
+        setFormData(prev => ({ ...prev, content: '' }));
+        setSelectedMessage(null); 
+    }
+
+    const handleClearAttachment = () => {
+        setFormData((prev) => ({
+            ...prev,
+            attachment: ''
+        }))
+        setFileName('')
+        setPreviewUrl(null)
+        setFileType('')
+        
+        if (fileInputRef.current) {
+            fileInputRef.current.value = null;
         }
     }
 

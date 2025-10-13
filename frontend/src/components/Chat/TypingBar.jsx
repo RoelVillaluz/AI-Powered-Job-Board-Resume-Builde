@@ -40,6 +40,10 @@ function TypingBar({ handleFormSubmit, handleEditMessage }) {
         }
     };
 
+    const handleFileButtonClick = () => {
+        fileInputRef.current?.click();
+    }
+
     useEffect(() => {
         console.log('Form Data: ',formData)
     }, [formData])
@@ -54,18 +58,25 @@ function TypingBar({ handleFormSubmit, handleEditMessage }) {
             <div className="actions">
                 {!editMode ? (
                     <>
-                        <button type="button" id="send-file-btn">
+                        <button 
+                            type="button" 
+                            id="send-file-btn" 
+                            onClick={handleFileButtonClick}
+                        >
                             <i className="fa-solid fa-paperclip"></i>
-                            <input type="file" id="file-input" style={{display: "none"}} multiple/>
+                            <input 
+                                ref={fileInputRef}
+                                type="file" 
+                                id="file-input" 
+                                style={{display: "none"}} 
+                                multiple
+                                onChange={handleFileChange}
+                            />
                         </button>
                         <i className="fa-solid fa-microphone"></i>
                     </>
                 ) : (
-                    <button type="button" id="cancel-edit-btn" onClick={() => {
-                        setEditMode(false);
-                        setFormData(prev => ({ ...prev, content: '' }));
-                        setSelectedMessage(null); 
-                    }}>
+                    <button type="button" id="cancel-edit-btn" onClick={handleCancelEdit}>
                         Cancel
                     </button>
                 )}

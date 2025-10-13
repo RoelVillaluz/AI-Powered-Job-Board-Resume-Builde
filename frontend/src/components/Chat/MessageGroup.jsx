@@ -48,7 +48,7 @@ const MessageGroup = memo(({ group }) => {
 
     return (
         <li className={containerClass}>
-            <img src={`/${profilePicture}`} alt={`${sender}'s profile picture`} />
+            <img className="sender-profile-pic" src={`/${profilePicture}`} alt={`${sender}'s profile picture`} />
             <div className="message-group">
                 <div className="wrapper" style={{ gap: '0rem' }}>
                     <time dateTime={rawDateTime}>{createdAt}</time>

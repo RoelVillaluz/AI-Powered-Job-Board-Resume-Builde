@@ -17,6 +17,7 @@ function ChatSidebar({ user, currentConversation, setCurrentConversation, conver
 
     const handleConversationClick = useCallback((convo) => {
         setCurrentConversation(convo);
+        setShowComposeMessage(false)
     }, [setCurrentConversation]);
 
     return (

@@ -51,8 +51,8 @@ function ChatWindowHeader({ user, currentConversation, showComposeMessage, curre
                         <input type="text" placeholder="Search for a name" value={searchReceiverQuery} onChange={(e) => setSearchReceiverQuery(e.target.value)}/>
                     ) : (
                         <div className="selected-receiver">
-                            <img src={currentReceiver.profilePicture} alt={`${currentReceiver.name}'s profile picture`} />
-                            <strong>{currentReceiver.name}</strong>
+                            <img src={currentReceiver?.profilePicture} alt={`${currentReceiver?.name}'s profile picture`} />
+                            <strong>{currentReceiver?.name}</strong>
                             <button className="remove-receiver-btn" onClick={() => handleRemoveReceiver()}>
                                 <i className="fa-solid fa-xmark"></i>
                             </button>

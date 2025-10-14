@@ -1,15 +1,18 @@
 import { useChatFormData, useChatSelection, useChatState } from "../../contexts/ChatContext";
-import { useEffect, useRef, useState } from "react";
+import { useEffect } from "react";
+import { useFileInput } from "../../hooks/chats/useFileInput";
 
 function TypingBar({ handleFormSubmit, handleEditMessage }) {
     const { editMode, setEditMode } = useChatState();
     const { formData, setFormData, handleChange } = useChatFormData();
     const { selectedMessage, setSelectedMessage } = useChatSelection();
-
-    const fileInputRef = useRef(null);
-    const [fileName, setFileName] = useState();
-    const [fileType, setFileType] = useState();
-    const [previewUrl, setPreviewUrl] = useState(null);
+    const { fileInputRef, 
+            fileName, 
+            fileType, 
+            previewUrl, 
+            handleFileButtonClick, 
+            handleFileChange, 
+            handleClearAttachment } = useFileInput({ formData, setFormData, handleChange })
 
     const onSubmit = async (e) => {
         e.preventDefault();
@@ -41,55 +44,11 @@ function TypingBar({ handleFormSubmit, handleEditMessage }) {
         }
     };
 
-    const handleFileButtonClick = () => {
-        fileInputRef.current?.click();
-    }
-
-    const handleFileChange = (e) => {
-        const file = e.target.files[0] // assuming single file upload
-        if (!file) return;
-
-        setFormData((prev) => ({
-            ...prev,
-            attachment: file
-        }))
-        setFileName(file.name)
-        setFileType(file.type)
-
-        if (file.type.startsWith('image/')) {
-            const reader = new FileReader()
-            reader.onload = (event) => {
-                setPreviewUrl(event.target.result)
-            };
-            reader.readAsDataURL(file)
-        } else {
-            setPreviewUrl(null)
-        }
-    }
-
     const handleCancelEdit = () => {
         setEditMode(false);
         setFormData(prev => ({ ...prev, content: '' }));
         setSelectedMessage(null); 
     }
-
-    const handleClearAttachment = () => {
-        setFormData((prev) => ({
-            ...prev,
-            attachment: ''
-        }))
-        setFileName('')
-        setPreviewUrl(null)
-        setFileType('')
-        
-        if (fileInputRef.current) {
-            fileInputRef.current.value = null;
-        }
-    }
-
-    useEffect(() => {
-        console.log('Form Data: ',formData)
-    }, [formData])
 
     return (
         <form className='typing-bar' style={{ alignItems: previewUrl ? 'end' : 'center' }} onSubmit={onSubmit}>

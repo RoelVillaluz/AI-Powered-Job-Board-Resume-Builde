@@ -98,11 +98,11 @@ function TypingBar({ handleFormSubmit, handleEditMessage }) {
                         <i className="fa-solid fa-microphone"></i>
                     </>
                 ) : (
-                    <button type="button" id="cancel-edit-btn" onClick={handleCancelEdit}>
+                    <button type="button" id="cancel-edit-btn" onClick={handleCancelEdit} aria-label="Cancel edit">
                         Cancel
                     </button>
                 )}
-                <button className="send-message-btn" disabled={!formData.content.trim()}>
+                <button className="send-message-btn" disabled={!formData.content.trim()} aria-label="Send message">
                     <i className="fa-solid fa-paper-plane"></i>
                 </button>
             </div>

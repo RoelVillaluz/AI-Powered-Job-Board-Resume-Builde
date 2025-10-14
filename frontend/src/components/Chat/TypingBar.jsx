@@ -8,8 +8,11 @@ function TypingBar({ handleFormSubmit, handleEditMessage }) {
     const { selectedMessage, setSelectedMessage } = useChatSelection();
     const { fileInputRef, 
             fileName, 
+            setFileName,
             fileType, 
+            setFileType,
             previewUrl, 
+            setPreviewUrl,
             handleFileButtonClick, 
             handleFileChange, 
             handleClearAttachment } = useFileInput({ formData, setFormData, handleChange })
@@ -46,7 +49,7 @@ function TypingBar({ handleFormSubmit, handleEditMessage }) {
 
     const handleCancelEdit = () => {
         setEditMode(false);
-        setFormData(prev => ({ ...prev, content: '' }));
+        setFormData(prev => ({ ...prev, content: '', attachment: null }));
         setSelectedMessage(null); 
     }
 
@@ -61,7 +64,7 @@ function TypingBar({ handleFormSubmit, handleEditMessage }) {
                             <strong>{fileName.length > 30 ? fileName.slice(0, 30) + "..." : fileName}</strong>
                             <p>{fileType}</p>
                         </div>
-                        <button id="clear-attachment-btn" onClick={handleClearAttachment}>
+                        <button id="clear-attachment-btn" onClick={handleClearAttachment} aria-label="Clear Attachment">
                             <i className="fa-solid fa-xmark"></i>
                         </button>
                     </div>
@@ -88,6 +91,7 @@ function TypingBar({ handleFormSubmit, handleEditMessage }) {
                                 id="file-input" 
                                 style={{display: "none"}} 
                                 multiple
+                                aria-label="Add attachment"
                                 onChange={handleFileChange}
                             />
                         </button>

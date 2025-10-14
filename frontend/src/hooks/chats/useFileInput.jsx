@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 export const useFileInput = ({ formData, setFormData, handleChange }) => {
     const fileInputRef = useRef(null);
@@ -6,11 +6,11 @@ export const useFileInput = ({ formData, setFormData, handleChange }) => {
     const [fileType, setFileType] = useState();
     const [previewUrl, setPreviewUrl] = useState(null);
 
-    const handleFileButtonClick = () => {
+    const handleFileButtonClick = useCallback(() => {
         fileInputRef.current?.click();
-    }
+    }, [])
 
-    const handleFileChange = (e) => {
+    const handleFileChange = useCallback((e) => {
         const file = e.target.files[0] // assuming single file upload
         if (!file) return;
 
@@ -30,27 +30,30 @@ export const useFileInput = ({ formData, setFormData, handleChange }) => {
         } else {
             setPreviewUrl(null)
         }
-    }
+    }, [setFormData])
 
-    const handleClearAttachment = () => {
+    const handleClearAttachment = useCallback(() => {
         setFormData((prev) => ({
             ...prev,
-            attachment: ''
+            attachment: null
         }))
         setFileName('')
-        setPreviewUrl(null)
         setFileType('')
+        setPreviewUrl(null)
         
         if (fileInputRef.current) {
             fileInputRef.current.value = null;
         }
-    }
+    }, [setFormData])
 
     return { 
         fileInputRef, 
         fileName, 
+        setFileName,
         fileType, 
+        setFileType,
         previewUrl, 
+        setPreviewUrl,
         handleFileButtonClick, 
         handleFileChange, 
         handleClearAttachment 

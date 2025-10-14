@@ -57,14 +57,25 @@ const MessageBubble = ({ message, user }) => {
 
     return (
         <div className="message-bubble" onClick={handleMessageClick} ref={bubbleRef}>
-            {message.attachment ? (
+            {message.attachment && (
                 <div className="attachment-and-content">
-                    <img src={message.attachment} alt={message.attachment} />
-                    <span>{message.content}</span>
+                    <img 
+                        src={message.attachment} 
+                        alt={typeof message.attachment === 'string' 
+                            ? message.attachment.split('/').pop() 
+                            : 'attachment'}
+                        onError={(e) => {
+                            // Fallback if image fails to load
+                            console.error("Image failed to load:", message.attachment);
+                            e.target.style.display = 'none';
+                        }}
+                        loading="lazy"
+                    />
+                    {message.content && <span>{message.content}</span>}
                 </div>
-            ) : (
-                <span>{message.content}</span>
             )}
+            {!message.attachment && <span>{message.content}</span>}
+            
             <MessageActions
                 isVisible={isSelected}
                 isOwnMessage={isOwnMessage}

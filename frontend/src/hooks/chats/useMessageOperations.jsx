@@ -134,25 +134,55 @@ export const useMessageOperations = ({ baseUrl, user, socket, currentConversatio
 
         try {
             let submitData;
-            let config = {}
+            let config = {};
+            let previewAttachment = null;
 
             if (formData.attachment) {
+                // Create a preview URL for immediate display
+                if (formData.attachment.type.startsWith('image/')) {
+                    previewAttachment = URL.createObjectURL(formData.attachment);
+                }
+
                 // use formData if there's an attachment
                 submitData = new FormData();
                 
                 submitData.append('sender', formData.sender);
                 submitData.append('receiver', formData.receiver);
                 submitData.append('content', formData.content);
-                submitData.append('attachment', formData.attachment)
+                submitData.append('attachment', formData.attachment);
+                
+                // Important: Do NOT set Content-Type header - let browser handle it
+                // config.headers will be empty or not set
             } else {
                 // Send as JSON if no file
                 submitData = {
                     sender: formData.sender,
                     receiver: formData.receiver,
                     content: formData.content
-                }
+                };
+                config.headers = {
+                    'Content-Type': 'application/json'
+                };
             }
             
+            // Create a temporary message with preview while waiting for server
+            const tempMessage = {
+                _id: `temp-${Date.now()}`, // Temporary ID
+                sender: formData.sender,
+                receiver: formData.receiver,
+                content: formData.content,
+                attachment: previewAttachment || null,
+                attachmentName: formData.attachment?.name || null,
+                attachmentType: formData.attachment?.type || null,
+                createdAt: new Date().toISOString(),
+                seen: false,
+                isTemp: true // Mark as temporary
+            };
+
+            // Show temporary message immediately
+            setMessages(addMessageToGroups(tempMessage, user.name, user.profilePicture));
+
+            // Send to server
             const newMessage = await handleMessageApiCall(
                 messageService.sendMessage,
                 baseUrl,
@@ -160,11 +190,43 @@ export const useMessageOperations = ({ baseUrl, user, socket, currentConversatio
                 config
             );
 
+            if (newMessage.attachment && newMessage.attachment.includes('public')) {
+                newMessage.attachment = '/' + newMessage.attachment.split('public\\').pop().replace(/\\/g, '/');
+                // Now it becomes: /message_attachments/1760401518894-kung fu panda.jpg
+            }
+
+            // Replace temporary message with actual server response
+            setMessages((prevGroups) => {
+                return prevGroups.map(group => ({
+                    ...group,
+                    messages: group.messages.map(m =>
+                        m._id === tempMessage._id ? newMessage : m
+                    )
+                }));
+            });
+
+            // Emit to socket with actual message from server
             emitSocketEvent('send-message', newMessage, formData.receiver);
-            setMessages(addMessageToGroups(newMessage, user.name, user.profilePicture));
+            
+            // Update conversations list with actual message
             updateConversationsList(newMessage);
+
+            // Clean up preview URL if it was created
+            if (previewAttachment) {
+                URL.revokeObjectURL(previewAttachment);
+            }
         } catch (error) {
             console.error("Error sending message: ", error);
+            
+            // Remove temporary message on error
+            setMessages((prevGroups) => 
+                prevGroups
+                    .map(group => ({
+                        ...group,
+                        messages: group.messages.filter(m => !m.isTemp)
+                    }))
+                    .filter(group => group.messages.length > 0)
+            );
         }
     }, [currentConversation, baseUrl, user, emitSocketEvent, addMessageToGroups, updateConversationsList, handleMessageApiCall]);
 

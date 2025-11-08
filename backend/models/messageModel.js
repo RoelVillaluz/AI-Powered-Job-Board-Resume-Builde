@@ -30,6 +30,10 @@ const messageSchema = new mongoose.Schema({
     attachment: {
         type: String,
         default: null
+    },
+    isPinned: {
+        type: Boolean,
+        default: false
     }
 }, { timestamps: { createdAt: true, updatedAt: false } })
 

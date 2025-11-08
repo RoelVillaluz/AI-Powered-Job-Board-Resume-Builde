@@ -91,7 +91,9 @@ export const useMessageOperations = ({ baseUrl, user, socket, currentConversatio
         }
     }, []);
 
-    const updateConversationsList = useCallback((messageData, isEdit = false, isDelete = false, isSeenUpdate = false, seenAt = null) => {
+    const updateConversationsList = useCallback((messageData, options = {}) => {
+        const { isEdit = false, isDelete = false, isSeenUpdate = false, isPinUpdate = false, seenAt = null } = options;
+        
         if (!currentConversation?._id) return;
 
         setConversations(prevConvos => {

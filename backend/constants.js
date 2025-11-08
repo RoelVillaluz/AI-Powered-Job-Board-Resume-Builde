@@ -6,7 +6,8 @@ export const STATUS_MESSAGES = {
         DELETE: { code: 200, message: "(model) deleted successfully" },
         RESENT_CODE: { code: 200, message: "code resent successfully"},
         LOGIN: { code: 200, message: 'Logged in successfully'},
-        MATCHED_CODE: { code: 200, message: 'The code you entered is correct.'}
+        MATCHED_CODE: { code: 200, message: 'The code you entered is correct.'},
+        PINNED_MESSAGE: { code: 200, message: 'Message pinned/unpinned successfully.' }
     },
     ERROR: {
         SERVER: { code: 500, message: "Server Error" },

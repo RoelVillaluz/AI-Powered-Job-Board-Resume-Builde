@@ -50,7 +50,7 @@ function ChatSidebar({ user, currentConversation, setCurrentConversation, conver
                 <div className="row">
                     <h4>Last Messages</h4>
                     <div className="actions">
-                        <button id="show-compose-message-btn" onClick={handleShowComposeHeader}>
+                        <button id="show-compose-message-btn" onClick={handleShowComposeHeader} aria-label="Show Compose Message Header">
                             <i className="fa-solid fa-plus"></i> 
                         </button>
                         <i className="fa-solid fa-ellipsis-vertical"></i>

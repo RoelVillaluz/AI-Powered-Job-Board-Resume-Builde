@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import Layout from "../components/Layout"
 import { useAuth } from "../contexts/AuthProvider.jsx"
 import { useData } from "../contexts/DataProvider.jsx";
-import { useChatState, useChatSelection } from "../contexts/ChatContext.jsx";
+import { useChatState, useChatSelection } from "../contexts/chats/ChatContext.jsx";
 import MessageConfirmationModal from "../components/MessageConfirmationModal";
 import { useSocket } from "../hooks/useSocket.js"; 
 import MessageGroup from "../components/Chat/MessageGroup";
@@ -12,6 +12,7 @@ import TypingBar from "../components/Chat/TypingBar.jsx";
 import ChatResources from "../components/Chat/ChatResources.jsx";
 import ChatWindowHeader from "../components/Chat/ChatWindowHeader.jsx";
 import MessagesContainer from "../components/Chat/MessagesContainer.jsx";
+import MessageOperationsContext from "../contexts/chats/MessageOperationsContext.jsx";
 
 function ChatsPage() {
     const { baseUrl } = useData();    
@@ -40,7 +41,8 @@ function ChatsPage() {
         messages,
         handleFormSubmit,
         handleEditMessage,
-        handleDeleteMessage
+        handleDeleteMessage,
+        handlePinMessage,
     } = useMessageOperations({
         baseUrl,
         user,
@@ -60,54 +62,65 @@ function ChatsPage() {
     }
 
     return (
-        <Layout>
-            {showConfirmationModal && (
-                <MessageConfirmationModal 
-                    message={selectedMessage} 
-                    onClose={() => handleShowConfirmationModal()}
-                    onSubmit={(messageToDelete) => {
-                        handleDeleteMessage(messageToDelete);
-                        handleShowConfirmationModal();
-                    }}
-                />
-            )}
-            <main className="main-content" id="chats-page">
+        <MessageOperationsContext.Provider
+            value={{
+                handleFormSubmit,
+                handleEditMessage,
+                handleDeleteMessage,
+                handlePinMessage
+            }}
+        >
+            <Layout>
+                {showConfirmationModal && (
+                    <MessageConfirmationModal 
+                        message={selectedMessage} 
+                        onClose={() => handleShowConfirmationModal()}
+                        onSubmit={(messageToDelete) => {
+                            handleDeleteMessage(messageToDelete);
+                            handleShowConfirmationModal();
+                        }}
+                    />
+                )}
+                <main className="main-content" id="chats-page">
 
-                {/* Chat List */}
-                <ChatSidebar 
-                    user={user}
-                    currentConversation={currentConversation}
-                    setCurrentConversation={setCurrentConversation}
-                    conversations={conversations}
-                    setShowComposeMessage={setShowComposeMessage}
-                    setCurrentReceiver={setCurrentReceiver}
-                    loading={loading}
-                />
-
-                {/* Current Chat Window */}
-                <section className="chat-window">
-
-                    <ChatWindowHeader 
+                    {/* Chat List */}
+                    <ChatSidebar 
                         user={user}
-                        currentConversation={currentConversation} 
-                        showComposeMessage={showComposeMessage}
-                        currentReceiver={currentReceiver}
+                        currentConversation={currentConversation}
+                        setCurrentConversation={setCurrentConversation}
+                        conversations={conversations}
+                        setShowComposeMessage={setShowComposeMessage}
                         setCurrentReceiver={setCurrentReceiver}
+                        loading={loading}
                     />
 
-                    <MessagesContainer showComposeMessage={showComposeMessage} messages={messages}/>
+                    {/* Current Chat Window */}
+                    <section className="chat-window">
 
-                    <TypingBar 
-                        handleFormSubmit={handleFormSubmit}
-                        handleEditMessage={handleEditMessage}
+                        <ChatWindowHeader 
+                            user={user}
+                            currentConversation={currentConversation} 
+                            showComposeMessage={showComposeMessage}
+                            currentReceiver={currentReceiver}
+                            setCurrentReceiver={setCurrentReceiver}
+                        />
+
+                        <MessagesContainer showComposeMessage={showComposeMessage} messages={messages}/>
+
+                        <TypingBar 
+                            handleFormSubmit={handleFormSubmit}
+                            handleEditMessage={handleEditMessage}
+                        />
+                    </section>
+
+                    {/* Chat Resources */}
+                    <ChatResources
+                        currentConversation={currentConversation}
                     />
-                </section>
 
-                {/* Chat Resources */}
-                <ChatResources/>
-
-            </main>
-        </Layout>
+                </main>
+            </Layout>
+        </MessageOperationsContext.Provider>
     )
 }
 

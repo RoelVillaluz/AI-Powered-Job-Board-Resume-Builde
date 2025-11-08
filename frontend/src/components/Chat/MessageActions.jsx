@@ -1,10 +1,13 @@
 import { memo } from "react";
 
-const MessageActions = memo(({ isVisible, isOwnMessage, onEdit, onDelete }) => {
+const MessageActions = memo(({ isVisible, isOwnMessage, onEdit, onDelete, onPin }) => {
     const actionsClass = isVisible ? 'actions visible' : 'actions';
 
     return (
         <div className={actionsClass}>
+            <button id="pin-message-btn" aria-label="Pin message" onClick={onPin}>
+                <i className="fa-solid fa-thumbtack"></i>
+            </button>
             {isOwnMessage ? (
                 <>
                     <button id="edit-message-btn" onClick={onEdit}>

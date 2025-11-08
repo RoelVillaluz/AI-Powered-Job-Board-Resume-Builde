@@ -17,19 +17,20 @@ function SideNavbar () {
     }
 
     const links = [
-        { to: '/', icon: 'fa-solid fa-house'},
-        { to: '/messages', icon: 'fa-solid fa-envelope'},
+        { to: '/', icon: 'fa-solid fa-house', label: 'Home' },
+        { to: '/messages', icon: 'fa-solid fa-envelope', label: 'Messages' },
     ]
 
     if (user?.role === 'jobseeker') {
         links.push(
-            { to: '/job-postings', icon: 'fa-solid fa-briefcase'},
-            { to: '/resumes', icon: 'fa-solid fa-file-invoice'},
-            { to: '/courses', icon: 'fa-solid fa-graduation-cap'}
+            { to: '/job-postings', icon: 'fa-solid fa-briefcase', label: 'Job Postings' },
+            { to: '/resumes', icon: 'fa-solid fa-file-invoice', label: 'Resumes' },
+            { to: '/courses', icon: 'fa-solid fa-graduation-cap', label: 'Online Courses' }
         )
     } else if (user?.role === 'employer') {
         links.push(
-            { to: 'create-job-posting', icon: 'fa-solid fa-square-plus'}
+            { to: 'create-job-posting', icon: 'fa-solid fa-square-plus', label: 'Create Job Posting' },
+            { to: '/applicants', icon: 'fa-solid fa-users', label: 'Applicants' },
         )
     }
 
@@ -43,9 +44,9 @@ function SideNavbar () {
                         </Link>
                         <ul>
                         <ul>
-                            {links.map(({ to, icon }) => (
+                            {links.map(({ to, icon, label }) => (
                                     <li key={to} className={location.pathname === to ? "active" : ""}>
-                                        <Link to={to}>
+                                        <Link to={to} aria-label={label}>
                                             <i className={icon}></i>
                                         </Link>
                                     </li>
@@ -54,12 +55,12 @@ function SideNavbar () {
                         </ul>
                         <ul>
                             <li>
-                                <Link to={'/settings'}>
+                                <Link to={'/settings'} aria-label="Settings">
                                     <i className="fa-solid fa-gear"></i>
                                 </Link>
                             </li>
                             <li>
-                                <button id="logout-btn" aria-label="logout user" onClick={logout}>
+                                <button id="logout-btn" aria-label="Logout" onClick={logout}>
                                     <i className="fa-solid fa-right-from-bracket"></i>
                                 </button>
                             </li>

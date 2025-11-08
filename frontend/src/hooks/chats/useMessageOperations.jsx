@@ -111,12 +111,17 @@ export const useMessageOperations = ({ baseUrl, user, socket, currentConversatio
                                 )
                                 : isSeenUpdate
                                     ? convo.messages.map(msg =>
-                                        // messageData should be an array of message IDs for seen updates
                                         Array.isArray(messageData) && messageData.includes(msg._id)
                                             ? { ...msg, seen: true, seenAt: seenAt }
                                             : msg
                                     )
-                                    : [...convo.messages, messageData]
+                                    : isPinUpdate
+                                        ? convo.messages.map(msg =>
+                                            msg._id === messageData._id
+                                                ? { ...msg, isPinned: messageData.isPinned }
+                                                : msg
+                                        )
+                                        : [...convo.messages, messageData]
                     }
                     : convo
             );

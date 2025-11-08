@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useCallback, useEffect, useMemo } from "react";
-import { useAuth } from "./AuthProvider";
-import { useData } from "./DataProvider";
+import { useAuth } from "../AuthProvider";
+import { useData } from "../DataProvider";
 import axios from "axios"
 
 const ChatStateContext = createContext();
@@ -143,6 +143,11 @@ export const ChatProvider = ({ children }) => {
         setAction(actionType);
     }, []);
 
+    // const onPin = useCallback((e) => {
+    //     e.stopPropagation();
+    //     handlePinMessage(message);
+    // }, [handlePinMessage, message]);
+
     const messageActions = useMemo(() => ({
         startEdit,
         startDelete,
@@ -192,7 +197,7 @@ export const ChatProvider = ({ children }) => {
                 startDelete();
             } else if (actionType === 'edit') {
                 startEdit(message);
-            }
+            } 
         },
         [setActionType, startDelete, startEdit]
     );

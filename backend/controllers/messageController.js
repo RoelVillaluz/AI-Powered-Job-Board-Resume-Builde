@@ -159,11 +159,11 @@ export const pinMessage = async (req, res) => {
             return sendResponse(res, { ...STATUS_MESSAGES.ERROR.NOT_FOUND, success: false }, 'Message')
         }
 
-        messageToPin.isPinned = !isPinned
+        messageToPin.isPinned = !messageToPin.isPinned
 
         await messageToPin.save()
 
-        return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.PINNED_MESSAGE }, 'Message' )
+        return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.PINNED_MESSAGE, data: messageToPin }, 'Message' )
     } catch (error) {
         console.error('Error pinning message: ', error)
         return sendResponse(res, { ...STATUS_MESSAGES.ERROR.SERVER, success: false });

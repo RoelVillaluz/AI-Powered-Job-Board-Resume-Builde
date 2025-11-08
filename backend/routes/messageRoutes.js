@@ -22,9 +22,9 @@ router.get('/user/:userId', getMessagesByUser)
 
 router.post('/', upload.single('attachment'), createMessage)
 
+router.patch('/pin-message/:messageId', pinMessage)
 router.patch('/mark-as-seen', markMessagesAsSeen)
 router.patch('/:messageId', updateMessage)
-router.patch('/pin-message/:messageId', pinMessage)
 
 router.delete('/:messageId', deleteMessage)
 

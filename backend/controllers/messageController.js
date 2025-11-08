@@ -149,6 +149,27 @@ export const updateMessage = async (req, res) => {
     }
 }
 
+export const pinMessage = async (req, res) => {
+    const { messageId } = req.params;
+
+    try {
+        const messageToPin = await Message.findById(messageId);
+
+        if (!messageToPin) {
+            return sendResponse(res, { ...STATUS_MESSAGES.ERROR.NOT_FOUND, success: false }, 'Message')
+        }
+
+        messageToPin.isPinned = !isPinned
+
+        await messageToPin.save()
+
+        return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.PINNED_MESSAGE }, 'Message' )
+    } catch (error) {
+        console.error('Error pinning message: ', error)
+        return sendResponse(res, { ...STATUS_MESSAGES.ERROR.SERVER, success: false });
+    }
+}
+
 export const markMessagesAsSeen = async (req, res) => {
     const { messageIds, userId } = req.body;
 

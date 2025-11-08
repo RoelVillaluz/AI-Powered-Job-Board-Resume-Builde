@@ -1,5 +1,5 @@
 import express from 'express'
-import { getMessageById, getMessages, getMessagesByUser, createMessage, deleteMessage, updateMessage, markMessagesAsSeen } from '../controllers/messageController.js';
+import { getMessageById, getMessages, getMessagesByUser, createMessage, deleteMessage, updateMessage, markMessagesAsSeen, pinMessage } from '../controllers/messageController.js';
 import multer from "multer"
 import path from "path";
 
@@ -24,6 +24,7 @@ router.post('/', upload.single('attachment'), createMessage)
 
 router.patch('/mark-as-seen', markMessagesAsSeen)
 router.patch('/:messageId', updateMessage)
+router.patch('/pin-message/:messageId', pinMessage)
 
 router.delete('/:messageId', deleteMessage)
 

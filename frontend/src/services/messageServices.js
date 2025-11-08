@@ -9,5 +9,9 @@ export const editMessage = (baseUrl, messageId, data) =>
 export const markMessagesAsSeen = (baseUrl, data) => 
     axios.patch(`${baseUrl}/messages/mark-as-seen`, data)
 
+export const pinMessage = (baseUrl, messageId) => {
+    return axios.patch(`${baseUrl}/messages/pin-message/${messageId}`)
+}
+
 export const deleteMessage = (baseUrl, messageId) => 
     axios.delete(`${baseUrl}/messages/${messageId}`);

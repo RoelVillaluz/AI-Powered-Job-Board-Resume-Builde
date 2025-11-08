@@ -104,6 +104,17 @@ io.on("connection", (socket) => {
         io.to(updatedMessage.sender).emit('update-message', updatedMessage)
     })
 
+    // Pin message event
+    socket.on('pin-message', (messageToPin) => {
+        console.log('Message pinned/unpinned successfully', messageToPin);
+
+        // Emit to receiver's room
+        io.to(messageToPin.receiverId).emit('pin-message', messageToPin)
+        
+        // Optionally echo to sender's room as well
+        io.to(messageToPin.sender).emit('pin-message', messageToPin)
+    })
+
     // Delete message event
     socket.on('delete-message', (deletedMessage) => {
         console.log('Message deleted successfully: ', deletedMessage)

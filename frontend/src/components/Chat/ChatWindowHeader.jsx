@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useChatFormData, useChatSelection } from "../../contexts/ChatContext";
+import { useChatFormData, useChatSelection } from "../../contexts/chats/ChatContext.jsx";
 import { useData } from "../../contexts/DataProvider"
 import { useUserSearch } from "../../hooks/chats/useUserSearch.jsx"
 

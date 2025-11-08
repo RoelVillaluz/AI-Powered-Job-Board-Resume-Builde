@@ -3,7 +3,7 @@ import { formatDate } from "../utils/dateUtils"
 import { useConversationSearch } from "../../hooks/chats/useConversationSearch";
 import ConversationList from "./ConversationList";
 import UserSummary from "./UserSummary";
-import { useChatFormData } from "../../contexts/ChatContext";
+import { useChatFormData } from "../../contexts/chats/ChatContext";
 
 function ChatSidebar({ user, currentConversation, setCurrentConversation, conversations, setShowComposeMessage, setCurrentReceiver, loading }) {
     const { searchConversationQuery, setSearchConversationQuery, filteredConvos } = useConversationSearch(conversations, user);

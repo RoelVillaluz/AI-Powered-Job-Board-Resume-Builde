@@ -1,4 +1,4 @@
-import { useChatFormData, useChatSelection, useChatState } from "../../contexts/ChatContext";
+import { useChatFormData, useChatSelection, useChatState } from "../../contexts/chats/ChatContext";
 import { useEffect } from "react";
 import { useFileInput } from "../../hooks/chats/useFileInput";
 

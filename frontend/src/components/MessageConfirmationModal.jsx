@@ -1,4 +1,4 @@
-import { useChatContext } from "../contexts/ChatContext"
+import { useChatContext } from "../contexts/chats/ChatContext"
 
 function MessageConfirmationModal({ message, onClose, onSubmit }) {
     const { action } = useChatContext();

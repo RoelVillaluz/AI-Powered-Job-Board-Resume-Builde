@@ -1,5 +1,5 @@
 import { useData } from "../../contexts/DataProvider";
-import { useChatContext } from "../../contexts/ChatContext";
+import { useChatContext } from "../../contexts/chats/ChatContext";
 import { ReadReceiptsProvider } from "../../contexts/ReadReciptsContext";
 import useMessageOperations from "../../hooks/chats/useMessageOperations"
 import MessageGroup from "./MessageGroup";

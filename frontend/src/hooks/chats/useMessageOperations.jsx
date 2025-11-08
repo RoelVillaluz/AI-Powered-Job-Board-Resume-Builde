@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import * as messageService from '../../services/messageServices.js';
 import { groupMessages, shouldGroupByTime } from "../../components/utils/messageUtils.js";
-import { useChatSelection, useChatState } from "../../contexts/ChatContext.jsx";
+import { useChatSelection, useChatState } from "../../contexts/chats/ChatContext.jsx";
 import { formatDate } from "../../components/utils/dateUtils.js";
 
 export const useMessageOperations = ({ baseUrl, user, socket, currentConversation, setConversations }) => {
@@ -249,7 +249,7 @@ export const useMessageOperations = ({ baseUrl, user, socket, currentConversatio
 
             emitSocketEvent("update-message", updatedMessage, updatedMessage.receiver);
             setMessages(updateMessageInGroups(message._id, content));
-            updateConversationsList(updatedMessage, true);
+            updateConversationsList(updatedMessage, { isEdit: true });
             setEditMode(false);
         } catch (error) {
             console.error("Error editing message: ", error);
@@ -266,10 +266,26 @@ export const useMessageOperations = ({ baseUrl, user, socket, currentConversatio
 
             emitSocketEvent("delete-message", deletedMessage, deletedMessage.receiver);
             setMessages(deleteMessageFromGroups(message._id));
-            updateConversationsList(deletedMessage, false, true);
+            updateConversationsList(deletedMessage, { isDelete: true });
             setSelectedMessage(null);
         } catch (error) {
             console.error("Error deleting message:", error);
+        }
+    }, [baseUrl, emitSocketEvent, deleteMessageFromGroups, updateConversationsList, setSelectedMessage, handleMessageApiCall]);
+
+    const handlePinMessage = useCallback(async (message) => {
+
+        try {
+            const messageToPin = await handleMessageApiCall(
+                messageService.pinMessage,
+                baseUrl,
+                message._id
+            )
+            
+            updateConversationsList(messageToPin, { isPinUpdate: true });
+            setSelectedMessage(null);
+        } catch (error) {
+            console.error('Error pinning/unpinnning message', error)
         }
     }, [baseUrl, emitSocketEvent, deleteMessageFromGroups, updateConversationsList, setSelectedMessage, handleMessageApiCall]);
 
@@ -307,12 +323,14 @@ export const useMessageOperations = ({ baseUrl, user, socket, currentConversatio
 
         socket.on("new-message", handleNewMessage);
         socket.on("update-message", handleUpdateMessage);
+        socket.on("pin-message", handlePinMessage);
         socket.on("delete-message", handleDeleteMessage);
         socket.on("messages-seen", handleMessagesSeen);
 
         return () => {
             socket.off("new-message", handleNewMessage);
             socket.off("update-message", handleUpdateMessage);
+            socket.off("pin-message", handlePinMessage);
             socket.off("delete-message", handleDeleteMessage);
             socket.off("messages-seen", handleMessagesSeen);
         };
@@ -323,7 +341,8 @@ export const useMessageOperations = ({ baseUrl, user, socket, currentConversatio
         setMessages,
         handleFormSubmit,
         handleEditMessage,
-        handleDeleteMessage
+        handleDeleteMessage,
+        handlePinMessage
     };
 };
 

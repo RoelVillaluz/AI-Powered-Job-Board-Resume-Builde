@@ -1,10 +1,12 @@
 import React, { memo, useMemo, useCallback, useRef, useEffect } from "react"
-import { useChatSelection, useChatState } from "../../contexts/ChatContext"
 import MessageActions from "./MessageActions";
 import { useReadReceipts } from "../../contexts/ReadReciptsContext";
+import { useChatSelection, useChatState } from "../../contexts/chats/ChatContext.jsx"
+import { useMessageOperationsContext } from "../../contexts/chats/MessageOperationsContext.jsx";
 
 const MessageBubble = ({ message, user }) => {
     const { selectedMessage, setSelectedMessage, handleMessageButtonAction } = useChatSelection();
+    const { handlePinMessage } = useMessageOperationsContext();
 
     const bubbleRef = useRef();
     const { registerMessage } = useReadReceipts();
@@ -46,6 +48,12 @@ const MessageBubble = ({ message, user }) => {
         handleMessageButtonAction(e, "delete", message)
     }, [handleMessageButtonAction, message]);
 
+    const handlePin = useCallback((e) => {
+        e.stopPropagation();
+        handlePinMessage(message);
+    }, [handlePinMessage, message]);
+    
+
     // Register message
     useEffect(() => {
         if (bubbleRef.current && !isOwnMessage && message.sender
@@ -81,6 +89,7 @@ const MessageBubble = ({ message, user }) => {
                 isOwnMessage={isOwnMessage}
                 onEdit={handleEdit}
                 onDelete={handleDelete}
+                onPin={handlePin}
             />
         </div>
     )

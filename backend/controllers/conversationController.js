@@ -42,7 +42,7 @@ export const getConversationsByUser = async (req, res) => {
             .populate('users', 'name email profilePicture')
             .populate({
                 path: 'messages',
-                select: '_id sender content createdAt updatedAt seen seenAt attachment',
+                select: '_id sender content createdAt updatedAt seen seenAt attachment isPinned',
                 populate: {
                     path: 'sender',
                     select: 'name profilePicture'  

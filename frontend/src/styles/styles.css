@@ -1921,12 +1921,24 @@ button {
     outline: none;
 }
 
+.message-search-bar button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    outline: none;
+}
+
 .message-search-bar i {
     color: rgb(170, 170, 170);
     position: absolute;
     transform: translate(-50%, -50%);
     top: 50%;
     right: 2.5%;
+}
+
+.message-search-bar .fa-xmark {
+    cursor: pointer;
 }
 
 #chat-list {

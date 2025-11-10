@@ -1,6 +1,6 @@
 import { act, memo, useCallback, useMemo } from "react"
-import { formatDate } from "../utils/dateUtils";
-import { useSocket } from "../../hooks/useSocket";
+import { formatDate } from "../../utils/dateUtils";
+import { useSocket } from "../../../hooks/useSocket";
 
 // Individual conversation item component
 const ConversationItem = memo(({ convo, user, currentConversation, onConversationClick, loading }) => {

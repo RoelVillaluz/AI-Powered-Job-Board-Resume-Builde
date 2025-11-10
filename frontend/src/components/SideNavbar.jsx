@@ -39,7 +39,7 @@ function SideNavbar () {
             {!hideLocation && user && (
                 <aside className="sidebar-navbar">
                     <nav>
-                        <Link className="logo" to={'/'}>
+                        <Link className="logo" to={'/'} aria-label="Logo/Home Icon">
                             <img src="/public/media/icons8-opportunity-24.png" alt="" />
                         </Link>
                         <ul>

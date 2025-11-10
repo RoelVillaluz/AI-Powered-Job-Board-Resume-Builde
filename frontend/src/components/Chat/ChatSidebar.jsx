@@ -1,9 +1,10 @@
 import { useCallback, useMemo, useRef, useEffect } from "react";
 import { formatDate } from "../utils/dateUtils"
 import { useConversationSearch } from "../../hooks/chats/useConversationSearch";
-import ConversationList from "./ConversationList";
+import ConversationList from "./chat_sidebar_components/ConversationList";
 import UserSummary from "./UserSummary";
 import { useChatFormData } from "../../contexts/chats/ChatContext";
+import ChatSideSearchbar from "./chat_sidebar_components/ChatSideSearchbar";
 
 function ChatSidebar({ user, currentConversation, setCurrentConversation, conversations, setShowComposeMessage, setCurrentReceiver, loading }) {
     const { searchConversationQuery, setSearchConversationQuery, filteredConvos } = useConversationSearch(conversations, user);
@@ -32,18 +33,11 @@ function ChatSidebar({ user, currentConversation, setCurrentConversation, conver
                 currentConversation={currentConversation}
                 loading={loading}
             />
-
-            <section id="search-message">
-                <div className="message-search-bar">
-                    <input 
-                        type="text" 
-                        placeholder="Search"
-                        value={searchConversationQuery}
-                        onChange={(e) => setSearchConversationQuery(e.target.value)}
-                    />
-                    <i className="fa-solid fa-magnifying-glass"></i>
-                </div>
-            </section>
+            
+            <ChatSideSearchbar
+                value={searchConversationQuery}
+                onChange={setSearchConversationQuery}
+            />
 
             <section id="chat-list">
 

@@ -25,7 +25,7 @@ const ChatSideSearchbar = React.memo(function ChatSideSearchbar({ value, onChang
 
     const searchIconClass = useMemo(() => {
         return `fa-solid fa-${localValue ? 'xmark' : 'magnifying-glass'}`
-    })
+    }, [localValue])
 
     return (
         <section id="search-message">

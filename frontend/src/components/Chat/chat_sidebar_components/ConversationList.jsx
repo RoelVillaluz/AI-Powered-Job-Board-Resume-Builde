@@ -7,9 +7,10 @@ const ConversationItem = memo(({ convo, user, currentConversation, onConversatio
     const { onlineUsers } = useSocket();
 
     const handleClick = useCallback(() => {
-        onConversationClick(convo)
-    }, [convo, onConversationClick])
+        onConversationClick(convo);
+    }, [convo, onConversationClick]);
 
+    // Skeleton UI
     if (loading) {
         return (
             <li className="message-preview" style={{ pointerEvents: 'none' }}>
@@ -19,50 +20,59 @@ const ConversationItem = memo(({ convo, user, currentConversation, onConversatio
                     <div className="skeleton text max-width"></div>
                 </div>
             </li>
-        )
+        );
     }
 
-    // Early return if required data is missing
-    if (!convo?.users || !convo?.messages || !user) {
+    // ✅ Strong validation
+    if (!convo || !Array.isArray(convo.users) || convo.users.length < 2) {
+        console.warn("Conversation missing users:", convo);
         return null;
     }
 
-    const receiver = useMemo(() => {
-        return convo.users.find((u) => u._id !== user._id);
-    }, [convo.users, user._id])
+    if (!Array.isArray(convo.messages) || convo.messages.length === 0) {
+        console.warn("Conversation has no messages:", convo);
+        return null;
+    }
 
+    if (!user?._id) {
+        console.warn("User undefined inside ConversationItem");
+        return null;
+    }
+
+    // ✅ Safe receiver lookup
+    const receiver = convo.users.find((u) => u._id !== user._id);
+    if (!receiver) {
+        console.warn("Receiver calculation failed for convo:", convo);
+        return null;
+    }
+
+    // ✅ Safe last message
     const lastMessage = convo.messages.at(-1);
-
-    const isSeen = useMemo(() => {
-        return lastMessage.seen
-    }, [lastMessage.seen])
-    
-    // Additional safety checks
-    if (!receiver || !lastMessage) {
+    if (!lastMessage || !lastMessage.sender) {
+        console.warn("Invalid lastMessage structure:", lastMessage);
         return null;
     }
+
+    const isSeen = !!lastMessage.seen;
 
     const isCurrentConvo = currentConversation?._id === convo._id;
-    const convoClass = isCurrentConvo ? 'current' : '';
+    const convoClass = isCurrentConvo ? "current" : "";
 
-    const isOnline = useMemo(() => {
-        return onlineUsers.has(receiver._id)
-    }, [onlineUsers, receiver._id])
+    const isOnline = onlineUsers.has(receiver._id);
 
     return (
         <li className={`message-preview ${convoClass}`} onClick={handleClick}>
             <figure>
-                <img 
-                    src={receiver.profilePicture} 
-                    alt={`${receiver.name}'s profile`} 
+                <img
+                    src={receiver.profilePicture}
+                    alt={`${receiver.name}'s profile`}
                     onError={(e) => {
-                        e.target.src = '/default-avatar.png'; // Fallback image
+                        e.target.src = "/default-avatar.png";
                     }}
                 />
-                {isOnline && (
-                    <span className="status-circle online"></span>
-                )}
+                {isOnline && <span className="status-circle online"></span>}
             </figure>
+
             <div className="message-details">
                 <div className="row">
                     <strong>{receiver.name}</strong>
@@ -70,13 +80,15 @@ const ConversationItem = memo(({ convo, user, currentConversation, onConversatio
                         {formatDate(lastMessage.updatedAt ?? lastMessage.createdAt, "short", true)}
                     </time>
                 </div>
-                <span className={`message-content ${isSeen ? 'seen' : ''}`}>
-                    {`${lastMessage.sender._id === user._id ? 'You: ' : ''}${lastMessage.content}`}
+
+                <span className={`message-content ${isSeen ? "seen" : ""}`}>
+                    {`${lastMessage.sender._id === user._id ? "You: " : ""}${lastMessage.content}`}
                 </span>
             </div>
         </li>
     );
 });
+
 
 ConversationItem.displayName = 'ConversationItem';
 

@@ -3,6 +3,7 @@ import { useAuth } from "../../contexts/AuthProvider";
 import { formattedSalary } from "../../../../backend/constants";
 import { useMemo } from "react";
 import { useJobActions } from "../../hooks/jobs/useJobActions";
+import React from "react";
 
 const JobPostingCard = ({ job, user, resume, onShowModal }) => {
     const { toggleSaveJob, toggleApplyJob } = useJobActions();
@@ -85,4 +86,4 @@ const JobPostingCard = ({ job, user, resume, onShowModal }) => {
     )
 }
 
-export default JobPostingCard
+export default React.memo(JobPostingCard)

@@ -143,11 +143,6 @@ export const ChatProvider = ({ children }) => {
         setAction(actionType);
     }, []);
 
-    // const onPin = useCallback((e) => {
-    //     e.stopPropagation();
-    //     handlePinMessage(message);
-    // }, [handlePinMessage, message]);
-
     const messageActions = useMemo(() => ({
         startEdit,
         startDelete,

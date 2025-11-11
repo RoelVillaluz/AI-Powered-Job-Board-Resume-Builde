@@ -38,6 +38,7 @@ const FilterSidebar = forwardRef((props, ref) => {
                     <div className="filter-category">
                         <h4>Date Posted</h4>
                         <div className="select-wrapper">
+                            <label htmlFor="date-select" className="sr-only"></label>
                             <select
                                 name="datePosted"
                                 id="date-select"
@@ -78,6 +79,7 @@ const FilterSidebar = forwardRef((props, ref) => {
                 <li className="filter-category">
                     <h4>Match Score</h4>
                     <div className="range-slider">
+                        <label htmlFor="match-score-slider" className="sr-only"></label>
                         <input
                             type="range"
                             min="0"
@@ -85,6 +87,7 @@ const FilterSidebar = forwardRef((props, ref) => {
                             value={filters.minMatchScore}
                             onChange={(e) => handleFilterChange("minMatchScore", e.target.value)}
                             className="slider"
+                            id="match-score-slider"
                         />
                         <div
                             className="custom-thumb"
@@ -104,9 +107,10 @@ const FilterSidebar = forwardRef((props, ref) => {
                             <input
                                 type="checkbox"
                                 value={filters.hasQuestions}
+                                id="checkbox-has-questions"
                                 onChange={() => handleFilterChange("hasQuestions")}
                             />
-                            <label htmlFor="">Has Questions</label>
+                            <label htmlFor="checkbox-has-questions">Has Questions</label>
                         </li>
                     </ul>
                 </li>

@@ -37,8 +37,8 @@ function TopCompanies({ baseUrl, user }) {
                             ) : (
                                 <i className="fa-solid fa-building"></i>
                             )}
-                            <h4>{company.name}</h4>
-                            <h5><i className="fa-solid fa-star"></i>{company.rating}.0</h5>
+                            <h3>{company.name}</h3>
+                            <h4><i className="fa-solid fa-star"></i>{company.rating}.0</h4>
                         </Link>
                     </li>
                 ))}

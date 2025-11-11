@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useMemo } from "react"
+import { useEffect, useState, useRef, useMemo, useCallback } from "react"
 import { useAuth } from "../contexts/AuthProvider"
 import { useData } from "../contexts/DataProvider";
 import axios, { all } from "axios";
@@ -28,13 +28,12 @@ function JobPostingsList() {
         document.title = 'All Jobs'
     }, [])
 
-    // Toggle application modal visibility
-    const showModal = (job, hasQuestions, event = null) => {
+    const showModal = useCallback((job, hasQuestions, event = null) => {
         if (event) lastEventRef.current = event;
         setSelectedJob(job);
         setHasQuestions(hasQuestions);
         setShowApplicationModal(true);
-    };
+    }, [])
 
     useEffect(() => {
         if (resumes.length === 0) return;

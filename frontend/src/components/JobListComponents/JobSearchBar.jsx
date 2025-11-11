@@ -83,7 +83,7 @@ function JobSearchBar({ filterRef }) {
                 <button>Search</button>
             </form>
             <div id="recent-searches">
-                <h4>Recent Searches: </h4>
+                <h2>Recent Searches: </h2>
                 <ul>
                     {recentSearchesList}
                 </ul>

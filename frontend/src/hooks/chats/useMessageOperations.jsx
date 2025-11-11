@@ -26,6 +26,24 @@ export const useMessageOperations = ({ baseUrl, user, socket, currentConversatio
         }
     }, [socket]);
 
+    const loadOlderMessages = async () => {
+        if (messages.length === 0) return;
+        const oldestMessage = messages[0]
+
+        try {
+            const response = await axios.get(`${baseUrl}/messages`, {
+                params: { before: oldestMessage._id, limit: 20 },
+            });
+
+            console.log("Loading older messages...");
+
+            const olderMessages = response.data.data || [];
+            setMessages(prev => [...olderMessages, ...prev]);
+        } catch (error) {
+            console.error('Failed to load older messages: ', error)
+        }
+    }
+
     // Helper function to add message to groups (used by both send and socket receive)
     const addMessageToGroups = useCallback((newMessage, senderName, profilePicture) => {
         return (prevGroups) => {
@@ -338,6 +356,7 @@ export const useMessageOperations = ({ baseUrl, user, socket, currentConversatio
 
     return {
         messages,
+        loadOlderMessages,
         setMessages,
         handleFormSubmit,
         handleEditMessage,

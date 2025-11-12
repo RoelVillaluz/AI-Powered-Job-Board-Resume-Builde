@@ -1579,6 +1579,14 @@ button {
     flex: 0 0 calc((100% / 3) - 1rem);
 }
 
+.job-list-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    list-style-type: none;
+    margin-top: 1rem;
+}
+
 .job-card {
     background-color: white;
     padding: 1.5rem;

@@ -5,8 +5,22 @@ import User from "../models/userModel.js";
 
 export const getJobPostings = async (req, res) => {
     try {
-        const jobPostings = await JobPosting.find({}).populate("company", "id name logo industry");
-        return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.FETCH, data: jobPostings }, 'Job postings')
+        const skip = parseInt(req.query.skip) || 0;
+        const limit = parseInt(req.query.limit) || 10;
+        
+        const jobPostings = await JobPosting.find({})
+                                .populate("company", "id name logo industry")
+                                .skip(skip)
+                                .limit(limit);
+
+        const total = await JobPosting.countDocuments();
+
+        return sendResponse(res, { 
+            ...STATUS_MESSAGES.SUCCESS.FETCH, 
+                data: jobPostings, 
+                total, 
+                hasMore: skip + jobPostings.length < total 
+            }, 'Job postings')
     } catch (error) {
         console.error(error)
         return sendResponse(res, { ...STATUS_MESSAGES.ERROR.SERVER, success: false })

@@ -3,6 +3,7 @@ import { INDUSTRY_CHOICES } from "../../../backend/constants";
 import { useData } from "./DataProvider";
 import { useAuth } from "./AuthProvider";
 import { useJobFilterLogic } from "../hooks/jobsList/useJobFilterLogic";
+import axios from "axios";
 
 const JobFiltersContext = createContext();
 const JobsStateContext = createContext();
@@ -29,6 +30,11 @@ export const JobsListProvider = ({ children }) => {
 
     const [loading, setLoading] = useState(true)
     const [allResumeSkills, setAllResumeSkills] = useState([]);
+
+    // Infinite job loading states
+    const [additionalJobs, setAdditionalJobs] = useState([]);
+    const [hasMoreJobs, setHasMoreJobs] = useState(true);
+    const [isLoadingMoreJobs, setIsLoadingMoreJobs] = useState(false);
 
     const combineResumeSkills = useCallback(() => {
         if (!Array.isArray(resumes)) return;
@@ -62,13 +68,50 @@ export const JobsListProvider = ({ children }) => {
         combineResumeSkills();
     }, [combineResumeSkills]);
 
-    // Combine all jobs
-    const allJobs = [
-        ...jobRecommendations,
-        ...jobPostings.filter(job => 
-            !jobRecommendations.some(rec => rec._id === job._id) // filter jobs that are already present in jobRecommendations
-        )
-    ]
+    // Combine all jobs (recommendations + additional loaded jobs)
+    const allJobs = useMemo(() => {
+        const recommended = jobRecommendations || []
+        const additional = additionalJobs || []
+
+        // Combine and ensure no duplicates from job recommendations and additional
+        const combined = 
+            [...recommended, 
+            ...additional.filter(job => !recommended.some(rec => rec._id === job._id))
+        ]
+
+        return combined
+    }, [jobRecommendations, additionalJobs])
+
+    // Load more jobs for infinite scroll
+    const loadMoreJobs = useCallback(async () => {
+        if (isLoadingMoreJobs || !hasMoreJobs) return;
+
+        setIsLoadingMoreJobs(true)
+
+        try {
+            const currentCount = (jobRecommendations?.length || 0) + additionalJobs.length;
+            const response = await axios.get(`${baseUrl}/job-postings?skip=${allJobs.length}`);
+
+            const newJobs = response.data.data;
+
+            if (!newJobs || newJobs.length === 0) {
+                setHasMoreJobs(false)
+            } else {
+                setAdditionalJobs(prev => [...prev, ...newJobs])
+            }
+        } catch (error) {
+            console.error('Error loading more jobs:', error);
+        } finally {
+            setIsLoadingMoreJobs(false)
+        }
+    }, [baseUrl, allJobs.length, isLoadingMoreJobs, hasMoreJobs])
+
+    // Initial load of additional jobs
+    useEffect(() => {
+        if (additionalJobs.length === 0 && !isLoadingMoreJobs) {
+            loadMoreJobs();
+        }
+    }, []); 
 
     // Use the extracted hook for filter logic
     const jobFiltersLogic = useJobFilterLogic(allResumeSkills, allJobs, user)
@@ -84,7 +127,10 @@ export const JobsListProvider = ({ children }) => {
         loading,
         setLoading,
         allJobs,
-    }), [loading, allJobs])
+        loadMoreJobs,
+        isLoadingMoreJobs,
+        hasMoreJobs
+    }), [loading, allJobs, loadMoreJobs, isLoadingMoreJobs, hasMoreJobs])
 
     return (
         <JobFiltersContext.Provider value={JobFiltersValue}>

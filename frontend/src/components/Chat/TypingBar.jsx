@@ -82,6 +82,7 @@ function TypingBar({ handleFormSubmit, handleEditMessage }) {
                         <button 
                             type="button" 
                             id="send-file-btn" 
+                            aria-label="Send File"
                             onClick={handleFileButtonClick}
                         >
                             <i className="fa-solid fa-paperclip"></i>

@@ -10,7 +10,7 @@ import { useData } from "../../contexts/DataProvider";
 
 function JobPostingsListSection({ currentResume, onShowModal }) {
     const { user } = useAuth();
-    const { baseUrl } = useData();
+    const { baseUrl, jobRecommendations } = useData();
     const { filteredJobs } = useJobFilters();
     const { loadMoreJobs, isLoadingMoreJobs, hasMoreJobs } = useJobsState();
 
@@ -22,6 +22,18 @@ function JobPostingsListSection({ currentResume, onShowModal }) {
     // Actual Sorting Logic Hook
     const { currentSortType, sortedJobs, sortTypes, handleSortButtonClick } = useJobSorting(filteredJobs, setIsDropdownVisible, sortButtonClickedRef);
 
+    // Calculate total count including placeholder skeletons
+    const totalCount = hasMoreJobs ? sortedJobs.length + 6 : sortedJobs.length 
+
+    const initialLoadDoneRef = useRef(false);
+
+    // Initial load - only once
+    useEffect(() => {
+        if (!initialLoadDoneRef.current && jobRecommendations.length > 0) {
+            initialLoadDoneRef.current = true;
+            loadMoreJobs();
+        }
+    }, [jobRecommendations, loadMoreJobs]);
 
     return (
         <section id="job-posting-list">
@@ -41,8 +53,9 @@ function JobPostingsListSection({ currentResume, onShowModal }) {
             ))} */}
             <VirtuosoGrid
                 style={{ height: '900px', width: '100%' }}
-                totalCount={sortedJobs.length}
+                totalCount={totalCount}
                 listClassName="job-list-grid"
+                increaseViewportBy={{ top: 200, bottom: 600 }} 
                 itemContent={(index) => {
                     const job = sortedJobs[index]
                     
@@ -57,7 +70,12 @@ function JobPostingsListSection({ currentResume, onShowModal }) {
                         <JobPostingCardSkeleton/>
                     )
                 }}
-                endReached={loadMoreJobs}
+                endReached={() => {
+                    console.log('End reached triggered, hasMoreJobs:', hasMoreJobs);
+                    if (hasMoreJobs && !isLoadingMoreJobs) {
+                        loadMoreJobs();
+                    }
+                }}
             />
         </section>
     );

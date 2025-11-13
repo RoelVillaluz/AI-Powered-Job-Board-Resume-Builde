@@ -5,6 +5,12 @@ import { useMemo } from "react";
 import { useJobActions } from "../../hooks/jobs/useJobActions";
 import React from "react";
 
+export const JobPostingCardSkeleton = () => {
+    return (
+        <div className="skeleton card"></div>
+    )
+}
+
 const JobPostingCard = ({ job, user, resume, onShowModal }) => {
     const { toggleSaveJob, toggleApplyJob } = useJobActions();
 

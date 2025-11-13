@@ -6,24 +6,33 @@ import User from "../models/userModel.js";
 export const getJobPostings = async (req, res) => {
     try {
         const skip = parseInt(req.query.skip) || 0;
-        const limit = parseInt(req.query.limit) || 10;
+        const limit = parseInt(req.query.limit) || 6; 
+        const excludeIds = req.query.exclude ? req.query.exclude.split(',') : [];
         
-        const jobPostings = await JobPosting.find({})
+        const totalInDB = await JobPosting.countDocuments();
+        
+        const query = excludeIds.length > 0 
+            ? { _id: { $nin: excludeIds } }
+            : {};
+        
+        const jobPostings = await JobPosting.find(query)
                                 .populate("company", "id name logo industry")
                                 .skip(skip)
                                 .limit(limit);
 
-        const total = await JobPosting.countDocuments();
+        const totalAfterExclude = await JobPosting.countDocuments(query);
+        const hasMore = (skip + jobPostings.length) < totalAfterExclude;
 
-        return sendResponse(res, { 
-            ...STATUS_MESSAGES.SUCCESS.FETCH, 
-                data: jobPostings, 
-                total, 
-                hasMore: skip + jobPostings.length < total 
-            }, 'Job postings')
+        return res.status(200).json({
+            success: true,
+            formattedMessage: 'Job postings fetched successfully',
+            data: jobPostings,
+            total: totalAfterExclude,
+            hasMore: hasMore
+        })
     } catch (error) {
         console.error(error)
-        return sendResponse(res, { ...STATUS_MESSAGES.ERROR.SERVER, success: false })
+        return res.status(500).json({ success: false, formattedMessage: 'Server error' })
     }
 }
 

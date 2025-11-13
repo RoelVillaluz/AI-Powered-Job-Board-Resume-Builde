@@ -53,6 +53,11 @@
     border-radius: 10px;
 }
 
+.skeleton.card {
+    aspect-ratio: 3 / 2;
+    border-radius: 20px;
+}
+
 #job-details .company-logo.skeleton {
     background-color: var(--light-gray);
 }

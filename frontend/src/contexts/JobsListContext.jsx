@@ -26,7 +26,7 @@ export const useJobsState = () => {
 
 export const JobsListProvider = ({ children }) => {
     const { user } = useAuth();
-    const { baseUrl, getAllData, fetchResumes, jobRecommendations, jobPostings, fetchJobRecommendations, resumes } = useData();
+    const { baseUrl, fetchResumes, jobRecommendations, fetchJobRecommendations, resumes } = useData();
 
     const [loading, setLoading] = useState(true)
     const [allResumeSkills, setAllResumeSkills] = useState([]);
@@ -59,10 +59,6 @@ export const JobsListProvider = ({ children }) => {
         if (resumes.length > 0 ) fetchJobRecommendations()
     }, [resumes])
 
-    useEffect(() => {
-        getAllData(["job-postings"]);
-    }, [])
-
     // Combine resume skills when resumes change
     useEffect(() => {
         combineResumeSkills();
@@ -84,34 +80,46 @@ export const JobsListProvider = ({ children }) => {
 
     // Load more jobs for infinite scroll
     const loadMoreJobs = useCallback(async () => {
-        if (isLoadingMoreJobs || !hasMoreJobs) return;
+        if (isLoadingMoreJobs) return;
 
         setIsLoadingMoreJobs(true)
 
         try {
-            const currentCount = (jobRecommendations?.length || 0) + additionalJobs.length;
-            const response = await axios.get(`${baseUrl}/job-postings?skip=${allJobs.length}`);
+            const skipCount = additionalJobs.length;
+            
+            // Get IDs of jobs already recommended
+            const excludeIds = (jobRecommendations || []).map(job => job._id).join(',');
+            
+            console.log('=== LOAD MORE DEBUG ===');
+            console.log('Skip count:', skipCount);
+            console.log('Job recommendations count:', jobRecommendations?.length || 0);
+            console.log('Exclude IDs:', excludeIds);
+            console.log('Additional jobs so far:', additionalJobs.length);
+            
+            const response = await axios.get(
+                `${baseUrl}/job-postings?skip=${skipCount}&exclude=${excludeIds}`
+            );
+
+            console.log('Full response:', response.data);
+            console.log('=== END DEBUG ===');
 
             const newJobs = response.data.data;
+            const hasMore = response.data.hasMore;
 
             if (!newJobs || newJobs.length === 0) {
                 setHasMoreJobs(false)
+                console.log('No more jobs to load');
             } else {
-                setAdditionalJobs(prev => [...prev, ...newJobs])
+                setAdditionalJobs(prev => [...prev, ...newJobs]);
+                setHasMoreJobs(hasMore);
+                console.log('Updated additional jobs total:', additionalJobs.length + newJobs.length);
             }
         } catch (error) {
             console.error('Error loading more jobs:', error);
         } finally {
             setIsLoadingMoreJobs(false)
         }
-    }, [baseUrl, allJobs.length, isLoadingMoreJobs, hasMoreJobs])
-
-    // Initial load of additional jobs
-    useEffect(() => {
-        if (additionalJobs.length === 0 && !isLoadingMoreJobs) {
-            loadMoreJobs();
-        }
-    }, []); 
+    }, [baseUrl, additionalJobs.length, isLoadingMoreJobs, jobRecommendations])
 
     // Use the extracted hook for filter logic
     const jobFiltersLogic = useJobFilterLogic(allResumeSkills, allJobs, user)

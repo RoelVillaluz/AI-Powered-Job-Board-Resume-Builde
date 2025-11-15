@@ -65,15 +65,21 @@ export const getConversationsByUser = async (req, res) => {
             .populate({
                 path: 'messages',
                 select: '_id sender content createdAt updatedAt seen seenAt attachment isPinned',
-                populate: {
-                    path: 'sender',
-                    select: 'name profilePicture'  
-                }
+                populate: [
+                    {
+                        path: 'sender',
+                        select: 'name profilePicture'  
+                    },
+                    {
+                        path: 'attachment',
+                        select: 'url fileName type fileSize'
+                    }
+                ]
             })
-            .lean();;
+            .lean();
 
         conversations = conversations.map(convo => {
-            const receiver = convo.users.find(user => user._id.toString() !== userId)
+            const receiver = convo.users.find(user => user._id.toString() !== userId);
 
             if (receiver.profilePicture) {
                 receiver.profilePicture = receiver.profilePicture.replace(/\\/g, '/');
@@ -90,24 +96,33 @@ export const getConversationsByUser = async (req, res) => {
                     message.sender.profilePicture = 'profile_pictures/default.jpg';
                 }
 
-                // Attachment 
+                // Transform attachment URL if it exists and is populated
                 if (message.attachment) {
-                    message.attachment = message.attachment.replace(/\\/g, '/');
-                    message.attachment = `message_attachments/${message.attachment.split('/').pop()}`;
+                    // Check if attachment is populated as an object
+                    if (typeof message.attachment === 'object' && message.attachment.url) {
+                        if (typeof message.attachment.url === 'string') {
+                            message.attachment.url = message.attachment.url.replace(/\\/g, '/');
+                            message.attachment.url = `message_attachments/${message.attachment.url.split('/').pop()}`;
+                        }
+                    } 
+                    // Handle case where attachment might be a string (shouldn't happen with proper schema)
+                    else if (typeof message.attachment === 'string') {
+                        message.attachment = message.attachment.replace(/\\/g, '/');
+                        message.attachment = `message_attachments/${message.attachment.split('/').pop()}`;
+                    }
                 }
             });
 
             return {
                 ...convo,
                 receiver,
-            }
-        })
+            };
+        });
 
-
-        return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.FETCH, data: conversations }, 'Conversations')
+        return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.FETCH, data: conversations }, 'Conversations');
 
     } catch (error) {
-        console.error('Error fetching Conversation: ', error)
-        return sendResponse(res, { ...STATUS_MESSAGES.ERROR.SERVER, success: false })
+        console.error('Error fetching Conversation: ', error);
+        return sendResponse(res, { ...STATUS_MESSAGES.ERROR.SERVER, success: false });
     }
-}
+};

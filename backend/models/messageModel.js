@@ -28,8 +28,9 @@ const messageSchema = new mongoose.Schema({
         default: null
     },
     attachment: {
-        type: String,
-        default: null
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Attachment",
+        default: null,
     },
     isPinned: {
         type: Boolean,

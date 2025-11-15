@@ -53,6 +53,36 @@ const MessageBubble = ({ message, user }) => {
         handlePinMessage(message);
     }, [handlePinMessage, message]);
     
+    const attachmentUrl = useMemo(() => {
+        if (!message.attachment) return null;
+
+        // If attachment is an object with url property
+        if (typeof message.attachment === 'object' && message.attachment.url) {
+            return message.attachment.url
+        }
+
+        // If attachment is a string (legacy format or preview URL)
+        if (typeof message.attachment === 'string') {
+            return message.attachment
+        }
+
+        return null;
+    }, [message.attachment])
+
+    // Memoize attachment name for alt text
+    const attachmentName = useMemo(() => {
+        if (!message.attachment) return null;
+
+        if (typeof message.attachment === 'object') {
+            return message.attachment.fileName || 'attachment';
+        }
+
+        if (typeof message.attachment === 'string') {
+            return message.attachment.split('/').pop();
+        }
+
+        return 'attachment'
+    }, [message.attachment])
 
     // Register message
     useEffect(() => {
@@ -68,13 +98,10 @@ const MessageBubble = ({ message, user }) => {
             {message.attachment && (
                 <div className="attachment-and-content">
                     <img 
-                        src={message.attachment} 
-                        alt={typeof message.attachment === 'string' 
-                            ? message.attachment.split('/').pop() 
-                            : 'attachment'}
+                        src={attachmentUrl}
+                        alt={attachmentName}
                         onError={(e) => {
-                            // Fallback if image fails to load
-                            console.error("Image failed to load:", message.attachment);
+                            console.error('Failed to load: ', attachmentUrl)
                             e.target.style.display = 'none';
                         }}
                         loading="lazy"

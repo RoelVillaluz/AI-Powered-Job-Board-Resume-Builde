@@ -24,6 +24,10 @@ export const getConversationById = async (req, res) => {
                 .populate('users', 'name email')
                 .populate({
                     path: 'messages',
+                    options: {
+                        limit: 50,
+                        sort: { createdAt: -1 }
+                    },
                     select: '_id sender content createdAt updatedAt seen seenAt attachment isPinned',
                     populate: [
                         {
@@ -79,6 +83,10 @@ export const getConversationsByUser = async (req, res) => {
             .populate('users', 'name email profilePicture')
             .populate({
                 path: 'messages',
+                options: {
+                    limit: 50,
+                    sort: { createdAt: -1 }
+                },
                 select: '_id sender content createdAt updatedAt seen seenAt attachment isPinned',
                 populate: [
                     {

@@ -21,6 +21,21 @@ export const getConversationById = async (req, res) => {
 
     try {
         const conversation = await Conversation.findById(conversationId)
+                .populate('users', 'name email')
+                .populate({
+                    path: 'messages',
+                    select: '_id sender content createdAt updatedAt seen seenAt attachment isPinned',
+                    populate: [
+                        {
+                            path: 'sender',
+                            select: 'name'
+                        },
+                        {
+                            path: 'attachment',
+                            select: 'fileName fileSize url type'
+                        }
+                    ]
+                })
 
         if (!conversation) {
             return sendResponse(res, { ...STATUS_MESSAGES.ERROR.NOT_FOUND, success: false }, 'Conversation')

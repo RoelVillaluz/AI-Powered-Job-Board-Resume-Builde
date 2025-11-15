@@ -32,3 +32,11 @@ const formatSingleApplication = (app) => {
         preScreeningQA
     }
 }
+
+export const determineFileType = (mimeType) => {
+    if (mimeType.startsWith('image/')) return 'image';
+    if (mimeType.startsWith('video/')) return 'video';
+    if (mimeType.startsWith('audio/')) return 'voice';
+    if (mimeType === 'application/pdf') return 'pdf';
+    return 'file';
+}

@@ -1,8 +1,12 @@
 import mongoose, { mongo } from 'mongoose'
 import Message from '../models/messageModel.js'
 import Conversation from '../models/conversationModel.js'
+import Attachment from '../models/attachmentModel.js'
 import { STATUS_MESSAGES, sendResponse } from '../constants.js'
-import { checkMissingFields } from '../utils.js'
+import { checkMissingFields, determineFileType } from '../utils.js'
+import sharp from 'sharp';
+import fs from 'fs';
+import path from 'path';
 
 export const getMessages = async (req, res) => {
     try {
@@ -52,9 +56,7 @@ export const getMessagesByUser = async (req, res) => {
 }
 
 
-export const createMessage = async (req, res) => {
-    console.log('req.file:', req.file);
-    
+export const createMessage = async (req, res) => {    
     const messageData = req.body;
     const requiredFields = ["sender", "receiver"];
 
@@ -99,14 +101,29 @@ export const createMessage = async (req, res) => {
             conversation = existingConversation;
         }
 
-        // Use req.file.path directly if file exists
-        const attachmentPath = req.file ? req.file.path : null;
+        let attachmentDoc = null;
+        if (req.file) {
+            const inputPath = req.file.path;
+            const outputPath = inputPath.replace(/\.\w+$/, '.webp');
+
+            await sharp(inputPath).webp({ quality: 80 }).toFile(outputPath);
+
+            // delete original file
+            fs.unlinkSync(inputPath);
+
+            attachmentDoc = await Attachment.create({
+                fileName: path.basename(outputPath),
+                fileSize: fs.statSync(outputPath).size,
+                url: outputPath,
+                type: determineFileType(req.file.mimetype)
+            });
+        }
 
         const newMessage = new Message({
-            sender: new mongoose.Types.ObjectId(senderId),
-            receiver: new mongoose.Types.ObjectId(receiverId),
+            sender: senderId,
+            receiver: receiverId,
             content: messageData.content,
-            attachment: attachmentPath
+            attachment: attachmentDoc?._id || null
         });
 
         await newMessage.save();
@@ -114,7 +131,20 @@ export const createMessage = async (req, res) => {
         conversation.messages.push(newMessage._id);
         await conversation.save();
 
-        return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.CREATE, data: newMessage }, 'Message');
+        // Populate the message with attachment details and sender/receiver info
+        const populatedMessage = await Message.findById(newMessage._id)
+            .populate('sender', 'name profilePicture')
+            .populate('receiver', 'name profilePicture')
+            .populate('attachment');
+
+        // Transform the attachment URL for frontend consumption
+        if (populatedMessage.attachment && typeof populatedMessage.attachment.url === 'string') {
+            if (populatedMessage.attachment.url.includes('public')) {
+                populatedMessage.attachment.url = '/' + populatedMessage.attachment.url.split('public\\').pop().replace(/\\/g, '/');
+            }
+        }
+
+        return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.CREATE, data: populatedMessage }, 'Message');
     } catch (error) {
         console.error('Error:', error);
         return sendResponse(res, { ...STATUS_MESSAGES.ERROR.SERVER, success: false });

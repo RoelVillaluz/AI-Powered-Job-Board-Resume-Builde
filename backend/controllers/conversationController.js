@@ -34,6 +34,28 @@ export const getConversationById = async (req, res) => {
     }
 }
 
+export const getFilesByConversationId = async (req, res) => {
+    const { conversationId } = req.params;
+
+    try {
+        const conversation = await Conversation.findById(conversationId).populate({
+            path: "messages",
+            populate: { path: "attachment" }
+        })
+
+        if (!conversation) {
+            return sendResponse(res, { ...STATUS_MESSAGES.ERROR.NOT_FOUND, success: false }, 'Conversation')
+        }
+
+        const messagesWithFiles = conversation.messages.filter(msg => msg.attachment !== '' && msg.attachment !== null)
+
+        return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.FETCH, data: messagesWithFiles }, 'Conversation')
+    } catch (error) {
+        console.error(`Error fetching messages with attachments for conversation: ${conversationId}`)
+        return sendResponse(res, { ...STATUS_MESSAGES.ERROR.SERVER, success: false })
+    }
+}
+
 export const getConversationsByUser = async (req, res) => {
     const { userId } = req.params;
 

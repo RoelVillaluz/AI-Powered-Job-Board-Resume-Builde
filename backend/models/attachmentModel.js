@@ -2,12 +2,12 @@ import mongoose from 'mongoose';
 
 const attachmentSchema = new mongoose.Schema({
     conversation: { 
-        type: ObjectId, 
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'Conversation', 
         index: true 
     },
     message: { 
-        type: ObjectId, 
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'Message', 
         index: true 
     },

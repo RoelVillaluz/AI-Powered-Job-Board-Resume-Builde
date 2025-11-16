@@ -53,7 +53,7 @@ export const getConversationById = async (req, res) => {
     }
 }
 
-export const getFilesByConversationId = async (req, res) => {
+export const getAttachmentsByConversationId = async (req, res) => {
     const { conversationId } = req.params;
 
     try {
@@ -66,9 +66,9 @@ export const getFilesByConversationId = async (req, res) => {
             return sendResponse(res, { ...STATUS_MESSAGES.ERROR.NOT_FOUND, success: false }, 'Conversation')
         }
 
-        const messagesWithFiles = conversation.messages.filter(msg => msg.attachment !== '' && msg.attachment !== null)
+        const messagesWithAttachments = conversation.messages.filter(msg => msg.attachment !== '' && msg.attachment !== null)
 
-        return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.FETCH, data: messagesWithFiles }, 'Conversation')
+        return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.FETCH, data: messagesWithAttachments }, 'Conversation')
     } catch (error) {
         console.error(`Error fetching messages with attachments for conversation: ${conversationId}`)
         return sendResponse(res, { ...STATUS_MESSAGES.ERROR.SERVER, success: false })

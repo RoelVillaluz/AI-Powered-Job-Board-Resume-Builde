@@ -104,14 +104,34 @@ export const useChatResources = ( conversation ) => {
     const { baseUrl } = useData();
     const [resources, dispatch] = useReducer(resourcesReducer, initialState);
 
-    // Dynamic fetch resource function
-    const fetchResource = useCallback(async (resourceType, endPoint) => {
+    // Only fetch resource counts initially since not all resources are displayed to the user upon opening conversation yet.
+    const fetchResourceCounts = useCallback(async (resourceType, endPoint, signal) => {
         dispatch({ type: 'FETCH_START', resourceType })
 
         try {
-            const response = await axios.get(`${baseUrl}/conversations/${conversation?._id}/resources/${endPoint}`);
-            dispatch({ 
-                type: 'FETCH_SUCCESS',
+            const response = await axios.get(
+                `${baseUrl}/conversations/${conversation?._id}/resources/${endPoint}/count`,
+                { signal }
+            );
+
+            dispatch({
+                type: 'FETCH_COUNTS_SUCCESS',
+                resourceType,
+                payload: response.data.data,
+                conversationId: conversation._id
+            })
+        } catch (error) {
+            if (error.name === 'CanceledError') return; // ✅ Ignore cancelled requests
+
+            console.error(`Error fetching counts for ${resourceType}: `, error)
+            dispatch({
+                type: 'FETCH_ERROR',
+                resourceType,
+                payload: error.message
+            })
+        }
+    }, [baseUrl, conversation?._id])
+
                 resourceType,
                 payload: response.data.data
             })

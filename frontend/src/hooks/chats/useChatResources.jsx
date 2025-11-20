@@ -7,25 +7,37 @@ const initialState = {
         data: [],
         count: 0,
         loading: false,
-        error: null
+        error: null,
+        lastFetched: null,
+        conversationId: null,
+        fetched: false,
     },
     attachments: {
         data: [],
         count: 0,
         loading: false,
-        error: null
+        error: null,
+        lastFetched: null,
+        conversationId: null,
+        fetched: false,
     },
     links: {
         data: [],
         count: 0,
         loading: false,
-        error: null
+        error: null,
+        lastFetched: null,
+        conversationId: null,
+        fetched: false,
     },
     scheduledEvents: {
         data: [],
         count: 0,
         loading: false,
-        error: null
+        error: null,
+        lastFetched: null,
+        conversationId: null,
+        fetched: false,
     }
 }
 
@@ -43,7 +55,20 @@ const resourcesReducer = (state, action) => {
                 }
             };
 
-        case 'FETCH_SUCCESS':
+        case 'FETCH_COUNTS_SUCCESS':
+            return {
+                ...state,
+                [resourceType]: {
+                    ...state[resourceType],
+                    loading: false,
+                    error: null,
+                    count: payload.count,
+                    lastFetched: Date.now(),
+                    conversationId: action.conversationId
+                }
+            }
+
+        case 'FETCH_DATA_SUCCESS':
             return {
                 ...state,
                 [resourceType]: {
@@ -51,7 +76,9 @@ const resourcesReducer = (state, action) => {
                     loading: false,
                     error: null,
                     data: payload,
-                    count: payload.length
+                    count: payload.length,
+                    lastFetched: Date.now(),
+                    conversationId: action.conversationId
                 }
             };
 

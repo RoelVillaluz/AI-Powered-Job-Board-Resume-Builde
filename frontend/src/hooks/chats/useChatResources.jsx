@@ -51,7 +51,7 @@ const resourcesReducer = (state, action) => {
                 [resourceType]: {
                     ...state[resourceType],
                     loading: true,
-                    error: null
+                    error: null,
                 }
             };
 
@@ -132,11 +132,24 @@ export const useChatResources = ( conversation ) => {
         }
     }, [baseUrl, conversation?._id])
 
+    const fetchResourceType = useCallback(async (resourceType, endPoint, signal) => {
+        dispatch({ type: 'FETCH_START', resourceType})
+
+        try {
+            const response = await axios.get(
+                `${baseUrl}/conversations/${conversation?._id}/resources/${endPoint}`,
+                { signal }
+            );
+            dispatch({
+                type: 'FETCH_DATA_SUCCESS',
                 resourceType,
-                payload: response.data.data
+                payload: response.data.data,
+                conversationId: conversation._id
             })
         } catch (error) {
-            console.error(`Error fetching ${resourceType}: `, error)
+            if (error.name === 'CanceledError') return; // ✅ Ignore cancelled requests
+
+            console.error(`Error fetching ${resourceType}: `, error);
             dispatch({
                 type: 'FETCH_ERROR',
                 resourceType,
@@ -145,16 +158,32 @@ export const useChatResources = ( conversation ) => {
         }
     }, [baseUrl, conversation?._id])
 
-    // Fetch all resources when conversation changes
+    // Fetch all resource counts when conversation changes
     useEffect(() => {
         if (!conversation?._id) {
             dispatch({ type: 'RESET' })
             return;
         }
-        
-        fetchResource('pinnedMessages', 'pinned-messages')
-        fetchResource('attachments', 'attachments')
-    }, [conversation?._id, fetchResource])
 
-    return { resources }
+        const abortController = new AbortController(); // ✅ Create controller
+
+        const fetchAllCounts = async () => {
+            const resourceTypes = [
+                { type: 'pinnedMessages', endPoint: 'pinned-messages' },
+                { type: 'attachments', endPoint: 'attachments' },
+            ]
+
+            await Promise.allSettled(
+                resourceTypes.map(({ type, endPoint }) => 
+                    fetchResourceCounts(type, endPoint, abortController.signal)
+                )
+            );
+        };
+
+        fetchAllCounts();
+
+        return () => abortController.abort();  // ✅ Cancel on unmount/conversation change
+    }, [conversation?._id, fetchResourceCounts])
+
+    return { resources, fetchResourceType }
 }

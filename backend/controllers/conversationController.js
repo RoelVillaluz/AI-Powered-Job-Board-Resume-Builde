@@ -214,6 +214,39 @@ export const getLinkCountsByConversationId = async (req, res) => {
     }
 }
 
+export const getLinksByConversationId = async (req, res) => {
+    const { conversationId } = req.params;
+
+    try {
+        if (!mongoose.Types.ObjectId.isValid(conversationId)) {
+            return sendResponse(res, {
+                ...STATUS_MESSAGES.ERROR.BAD_REQUEST,
+                message: "Invalid conversationId",
+                success: false
+            }, 'Conversation');
+        }
+
+        const conversation = await Conversation.findById(conversationId).populate({
+            path: 'messages',
+            populate: [
+                {
+                    path: 'sender',
+                    select: 'name'
+                },
+            ]
+        })
+
+        const urlRegex = /\b((https?:\/\/)?(www\.)?[a-zA-Z0-9\-._~%]+\.[a-zA-Z]{2,}(\/[^\s]*)?)/gi;
+
+        const messagesWithLinks = conversation.messages.filter(msg => msg.content.match(urlRegex))
+        
+        return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.FETCH, data: messagesWithLinks }, 'Conversation')
+    } catch (error) {
+         console.error(`Error fetching messages with links for conversation: ${conversationId}`, error);
+        return sendResponse(res, { ...STATUS_MESSAGES.ERROR.SERVER, success: false });
+    }
+}
+
 export const getConversationsByUser = async (req, res) => {
     const { userId } = req.params;
 

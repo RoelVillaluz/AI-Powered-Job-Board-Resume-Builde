@@ -2,212 +2,225 @@ import { useCallback, useEffect, useReducer, useRef } from "react";
 import { useData } from "../../contexts/DataProvider"
 import axios from "axios";
 
-const initialState = {
-    pinnedMessages: {
-        data: [],
-        count: 0,
-        loading: false,
-        error: null,
-        lastFetched: null,
-        conversationId: null,
-        fetched: false,
-    },
-    attachments: {
-        data: [],
-        count: 0,
-        loading: false,
-        error: null,
-        lastFetched: null,
-        conversationId: null,
-        fetched: false,
-    },
-    links: {
-        data: [],
-        count: 0,
-        loading: false,
-        error: null,
-        lastFetched: null,
-        conversationId: null,
-        fetched: false,
-    },
-    scheduledEvents: {
-        data: [],
-        count: 0,
-        loading: false,
-        error: null,
-        lastFetched: null,
-        conversationId: null,
-        fetched: false,
-    }
-}
+const initialState = {}; // Empty object, we'll create conversations dynamically
 
 const resourcesReducer = (state, action) => {
-    const { resourceType, payload } = action;
+    const { conversationId, resourceType, payload } = action;
 
     switch (action.type) {
         case 'FETCH_START':
             return {
                 ...state,
-                [resourceType]: {
-                    ...state[resourceType],
-                    loading: true,
-                    error: null,
+                [conversationId]: {
+                    ...state[conversationId],
+                    [resourceType]: {
+                        ...(state[conversationId]?.[resourceType] || {}),
+                        loading: true,
+                        error: null,
+                    }
                 }
             };
 
         case 'FETCH_COUNTS_SUCCESS':
             return {
                 ...state,
-                [resourceType]: {
-                    ...state[resourceType],
-                    loading: false,
-                    error: null,
-                    count: payload.count,
-                    lastFetched: Date.now(),
-                    conversationId: action.conversationId
+                [conversationId]: {
+                    ...state[conversationId],
+                    [resourceType]: {
+                        ...(state[conversationId]?.[resourceType] || {}),
+                        loading: false,
+                        error: null,
+                        count: payload.count,
+                        lastFetched: Date.now(),
+                    }
                 }
-            }
+            };
 
         case 'FETCH_DATA_SUCCESS':
             return {
                 ...state,
-                [resourceType]: {
-                    ...state[resourceType],
-                    loading: false,
-                    error: null,
-                    data: payload,
-                    count: payload.length,
-                    lastFetched: Date.now(),
-                    conversationId: action.conversationId,
-                    fetched: true
+                [conversationId]: {
+                    ...state[conversationId],
+                    [resourceType]: {
+                        ...(state[conversationId]?.[resourceType] || {}),
+                        loading: false,
+                        error: null,
+                        data: payload,
+                        count: payload.length,
+                        lastFetched: Date.now(),
+                        fetched: true
+                    }
                 }
             };
 
         case 'FETCH_ERROR':
             return {
                 ...state,
-                [resourceType]: {
-                    ...state[resourceType],
-                    loading: false, 
-                    error: payload
+                [conversationId]: {
+                    ...state[conversationId],
+                    [resourceType]: {
+                        ...(state[conversationId]?.[resourceType] || {}),
+                        loading: false,
+                        error: payload
+                    }
                 }
-            }
+            };
 
         case 'RESET':
             return initialState;
-        
+
         default:
-            return state
+            return state;
     }
-}
+};
 
 export const useChatResources = (conversation) => {
     const { baseUrl } = useData();
     const [resources, dispatch] = useReducer(resourcesReducer, initialState);
     
-    // ✅ Create stable reference for resources
     const resourcesRef = useRef(resources);
     
-    // ✅ Keep ref updated with latest resources
     useEffect(() => {
         resourcesRef.current = resources;
     }, [resources]);
 
-    // Only fetch resource counts initially since not all resources are displayed to the user upon opening conversation yet.
-    const fetchResourceCounts = useCallback(async (resourceType, endPoint, signal) => {
-        const resource = resourcesRef.current[resourceType]; // ✅ Use ref instead of resources
-        const CACHE_TTL = 5 * 60 * 1000; // ✅ 5 minutes in milliseconds
+    const fetchResourceCounts = useCallback(async (resourceType, endpoint, signal) => {
+        if (!conversation?._id) return;
 
-        // ✅ Check if cache is still fresh
+        const conversationId = conversation._id;
+        
+        // ✅ Get cached data for THIS conversation
+        const conversationCache = resourcesRef.current[conversationId];
+        const resource = conversationCache?.[resourceType] || {};
+        
+        const CACHE_TTL = 5 * 60 * 1000;
+
+        console.log(`🔍 Checking cache for ${resourceType}:`, {
+            conversationId,
+            hasCache: !!conversationCache,
+            lastFetched: resource.lastFetched,
+            age: resource.lastFetched ? Math.round((Date.now() - resource.lastFetched) / 1000) : 'N/A',
+            count: resource.count || 0,
+        });
+
+        // ✅ Check if cache is fresh
         const isCacheFresh = 
-            resource.conversationId === conversation._id &&
             resource.lastFetched &&
             Date.now() - resource.lastFetched < CACHE_TTL;
 
         if (isCacheFresh) {
-            console.log(`✨ Using cached ${resourceType}`);
+            const age = Math.round((Date.now() - resource.lastFetched) / 1000);
+            console.log(`✨ CACHE HIT for ${resourceType} (${age}s old)`);
             return;
         }
 
-        dispatch({ type: 'FETCH_START', resourceType })
+        console.log(`🌐 CACHE MISS for ${resourceType} - fetching...`);
+
+        dispatch({ 
+            type: 'FETCH_START', 
+            conversationId,
+            resourceType 
+        });
 
         try {
             const response = await axios.get(
-                `${baseUrl}/conversations/${conversation?._id}/resources/${endPoint}/count`,
+                `${baseUrl}/conversations/${conversationId}/resources/${endpoint}/count`,
                 { signal }
             );
+
+            console.log(`✅ Fetched ${resourceType}:`, response.data.data);
 
             dispatch({
                 type: 'FETCH_COUNTS_SUCCESS',
+                conversationId,
                 resourceType,
-                payload: response.data.data,
-                conversationId: conversation._id
-            })
+                payload: response.data.data
+            });
         } catch (error) {
-            if (error.name === 'CanceledError') return; // ✅ Ignore cancelled requests
+            if (error.name === 'CanceledError') {
+                console.log(`❌ Cancelled ${resourceType}`);
+                return;
+            }
 
-            console.error(`Error fetching counts for ${resourceType}:`, error)
+            console.error(`💥 Error fetching ${resourceType}:`, error);
             dispatch({
                 type: 'FETCH_ERROR',
+                conversationId,
                 resourceType,
                 payload: error.message
-            })
+            });
         }
-    }, [baseUrl, conversation?._id]) // ✅ Removed 'resources' from dependencies!
+    }, [baseUrl, conversation?._id]);
 
-    const fetchResourceType = useCallback(async (resourceType, endPoint, signal) => {
-        dispatch({ type: 'FETCH_START', resourceType})
+    const fetchResourceType = useCallback(async (resourceType, endpoint, signal) => {
+        if (!conversation?._id) return;
+
+        const conversationId = conversation._id;
+
+        dispatch({ 
+            type: 'FETCH_START', 
+            conversationId,
+            resourceType 
+        });
 
         try {
             const response = await axios.get(
-                `${baseUrl}/conversations/${conversation?._id}/resources/${endPoint}`,
+                `${baseUrl}/conversations/${conversationId}/resources/${endpoint}`,
                 { signal }
             );
+
             dispatch({
                 type: 'FETCH_DATA_SUCCESS',
+                conversationId,
                 resourceType,
-                payload: response.data.data,
-                conversationId: conversation._id
-            })
+                payload: response.data.data
+            });
         } catch (error) {
-            if (error.name === 'CanceledError') return; // ✅ Ignore cancelled requests
+            if (error.name === 'CanceledError') return;
 
             console.error(`Error fetching ${resourceType}:`, error);
             dispatch({
                 type: 'FETCH_ERROR',
+                conversationId,
                 resourceType,
                 payload: error.message
-            })
+            });
         }
-    }, [baseUrl, conversation?._id])
+    }, [baseUrl, conversation?._id]);
 
-    // Fetch all resource counts when conversation changes
     useEffect(() => {
         if (!conversation?._id) {
-            dispatch({ type: 'RESET' })
             return;
         }
 
-        const abortController = new AbortController(); // ✅ Create controller
+        const abortController = new AbortController();
 
         const fetchAllCounts = async () => {
             const resourceTypes = [
-                { type: 'pinnedMessages', endPoint: 'pinned-messages' },
-                { type: 'attachments', endPoint: 'attachments' },
-                { type: 'links', endPoint: 'links' },
+                { type: 'pinnedMessages', endpoint: 'pinned-messages' },
+                { type: 'attachments', endpoint: 'attachments' },
+                { type: 'links', endpoint: 'links' },
             ];
 
             await Promise.allSettled(
-                resourceTypes.map(({ type, endPoint }) => 
-                    fetchResourceCounts(type, endPoint, abortController.signal)
+                resourceTypes.map(({ type, endpoint }) => 
+                    fetchResourceCounts(type, endpoint, abortController.signal)
                 )
             );
         };
 
         fetchAllCounts();
 
-        return () => abortController.abort();  // ✅ Cancel on unmount/conversation change
-    }, [conversation?._id, fetchResourceCounts]) 
+        return () => abortController.abort();
+    }, [conversation?._id, fetchResourceCounts]);
 
-    return { resources, fetchResourceType }
-}
+    // ✅ Return resources for current conversation
+    const currentResources = resources[conversation?._id] || {
+        pinnedMessages: { data: [], count: 0, loading: false, error: null },
+        attachments: { data: [], count: 0, loading: false, error: null },
+        links: { data: [], count: 0, loading: false, error: null },
+        scheduledEvents: { data: [], count: 0, loading: false, error: null }
+    };
+
+    return { resources: currentResources, fetchResourceType };
+};

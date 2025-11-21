@@ -140,6 +140,35 @@ export const getPinnedMessagesByConversationId = async (req, res) => {
     }
 }
 
+export const getPinnedMessagesCountByConversationId = async (req, res) => {
+    const { conversationId } = req.params;
+
+    try {
+        if (!mongoose.Types.ObjectId.isValid(conversationId)) {
+            return sendResponse(res, {
+                ...STATUS_MESSAGES.ERROR.BAD_REQUEST,
+                message: "Invalid conversationId",
+                success: false
+            }, 'Conversation');
+        }
+
+        const conversationExists = await Conversation.exists({ _id: conversationId });
+        if (!conversationExists) {
+            return sendResponse(res, { ...STATUS_MESSAGES.ERROR.NOT_FOUND, success: false }, 'Conversation');
+        }
+
+        const pinnedMessagesCount = await Message.countDocuments({
+            conversation: conversationId,
+            isPinned: true
+        })
+
+        return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.FETCH, data: { count: pinnedMessagesCount }}, 'Conversation');
+    } catch (error) {
+        console.error(`Error fetching pinned messages count for conversation: ${conversationId}`, error);
+        return sendResponse(res, { ...STATUS_MESSAGES.ERROR.SERVER, success: false });
+    }
+}
+
 export const getConversationsByUser = async (req, res) => {
     const { userId } = req.params;
 

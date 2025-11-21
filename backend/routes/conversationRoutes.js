@@ -12,6 +12,7 @@ router.get('/:conversationId/resources/attachments/count', getAttachmentCountsBy
 router.get('/:conversationId/resources/pinned-messages', getPinnedMessagesByConversationId)
 router.get('/:conversationId/resources/pinned-messages/count', getPinnedMessagesCountByConversationId)
 
+router.get('/:conversationId/resources/links/count', getLinkCountsByConversationId)
 
 router.get('/user/:userId', getConversationsByUser)
 

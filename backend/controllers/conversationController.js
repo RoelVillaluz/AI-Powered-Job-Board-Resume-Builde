@@ -169,6 +169,51 @@ export const getPinnedMessagesCountByConversationId = async (req, res) => {
     }
 }
 
+export const getLinkCountsByConversationId = async (req, res) => {
+    const { conversationId } = req.params;
+
+    try {
+        if (!mongoose.Types.ObjectId.isValid(conversationId)) {
+            return sendResponse(res, {
+                ...STATUS_MESSAGES.ERROR.BAD_REQUEST,
+                message: "Invalid conversationId",
+                success: false
+            }, 'Conversation');
+        }
+
+        const conversation = await Conversation.findById(conversationId).select('messages');
+        if (!conversation) {
+            return sendResponse(res, { 
+                ...STATUS_MESSAGES.ERROR.NOT_FOUND, 
+                success: false 
+            });
+        }
+
+        // Handle aggregation at database level for even better optimization
+        const result = await Message.aggregate([
+            { $match: { _id: { $in: conversation.messages } } },
+            { $project: {
+                links: {
+                    $regexFindAll: {
+                        input: "$content",
+                        regex: "\\b((https?:\\/\\/)?(www\\.)?[a-zA-Z0-9\\-._~%]+\\.[a-zA-Z]{2,}(\\/[^\\s]*)?)",
+                        options: "i"
+                    }
+                }
+            }},
+            { $project: { linkCount: { $size: "$links" } } },
+            { $group: { _id: null, totalLinks: { $sum: "$linkCount" } } }
+        ]);
+
+        const count = result.length > 0 ? result[0].totalLinks : 0;
+
+        return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.FETCH, data: { count: count }}, 'Conversation');
+    } catch (error) {
+        console.error(`Error fetching links count for conversation: ${conversationId}`, error);
+        return sendResponse(res, { ...STATUS_MESSAGES.ERROR.SERVER, success: false });
+    }
+}
+
 export const getConversationsByUser = async (req, res) => {
     const { userId } = req.params;
 

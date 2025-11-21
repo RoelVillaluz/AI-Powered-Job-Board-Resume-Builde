@@ -3,14 +3,11 @@ import { useChatResources } from "../../hooks/chats/useChatResources";
 import { useData } from "../../contexts/DataProvider";
 import axios from "axios";
 
-const resourceItemSkeleton = () => {
-
-}
-
 function ChatResources({ currentConversation }) {
     const { baseUrl } = useData();
     const { resources, fetchResourceType } = useChatResources(currentConversation);
     const [currentResource, setCurrentResource] = useState(null);
+
     const renderResourceItem = (icon, label, resourceKey, endPoint) => {
         const resource = resources[resourceKey] || {
             count: 0,
@@ -40,6 +37,16 @@ function ChatResources({ currentConversation }) {
         )
     }
 
+    const resourceItemsMap = useMemo(
+        () => [
+            { icon: "folder", label: "Attachments", resourceKey: "attachments", endPoint: "attachments" },
+            { icon: "link", label: "Links", resourceKey: "links", endPoint: "links" },
+            { icon: "thumbtack", label: "Pinned Messages", resourceKey: "pinnedMessages", endPoint: "pinned-messages" },
+            { icon: "calendar-days", label: "Scheduled Events", resourceKey: "scheduledEvents", endPoint: "scheduled-events" }
+        ], []
+    );
+
+
     return (
         <section className="chat-resources">
             <header>
@@ -47,38 +54,9 @@ function ChatResources({ currentConversation }) {
                 <i className="fa-solid fa-angle-right"></i>
             </header>
             <ul>
-                <li className="resource-item">
-                    <i className="fa-solid fa-folder"></i>
-                    <div>
-                        <strong>Attachments</strong>
-                        <p>{resources?.attachments?.count} Items</p>
-                    </div>
-                    <i className="fa-solid fa-angle-right"></i>
-                </li>
-                <li className="resource-item">
-                    <i className="fa-solid fa-link"></i>
-                    <div>
-                        <strong>Links</strong>
-                        <p>{resources?.links?.count} Items</p>
-                    </div>
-                    <i className="fa-solid fa-angle-right"></i>
-                </li>
-                <li className="resource-item">
-                    <i className="fa-solid fa-thumbtack"></i>
-                    <div>
-                        <strong>Pinned Messages</strong>
-                        <p>{resources?.pinnedMessages?.count} Items</p>
-                    </div>
-                    <i className="fa-solid fa-angle-right"></i>
-                </li>
-                <li className="resource-item">
-                    <i className="fa-solid fa-calendar-days"></i>
-                    <div>
-                        <strong>Scheduled Events</strong>
-                        <p>{resources?.scheduledEvents?.count} Items</p>
-                    </div>
-                    <i className="fa-solid fa-angle-right"></i>
-                </li>
+                {resourceItemsMap.map(({ icon, label, resourceKey, endPoint }) => 
+                    renderResourceItem(icon, label, resourceKey, endPoint)
+                )}
             </ul>
         </section>
     )

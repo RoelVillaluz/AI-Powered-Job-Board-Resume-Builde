@@ -171,6 +171,7 @@ export const useChatResources = ( conversation ) => {
             const resourceTypes = [
                 { type: 'pinnedMessages', endPoint: 'pinned-messages' },
                 { type: 'attachments', endPoint: 'attachments' },
+                { type: 'links', endPoint: 'links' },
             ]
 
             await Promise.allSettled(

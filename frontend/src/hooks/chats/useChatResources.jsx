@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useReducer, useState } from "react";
+import { useCallback, useEffect, useReducer, useRef } from "react";
 import { useData } from "../../contexts/DataProvider"
 import axios from "axios";
 
@@ -78,7 +78,8 @@ const resourcesReducer = (state, action) => {
                     data: payload,
                     count: payload.length,
                     lastFetched: Date.now(),
-                    conversationId: action.conversationId
+                    conversationId: action.conversationId,
+                    fetched: true
                 }
             };
 
@@ -100,12 +101,34 @@ const resourcesReducer = (state, action) => {
     }
 }
 
-export const useChatResources = ( conversation ) => {
+export const useChatResources = (conversation) => {
     const { baseUrl } = useData();
     const [resources, dispatch] = useReducer(resourcesReducer, initialState);
+    
+    // ✅ Create stable reference for resources
+    const resourcesRef = useRef(resources);
+    
+    // ✅ Keep ref updated with latest resources
+    useEffect(() => {
+        resourcesRef.current = resources;
+    }, [resources]);
 
     // Only fetch resource counts initially since not all resources are displayed to the user upon opening conversation yet.
     const fetchResourceCounts = useCallback(async (resourceType, endPoint, signal) => {
+        const resource = resourcesRef.current[resourceType]; // ✅ Use ref instead of resources
+        const CACHE_TTL = 5 * 60 * 1000; // ✅ 5 minutes in milliseconds
+
+        // ✅ Check if cache is still fresh
+        const isCacheFresh = 
+            resource.conversationId === conversation._id &&
+            resource.lastFetched &&
+            Date.now() - resource.lastFetched < CACHE_TTL;
+
+        if (isCacheFresh) {
+            console.log(`✨ Using cached ${resourceType}`);
+            return;
+        }
+
         dispatch({ type: 'FETCH_START', resourceType })
 
         try {
@@ -123,14 +146,14 @@ export const useChatResources = ( conversation ) => {
         } catch (error) {
             if (error.name === 'CanceledError') return; // ✅ Ignore cancelled requests
 
-            console.error(`Error fetching counts for ${resourceType}: `, error)
+            console.error(`Error fetching counts for ${resourceType}:`, error)
             dispatch({
                 type: 'FETCH_ERROR',
                 resourceType,
                 payload: error.message
             })
         }
-    }, [baseUrl, conversation?._id])
+    }, [baseUrl, conversation?._id]) // ✅ Removed 'resources' from dependencies!
 
     const fetchResourceType = useCallback(async (resourceType, endPoint, signal) => {
         dispatch({ type: 'FETCH_START', resourceType})
@@ -149,7 +172,7 @@ export const useChatResources = ( conversation ) => {
         } catch (error) {
             if (error.name === 'CanceledError') return; // ✅ Ignore cancelled requests
 
-            console.error(`Error fetching ${resourceType}: `, error);
+            console.error(`Error fetching ${resourceType}:`, error);
             dispatch({
                 type: 'FETCH_ERROR',
                 resourceType,
@@ -172,7 +195,7 @@ export const useChatResources = ( conversation ) => {
                 { type: 'pinnedMessages', endPoint: 'pinned-messages' },
                 { type: 'attachments', endPoint: 'attachments' },
                 { type: 'links', endPoint: 'links' },
-            ]
+            ];
 
             await Promise.allSettled(
                 resourceTypes.map(({ type, endPoint }) => 
@@ -184,7 +207,7 @@ export const useChatResources = ( conversation ) => {
         fetchAllCounts();
 
         return () => abortController.abort();  // ✅ Cancel on unmount/conversation change
-    }, [conversation?._id, fetchResourceCounts])
+    }, [conversation?._id, fetchResourceCounts]) 
 
     return { resources, fetchResourceType }
 }

@@ -11,12 +11,6 @@ const MessageBubble = ({ message, user }) => {
     const bubbleRef = useRef();
     const { registerMessage } = useReadReceipts();
 
-    if (process.env.NODE_ENV === 'development') {
-        const renderCount = React.useRef(0);
-        renderCount.current++;
-        console.log(`MessageBubble ${message._id} rendered ${renderCount.current} times`);
-    }
-
     // Memoize computed values
     const isSelected = useMemo(() => {
         return selectedMessage?._id === message._id

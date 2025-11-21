@@ -13,13 +13,12 @@ function MessagesContainer({ showComposeMessage, messages }) {
             <div className="messages-container" style={{ height: '100%' }}>
                 {!showComposeMessage && messages.length > 0  && (
                     <Virtuoso
-                        data={messages}
-                        firstItemIndex={0} // for prepending older messages
-                        initialTopMostItemIndex={messages.length - 1} // scroll to bottom (last message)
+                        data={[...messages].reverse()}
+                        firstItemIndex={0}
+                        initialTopMostItemIndex={0}
                         itemContent={(index) => {
-                            const group = messages[index];
-                            if (!group) return null;
-                            return <MessageGroup key={group._id || index} group={group}/>
+                            const group = [...messages].reverse()[index];
+                            return <MessageGroup key={group._id || index} group={group} />;
                         }}
                         atTopStateChange={(atTop) => {
                             if (atTop) loadOlderMessages?.();

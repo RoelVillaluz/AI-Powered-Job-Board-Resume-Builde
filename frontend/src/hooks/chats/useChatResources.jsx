@@ -95,14 +95,6 @@ export const useChatResources = (conversation) => {
         
         const CACHE_TTL = 5 * 60 * 1000;
 
-        console.log(`🔍 Checking cache for ${resourceType}:`, {
-            conversationId,
-            hasCache: !!conversationCache,
-            lastFetched: resource.lastFetched,
-            age: resource.lastFetched ? Math.round((Date.now() - resource.lastFetched) / 1000) : 'N/A',
-            count: resource.count || 0,
-        });
-
         // ✅ Check if cache is fresh
         const isCacheFresh = 
             resource.lastFetched &&
@@ -110,11 +102,8 @@ export const useChatResources = (conversation) => {
 
         if (isCacheFresh) {
             const age = Math.round((Date.now() - resource.lastFetched) / 1000);
-            console.log(`✨ CACHE HIT for ${resourceType} (${age}s old)`);
             return;
         }
-
-        console.log(`🌐 CACHE MISS for ${resourceType} - fetching...`);
 
         dispatch({ 
             type: 'FETCH_START', 

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useReducer, useRef } from "react";
 import { useData } from "../../contexts/DataProvider"
 import axios from "axios";
+import { RESOURCE_TYPES } from "../../../../shared/constants/chats/chatResourceTypes";
 
 const initialState = {}; // Empty object, we'll create conversations dynamically
 
@@ -185,14 +186,8 @@ export const useChatResources = (conversation) => {
         const abortController = new AbortController();
 
         const fetchAllCounts = async () => {
-            const resourceTypes = [
-                { type: 'pinnedMessages', endpoint: 'pinned-messages' },
-                { type: 'attachments', endpoint: 'attachments' },
-                { type: 'links', endpoint: 'links' },
-            ];
-
             await Promise.allSettled(
-                resourceTypes.map(({ type, endpoint }) => 
+                RESOURCE_TYPES.map(({ type, endpoint }) => 
                     fetchResourceCounts(type, endpoint, abortController.signal)
                 )
             );

@@ -13,6 +13,7 @@ import ChatResources from "../components/Chat/ChatResources.jsx";
 import ChatWindowHeader from "../components/Chat/ChatWindowHeader.jsx";
 import MessagesContainer from "../components/Chat/MessagesContainer.jsx";
 import MessageOperationsContext from "../contexts/chats/MessageOperationsContext.jsx";
+import ErrorBoundary from "../components/ErrorBoundary.jsx";
 
 function ChatsPage() {
     const { baseUrl } = useData();    
@@ -114,9 +115,14 @@ function ChatsPage() {
                     </section>
 
                     {/* Chat Resources */}
-                    <ChatResources
-                        currentConversation={currentConversation}
-                    />
+                    <ErrorBoundary 
+                        componentName="ChatResources"
+                        title="Unable to load chat resources"
+                        message="We couldn't load pinned messages, attachments, and links"
+                        className="chat-resources-error"
+                    >
+                        <ChatResources currentConversation={currentConversation} />
+                    </ErrorBoundary>
 
                 </main>
             </Layout>

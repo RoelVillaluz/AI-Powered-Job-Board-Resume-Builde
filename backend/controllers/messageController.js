@@ -61,11 +61,13 @@ export const createMessage = async (req, res) => {
     const requiredFields = ["sender", "receiver"];
 
     try {
+        // Check for missing required fields
         const missingField = checkMissingFields(requiredFields, messageData);
         if (missingField) {
             return sendResponse(res, { ...STATUS_MESSAGES.ERROR.MISSING_FIELD(missingField), success: false }, 'Message');
         }
 
+        // Require either content or attachment
         if ((!messageData.content || !messageData.content.trim()) && !req.file) {
             return sendResponse(
                 res, 
@@ -74,42 +76,40 @@ export const createMessage = async (req, res) => {
             );
         }
 
+        // Validate sender and receiver IDs
         const senderId = messageData.sender?.id || messageData.sender;
+        const receiverId = messageData.receiver?.id || messageData.receiver;
+
         if (!mongoose.Types.ObjectId.isValid(senderId)) {
-            console.error('Invalid sender ID:', senderId);
             return res.status(400).json({ message: 'Invalid sender ID format', success: false });
         }
 
-        const receiverId = messageData.receiver?.id || messageData.receiver;
         if (!mongoose.Types.ObjectId.isValid(receiverId)) {
-            console.error('Invalid receiver ID:', receiverId);
             return res.status(400).json({ message: 'Invalid receiver ID format', success: false });
         }
 
         const participantIds = [senderId, receiverId];
 
-        const existingConversation = await Conversation.findOne({
+        // Find existing conversation between participants
+        let conversation = await Conversation.findOne({
             users: { $all: participantIds },
             $expr: { $eq: [{ $size: "$users" }, participantIds.length] }
         });
 
-        let conversation;
-        if (!existingConversation) {
+        // Create new conversation if it doesn't exist
+        if (!conversation) {
             conversation = new Conversation({ users: participantIds });
             await conversation.save();
-        } else {
-            conversation = existingConversation;
         }
 
+        // Handle attachment
         let attachmentDoc = null;
         if (req.file) {
             const inputPath = req.file.path;
             const outputPath = inputPath.replace(/\.\w+$/, '.webp');
 
             await sharp(inputPath).webp({ quality: 80 }).toFile(outputPath);
-
-            // delete original file
-            fs.unlinkSync(inputPath);
+            fs.unlinkSync(inputPath); // Delete original file
 
             attachmentDoc = await Attachment.create({
                 fileName: path.basename(outputPath),
@@ -119,25 +119,28 @@ export const createMessage = async (req, res) => {
             });
         }
 
+        // Create message with conversation field
         const newMessage = new Message({
             sender: senderId,
             receiver: receiverId,
+            conversation: conversation._id, // <-- set conversation here
             content: messageData.content,
             attachment: attachmentDoc?._id || null
         });
 
         await newMessage.save();
 
+        // Push message into conversation
         conversation.messages.push(newMessage._id);
         await conversation.save();
 
-        // Populate the message with attachment details and sender/receiver info
+        // Populate message for response
         const populatedMessage = await Message.findById(newMessage._id)
             .populate('sender', 'name profilePicture')
             .populate('receiver', 'name profilePicture')
             .populate('attachment');
 
-        // Transform the attachment URL for frontend consumption
+        // Transform attachment URL for frontend
         if (populatedMessage.attachment && typeof populatedMessage.attachment.url === 'string') {
             if (populatedMessage.attachment.url.includes('public')) {
                 populatedMessage.attachment.url = '/' + populatedMessage.attachment.url.split('public\\').pop().replace(/\\/g, '/');
@@ -146,10 +149,11 @@ export const createMessage = async (req, res) => {
 
         return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.CREATE, data: populatedMessage }, 'Message');
     } catch (error) {
-        console.error('Error:', error);
+        console.error('Error creating message:', error);
         return sendResponse(res, { ...STATUS_MESSAGES.ERROR.SERVER, success: false });
     }
 };
+
 
 export const updateMessage = async (req, res) => {
     const { messageId } = req.params;

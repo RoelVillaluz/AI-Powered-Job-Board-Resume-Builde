@@ -1,4 +1,5 @@
 import { useMemo } from "react"
+import { RESOURCE_TYPES_WITH_ICONS } from "../../../../../shared/constants/chats/chatResourceTypes"
 
 const ChatResourceItemList = ({ resources }) => {
     const renderResourceItem = (icon, label, resourceKey, endPoint) => {
@@ -31,12 +32,7 @@ const ChatResourceItemList = ({ resources }) => {
     }
 
     const resourceItemsMap = useMemo(
-        () => [
-            { icon: "folder", label: "Attachments", resourceKey: "attachments", endPoint: "attachments" },
-            { icon: "link", label: "Links", resourceKey: "links", endPoint: "links" },
-            { icon: "thumbtack", label: "Pinned Messages", resourceKey: "pinnedMessages", endPoint: "pinned-messages" },
-            { icon: "calendar-days", label: "Scheduled Events", resourceKey: "scheduledEvents", endPoint: "scheduled-events" }
-        ], []
+        () => RESOURCE_TYPES_WITH_ICONS, []
     );
 
     return (

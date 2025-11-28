@@ -1,4 +1,4 @@
-const updateResourceState = (state, conversationId, resourceType, updates) => ({
+export const updateResourceState = (state, conversationId, resourceType, updates) => ({
     ...state,
     [conversationId]: {
         ...state[conversationId],

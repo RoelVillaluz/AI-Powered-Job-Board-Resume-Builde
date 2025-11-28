@@ -3,6 +3,7 @@ import { useData } from "../../contexts/DataProvider"
 import axios from "axios";
 import { RESOURCE_TYPES } from "../../../../shared/constants/chats/chatResourceTypes";
 import { fetchResourceCounts, fetchResourceType } from "../../utils/chats/chatResourceUtils";
+import { updateResourceState } from "../../utils/chats/updateResourceStateUtil";
 
 const initialState = {};
 

@@ -1,57 +1,12 @@
 import { useCallback, useEffect, useReducer, useRef } from "react";
 import { useData } from "../../contexts/DataProvider"
-import axios from "axios";
 import { RESOURCE_TYPES } from "../../../../shared/constants/chats/chatResourceTypes";
 import { fetchResourceCounts, fetchResourceType } from "../../utils/chats/chatResourceUtils";
-import { updateResourceState } from "../../utils/chats/updateResourceStateUtil";
-
-const initialState = {};
-
-const resourcesReducer = (state, action) => {
-    const { conversationId, resourceType, payload } = action;
-
-    switch (action.type) {
-        case 'FETCH_START':
-            return updateResourceState(state, conversationId, resourceType, {
-                loading: true,
-                error: null,
-            });
-
-        case 'FETCH_COUNTS_SUCCESS':
-            return updateResourceState(state, conversationId, resourceType, {
-                loading: false,
-                error: null,
-                count: payload.count,
-                lastFetched: Date.now(),
-            });
-
-        case 'FETCH_DATA_SUCCESS':
-            return updateResourceState(state, conversationId, resourceType, {
-                loading: false,
-                error: null,
-                data: payload,
-                count: payload.length,
-                lastFetched: Date.now(),
-                fetched: true,
-            });
-
-        case 'FETCH_ERROR':
-            return updateResourceState(state, conversationId, resourceType, {
-                loading: false,
-                error: payload
-            });
-
-        case 'RESET':
-            return {};
-
-        default:
-            return state;
-    }
-};
+import { initialState, chatResourcesReducer } from "../../reducers/chats/chatResourcesReducer";
 
 export const useChatResources = (conversation) => {
     const { baseUrl } = useData();
-    const [resources, dispatch] = useReducer(resourcesReducer, initialState);
+    const [resources, dispatch] = useReducer(chatResourcesReducer, initialState);
 
     const resourcesRef = useRef(resources);
     useEffect(() => {

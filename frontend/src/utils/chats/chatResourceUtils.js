@@ -90,7 +90,7 @@ export const fetchResourceType = async (baseUrl, dispatch, resourcesRef, convers
             { signal }
         );
 
-        console.log('Resource fetched: ', resourceType)
+        console.log('Resource fetched: ', response.data.data)
 
         dispatch({
             type: 'FETCH_DATA_SUCCESS',

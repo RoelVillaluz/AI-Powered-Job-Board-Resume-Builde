@@ -57,10 +57,26 @@ export const fetchResourceCounts = async (baseUrl, dispatch, resourcesRef, conve
     }
 }
 
-export const fetchResourceType = async (baseUrl, dispatch, conversation, resourceType, endpoint, signal) => {
+export const fetchResourceType = async (baseUrl, dispatch, resourcesRef, conversation, resourceType, endpoint, signal) => {
     if (!conversation?._id) return;
 
     const conversationId = conversation._id;
+
+    const conversationCache = resourcesRef.current[conversationId];
+    const resource = conversationCache?.[resourceType] || {};
+
+    const CACHE_TTL = 5 * 60 * 1000;
+
+    // ✅ Check if cache is fresh
+    const isCacheFresh = 
+        resource.lastFetchedDetails &&
+        Date.now() - resource.lastFetchedDetails < CACHE_TTL;
+
+    if (isCacheFresh) {
+        const age = Math.round((Date.now() - resource.lastFetchedDetails) / 1000);
+        console.log('Cached Resource fetched for: ', resource)
+        return;
+    }
 
     dispatch({ 
         type: 'FETCH_START', 
@@ -74,6 +90,8 @@ export const fetchResourceType = async (baseUrl, dispatch, conversation, resourc
             { signal }
         );
 
+        console.log('Resource fetched: ', resourceType)
+
         dispatch({
             type: 'FETCH_DATA_SUCCESS',
             conversationId,
@@ -81,7 +99,10 @@ export const fetchResourceType = async (baseUrl, dispatch, conversation, resourc
             payload: response.data.data
         });
     } catch (error) {
-        if (error.name === 'CanceledError') return;
+        if (error.name === 'CanceledError') {
+            console.log(`❌ Cancelled ${resourceType}`);
+            return;
+        }
 
         console.error(`Error fetching ${resourceType}:`, error);
         dispatch({

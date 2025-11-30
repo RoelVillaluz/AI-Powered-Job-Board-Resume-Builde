@@ -11,9 +11,14 @@ export const RESOURCE_TYPES_WITH_ICONS = [
     { icon: "calendar-days", label: "Scheduled Events", resourceKey: "scheduledEvents", endPoint: "scheduled-events" }
 ]
 
-export const getDefaultResources = () => ({
+export const INITIAL_RESOURCE_STATE = {
     pinnedMessages: { data: [], count: 0 },
     attachments: { data: [], count: 0 },
     links: { data: [], count: 0 },
-    scheduledEvents: { data: [], count: 0 },
-});
+    scheduledEvents: { data: [], count: 0 }
+};
+
+export function getResourceState(resources, conversationId) {
+    if (!conversationId) return INITIAL_RESOURCE_STATE;
+    return resources[conversationId] || INITIAL_RESOURCE_STATE;
+}

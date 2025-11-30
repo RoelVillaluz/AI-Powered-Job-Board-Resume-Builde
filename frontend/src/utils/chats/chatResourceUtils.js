@@ -13,11 +13,11 @@ export const fetchResourceCounts = async (baseUrl, dispatch, resourcesRef, conve
 
     // ✅ Check if cache is fresh
     const isCacheFresh = 
-        resource.lastFetched &&
-        Date.now() - resource.lastFetched < CACHE_TTL;
+        resource.lastFetchedCounts &&
+        Date.now() - resource.lastFetchedCounts < CACHE_TTL;
 
     if (isCacheFresh) {
-        const age = Math.round((Date.now() - resource.lastFetched) / 1000);
+        const age = Math.round((Date.now() - resource.lastFetchedCounts) / 1000);
         return;
     }
 

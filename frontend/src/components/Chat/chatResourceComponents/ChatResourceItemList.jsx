@@ -10,7 +10,7 @@ const ChatResourceItemList = ({ resources }) => {
         }
 
         return (
-            <li className="resource-item">
+            <li className="resource-item" onClick={() => console.log(`${resourceKey} selected`)}>
                 <i className={`fa-solid fa-${icon}`}></i>
                 <div>
                     <strong>{label}</strong>

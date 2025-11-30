@@ -47,7 +47,7 @@ const ConversationItem = memo(({ convo, user, currentConversation, onConversatio
     }
 
     // ✅ Safe last message
-    const lastMessage = convo.messages.at(-1);
+    const lastMessage = convo.messages.at(0); // index 0 instead of -1 since message order is in reverse
     if (!lastMessage || !lastMessage.sender) {
         console.warn("Invalid lastMessage structure:", lastMessage);
         return null;

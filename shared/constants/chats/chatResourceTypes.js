@@ -5,10 +5,10 @@ export const RESOURCE_TYPES = [
 ]
 
 export const RESOURCE_TYPES_WITH_ICONS = [
-    { icon: "folder", label: "Attachments", resourceKey: "attachments", endPoint: "attachments" },
-    { icon: "link", label: "Links", resourceKey: "links", endPoint: "links" },
-    { icon: "thumbtack", label: "Pinned Messages", resourceKey: "pinnedMessages", endPoint: "pinned-messages" },
-    { icon: "calendar-days", label: "Scheduled Events", resourceKey: "scheduledEvents", endPoint: "scheduled-events" }
+    { icon: "folder", label: "Attachments", resourceKey: "attachments", endpoint: "attachments" },
+    { icon: "link", label: "Links", resourceKey: "links", endpoint: "links" },
+    { icon: "thumbtack", label: "Pinned Messages", resourceKey: "pinnedMessages", endpoint: "pinned-messages" },
+    { icon: "calendar-days", label: "Scheduled Events", resourceKey: "scheduledEvents", endpoint: "scheduled-events" }
 ]
 
 export const INITIAL_RESOURCE_STATE = {

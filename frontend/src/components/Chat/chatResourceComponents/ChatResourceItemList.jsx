@@ -15,7 +15,7 @@ const ChatResourceItemList = ({ resources, onResourceClick, currentResource, cur
                 <i className={`fa-solid fa-${icon}`}></i>
                 <div>
                     <strong>{label}</strong>
-                    {resource.loading ? (
+                    {resource.loadingCounts ? (
                         <div className="skeleton text" style={{ 
                             height: '1.25rem', 
                             width: '10rem', 

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useReducer, useRef } from "react";
+import { useCallback, useEffect, useReducer, useRef, useState } from "react";
 import { useData } from "../../contexts/DataProvider"
 import { RESOURCE_TYPES } from "../../../../shared/constants/chats/chatResourceTypes";
 import { fetchResourceCounts, fetchResourceType } from "../../utils/chats/chatResourceUtils";
@@ -8,6 +8,11 @@ import { getResourceState } from "../../../../shared/constants/chats/chatResourc
 export const useChatResourceManager = (conversation) => {
     const { baseUrl } = useData();
     const [resources, dispatch] = useReducer(chatResourcesReducer, initialState);
+    const [currentResource, setCurrentResource] = useState({
+        conversationId: null,
+        resourceKey: null
+    });
+    const [messagesWithCurrentResource, setMessagesWithCurrentResource] = useState([]);
 
     // Keep a live ref for caching
     const resourcesRef = useRef(resources);

@@ -1,9 +1,11 @@
-import { useState } from "react"
-import { useChatResources } from "../../hooks/chats/useChatResources";
-import { useData } from "../../contexts/DataProvider";
-import ChatResourceItemList from "./chat_resource_components/ChatResourceItemList";
+import { useState, useEffect } from "react"
+import { useChatResourceManager } from "../../hooks/chats/useChatResourceManager";
+import ChatResourceItemList from "./chatResourceComponents/ChatResourceItemList";
+import CurrentChatResourceDetail from "./chatResourceComponents/currentChatResourceDetail";
 
 function ChatResources({ currentConversation }) {
+    const { resources, currentResource, setCurrentResource, messagesWithCurrentResource, fetchResource } = useChatResourceManager(currentConversation);
+
     // Callback function
     const handleResourceClick = async (resourceKey, endpoint) => {
         await fetchResource(resourceKey, endpoint);

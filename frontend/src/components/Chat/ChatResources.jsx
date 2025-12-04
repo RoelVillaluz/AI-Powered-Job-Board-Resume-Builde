@@ -4,7 +4,7 @@ import ChatResourceItemList from "./chatResourceComponents/ChatResourceItemList"
 import CurrentChatResourceDetail from "./chatResourceComponents/currentChatResourceDetail";
 
 function ChatResources({ currentConversation }) {
-    const { resources, currentResource, setCurrentResource, messagesWithCurrentResource, fetchResource } = useChatResourceManager(currentConversation);
+    const { resources, currentResource, setCurrentResource, messagesWithCurrentResource, setMessagesWithCurrentResource, fetchResource } = useChatResourceManager(currentConversation);
 
     // Callback function
     const handleResourceClick = async (resourceKey, endpoint) => {
@@ -14,6 +14,14 @@ function ChatResources({ currentConversation }) {
             resourceKey: resourceKey
         })
     }
+
+    useEffect(() => {
+        setCurrentResource({
+            conversationId: currentConversation?._id,
+            resourceKey: null
+        })
+        setMessagesWithCurrentResource([]);
+    }, [currentConversation?._id])
 
     return (
         <section className="chat-resources">

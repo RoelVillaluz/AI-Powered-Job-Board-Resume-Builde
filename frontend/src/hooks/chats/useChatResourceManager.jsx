@@ -50,6 +50,8 @@ export const useChatResourceManager = (conversation) => {
             const controller = new AbortController();
             abortControllers.current[resourceType] = controller;
 
+            console.log(`Messages with ${resourceType}: `, messagesWithCurrentResource)
+
             return fetchResourceType(
                 baseUrl,
                 dispatch,
@@ -57,7 +59,9 @@ export const useChatResourceManager = (conversation) => {
                 conversation,
                 resourceType,
                 endpoint,
-                controller.signal
+                controller.signal,
+                setCurrentResource,
+                setMessagesWithCurrentResource
             );
         },
         [baseUrl, conversation?._id]
@@ -85,6 +89,13 @@ export const useChatResourceManager = (conversation) => {
 
     return {
         resources: currentResources,
+
+        currentResource,
+        setCurrentResource,
+
+        messagesWithCurrentResource,
+        setMessagesWithCurrentResource,
+
         fetchCounts,       // can call manually if needed
         fetchResource      // fetch full details on-demand
     };

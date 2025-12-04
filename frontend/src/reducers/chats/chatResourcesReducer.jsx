@@ -8,25 +8,25 @@ export const chatResourcesReducer = (state, action) => {
     switch (action.type) {
         case 'FETCH_START':
             return updateResourceState(state, conversationId, resourceType, {
-                loading: true,
+                loading: true, // Change later to accept additional parameter to set loadingCounts or loadingDetails
                 error: null,
             });
 
         case 'FETCH_COUNTS_SUCCESS':
             return updateResourceState(state, conversationId, resourceType, {
-                loading: false,
+                loadingCounts: false,
                 error: null,
-                count: payload.count,
-                lastFetched: Date.now(),
+                count: typeof payload === 'number' ? payload : payload.count,
+                lastFetchedCounts: Date.now(),
             });
 
         case 'FETCH_DATA_SUCCESS':
             return updateResourceState(state, conversationId, resourceType, {
-                loading: false,
+                loadingDetails: false,
                 error: null,
                 data: payload,
                 count: payload.length,
-                lastFetched: Date.now(),
+                lastFetchedDetails: Date.now(),
                 fetched: true,
             });
 

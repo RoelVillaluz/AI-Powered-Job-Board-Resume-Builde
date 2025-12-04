@@ -57,7 +57,7 @@ export const fetchResourceCounts = async (baseUrl, dispatch, resourcesRef, conve
     }
 }
 
-export const fetchResourceType = async (baseUrl, dispatch, resourcesRef, conversation, resourceType, endpoint, signal) => {
+export const fetchResourceType = async (baseUrl, dispatch, resourcesRef, conversation, resourceType, endpoint, signal, setCurrentResource, setMessagesWithCurrentResource) => {
     if (!conversation?._id) return;
 
     const conversationId = conversation._id;
@@ -90,14 +90,18 @@ export const fetchResourceType = async (baseUrl, dispatch, resourcesRef, convers
             { signal }
         );
 
-        console.log('Resource fetched: ', response.data.data)
-
         dispatch({
             type: 'FETCH_DATA_SUCCESS',
             conversationId,
             resourceType,
             payload: response.data.data
         });
+
+        setCurrentResource({
+            conversationId: conversation._id,
+            resourceKey: resourceType
+        })
+        setMessagesWithCurrentResource(response.data.data)
     } catch (error) {
         if (error.name === 'CanceledError') {
             console.log(`❌ Cancelled ${resourceType}`);

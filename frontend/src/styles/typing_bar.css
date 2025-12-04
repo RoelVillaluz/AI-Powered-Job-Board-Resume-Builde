@@ -153,7 +153,6 @@
 .chat-resources ul {
     display: flex;
     flex-direction: column;
-    gap: 1.25rem;
     list-style-type: none;
     width: 100%;
 }
@@ -164,6 +163,15 @@
     gap: 1rem;
     cursor: pointer;
     width: 100%;
+    padding: 1rem;
+    border-radius: 12px;
+    transition: 0.3s;
+}
+
+.chat-resources .resource-item:hover,
+.chat-resources .resource-item.active
+{
+    background-color: var(--light-gray);
 }
 
 .chat-resources .resource-item i:first-of-type {

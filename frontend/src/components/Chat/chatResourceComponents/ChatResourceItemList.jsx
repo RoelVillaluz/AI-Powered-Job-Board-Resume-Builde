@@ -6,10 +6,14 @@ const ChatResourceItemList = ({ resources, onResourceClick, currentResource, cur
     const renderResourceItem = (icon, label, resourceKey, endpoint) => {
         const resource = resources[resourceKey] || {
             count: 0,
-            loading: false,
+            loadingCounts: false,
             error: null
         }
 
+        const isActive = 
+            currentResource.resourceKey === resourceKey && 
+            currentResource.conversationId === currentConversationId
+        
         return (
             <li className={`resource-item ${isActive ? 'active' : ''}`} onClick={() => onResourceClick(resourceKey, endpoint)} key={resourceKey}>
                 <i className={`fa-solid fa-${icon}`}></i>

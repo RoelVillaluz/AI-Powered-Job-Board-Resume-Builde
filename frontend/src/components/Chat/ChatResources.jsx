@@ -27,6 +27,10 @@ function ChatResources({ currentConversation }) {
                 currentResource={currentResource}
                 currentConversationId={currentConversation?._id}
             />
+            <CurrentChatResourceDetail
+                currentResource={currentResource}
+                messages={messagesWithCurrentResource}
+            />
         </section>
     )
 }

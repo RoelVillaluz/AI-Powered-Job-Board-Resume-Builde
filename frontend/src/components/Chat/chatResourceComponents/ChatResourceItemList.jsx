@@ -1,11 +1,7 @@
 import { useMemo } from "react"
 import { RESOURCE_TYPES_WITH_ICONS } from "../../../../../shared/constants/chats/chatResourceTypes"
 
-const ChatResourceItemList = ({ resources, fetchResource }) => {
-
-    const handleResourceItemClick = (resourceKey, endpoint) => {
-        fetchResource(resourceKey, endpoint)
-    }
+const ChatResourceItemList = ({ resources, onResourceClick, currentResource, currentConversationId }) => {
 
     const renderResourceItem = (icon, label, resourceKey, endpoint) => {
         const resource = resources[resourceKey] || {
@@ -15,7 +11,7 @@ const ChatResourceItemList = ({ resources, fetchResource }) => {
         }
 
         return (
-            <li className="resource-item" onClick={() => handleResourceItemClick(resourceKey, endpoint)}>
+            <li className={`resource-item ${isActive ? 'active' : ''}`} onClick={() => onResourceClick(resourceKey, endpoint)} key={resourceKey}>
                 <i className={`fa-solid fa-${icon}`}></i>
                 <div>
                     <strong>{label}</strong>

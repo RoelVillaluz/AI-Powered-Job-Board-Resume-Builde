@@ -4,9 +4,14 @@ import { useData } from "../../contexts/DataProvider";
 import ChatResourceItemList from "./chat_resource_components/ChatResourceItemList";
 
 function ChatResources({ currentConversation }) {
-    const { baseUrl } = useData();
-    const { resources, fetchResourceType } = useChatResources(currentConversation);
-    const [currentResource, setCurrentResource] = useState(null);
+    // Callback function
+    const handleResourceClick = async (resourceKey, endpoint) => {
+        await fetchResource(resourceKey, endpoint);
+        setCurrentResource({
+            conversationId: currentConversation?._id,
+            resourceKey: resourceKey
+        })
+    }
 
     return (
         <section className="chat-resources">
@@ -16,6 +21,9 @@ function ChatResources({ currentConversation }) {
             </header>
             <ChatResourceItemList 
                 resources={resources}
+                onResourceClick={handleResourceClick}
+                currentResource={currentResource}
+                currentConversationId={currentConversation?._id}
             />
         </section>
     )

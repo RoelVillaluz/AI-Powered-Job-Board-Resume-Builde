@@ -61,14 +61,30 @@ export const getAttachmentsByConversationId = async (req, res) => {
     try {
         const conversation = await Conversation.findById(conversationId).populate({
             path: "messages",
-            populate: { path: "attachment" }
+            populate: { 
+                path: "attachment",
+                select: "url"
+            }
         })
 
         if (!conversation) {
             return sendResponse(res, { ...STATUS_MESSAGES.ERROR.NOT_FOUND, success: false }, 'Conversation')
         }
 
-        const messagesWithAttachments = conversation.messages.filter(msg => msg.attachment !== '' && msg.attachment !== null)
+        const messagesWithAttachments = conversation.messages
+            .filter(msg => msg.attachment)
+            .map(msg => {
+                if (typeof msg.attachment === 'object' && msg.attachment.url) {
+                    msg.attachment.url = msg.attachment.url.replace(/\\/g, '/');
+                    msg.attachment.url = `message_attachments/${msg.attachment.url.split('/').pop()}`;
+                } 
+                else if (typeof msg.attachment === 'string') {
+                    msg.attachment = msg.attachment.replace(/\\/g, '/');
+                    msg.attachment = `message_attachments/${msg.attachment.split('/').pop()}`;
+                }
+
+                return msg;
+            });
 
         return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.FETCH, data: messagesWithAttachments }, 'Conversation')
     } catch (error) {

@@ -128,29 +128,29 @@ export const getAttachmentCountsByConversationId = async (req, res) => {
 
 export const getPinnedMessagesByConversationId = async (req, res) => {
     const { conversationId } = req.params;
-
+    
     try {
-        const conversation = await Conversation.findById(conversationId).populate({
-            path: 'messages',
-            populate: [
-                {
-                    path: 'sender',
-                    select: 'name'
-                },
-                {
-                    path: 'attachment',
-                    select: 'fileName fileSize type url'
-                }
-            ]
-        })
+        const conversation = await Conversation.findById(conversationId)
+            .populate({
+                path: "messages",
+                match: { isPinned: true },
+                populate: [
+                    {
+                        path: "sender",
+                        select: "name"
+                    },
+                    {
+                        path: "attachment",
+                        select: "fileName fileSize type url"
+                    }
+                ]
+            })
 
         if (!conversation) {
             return sendResponse(res, { ...STATUS_MESSAGES.ERROR.NOT_FOUND, success: false }, 'Conversation')
         }
 
-        const pinnedMessages = conversation.messages.filter(msg => msg.isPinned === true)
-
-        return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.FETCH, data: pinnedMessages }, 'Conversation')
+        return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.FETCH, data: conversation.messages }, 'Conversation')
     } catch (error) {
         console.error('Error fetching pinned messages for conversation: ', conversationId)
         return sendResponse(res, { ...STATUS_MESSAGES.ERROR.SERVER, success: false }, 'Conversation')

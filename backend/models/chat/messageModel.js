@@ -40,7 +40,15 @@ const messageSchema = new mongoose.Schema({
     isPinned: {
         type: Boolean,
         default: false
-    }
+    },
+    linkPreview: {
+        url: { type: String, default: null },
+        title: { type: String, default: null },
+        description: { type: String, default: null },
+        image: { type: String, default: null },
+        siteName: { type: String, default: null },
+        favicon: { type: String, default: null }
+    },
 }, { timestamps: { createdAt: true, updatedAt: false } })
 
 const Message = mongoose.model('Message', messageSchema)

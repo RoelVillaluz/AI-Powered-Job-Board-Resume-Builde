@@ -1,17 +1,21 @@
 import { useEffect } from "react"
+import AttachmentGrid from "./ChatResourceTypeComponents/AttachmentsGrid"
+
 function CurrentChatResourceDetail({ currentResource, messages }) {
 
     useEffect(() => {
-        console.log('Messages: ', messages)
+        console.log(`${currentResource.resourceKey}: `, messages)
     }, [messages])
+
+    const displayResourceTypeElement = () => {
+        if (currentResource.resourceKey === 'attachments') {
+            return <AttachmentGrid messages={messages}/>
+        }
+    }
 
     return (
         <div className="current-chat-resource">
-           <ul>
-                {messages.map((message) => (
-                    <li key={message._id}>{message.content}</li>
-                ))}
-           </ul> 
+           {displayResourceTypeElement()}
         </div>
     )
 }

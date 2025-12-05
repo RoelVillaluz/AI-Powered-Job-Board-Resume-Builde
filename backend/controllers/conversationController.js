@@ -59,37 +59,38 @@ export const getAttachmentsByConversationId = async (req, res) => {
     const { conversationId } = req.params;
 
     try {
-        const conversation = await Conversation.findById(conversationId).populate({
-            path: "messages",
-            populate: { 
-                path: "attachment",
-                select: "url"
-            }
-        })
-
-        if (!conversation) {
-            return sendResponse(res, { ...STATUS_MESSAGES.ERROR.NOT_FOUND, success: false }, 'Conversation')
-        }
-
-        const messagesWithAttachments = conversation.messages
-            .filter(msg => msg.attachment)
-            .map(msg => {
-                if (typeof msg.attachment === 'object' && msg.attachment.url) {
-                    msg.attachment.url = msg.attachment.url.replace(/\\/g, '/');
-                    msg.attachment.url = `message_attachments/${msg.attachment.url.split('/').pop()}`;
-                } 
-                else if (typeof msg.attachment === 'string') {
-                    msg.attachment = msg.attachment.replace(/\\/g, '/');
-                    msg.attachment = `message_attachments/${msg.attachment.split('/').pop()}`;
+        const conversation = await Conversation.findById(conversationId)
+            .populate({
+                path: "messages",
+                match: { attachment: { $exists: true, $ne: null } },
+                select: "attachment createdAt",
+                options: { sort: { createdAt: -1 } },
+                populate: {
+                    path: "attachment",
+                    select: "url"
                 }
+            })
+            .lean();
+
+            // Normalize attachment URLs at backend level
+            const messagesWithAttachments = conversation.messages.map((msg) => {
+                if (!msg.attachment) return msg;
+
+                let url = typeof msg.attachment === "object" ? msg.attachment.url : msg.attachment;
+                url = url.replace(/\\/g, "/");
+                url = `message_attachments/${url.split("/").pop()}`;
+
+                // If attachment is an object, keep it as object with normalized url
+                if (typeof msg.attachment === "object") msg.attachment.url = url;
+                else msg.attachment = url;
 
                 return msg;
             });
 
-        return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.FETCH, data: messagesWithAttachments }, 'Conversation')
-    } catch (error) {
-        console.error(`Error fetching messages with attachments for conversation: ${conversationId}`)
-        return sendResponse(res, { ...STATUS_MESSAGES.ERROR.SERVER, success: false })
+            return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.FETCH, data: messagesWithAttachments }, "Conversation");
+        } catch (error) {
+            console.error(`Error fetching messages with attachments for conversation: ${conversationId}`, error);
+            return sendResponse(res, { ...STATUS_MESSAGES.ERROR.SERVER, success: false });
     }
 }
 

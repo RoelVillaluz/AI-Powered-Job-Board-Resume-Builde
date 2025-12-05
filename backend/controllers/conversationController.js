@@ -243,23 +243,40 @@ export const getLinksByConversationId = async (req, res) => {
             }, 'Conversation');
         }
 
-        const conversation = await Conversation.findById(conversationId).populate({
-            path: 'messages',
-            populate: [
-                {
-                    path: 'sender',
-                    select: 'name'
+        // URL regex pattern as STRING for MongoDB
+        const urlPattern = '\\b((https?:\\/\\/)?(www\\.)?[a-zA-Z0-9\\-._~%]+\\.[a-zA-Z]{2,}(\\/[^\\s]*)?)';
+
+        const conversation = await Conversation.findById(conversationId)
+            .populate({
+                path: "messages",
+                match: {
+                    content: {
+                        $regex: urlPattern,  // String pattern
+                        $options: 'i', // case insensitive
+                    }
                 },
-            ]
-        })
+                populate: [
+                    {
+                        path: "sender",
+                        select: "name",
+                    },
+                ]
+            });
 
-        const urlRegex = /\b((https?:\/\/)?(www\.)?[a-zA-Z0-9\-._~%]+\.[a-zA-Z]{2,}(\/[^\s]*)?)/gi;
-
-        const messagesWithLinks = conversation.messages.filter(msg => msg.content.match(urlRegex))
+        if (!conversation) {
+            return sendResponse(res, { 
+                ...STATUS_MESSAGES.ERROR.NOT_FOUND, 
+                success: false 
+            }, 'Conversation');
+        }
         
-        return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.FETCH, data: messagesWithLinks }, 'Conversation')
+        return sendResponse(res, { 
+            ...STATUS_MESSAGES.SUCCESS.FETCH, 
+            data: conversation.messages 
+        }, 'Conversation');
+        
     } catch (error) {
-         console.error(`Error fetching messages with links for conversation: ${conversationId}`, error);
+        console.error(`Error fetching messages with links for conversation: ${conversationId}`, error);
         return sendResponse(res, { ...STATUS_MESSAGES.ERROR.SERVER, success: false });
     }
 }

@@ -1,5 +1,5 @@
 import express from "express"
-import { getConversations, getConversationById, getConversationsByUser, getAttachmentsByConversationId, getAttachmentCountsByConversationId, getPinnedMessagesByConversationId, getPinnedMessagesCountByConversationId, getLinkCountsByConversationId, getLinksByConversationId } from "../controllers/conversationController.js";
+import { getConversations, getConversationById, getConversationsByUser, getAttachmentsByConversationId, getAttachmentCountsByConversationId, getPinnedMessagesByConversationId, getPinnedMessagesCountByConversationId, getLinkCountsByConversationId, getLinksByConversationId } from "../../controllers/chat/conversationController.js";
 
 const router = express.Router();
 

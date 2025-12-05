@@ -7,8 +7,8 @@ import resumeRoutes from "./routes/resumeRoutes.js"
 import companyRoutes from "./routes/companyRoutes.js"
 import aiRoutes from './routes/aiRoutes.js'
 import applicationRoutes from './routes/applicationRoutes.js'
-import conversationRoutes from './routes/conversationRoutes.js'
-import messageRoutes from './routes/messageRoutes.js'
+import conversationRoutes from './routes/chat/conversationRoutes.js'
+import messageRoutes from './routes/chat/messageRoutes.js'
 import path from 'path';
 import { connectDB } from "./config/db.js";
 import { fileURLToPath } from "url";

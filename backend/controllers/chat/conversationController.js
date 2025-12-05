@@ -1,6 +1,6 @@
-import Conversation from '../models/conversationModel.js';
-import Message from '../models/messageModel.js'
-import { STATUS_MESSAGES, sendResponse } from '../constants.js';
+import Conversation from '../../models/chat/conversationModel.js';
+import Message from '../../models/chat/messageModel.js';
+import { STATUS_MESSAGES, sendResponse } from '../../constants.js';
 import mongoose from 'mongoose';
 
 export const getConversations = async (req, res) => {

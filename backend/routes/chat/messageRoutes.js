@@ -1,5 +1,5 @@
 import express from 'express'
-import { getMessageById, getMessages, getMessagesByUser, createMessage, deleteMessage, updateMessage, markMessagesAsSeen, pinMessage } from '../controllers/messageController.js';
+import { getMessageById, getMessages, getMessagesByUser, createMessage, deleteMessage, updateMessage, markMessagesAsSeen, pinMessage } from '../../controllers/chat/messageController.js';
 import multer from "multer"
 import path from "path";
 

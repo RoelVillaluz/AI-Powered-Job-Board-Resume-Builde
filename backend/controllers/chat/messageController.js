@@ -1,9 +1,9 @@
 import mongoose, { mongo } from 'mongoose'
-import Message from '../models/messageModel.js'
-import Conversation from '../models/conversationModel.js'
-import Attachment from '../models/attachmentModel.js'
-import { STATUS_MESSAGES, sendResponse } from '../constants.js'
-import { checkMissingFields, determineFileType } from '../utils.js'
+import Message from '../../models/chat/messageModel.js';
+import Conversation from '../../models/chat/conversationModel.js';
+import Attachment from '../../models/chat/attachmentModel.js';
+import { STATUS_MESSAGES, sendResponse } from '../../constants.js'
+import { checkMissingFields, determineFileType } from '../../utils.js'
 import sharp from 'sharp';
 import fs from 'fs';
 import path from 'path';

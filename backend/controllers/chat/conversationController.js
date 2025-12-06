@@ -251,17 +251,18 @@ export const getLinksByConversationId = async (req, res) => {
                 path: "messages",
                 match: {
                     content: {
-                        $regex: urlPattern,  // String pattern
-                        $options: 'i', // case insensitive
+                        $regex: urlPattern,
+                        $options: 'i',
                     }
                 },
-                populate: [
-                    {
-                        path: "sender",
-                        select: "name",
-                    },
-                ]
+                select: 'content sender linkPreview createdAt', // ✅ Add linkPreview
+                options: { sort: { createdAt: -1 } },
+                populate: {
+                    path: "sender",
+                    select: "name",
+                }
             });
+
 
         if (!conversation) {
             return sendResponse(res, { 

@@ -1,4 +1,5 @@
 @import "./chat_resources.css";
+@import "./chat_sidebar.css";
 @import "./message_confirmation_modal.css";
 @import "./messages.css";
 @import "./typing_bar.css";

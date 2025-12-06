@@ -1,0 +1,107 @@
+.typing-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    position: sticky;
+    bottom: 0;
+    background-color: white;
+    padding: 0.75rem;
+    padding-left: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0px 10px 20px -12px rgba(0,0,0,0.1);
+    width: 100%;
+    z-index: 1;
+}
+
+.attachment-preview {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    padding: 0.5rem;
+    padding-right: 2.5rem;
+    border: solid 1px rgba(150, 150, 150, 0.1);
+    border-radius: 4px;
+    background-color: rgb(235, 235, 235);
+    width: 40%;
+}
+
+.attachment-preview img {
+    width: 40px;
+    aspect-ratio: 1 / 1;
+    border-radius: 4px;
+}
+
+.attachment-preview .column {
+    display: flex;
+    align-items: start;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+
+.attachment-preview strong {
+    color: rgb(20, 20, 20);
+    font-weight: 500;
+    font-size: clamp(0.5rem, 0.65vw, 1rem);
+}
+
+.attachment-preview p {
+    color: rgb(75, 75, 75);
+    font-weight: 500;
+    font-size: clamp(0.5rem, 0.65vw, 1rem);
+}
+
+.attachment-preview #clear-attachment-btn {
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    border: none;
+    outline: none;
+    color: rgb(75, 75, 75);
+}
+
+.typing-bar input[type="text"] {
+    background-color: transparent;
+    color: rgb(130, 130, 130);
+    border: none;
+    outline: none;
+    width: 100%;
+    font-size: clamp(0.75rem, 0.9vw, 2rem);
+    font-weight: 500;
+}
+
+.typing-bar .actions {
+    display: flex;
+    align-items: center;
+    gap: 1.75rem;
+}
+
+.typing-bar button {
+    background-color: transparent;
+    border: none;
+    outline: none;
+    cursor: pointer;
+}
+
+.typing-bar #cancel-edit-btn {
+    color: rgb(40, 40, 40);
+    font-size: clamp(0.5rem, 0.75vw, 2rem);
+    font-weight: 500;
+}
+
+.typing-bar .actions i:not(.fa-paper-plane) {
+    color: rgb(200, 200, 200);
+    font-size: clamp(1rem, 1vw, 2rem);
+}
+
+.typing-bar .fa-paper-plane {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--secondary);
+    color: white;
+    border-radius: 12px;
+    padding: 1rem;
+}

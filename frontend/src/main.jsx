@@ -7,8 +7,7 @@ import './styles/animations.css'
 import './styles/analysis.css'
 import './styles/jobs.css'
 import './styles/skeleton.css'
-import './styles/typing_bar.css'
-import './styles/messages.css'
+import './styles/chats/chats.css'
 
 import App from './App.jsx'
 

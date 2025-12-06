@@ -1,6 +1,6 @@
 import { DataProvider } from "./contexts/DataProvider.jsx";
 import { SocketProvider } from "./contexts/SocketContext.jsx";
-import { ChatProvider } from "./contexts/ChatContext.jsx";
+import { ChatProvider } from "./contexts/chats/ChatContext.jsx";
 import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 import LandingPage from "./pages/LandingPage";
 import SideNavbar from "./components/SideNavbar";
@@ -17,6 +17,8 @@ import ChangePasswordForm from "./pages/ChangePasswordForm";
 import ChatsPage from "./pages/ChatsPage";
 import { JobsListProvider } from "./contexts/JobsListContext.jsx";
 import ResumeProvider from "./contexts/ResumesContext.jsx";
+import JobApplicantsPage from "./pages/JobApplicantsPage.jsx";
+import JobCandidatesPage from "./pages/JobCandidatesPage.jsx";
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -53,6 +55,9 @@ function App() {
                     </JobsListProvider>
                   }/>
                   <Route path="/job-postings/:jobId" element={<JobDetailPage />} />
+                  <Route path="/job-postings/:jobId/applicants" element={<JobApplicantsPage />} />
+                  <Route path="/job-postings/:jobId/candidates" element={<JobCandidatesPage />} />
+
                   <Route path="/change-password" element={<ChangePasswordForm />} />
 
                   <Route path="/messages" element={

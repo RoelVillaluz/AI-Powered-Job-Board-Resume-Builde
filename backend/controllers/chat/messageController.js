@@ -4,6 +4,7 @@ import Conversation from '../../models/chat/conversationModel.js';
 import Attachment from '../../models/chat/attachmentModel.js';
 import { STATUS_MESSAGES, sendResponse } from '../../constants.js'
 import { checkMissingFields, determineFileType } from '../../utils.js'
+import { extractUrlFromMessage, fetchLinkPreview } from '../../services/linkPreviewService.js';
 import sharp from 'sharp';
 import fs from 'fs';
 import path from 'path';
@@ -119,13 +120,29 @@ export const createMessage = async (req, res) => {
             });
         }
 
+        // ✅ Extract URL and fetch link preview if present
+        let linkPreview = null;
+        if (messageData.content && messageData.content.trim()) {
+            const url = extractUrlFromMessage(messageData.content);
+            
+            if (url) {
+                try {
+                    linkPreview = await fetchLinkPreview(url);
+                } catch (error) {
+                    console.error('Failed to fetch link preview:', error.message);
+                    // Continue without preview if fetch fails
+                }
+            }
+        }
+
         // Create message with conversation field
         const newMessage = new Message({
             sender: senderId,
             receiver: receiverId,
             conversation: conversation._id, // <-- set conversation here
             content: messageData.content,
-            attachment: attachmentDoc?._id || null
+            attachment: attachmentDoc?._id || null,
+            linkPreview: linkPreview
         });
 
         await newMessage.save();

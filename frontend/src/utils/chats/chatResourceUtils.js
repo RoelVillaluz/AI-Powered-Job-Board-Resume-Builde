@@ -73,10 +73,18 @@ export const fetchResourceType = async (baseUrl, dispatch, resourcesRef, convers
         Date.now() - resource.lastFetchedDetails < CACHE_TTL;
 
     if (isCacheFresh) {
-        const age = Math.round((Date.now() - resource.lastFetchedDetails) / 1000);
-        console.log('Cached Resource fetched for: ', resource)
+        console.log('✅ Using cached resource:', resource);
+
+        setCurrentResource({
+            conversationId: conversation._id,
+            resourceKey: resourceType
+        });
+
+        setMessagesWithCurrentResource(resource.data || []);
+
         return;
     }
+
 
     dispatch({ 
         type: 'FETCH_START', 

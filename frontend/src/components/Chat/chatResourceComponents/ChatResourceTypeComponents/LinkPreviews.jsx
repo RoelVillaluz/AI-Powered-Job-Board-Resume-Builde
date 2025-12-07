@@ -1,4 +1,18 @@
 function LinkPreviews({ messages }) {
+    
+    const normalizeUrl = (url) => {
+        try {
+            const urlObj = new URL(url);
+            // Combine hostname and pathname, remove trailing slash
+            let display = urlObj.hostname + urlObj.pathname;
+            if (display.endsWith('/')) display = display.slice(0, -1);
+            return display;
+        } catch (error) {
+            console.warn('Invalid URL:', url);
+            return url;
+        }
+    }
+
     return (
         <ul className="link-preview-list">
             {messages.map((msg) => (
@@ -7,7 +21,7 @@ function LinkPreviews({ messages }) {
                         <img className="link-preview-image" src={msg.linkPreview.image} alt={`${msg.linkPreview.title}`}/>
                         <div className="details">
                             <strong>{msg.linkPreview.title}</strong>
-                            <p>{msg.linkPreview.url}</p>
+                            <p>{normalizeUrl(msg.linkPreview.url)}</p>
                         </div>
                     </a>
                 </li>

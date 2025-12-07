@@ -7,8 +7,7 @@ import resumeRoutes from "./routes/resumeRoutes.js"
 import companyRoutes from "./routes/companyRoutes.js"
 import aiRoutes from './routes/aiRoutes.js'
 import applicationRoutes from './routes/applicationRoutes.js'
-import conversationRoutes from './routes/chat/conversationRoutes.js'
-import messageRoutes from './routes/chat/messageRoutes.js'
+import { conversationRoutes, attachmentRoutes, linkRoutes, messageRoutes, pinnedMessageRoutes } from "./routes/chat/index.js";
 import path from 'path';
 import { connectDB } from "./config/db.js";
 import { fileURLToPath } from "url";
@@ -37,8 +36,13 @@ app.use('/api/resumes', resumeRoutes)
 app.use('/api/companies', companyRoutes)
 app.use('/api/ai', aiRoutes)
 app.use('/api/applications', applicationRoutes)
-app.use('/api/conversations', conversationRoutes)
+
+// CHAT ROUTES
 app.use('/api/messages', messageRoutes)
+app.use('/api/conversations', conversationRoutes)
+app.use("/api/conversations/:conversationId/resources/attachments", attachmentRoutes);
+app.use("/api/conversations/:conversationId/resources/pinned-messages", pinnedMessageRoutes);
+app.use("/api/conversations/:conversationId/resources/links", linkRoutes);
 
 // Create HTTP server
 const server = createServer(app)

@@ -1,21 +1,10 @@
 import express from "express"
-import { getConversations, getConversationById, getConversationsByUser, getAttachmentsByConversationId, getAttachmentCountsByConversationId, getPinnedMessagesByConversationId, getPinnedMessagesCountByConversationId, getLinkCountsByConversationId, getLinksByConversationId } from "../../controllers/chat/conversationController.js";
+import { getConversations, getConversationById, getConversationsByUser } from "../../controllers/chat/conversationController.js";
 
 const router = express.Router();
 
 router.get('/', getConversations)
 router.get('/:conversationId', getConversationById)
-
-router.get('/:conversationId/resources/attachments', getAttachmentsByConversationId)
-router.get('/:conversationId/resources/attachments/count', getAttachmentCountsByConversationId)
-
-router.get('/:conversationId/resources/pinned-messages', getPinnedMessagesByConversationId)
-router.get('/:conversationId/resources/pinned-messages/count', getPinnedMessagesCountByConversationId)
-
-router.get('/:conversationId/resources/links', getLinksByConversationId)
-router.get('/:conversationId/resources/links/count', getLinkCountsByConversationId)
-
 router.get('/user/:userId', getConversationsByUser)
-
 
 export default router

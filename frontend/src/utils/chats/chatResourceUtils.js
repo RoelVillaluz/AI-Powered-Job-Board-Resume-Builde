@@ -57,7 +57,19 @@ export const fetchResourceCounts = async (baseUrl, dispatch, resourcesRef, conve
     }
 }
 
-export const fetchResourceType = async (baseUrl, dispatch, resourcesRef, conversation, resourceType, endpoint, signal, setCurrentResource, setMessagesWithCurrentResource) => {
+export const fetchResourceType = async (
+        baseUrl, 
+        dispatch, 
+        resourcesRef, 
+        conversation, 
+        resourceType,
+        endpoint, 
+        signal, 
+        setCurrentResource, 
+        setMessagesWithCurrentResource,
+        page = 1,
+        limit = 5
+    ) => {
     if (!conversation?._id) return;
 
     const conversationId = conversation._id;
@@ -67,8 +79,9 @@ export const fetchResourceType = async (baseUrl, dispatch, resourcesRef, convers
 
     const CACHE_TTL = 5 * 60 * 1000;
 
-    // ✅ Check if cache is fresh
+    // ✅ Check if cache is fresh and only use for first page
     const isCacheFresh = 
+        page === 1 &&
         resource.lastFetchedDetails &&
         Date.now() - resource.lastFetchedDetails < CACHE_TTL;
 
@@ -98,18 +111,31 @@ export const fetchResourceType = async (baseUrl, dispatch, resourcesRef, convers
             { signal }
         );
 
+        // ✅ Extract messages and pagination from nested response
+        const { messages, pagination } = response.data.data;
+
         dispatch({
             type: 'FETCH_DATA_SUCCESS',
             conversationId,
             resourceType,
-            payload: response.data.data
+            payload: {
+                messages,      // ✅ Array of messages
+                pagination     // ✅ Pagination metadata
+            },
+            append: page > 1  // ✅ Flag to append or replace data
         });
 
         setCurrentResource({
             conversationId: conversation._id,
             resourceKey: resourceType
         })
-        setMessagesWithCurrentResource(response.data.data)
+        
+        if (page > 1) {
+            setMessagesWithCurrentResource(prev => [...prev, ...messages]);
+        } else {
+            setMessagesWithCurrentResource(messages)
+        }
+        
     } catch (error) {
         if (error.name === 'CanceledError') {
             console.log(`❌ Cancelled ${resourceType}`);

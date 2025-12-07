@@ -3,7 +3,7 @@ import { updateResourceState } from "../../utils/chats/updateResourceStateUtil";
 export const initialState = {};
 
 export const chatResourcesReducer = (state, action) => {
-    const { conversationId, resourceType, payload } = action;
+    const { conversationId, resourceType, payload, append } = action;
 
     switch (action.type) {
         case 'FETCH_START':
@@ -21,11 +21,19 @@ export const chatResourcesReducer = (state, action) => {
             });
 
         case 'FETCH_DATA_SUCCESS':
+            // ✅ Extract messages and pagination from payload
+            const { messages, pagination } = payload;
+
+            const existingData = append
+                ? (state[conversationId]?.[resourceType]?.data || [])
+                : [];
+
             return updateResourceState(state, conversationId, resourceType, {
                 loadingDetails: false,
                 error: null,
-                data: payload,
-                count: payload.length,
+                data: append ? [...existingData, ...messages] : messages,
+                count: pagination.totalItems,
+                pagination: pagination,
                 lastFetchedDetails: Date.now(),
                 fetched: true,
             });

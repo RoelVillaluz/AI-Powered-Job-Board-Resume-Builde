@@ -5,29 +5,44 @@ import mongoose from 'mongoose';
 
 export const getPinnedMessagesByConversationId = async (req, res) => {
     const { conversationId } = req.params;
+    const { page = 1, limit = 5 } = req.query;
     
     try {
-        const conversation = await Conversation.findById(conversationId)
-            .populate({
-                path: "messages",
-                match: { isPinned: true },
-                populate: [
-                    {
-                        path: "sender",
-                        select: "name"
-                    },
-                    {
-                        path: "attachment",
-                        select: "fileName fileSize type url"
-                    }
-                ]
-            })
-
+        const conversation = await Conversation.findById(conversationId);
         if (!conversation) {
             return sendResponse(res, { ...STATUS_MESSAGES.ERROR.NOT_FOUND, success: false }, 'Conversation')
         }
 
-        return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.FETCH, data: conversation.messages }, 'Conversation')
+        const totalPinned = await Message.countDocuments({
+            _id: { $in: conversation.messages },
+            isPinned: true
+        })
+
+        const skip = (page - 1) * limit;
+        const messages = await Message.find({
+            _id: { $in: conversation.messages },
+            isPinned: true
+        })
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(parseInt(limit))
+        .populate('sender', 'name profilePicture')
+        .populate('attachment', 'fileName fileSize type url')
+        .lean()
+
+        return sendResponse(res, { 
+            ...STATUS_MESSAGES.SUCCESS.FETCH, 
+            data: {
+                messages,
+                pagination: {
+                    currentPage: parseInt(page),
+                    totalPages: Math.ceil(totalPinned / limit),
+                    totalItems: totalPinned,
+                    itemsPerPage: parseInt(limit),
+                    hasMore: skip + messages.length < totalPinned
+                }
+            }
+        }, 'Conversation')
     } catch (error) {
         console.error('Error fetching pinned messages for conversation: ', conversationId)
         return sendResponse(res, { ...STATUS_MESSAGES.ERROR.SERVER, success: false }, 'Conversation')

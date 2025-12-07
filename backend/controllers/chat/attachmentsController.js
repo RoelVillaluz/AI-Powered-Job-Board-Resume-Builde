@@ -36,7 +36,7 @@ export const getAttachmentsByConversationId = async (req, res) => {
         .lean();
 
         // Normalize attachment URLs at backend level
-        const messagesWithAttachments = conversation.messages.map((msg) => {
+        const messagesWithAttachments = messages.map((msg) => {
             if (!msg.attachment) return msg;
 
             let url = typeof msg.attachment === "object" ? msg.attachment.url : msg.attachment;

@@ -13,6 +13,7 @@ import { connectDB } from "./config/db.js";
 import { fileURLToPath } from "url";
 import { createServer } from "http";
 import { Server } from "socket.io";
+import { errorHandler } from "./middleware/errorHandler.js";
 
 dotenv.config();
 const app = express();
@@ -43,6 +44,9 @@ app.use('/api/conversations', conversationRoutes)
 app.use("/api/conversations/:conversationId/resources/attachments", attachmentRoutes);
 app.use("/api/conversations/:conversationId/resources/pinned-messages", pinnedMessageRoutes);
 app.use("/api/conversations/:conversationId/resources/links", linkRoutes);
+
+// Global error handler (must be last)
+app.use(errorHandler);
 
 // Create HTTP server
 const server = createServer(app)

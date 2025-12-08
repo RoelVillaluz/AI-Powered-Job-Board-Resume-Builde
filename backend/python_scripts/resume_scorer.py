@@ -109,8 +109,6 @@ def compare_resume_to_job(resume_id, job_id):
     mean_resume_skill_embedding, mean_resume_work_embedding, certification_embeddings, _ = extract_resume_embeddings(resume)
     mean_job_skill_embedding, mean_job_requirements_embedding, _, job_title_embedding, _ = extract_job_embeddings(job)
 
-    feedback = {}
-
     feedback = {
         "debug": {
             "resume_work_embedding_exists": mean_resume_work_embedding is not None,
@@ -140,12 +138,20 @@ def compare_resume_to_job(resume_id, job_id):
             else mean_job_skill_embedding
         )
 
+        # Convert tensor to float for JSON serialization
         skill_similarity = cosine_similarity(resume_tensor.unsqueeze(0), job_tensor.unsqueeze(0)).item()
-        feedback["skill_similarity"] = skill_similarity
+        feedback["skill_similarity"] = float(skill_similarity)
     else:
         feedback["skill_similarity"] = None
 
     # Experience similarity
+    EXPERIENCE_LEVEL_YEARS = {
+        "Intern": (0, 0),
+        "Junior": (0, 4),
+        "Mid-Level": (3, 7),
+        "Senior": (7, float('inf'))
+    }
+
     if mean_resume_work_embedding is not None and job_title_embedding is not None:
         resume_tensor = (
             torch.tensor(mean_resume_work_embedding)
@@ -158,8 +164,9 @@ def compare_resume_to_job(resume_id, job_id):
             else job_title_embedding
         )
 
+        # Convert tensor to float for JSON serialization
         experience_similarity = cosine_similarity(resume_tensor.unsqueeze(0), job_tensor.unsqueeze(0)).item()
-        feedback["experience_similarity"] = experience_similarity
+        feedback["experience_similarity"] = float(experience_similarity)
     else:
         feedback["experience_similarity"] = None
 
@@ -176,11 +183,11 @@ def compare_resume_to_job(resume_id, job_id):
             else mean_job_requirements_embedding
         )
 
+        # Convert tensor to float for JSON serialization
         requirements_similarity = cosine_similarity(cert_tensor.unsqueeze(0), job_req_tensor.unsqueeze(0)).item()
-        feedback["requirements_similarity"] = requirements_similarity
+        feedback["requirements_similarity"] = float(requirements_similarity)
     else:
         feedback["requirements_similarity"] = None
-
 
     value_weights = {
         "skill_similarity": 0.65,
@@ -194,7 +201,7 @@ def compare_resume_to_job(resume_id, job_id):
         value = value if value is not None else 0
         total_score += value * weight
 
-    feedback["total_score"] = total_score
+    feedback["total_score"] = float(total_score)  # Ensure it's a Python float
 
     return feedback
 

@@ -13,6 +13,15 @@ function LinkPreviews({ messages }) {
         }
     }
 
+    // Show empty state
+    if (!messages || messages.length === 0) {
+        return (
+            <div className="empty-state">
+                <p>No links shared yet</p>
+            </div>
+        )
+    }
+
     return (
         <ul className="link-preview-list">
             {messages.map((msg) => (

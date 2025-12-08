@@ -4,7 +4,8 @@ import { getConversations, getConversationById, getConversationsByUser } from ".
 const router = express.Router();
 
 router.get('/', getConversations)
-router.get('/:conversationId', getConversationById)
-router.get('/user/:userId', getConversationsByUser)
+router.get('/user/:userId', getConversationsByUser)  
+router.get('/:conversationId', getConversationById)  
+
 
 export default router

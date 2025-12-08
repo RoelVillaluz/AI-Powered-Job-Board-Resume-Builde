@@ -59,36 +59,12 @@ export const getMessagesByUser = async (req, res) => {
 
 export const createMessage = async (req, res) => {    
     const messageData = req.body;
-    const requiredFields = ["sender", "receiver"];
 
     try {
-        // Check for missing required fields
-        const missingField = checkMissingFields(requiredFields, messageData);
-        if (missingField) {
-            return sendResponse(res, { ...STATUS_MESSAGES.ERROR.MISSING_FIELD(missingField), success: false }, 'Message');
-        }
-
-        // Require either content or attachment
-        if ((!messageData.content || !messageData.content.trim()) && !req.file) {
-            return sendResponse(
-                res, 
-                { message: 'Either content or attachment is required', success: false }, 
-                'Message'
-            );
-        }
-
-        // Validate sender and receiver IDs
+        // Extract sender and receiver IDs
         const senderId = messageData.sender?.id || messageData.sender;
         const receiverId = messageData.receiver?.id || messageData.receiver;
-
-        if (!mongoose.Types.ObjectId.isValid(senderId)) {
-            return res.status(400).json({ message: 'Invalid sender ID format', success: false });
-        }
-
-        if (!mongoose.Types.ObjectId.isValid(receiverId)) {
-            return res.status(400).json({ message: 'Invalid receiver ID format', success: false });
-        }
-
+        
         const participantIds = [senderId, receiverId];
 
         // Find existing conversation between participants

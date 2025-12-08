@@ -64,11 +64,6 @@ export const getConversationById = catchAsync(async (req, res, next) => {
 export const getConversationsByUser = catchAsync(async (req, res, next) => {
     const { userId } = req.params;
 
-    // ✅ Validate user ID format
-    if (!mongoose.Types.ObjectId.isValid(userId)) {
-        return next(new ValidationError('Invalid user ID'))
-    }
-
     const userExists = await User.exists({ _id: userId });
     if (!userExists) {
         return next(new NotFoundError('User'))

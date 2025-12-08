@@ -2,6 +2,8 @@ import express from 'express'
 import { getMessageById, getMessages, getMessagesByUser, createMessage, deleteMessage, updateMessage, markMessagesAsSeen, pinMessage } from '../../controllers/chat/messageController.js';
 import multer from "multer"
 import path from "path";
+import { validate } from '../../middleware/validation.js';
+import { createMessageSchema } from '../../validators/messageValidators.js';
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -20,7 +22,7 @@ router.get('/', getMessages)
 router.get('/:messageId', getMessageById)
 router.get('/user/:userId', getMessagesByUser)
 
-router.post('/', upload.single('attachment'), createMessage)
+router.post('/', upload.single('attachment'), validate(createMessageSchema, 'body'), createMessage)
 
 router.patch('/pin-message/:messageId', pinMessage)
 router.patch('/mark-as-seen', markMessagesAsSeen)

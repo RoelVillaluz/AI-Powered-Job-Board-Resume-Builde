@@ -65,7 +65,7 @@ const ConversationItem = memo(({ convo, user, currentConversation, onConversatio
             <figure>
                 <img
                     src={receiver.profilePicture}
-                    alt={`${receiver.name}'s profile`}
+                    alt={`${receiver.firstName} ${receiver.lastName}'s profile`}
                     onError={(e) => {
                         e.target.src = "/default-avatar.png";
                     }}
@@ -75,7 +75,7 @@ const ConversationItem = memo(({ convo, user, currentConversation, onConversatio
 
             <div className="message-details">
                 <div className="row">
-                    <strong>{receiver.name}</strong>
+                    <strong>{receiver.firstName} {receiver.lastName}</strong>
                     <time dateTime={lastMessage.createdAt}>
                         {formatDate(lastMessage.updatedAt ?? lastMessage.createdAt, "short", true)}
                     </time>

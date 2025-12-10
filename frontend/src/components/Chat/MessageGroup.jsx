@@ -10,7 +10,7 @@ const MessageGroup = memo(({ group }) => {
     const { baseUrl } = useData();
 
     // Destructure group properties early
-    const { sender, profilePicture, rawDateTime, createdAt, messages } = group;
+    const { sender, profilePicture, rawDateTime, createdAt, messages } = grou
 
     // Memoize the class calculation
     const containerClass = useMemo(() => {

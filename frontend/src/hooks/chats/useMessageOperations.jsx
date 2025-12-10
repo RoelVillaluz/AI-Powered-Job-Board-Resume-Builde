@@ -12,7 +12,9 @@ export const useMessageOperations = ({ baseUrl, user, socket, currentConversatio
 
     useEffect(() => {
         if (currentConversation?.receiver?._id) {
-            setMessages(groupMessages(currentConversation.messages));
+            // Backend returns newest first, but groupMessages expects chronological
+            const messagesInChronologicalOrder = [...currentConversation.messages].reverse();
+            setMessages(groupMessages(messagesInChronologicalOrder));
         }
     }, [currentConversation]);
 
@@ -26,9 +28,13 @@ export const useMessageOperations = ({ baseUrl, user, socket, currentConversatio
         }
     }, [socket]);
 
+    // Fix loadOlderMessages to handle newest-first from backend
     const loadOlderMessages = async () => {
         if (messages.length === 0) return;
-        const oldestMessage = messages[0]
+        
+        // Get the oldest message from the first group
+        const firstGroup = messages[0];
+        const oldestMessage = firstGroup.messages[0];
 
         try {
             const response = await axios.get(`${baseUrl}/messages`, {
@@ -38,11 +44,43 @@ export const useMessageOperations = ({ baseUrl, user, socket, currentConversatio
             console.log("Loading older messages...");
 
             const olderMessages = response.data.data || [];
-            setMessages(prev => [...olderMessages, ...prev]);
+            if (olderMessages.length === 0) return;
+            
+            // Backend returns newest-first, reverse to chronological
+            const chronologicalOlder = [...olderMessages].reverse();
+            
+            // Smart prepending: only regroup the new messages + first existing group
+            setMessages(prev => {
+                if (prev.length === 0) return groupMessages(chronologicalOlder);
+                
+                const firstExistingGroup = prev[0];
+                const lastNewMessage = chronologicalOlder[chronologicalOlder.length - 1];
+                
+                // Check if we can merge with existing first group
+                const canMerge = 
+                    firstExistingGroup.sender === (lastNewMessage.sender.firstName + ' ' + lastNewMessage.sender.lastName) &&
+                    shouldGroupByTime(lastNewMessage.createdAt, firstExistingGroup.rawDateTime);
+                
+                if (canMerge) {
+                    // Merge last new message with first existing group
+                    const newGroups = groupMessages(chronologicalOlder.slice(0, -1));
+                    const mergedGroup = {
+                        ...firstExistingGroup,
+                        messages: [lastNewMessage, ...firstExistingGroup.messages],
+                        rawDateTime: lastNewMessage.createdAt
+                    };
+                    return [...newGroups, mergedGroup, ...prev.slice(1)];
+                } else {
+                    // Just prepend new groups
+                    const newGroups = groupMessages(chronologicalOlder);
+                    return [...newGroups, ...prev];
+                }
+            });
         } catch (error) {
             console.error('Failed to load older messages: ', error)
         }
     }
+
 
     // Helper function to add message to groups (used by both send and socket receive)
     const addMessageToGroups = useCallback((newMessage, senderName, profilePicture) => {
@@ -112,11 +150,13 @@ export const useMessageOperations = ({ baseUrl, user, socket, currentConversatio
     const updateConversationsList = useCallback((messageData, options = {}) => {
         const { isEdit = false, isDelete = false, isSeenUpdate = false, isPinUpdate = false, seenAt = null } = options;
         
-        if (!currentConversation?._id) return;
+        // Don't require currentConversation for new conversations
+        const conversationId = currentConversation?._id || messageData.conversation;
+        if (!conversationId) return;
 
         setConversations(prevConvos => {
             const updatedConvos = prevConvos.map(convo =>
-                convo._id === currentConversation._id
+                convo._id === conversationId
                     ? {
                         ...convo,
                         messages: isDelete
@@ -152,10 +192,13 @@ export const useMessageOperations = ({ baseUrl, user, socket, currentConversatio
         });
     }, [currentConversation?._id, setConversations]);
 
-    // MODIFIED: Accept formData as parameter instead of using context
+    // MODIFIED: Remove currentConversation check, validate receiver instead
     const handleFormSubmit = useCallback(async (formData) => {
-        // Prevent submission if both content and attachment are empty, or if there is no current conversation
-        if ((!formData.content.trim() && !formData.attachment) || !currentConversation) return;
+        // Validate that we have content/attachment and a receiver
+        if ((!formData.content.trim() && !formData.attachment) || !formData.receiver) {
+            console.error('Cannot send message: missing content or receiver');
+            return;
+        }
 
         try {
             let submitData;
@@ -204,8 +247,10 @@ export const useMessageOperations = ({ baseUrl, user, socket, currentConversatio
                 isTemp: true // Mark as temporary
             };
 
-            // Show temporary message immediately
-            setMessages(addMessageToGroups(tempMessage, user.name, user.profilePicture));
+            // Only show temporary message if we're in an existing conversation
+            if (currentConversation) {
+                setMessages(addMessageToGroups(tempMessage, user.name, user.profilePicture));
+            }
 
             // Send to server
             const newMessage = await handleMessageApiCall(
@@ -217,18 +262,19 @@ export const useMessageOperations = ({ baseUrl, user, socket, currentConversatio
 
             if (newMessage.attachment && newMessage.attachment.includes('public')) {
                 newMessage.attachment = '/' + newMessage.attachment.split('public\\').pop().replace(/\\/g, '/');
-                // Now it becomes: /message_attachments/1760401518894-kung fu panda.jpg
             }
 
-            // Replace temporary message with actual server response
-            setMessages((prevGroups) => {
-                return prevGroups.map(group => ({
-                    ...group,
-                    messages: group.messages.map(m =>
-                        m._id === tempMessage._id ? newMessage : m
-                    )
-                }));
-            });
+            // If we were in an existing conversation, replace temporary message
+            if (currentConversation) {
+                setMessages((prevGroups) => {
+                    return prevGroups.map(group => ({
+                        ...group,
+                        messages: group.messages.map(m =>
+                            m._id === tempMessage._id ? newMessage : m
+                        )
+                    }));
+                });
+            }
 
             // Emit to socket with actual message from server
             emitSocketEvent('send-message', newMessage, formData.receiver);
@@ -240,22 +286,27 @@ export const useMessageOperations = ({ baseUrl, user, socket, currentConversatio
             if (previewAttachment) {
                 URL.revokeObjectURL(previewAttachment);
             }
+
+            return newMessage; // Return the message for parent component to handle
         } catch (error) {
             console.error("Error sending message: ", error);
             
-            // Remove temporary message on error
-            setMessages((prevGroups) => 
-                prevGroups
-                    .map(group => ({
-                        ...group,
-                        messages: group.messages.filter(m => !m.isTemp)
-                    }))
-                    .filter(group => group.messages.length > 0)
-            );
+            // Remove temporary message on error (only if in existing conversation)
+            if (currentConversation) {
+                setMessages((prevGroups) => 
+                    prevGroups
+                        .map(group => ({
+                            ...group,
+                            messages: group.messages.filter(m => !m.isTemp)
+                        }))
+                        .filter(group => group.messages.length > 0)
+                );
+            }
+            
+            throw error; // Re-throw for parent to handle
         }
     }, [currentConversation, baseUrl, user, emitSocketEvent, addMessageToGroups, updateConversationsList, handleMessageApiCall]);
 
-    // MODIFIED: Accept message and content as parameters
     const handleEditMessage = useCallback(async (message, content) => {
         try {
             const updatedMessage = await handleMessageApiCall(
@@ -292,7 +343,6 @@ export const useMessageOperations = ({ baseUrl, user, socket, currentConversatio
     }, [baseUrl, emitSocketEvent, deleteMessageFromGroups, updateConversationsList, setSelectedMessage, handleMessageApiCall]);
 
     const handlePinMessage = useCallback(async (message) => {
-
         try {
             const messageToPin = await handleMessageApiCall(
                 messageService.pinMessage,
@@ -305,7 +355,7 @@ export const useMessageOperations = ({ baseUrl, user, socket, currentConversatio
         } catch (error) {
             console.error('Error pinning/unpinnning message', error)
         }
-    }, [baseUrl, emitSocketEvent, deleteMessageFromGroups, updateConversationsList, setSelectedMessage, handleMessageApiCall]);
+    }, [baseUrl, updateConversationsList, setSelectedMessage, handleMessageApiCall]);
 
     // SOCKET LISTENERS — real-time updates
     useEffect(() => {
@@ -324,19 +374,19 @@ export const useMessageOperations = ({ baseUrl, user, socket, currentConversatio
 
         const handleUpdateMessage = (updatedMessage) => {
             setMessages(updateMessageInGroups(updatedMessage._id, updatedMessage.content));
-            updateConversationsList(updatedMessage, true);
+            updateConversationsList(updatedMessage, { isEdit: true });
         };
 
         const handleDeleteMessage = (deletedMessage) => {
             setMessages(deleteMessageFromGroups(deletedMessage._id));
-            updateConversationsList(deletedMessage, false, true);
+            updateConversationsList(deletedMessage, { isDelete: true });
         };
 
         const handleMessagesSeen = (data) => {
             const { messageIds, seenBy, seenAt } = data;
 
             setMessages(updateMessageSeenStatus(messageIds, true, seenAt));
-            updateConversationsList(messageIds, false, false, true, seenAt)
+            updateConversationsList(messageIds, { isSeenUpdate: true, seenAt })
         }
 
         socket.on("new-message", handleNewMessage);

@@ -23,43 +23,52 @@ export const getConversations = async (req, res) => {
 
 export const getConversationById = catchAsync(async (req, res, next) => {
     const { conversationId } = req.params;
+    const { limit = 20, before } = req.query;
 
-    // ✅ Validate ID format
     if (!mongoose.Types.ObjectId.isValid(conversationId)) {
-        return next(new ValidationError('Invalid user ID format'))
+        return next(new ValidationError('Invalid conversation ID format'))
     }
 
-    // ✅ No try-catch - catchAsync handles it
+    // Build message query
+    let messageQuery = {};
+    if (before) {
+        // For pagination: get messages older than 'before' timestamp
+        const beforeMessage = await Message.findById(before);
+        if (beforeMessage) {
+            messageQuery.createdAt = { $lt: beforeMessage.createdAt };
+        }
+    }
+
+    // ✅ Better approach: Fetch conversation and messages separately for more control
     const conversation = await Conversation.findById(conversationId)
-        .populate('users', 'firstName lastName email')
-        .populate({
-            path: 'messages',
-            options: {
-                limit: 50,
-                sort: { createdAt: -1 }
-            },
-            select: '_id sender content createdAt updatedAt seen seenAt attachment isPinned',
-            populate: [
-                {
-                    path: 'sender',
-                    select: 'firstName lastName'
-                },
-                {
-                    path: 'attachment',
-                    select: 'fileName fileSize url type'
-                }
-            ]
-        });
+        .populate('users', 'firstName lastName email profilePicture')
 
     if (!conversation) {
         return next(new NotFoundError('Conversation'))
     }
 
+    // Fetch messages with proper sorting and pagination
+    const messages = await Message.find({
+        _id: { $in: conversation.messages },
+        ...messageQuery,
+    })
+    .sort({ createdAt: -1 }) // ✅ Get newest first from DB
+    .limit(parseInt(limit))   // ✅ Limit at DB level
+    .populate('sender', 'firstName lastName')
+    .populate('attachment', 'fileName fileSize url type')
+    .select('_id sender content createdAt updatedAt seen seenAt attachment isPinned')
+    .lean(); // ✅ Faster - returns plain JS objects
+
+    const conversationWithMessages = {
+        ...conversation.toObject(),
+        messages
+    };
+
     return sendResponse(res, { 
         ...STATUS_MESSAGES.SUCCESS.FETCH, 
-        data: conversation 
-    }, 'Conversations');
-});
+        data: conversationWithMessages 
+    }, 'Conversation');
+})
 
 export const getConversationsByUser = catchAsync(async (req, res, next) => {
     const { userId } = req.params;

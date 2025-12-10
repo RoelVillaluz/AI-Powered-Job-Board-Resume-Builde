@@ -31,7 +31,7 @@ export const getConversationById = catchAsync(async (req, res, next) => {
 
     // ✅ No try-catch - catchAsync handles it
     const conversation = await Conversation.findById(conversationId)
-        .populate('users', 'name email')
+        .populate('users', 'firstName lastName email')
         .populate({
             path: 'messages',
             options: {
@@ -42,7 +42,7 @@ export const getConversationById = catchAsync(async (req, res, next) => {
             populate: [
                 {
                     path: 'sender',
-                    select: 'name'
+                    select: 'firstName lastName'
                 },
                 {
                     path: 'attachment',
@@ -71,7 +71,7 @@ export const getConversationsByUser = catchAsync(async (req, res, next) => {
 
     // ✅ No try-catch - catchAsync handles it
     let conversations = await Conversation.find({ users: userId })
-        .populate('users', 'name email profilePicture')
+        .populate('users', 'firstName lastName email profilePicture')
         .populate({
             path: 'messages',
             options: {
@@ -82,7 +82,7 @@ export const getConversationsByUser = catchAsync(async (req, res, next) => {
             populate: [
                 {
                     path: 'sender',
-                    select: 'name profilePicture'  
+                    select: 'firstName lastName profilePicture'  
                 },
                 {
                     path: 'attachment',

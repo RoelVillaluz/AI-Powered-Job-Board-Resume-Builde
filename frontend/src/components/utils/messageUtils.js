@@ -200,12 +200,12 @@ export const groupMessages = (messages) => {
             // Add to existing group
             currentGroup.messages.push(message);
         } else {
-
             const formattedDate = formatDate(message.createdAt);
 
             // Start new group
             currentGroup = {
                 sender: message.sender.name,
+                senderId: message.sender._id, // ✅ Add this line
                 profilePicture: message.sender.profilePicture,
                 createdAt: formattedDate,
                 rawDateTime: message.createdAt,

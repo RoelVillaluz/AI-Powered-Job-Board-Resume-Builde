@@ -96,9 +96,6 @@ io.on("connection", (socket) => {
 
         // Emit to receiver's room
         io.to(message.receiverId).emit('new-message', message)
-
-        // Optionally echo to sender's room as well
-        io.to(message.sender._id).emit('new-message', message)
     });
 
     // Update message event
@@ -107,9 +104,6 @@ io.on("connection", (socket) => {
 
         // Emit to receiver's room
         io.to(updatedMessage.receiverId).emit('update-message', updatedMessage)
-        
-        // Optionally echo to sender's room as well
-        io.to(updatedMessage.sender).emit('update-message', updatedMessage)
     })
 
     // Pin message event
@@ -118,9 +112,6 @@ io.on("connection", (socket) => {
 
         // Emit to receiver's room
         io.to(messageToPin.receiverId).emit('pin-message', messageToPin)
-        
-        // Optionally echo to sender's room as well
-        io.to(messageToPin.sender).emit('pin-message', messageToPin)
     })
 
     // Delete message event
@@ -129,9 +120,6 @@ io.on("connection", (socket) => {
 
         // Emit to receiver's room
         io.to(deletedMessage.receiverId).emit('delete-message', deletedMessage)
-        
-        // Optionally echo to sender's room as well
-        io.to(deletedMessage.sender).emit('delete-message', deletedMessage)
     })
 
     // Update Seen

@@ -10,12 +10,12 @@ const MessageGroup = memo(({ group }) => {
     const { baseUrl } = useData();
 
     // Destructure group properties early
-    const { sender, profilePicture, rawDateTime, createdAt, messages } = group
+    const { sender, senderId, profilePicture, rawDateTime, createdAt, messages } = group
 
     // Memoize the class calculation
     const containerClass = useMemo(() => {
-        return group.sender === user.name ? 'receiver' : ''
-    }, [group.sender, user.name])
+        return senderId === user._id ? 'receiver' : ''
+    }, [senderId, user._id])
 
     // Memoize the message rendering
     const renderedMessages = useMemo(() => {

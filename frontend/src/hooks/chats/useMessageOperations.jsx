@@ -83,10 +83,10 @@ export const useMessageOperations = ({ baseUrl, user, socket, currentConversatio
 
 
     // Helper function to add message to groups (used by both send and socket receive)
-    const addMessageToGroups = useCallback((newMessage, senderName, profilePicture) => {
+    const addMessageToGroups = useCallback((newMessage, senderName, profilePicture, senderId) => {
         return (prevGroups) => {
             const lastGroup = prevGroups[prevGroups.length - 1];
-            if (lastGroup && lastGroup.sender === senderName && shouldGroupByTime(lastGroup.rawDateTime, newMessage.createdAt)) {
+            if (lastGroup && lastGroup.senderId === senderId && shouldGroupByTime(lastGroup.rawDateTime, newMessage.createdAt)) {
                 const updatedGroups = [...prevGroups];
                 updatedGroups[updatedGroups.length - 1] = {
                     ...lastGroup,
@@ -99,6 +99,7 @@ export const useMessageOperations = ({ baseUrl, user, socket, currentConversatio
                     ...prevGroups,
                     {
                         sender: senderName,
+                        senderId: senderId, // ✅ Add this
                         profilePicture: profilePicture,
                         createdAt: formatDate(newMessage.createdAt),
                         rawDateTime: newMessage.createdAt,
@@ -235,8 +236,12 @@ export const useMessageOperations = ({ baseUrl, user, socket, currentConversatio
             
             // Create a temporary message with preview while waiting for server
             const tempMessage = {
-                _id: `temp-${Date.now()}`, // Temporary ID
-                sender: formData.sender,
+                _id: `temp-${Date.now()}`,
+                sender: {
+                    _id: user._id, // ✅ Add _id
+                    name: user.name, // ✅ Add name to match groupMessages expectation
+                    profilePicture: user.profilePicture
+                },
                 receiver: formData.receiver,
                 content: formData.content,
                 attachment: previewAttachment || null,
@@ -244,12 +249,12 @@ export const useMessageOperations = ({ baseUrl, user, socket, currentConversatio
                 attachmentType: formData.attachment?.type || null,
                 createdAt: new Date().toISOString(),
                 seen: false,
-                isTemp: true // Mark as temporary
+                isTemp: true
             };
 
             // Only show temporary message if we're in an existing conversation
             if (currentConversation) {
-                setMessages(addMessageToGroups(tempMessage, user.name, user.profilePicture));
+                setMessages(addMessageToGroups(tempMessage, user.name, user.profilePicture, user._id));
             }
 
             // Send to server
@@ -362,12 +367,33 @@ export const useMessageOperations = ({ baseUrl, user, socket, currentConversatio
         if (!socket) return;
 
         const handleNewMessage = (newMessage) => {
-            if (currentConversation?.receiver?._id !== newMessage.sender && currentConversation?.receiver?._id !== newMessage.receiverId) return;
+            console.log('📨 Received new message:', newMessage);
+            
+            // Extract sender ID
+            const senderId = newMessage.sender?._id || newMessage.sender;
+            
+            // Get sender name - handle both 'name' property and firstName/lastName
+            const senderName = newMessage.sender?.name || 
+                            (newMessage.sender?.firstName 
+                                ? `${newMessage.sender.firstName} ${newMessage.sender.lastName}`
+                                : currentConversation?.receiver?.name || 
+                                    `${currentConversation?.receiver?.firstName} ${currentConversation?.receiver?.lastName}`);
+            
+            console.log('📨 senderId:', senderId, 'senderName:', senderName);
+            
+            // Check if this message belongs to the current conversation
+            if (currentConversation?.receiver?._id !== senderId) {
+                console.log('❌ Message not for current conversation');
+                return;
+            }
 
+            console.log('✅ Adding message to groups');
+            
             setMessages(addMessageToGroups(
                 newMessage, 
-                newMessage.sender, 
-                currentConversation.receiver.profilePicture
+                senderName,
+                currentConversation.receiver.profilePicture,
+                senderId
             ));
             updateConversationsList(newMessage);
         };

@@ -183,7 +183,7 @@ export const authenticateUser = async (req, res, next) => {
 
 export const createUser = async (req, res) => {
     const user = req.body;
-    const requiredFields = ['email', 'name', 'password'];
+    const requiredFields = ['email', 'firstName', 'lastName', 'password'];
 
     // Check for missing fields
     const missingField = checkMissingFields(requiredFields, user);
@@ -215,6 +215,8 @@ export const createUser = async (req, res) => {
         // Create a temp user
         const tempUser = new TempUser({
             email: user.email,
+            firstName: user.firstName,
+            lastName: user.lastName,
             password: hashedPassword,
             verificationCode
         });

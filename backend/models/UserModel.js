@@ -9,9 +9,13 @@ const userSchema = new mongoose.Schema({
         required: true,
         unique: true
     },
-    name: {
-        type: String,
-        required: true
+    firstName: { 
+        type: String, 
+        required: true 
+    },
+    lastName: { 
+        type: String, 
+        required: true 
     },
     password: {
         type: String,
@@ -19,7 +23,7 @@ const userSchema = new mongoose.Schema({
     },
     role: {
         type: String,
-        default: undefined, 
+        default: undefined,
         enum: ['jobseeker', 'employer'],
     },
     profilePicture: {
@@ -38,18 +42,18 @@ const userSchema = new mongoose.Schema({
     company: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Company",
-        default: undefined, 
+        default: undefined,
     },
     resumes: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: "Resume",
-        select: false, 
+        select: false,
     }],
     savedJobs: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: "JobPosting",
     }],
-    appliedJobs: [{ 
+    appliedJobs: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: "JobPosting",
     }],
@@ -61,10 +65,10 @@ const userSchema = new mongoose.Schema({
         { type: String }
     ],
     viewsHistory: [{
-        date: { type: String, required: true },  
-        count: { type: Number, default: 0 },  
-        viewers: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }]  
-    }],    
+        date: { type: String, required: true },
+        count: { type: Number, default: 0 },
+        viewers: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }]
+    }],
     preferences: {
         jobType: {
             type: String,
@@ -88,14 +92,14 @@ const userSchema = new mongoose.Schema({
         }
     },
     connections: [{
-        user: { 
-            type: mongoose.Schema.Types.ObjectId, 
-            ref: "User" 
-        }, 
-        status: { 
-            type: String, 
-            enum: ['Accepted', 'Pending', 'Rejected'], 
-            default: 'Pending' 
+        user: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User"
+        },
+        status: {
+            type: String,
+            enum: ['Accepted', 'Pending', 'Rejected'],
+            default: 'Pending'
         }
     }],
     industry: {
@@ -118,6 +122,9 @@ const userSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     }
+}, {
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
 });
 
 // Helper function for role-based validation
@@ -154,6 +161,10 @@ userSchema.pre('save', function(next) {
   next();
 });
 
+
+userSchema.virtual('fullName').get(function () {
+    return `${this.firstName} ${this.lastName}`
+})
 
 const User = mongoose.models.User || mongoose.model('User', userSchema);
 export default User;

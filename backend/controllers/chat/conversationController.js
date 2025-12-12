@@ -54,7 +54,7 @@ export const getConversationById = catchAsync(async (req, res, next) => {
     })
     .sort({ createdAt: -1 }) // ✅ Get newest first from DB
     .limit(parseInt(limit))   // ✅ Limit at DB level
-    .populate('sender', 'firstName lastName')
+    .populate('sender', 'fullName')
     .populate('attachment', 'fileName fileSize url type')
     .select('_id sender content createdAt updatedAt seen seenAt attachment isPinned')
     .lean(); // ✅ Faster - returns plain JS objects
@@ -80,7 +80,7 @@ export const getConversationsByUser = catchAsync(async (req, res, next) => {
 
     // ✅ No try-catch - catchAsync handles it
     let conversations = await Conversation.find({ users: userId })
-        .populate('users', 'firstName lastName email profilePicture')
+        .populate('users', 'fullName email profilePicture')
         .populate({
             path: 'messages',
             options: {
@@ -91,7 +91,7 @@ export const getConversationsByUser = catchAsync(async (req, res, next) => {
             populate: [
                 {
                     path: 'sender',
-                    select: 'firstName lastName profilePicture'  
+                    select: 'fullName profilePicture'  
                 },
                 {
                     path: 'attachment',

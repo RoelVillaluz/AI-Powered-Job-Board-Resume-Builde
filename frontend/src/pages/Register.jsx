@@ -10,6 +10,8 @@ function Register() {
     const [errorMessage, setErrorMessage] = useState(null)
     const [formData, setFormData] = useState({
         email: '',
+        firstName: '',
+        lastName: '',
         password: '',
         confirmPassword: '',
     });
@@ -74,6 +76,14 @@ function Register() {
 
                     <div className="form-group">
                         <input type="text" onChange={handleChange} name="email" value={formData.email} placeholder="Enter your email" />
+                    </div>
+                    <div className="row" style={{ alignItems: 'center', gap: '0.75rem', width: '100%' }}>
+                        <div className="form-group" style={{ flex: '1' }}>
+                            <input type="text" onChange={handleChange} name="firstName" value={formData.firstName} placeholder="Enter your first name" />
+                        </div>
+                        <div className="form-group" style={{ flex: '1' }}>
+                            <input type="text" onChange={handleChange} name="lastName" value={formData.lastName} placeholder="Enter your last name" />
+                        </div>
                     </div>
                     <div className="form-group">
                         <input type="password" onChange={handleChange} name="password" value={formData.password} placeholder="Create a password" />

@@ -20,10 +20,6 @@ function ChatWindowHeader({ user, currentConversation, showComposeMessage, curre
         setSearchReceiverQuery('')
     }
 
-    useEffect(() => {
-        console.log('Form Data: ', formData)
-    }, [formData])
-
     if (currentConversation && !showComposeMessage) {
         return (
              <header>
@@ -52,7 +48,7 @@ function ChatWindowHeader({ user, currentConversation, showComposeMessage, curre
                     ) : (
                         <div className="selected-receiver">
                             <img src={currentReceiver?.profilePicture} alt={`${currentReceiver?.name}'s profile picture`} />
-                            <strong>{currentReceiver?.name}</strong>
+                            <strong>{currentReceiver?.name} {currentReceiver?.name}</strong>
                             <button className="remove-receiver-btn" onClick={() => handleRemoveReceiver()}>
                                 <i className="fa-solid fa-xmark"></i>
                             </button>

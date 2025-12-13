@@ -10,7 +10,10 @@ export const useConversationSearch = (conversations, user) => {
 
         return conversations.filter((convo) => {
             const receiver = convo.users.find((u) => u._id !== user._id);
-            return receiver?.name.toLowerCase().includes(searchConversationQuery.toLowerCase());
+
+            const fullName = `${receiver.firstName} ${receiver.lastName}`
+
+            return fullName.includes(searchConversationQuery.toLowerCase());
         });
     }, [searchConversationQuery, conversations, user?._id]);
 

@@ -24,3 +24,14 @@ export const authorizeConversation = catchAsync(async (req, res, next) => {
     
     next();
 })
+
+export const authorizeConversationByUserId = catchAsync(async (req, res, next) => {
+    const userId = req.user._id; // logged-in user
+    const { userId: paramUserId } = req.params; // userId from URL
+
+    if (userId.toString() !== paramUserId.toString()) {
+        throw new UnauthorizedError('Access denied to this user\'s conversations');
+    }
+
+    next();
+});

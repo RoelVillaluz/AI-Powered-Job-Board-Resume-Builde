@@ -4,7 +4,7 @@ import { userIdSchema } from "../../validators/userValidators.js";
 import { conversationIdSchema } from "../../validators/conversationValidators.js";
 import { getConversations, getConversationById, getConversationsByUser } from "../../controllers/chat/conversationController.js";
 import { authenticate } from "../../middleware/authentication/authenticate.js";
-import { authorizeConversation } from "../../middleware/authorization/conversation.js";
+import { authorizeConversation, authorizeConversationByUserId } from "../../middleware/authorization/conversation.js";
 
 const router = express.Router();
 
@@ -20,7 +20,7 @@ router.get(
 
 router.get('/:conversationId', 
     authenticate, // ✅ Check if user is logged in
-    authorizeConversation, // ✅ Check if user is part of conversation
+    authorizeConversationByUserId, // ✅ Check if user is part of conversation
     validate(conversationIdSchema, 'params'), 
     getConversationById
 )  

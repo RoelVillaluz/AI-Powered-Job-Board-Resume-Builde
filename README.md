@@ -9,9 +9,7 @@ At its core, the system enables users to search and apply for jobs, automaticall
 ## ✨ Key Highlights
 
 * End‑to‑end job application platform (search → match → apply → interview)
-* Built‑in resume generator with customizable templates
 * AI‑powered insights for matching, scoring, salary estimation, and skill growth
-* Real‑time video chat to reduce friction between candidates and employers
 
 ---
 
@@ -61,7 +59,7 @@ Identifies skill gaps and suggests high‑impact skills to learn based on saved 
 
 ---
 
-### 5. Integrated Video Chat
+### 5. Integrated Video Chat (Upcoming)
 
 Enables direct communication between candidates and employers without leaving the platform.
 

@@ -1,62 +1,129 @@
-# **AI Powered Job Board Website with Resume Maker**
+# **AI‑Powered Job Board Website with Resume Maker**
 
-This project is a comprehensive job board platform that allows users to search for job listings, 
-apply for positions, and create professional resumes using the built-in resume maker. 
-The goal is to streamline the job application process and provide job seekers with the necessary tools to build their careers.
+A full‑stack job board platform designed to streamline the entire job application lifecycle — from discovery and matching to resume creation and interviews. The platform combines modern web technologies with AI‑driven features to help job seekers make smarter, faster career decisions.
 
-The platform automatically generates resumes for users once they create an account and allows them to choose a template,
-making the process more convenient for those who do not have a resume yet.
+At its core, the system enables users to search and apply for jobs, automatically generate professional resumes, and communicate directly with employers — all within a single, cohesive application.
 
-In addition to the resume maker, the platform also offers video chat functionality, enabling users to directly engage with potential employers without the need to switch to another platform. 
-This feature streamlines communication, providing a seamless experience from job search to interview. Whether it's for an initial conversation, a follow-up interview, 
-or ongoing discussions, video chatting makes the platform a one-stop solution for all job-seeking needs.
+---
 
-## Features
+## ✨ Key Highlights
+
+* End‑to‑end job application platform (search → match → apply → interview)
+* Built‑in resume generator with customizable templates
+* AI‑powered insights for matching, scoring, salary estimation, and skill growth
+* Real‑time video chat to reduce friction between candidates and employers
+
+---
+
+## 🚀 Features
 
 ### 1. AI Job Matching
-This feature intelligently recommends job postings to users by analyzing their resumes and saved preferences (like job type, salary expectations, and experience level). It compares the user's skills to the required job skills using vector similarity and boosts the score based on preference alignment. Each job is given a similarity score from 0% to 100%, so the user can clearly see how well a job matches their skills and preferences.
+
+Recommends relevant job postings by analyzing a user’s resume and saved preferences (e.g., job type, salary range, experience level).
+
+* Uses vector similarity to compare user skills against job requirements
+* Applies preference‑based weighting for more personalized results
+* Outputs a transparent match score (0–100%) for each job posting
+
+---
 
 ### 2. AI Resume Scorer
-This feature intelligently evaluates a candidate’s resume by analyzing two main dimensions: completeness (how well the resume is filled out) and relevance (how closely the work experience and other sections align with the stated skills). The goal is to produce a realistic and actionable resume score that reflects both form and substance.
+
+Evaluates resumes across two critical dimensions:
+
+* **Completeness** — how thoroughly each section of the resume is filled out
+* **Relevance** — how well experience and content align with the listed skills
+
+The result is a realistic, actionable score that reflects both structure and substance, helping users understand where improvements are needed.
+
+---
 
 ### 3. AI Salary Predictor
-This feature estimates an expected salary for a user based on the content of their resume and a list of similar job postings. It uses semantic similarity between the user's background and the job descriptions to make a personalized, data-driven prediction.
+
+Generates an estimated salary range based on the user’s resume and similar job postings.
+
+* Leverages semantic similarity between resumes and job descriptions
+* Produces personalized, data‑driven salary expectations
+* Helps users benchmark offers and negotiate more confidently
+
+---
 
 ### 4. AI Personalized Skill Recommendations
-This feature helps users identify new skills to learn by analyzing the difference between the skills listed in their resume and the required skills from the jobs they’ve saved.
 
-Here’s how it works:
+Identifies skill gaps and suggests high‑impact skills to learn based on saved job postings.
 
- - It extracts the user’s current skills from their uploaded resumes.
+**How it works:**
 
- - It gathers skill requirements from saved job postings.
+* Extracts current skills from the user’s uploaded resume
+* Aggregates required skills from saved job listings
+* Uses a neural network model to detect missing but commonly required skills
+* Returns targeted recommendations to improve employability
 
- - It then uses a neural network model to determine which skills are missing but commonly required in saved jobs.
+---
 
- - Finally, it returns a list of recommended skills that could improve the user's chances of landing their desired roles.
+### 5. Integrated Video Chat
 
-# Technologies Used
+Enables direct communication between candidates and employers without leaving the platform.
+
+* Supports initial screenings, follow‑up interviews, and ongoing discussions
+* Reduces dependency on third‑party tools
+* Creates a seamless transition from job application to interview
+
+---
+
+## 🛠️ Technologies Used
 
 ### Frontend
-- React.js  
-- CSS
+
+* React.js
+* CSS
 
 ### Backend
-- Node.js  
-- Express.js  
-- Python
 
-### AI/ML Libraries & Frameworks
-- Scikit-learn  
-- KMeans Clustering  
-- PyTorch (Torch)
-- Sentence Transformers (all-mpnet-base-v2 model)
+* Node.js
+* Express.js
+* Python
 
-### Other Libraries
-- Numpy
-- Pandas
+### AI / Machine Learning
+
+* Scikit‑learn
+* K‑Means Clustering
+* PyTorch (Torch)
+* Sentence Transformers (`all-mpnet-base-v2`)
+
+### Data & Utilities
+
+* NumPy
+* Pandas
 
 ### Database
-- MongoDB
+
+* MongoDB
+
+### Validation & Security
+- Joi – Request payload validation
+- JWT – Authentication and authorization
+- bcrypt – Password hashing
+
+### Testing
+- Jest – Unit and integration testing
+- Supertest – API endpoint testing
 
 
+---
+
+## 🎯 Project Goal
+
+Traditional job search platforms primarily focus on listing job openings, often leaving candidates uncertain about how well they match a role, how to improve their applications, or how to move efficiently through the hiring process.
+
+The goal of this project is to address these gaps by transforming the job search experience from a passive browsing process into an informed, guided, and end-to-end workflow.
+
+This platform aims to:
+- Clearly show how well a candidate matches a specific job through transparent, data-driven match scores
+- Help users understand *why* they are (or aren’t) a good fit for a role
+- Provide actionable guidance on how to tailor and improve resumes for specific job opportunities
+- Reduce uncertainty around salary expectations and required skills using AI-driven insights
+- Enable direct interview scheduling within the platform, eliminating the need for back-and-forth emails or external scheduling tools
+- Centralize the entire job application lifecycle — from discovery and application to interview and communication — in a single web application
+
+By combining AI-powered analysis, an integrated resume builder, interview scheduling, and real-time communication tools, the platform empowers job seekers to make informed decisions, improve their employability, and move through the hiring process more efficiently.

@@ -78,18 +78,24 @@ export const ChatProvider = ({ children }) => {
                 setLoading(false);
                 return;
             }
-            
+
             setLoading(true);
             try {
-                const response = await axios.get(`${baseUrl}/conversations/user/${user._id}`);
+                const token = localStorage.getItem('authToken'); 
+                const response = await axios.get(`${baseUrl}/conversations/user/${user._id}`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                });
+
                 const fetchedConversations = response.data.data || [];
-                
+
                 const sortedConversations = fetchedConversations.sort((a, b) =>
                     new Date(b.updatedAt) - new Date(a.updatedAt)
                 );
-                
+
                 setConversations(sortedConversations);
-                
+
                 if (sortedConversations.length > 0) {
                     setCurrentConversation(sortedConversations[0]);
                 }

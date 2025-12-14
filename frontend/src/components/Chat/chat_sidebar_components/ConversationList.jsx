@@ -64,10 +64,13 @@ const ConversationItem = memo(({ convo, user, currentConversation, onConversatio
         <li className={`message-preview ${convoClass}`} onClick={handleClick}>
             <figure>
                 <img
-                    src={receiver.profilePicture}
+                    src={receiver.profilePicture || "profile_pictures/default.jpg"} // fallback immediately
                     alt={`${receiver.firstName} ${receiver.lastName}'s profile`}
                     onError={(e) => {
-                        e.target.src = "/default-avatar.png";
+                        // Only set default if it’s not already set
+                        if (!e.target.src.includes("profile_pictures/default.jpg")) {
+                            e.target.src = "profile_pictures/default.jpg";
+                        }
                     }}
                 />
                 {isOnline && <span className="status-circle online"></span>}

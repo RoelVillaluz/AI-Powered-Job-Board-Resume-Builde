@@ -15,7 +15,7 @@ export const authorizeConversation = catchAsync(async (req, res, next) => {
 
     // Defensive check
     if (!conversation.users || !Array.isArray(conversation.users) || conversation.users.length === 0) {
-        throw new UnauthorizedError('Invalid conversation data');
+        throw new ForbiddenError('Invalid conversation data'); 
     }
 
     const isParticipant = conversation.users.some(
@@ -23,7 +23,7 @@ export const authorizeConversation = catchAsync(async (req, res, next) => {
     );
 
     if (!isParticipant) {
-        throw new UnauthorizedError('Access denied to this conversation');
+        throw new ForbiddenError('You are not part of this conversation'); // ✅ 403 instead of 401
     }
 
     next();
@@ -38,7 +38,7 @@ export const authorizeConversationByUserId = catchAsync(async (req, res, next) =
     }
 
     if (userId.toString() !== paramUserId.toString()) {
-        throw new UnauthorizedError('Access denied to this user\'s conversations');
+        throw new ForbiddenError('You can only access your own conversations'); 
     }
 
     next();

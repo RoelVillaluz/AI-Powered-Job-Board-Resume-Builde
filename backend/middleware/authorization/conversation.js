@@ -1,4 +1,4 @@
-import { UnauthorizedError } from '../errorHandler.js';
+import { UnauthorizedError, NotFoundError } from '../errorHandler.js';
 import { catchAsync } from '../../utils/errorUtils.js';
 import Conversation from '../../models/chat/conversationModel.js';
 
@@ -12,22 +12,30 @@ export const authorizeConversation = catchAsync(async (req, res, next) => {
     if (!conversation) {
         throw new NotFoundError('Conversation');
     }
-    
-    // Check if user is part of conversation
+
+    // Defensive check
+    if (!conversation.users || !Array.isArray(conversation.users) || conversation.users.length === 0) {
+        throw new UnauthorizedError('Invalid conversation data');
+    }
+
     const isParticipant = conversation.users.some(
-        user => user.toString() === userId.toString()
+        user => user?.toString() === userId.toString()
     );
 
     if (!isParticipant) {
         throw new UnauthorizedError('Access denied to this conversation');
     }
-    
+
     next();
-})
+});
 
 export const authorizeConversationByUserId = catchAsync(async (req, res, next) => {
-    const userId = req.user._id; // logged-in user
-    const { userId: paramUserId } = req.params; // userId from URL
+    const userId = req.user._id || req.user.id; // 🔹 use id if _id doesn't exist
+    const { userId: paramUserId } = req.params; 
+
+    if (!userId) {
+        throw new UnauthorizedError('Invalid authentication data');
+    }
 
     if (userId.toString() !== paramUserId.toString()) {
         throw new UnauthorizedError('Access denied to this user\'s conversations');
@@ -35,3 +43,4 @@ export const authorizeConversationByUserId = catchAsync(async (req, res, next) =
 
     next();
 });
+

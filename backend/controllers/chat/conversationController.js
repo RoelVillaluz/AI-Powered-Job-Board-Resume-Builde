@@ -3,6 +3,8 @@ import Message from '../../models/chat/messageModel.js';
 import { STATUS_MESSAGES, sendResponse } from '../../constants.js';
 import { transformConversationsForUser } from '../../services/transformers/conversationTransformers.js';
 import { catchAsync } from '../../utils/errorUtils.js';
+import logger from '../../utils/logger.js';
+import { findAllConversations, findConversationById, findConversationsByUser } from '../../repositories/conversationRepository.js';
 
 /**
  * Get all conversations
@@ -10,12 +12,21 @@ import { catchAsync } from '../../utils/errorUtils.js';
  * @access Public
  */
 
-export const getConversations = catchAsync(async (req, res, next) => {
-    const conversations = await Conversation.find({});
-    
-    return sendResponse(res, { 
-        ...STATUS_MESSAGES.SUCCESS.FETCH, 
-        data: conversations 
+export const getConversations = catchAsync(async (req, res) => {
+    const startTime = Date.now();
+
+    const conversations = await findAllConversations();
+
+    const duration = Date.now() - startTime;
+
+    logger.info('Conversations fetched successfully', {
+        count: conversations.length,
+        duration: `${duration}ms`
+    });
+
+    return sendResponse(res, {
+        ...STATUS_MESSAGES.SUCCESS.FETCH,
+        data: conversations
     }, 'Conversations');
 });
 
@@ -24,85 +35,81 @@ export const getConversations = catchAsync(async (req, res, next) => {
  * @route GET /api/conversations/:conversationId
  * @access Private
  */
-
 export const getConversationById = catchAsync(async (req, res, next) => {
     const { conversationId } = req.params;
     const { limit = 20, before } = req.query;
+    const startTime = Date.now();
 
-    // Build message query
-    let messageQuery = {};
+    // ✅ Log request with context
+    logger.info('Fetching conversation by ID', {
+        conversationId,
+        userId: req.user?._id || req.user?.id,
+        limit,
+        before
+    });
+
+    const conversation = await findConversationById(conversationId);
+
+    let beforeMessage = null;
     if (before) {
-        // For pagination: get messages older than 'before' timestamp
-        const beforeMessage = await Message.findById(before);
-        if (beforeMessage) {
-            messageQuery.createdAt = { $lt: beforeMessage.createdAt };
-        }
+        const msg = await findMessagesByConversation(conversation, { _id: before }, 1);
+        beforeMessage = msg[0];
     }
 
-    // ✅ Better approach: Fetch conversation and messages separately for more control
-    const conversation = await Conversation.findById(conversationId)
-        .populate('users', 'firstName lastName email profilePicture')
+    const messageQuery = {};
+    if (beforeMessage) messageQuery.createdAt = { $lt: beforeMessage.createdAt };
 
-    // Fetch messages with proper sorting and pagination
-    const messages = await Message.find({
-        _id: { $in: conversation.messages },
-        ...messageQuery,
-    })
-    .sort({ createdAt: -1 }) // ✅ Get newest first from DB
-    .limit(parseInt(limit))   // ✅ Limit at DB level
-    .populate('sender', 'firstName lastName')
-    .populate('attachment', 'fileName fileSize url type')
-    .select('_id sender content createdAt updatedAt seen seenAt attachment isPinned')
-    .lean(); // ✅ Faster - returns plain JS objects
+    const messages = await findMessagesByConversation(conversation, messageQuery, parseInt(limit));
 
-    const conversationWithMessages = {
-        ...conversation.toObject(),
-        messages
-    };
+    const conversationWithMessages = { ...conversation, messages };
+    const duration = Date.now() - startTime;
+
+    logger.info('Conversation fetched successfully', {
+        conversationId,
+        messageCount: messages.length,
+        duration: `${duration}ms`
+    });
+
+    // ✅ Log success with metrics
+    logger.info('Conversation fetched successfully', {
+        conversationId,
+        messageCount: messages.length,
+        duration: `${duration}ms`
+    });
 
     return sendResponse(res, { 
         ...STATUS_MESSAGES.SUCCESS.FETCH, 
         data: conversationWithMessages 
     }, 'Conversation');
-})
+});
 
 /**
  * Get all conversations for a user
  * @route GET /api/conversations/user/:userId
  * @access Private
  */
-
-export const getConversationsByUser = catchAsync(async (req, res, next) => {
+export const getConversationsByUser = catchAsync(async (req, res) => {
     const { userId } = req.params;
+    const startTime = Date.now();
 
-    // ✅ No try-catch - catchAsync handles it
-    let conversations = await Conversation.find({ users: userId })
-        .populate('users', 'firstName lastName email profilePicture')
-        .populate({
-            path: 'messages',
-            options: {
-                limit: 50,
-                sort: { createdAt: -1 }
-            },
-            select: '_id sender content createdAt updatedAt seen seenAt attachment isPinned',
-            populate: [
-                {
-                    path: 'sender',
-                    select: 'firstName lastName profilePicture'  
-                },
-                {
-                    path: 'attachment',
-                    select: 'url fileName type fileSize'
-                }
-            ]
-        })
-        .lean();
+    logger.info('Fetching conversations for user', {
+        userId,
+        requestedBy: req.user?._id || req.user?.id
+    });
 
-    // ✅ Transform data using service - clean and reusable!
+    const conversations = await findConversationsByUser(userId);
     const transformedConversations = transformConversationsForUser(conversations, userId);
 
-    return sendResponse(res, { 
-        ...STATUS_MESSAGES.SUCCESS.FETCH, 
+    const duration = Date.now() - startTime;
+
+    logger.info('User conversations fetched successfully', {
+        userId,
+        count: conversations.length,
+        duration: `${duration}ms`
+    });
+
+    return sendResponse(res, {
+        ...STATUS_MESSAGES.SUCCESS.FETCH,
         data: transformedConversations
     }, 'Conversations');
 });

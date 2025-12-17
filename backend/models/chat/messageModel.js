@@ -51,5 +51,23 @@ const messageSchema = new mongoose.Schema({
     },
 }, { timestamps: { createdAt: true, updatedAt: false } })
 
+// Compound index for conversation queries with sorting
+messageSchema.index({ conversation: 1, createdAt: -1 })
+
+// Index for pinned messages
+messageSchema.index({ conversation: 1, isPinned: 1 });
+
+// Index for sender queries
+messageSchema.index({ sender: 1 });
+
+// Index for unseen messages
+messageSchema.index({ conversation: 1, seen: 1 });
+
+// Index for attachment queries
+messageSchema.index({ conversation: 1, attachment: 1 });
+
+// Full-text search on content (optional)
+messageSchema.index({ content: 'text' });
+
 const Message = mongoose.model('Message', messageSchema)
 export default Message

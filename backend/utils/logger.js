@@ -42,10 +42,10 @@ const consoleFormat = winston.format.combine(
 const logger = winston.createLogger({
     level: process.env.LOG_LEVEL || 'info', // debug, info, warn, error
     format: logFormat,
-    defaultMeta: {
-        service: 'job-board-api',
-        environment: process.env.NODE_ENV || 'development'
-    },
+    // defaultMeta: { // add later if i switch to microservices architecture
+    //     service: 'job-board-api',
+    //     environment: process.env.NODE_ENV || 'development'
+    // },
     transports: [
         // Console output (always enabled)
         new winston.transports.Console({

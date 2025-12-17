@@ -1,3 +1,5 @@
+import logger from "../utils/logger.js";
+
 export class AppError extends Error {
     constructor(message, statusCode, isOperational = true) {
         super(message)
@@ -48,11 +50,29 @@ export const errorHandler = (err, req, res, next) => {
     err.statusCode = err.statusCode || 500;
     err.status = err.status || 'error';
 
-    // ✅ Better logging
+    // ✅ Log error with Winston
     if (err.isOperational) {
-        console.log(`⚠️  Operational Error [${err.statusCode}]:`, err.message);
+        // Operational errors (expected)
+        logger.warn('⚠️  Operational Error', {
+            error: err.name,
+            message: err.message,
+            statusCode: err.statusCode,
+            url: req.originalUrl,
+            method: req.method,
+            ip: req.ip,
+            userId: req.user?._id || req.user?.id
+        });
     } else {
-        console.error('💥 CRITICAL ERROR:', err);
+        // Programming errors (unexpected)
+        logger.error('💥 CRITICAL ERROR', {
+            error: err.name,
+            message: err.message,
+            stack: err.stack,
+            url: req.originalUrl,
+            method: req.method,
+            ip: req.ip,
+            userId: req.user?._id || req.user?.id
+        });
     }
 
     // Development vs Production
@@ -60,9 +80,9 @@ export const errorHandler = (err, req, res, next) => {
         return res.status(err.statusCode).json({
             success: false,
             status: err.status,
-            error: err.name, // ✅ Add error name
+            error: err.name,
             message: err.message,
-            ...(err.details && { details: err.details }), // ✅ Include validation details if present
+            ...(err.details && { details: err.details }),
             stack: err.stack,
             timestamp: err.timestamp
         });
@@ -74,7 +94,7 @@ export const errorHandler = (err, req, res, next) => {
             success: false,
             status: err.status,
             message: err.message,
-            ...(err.details && { details: err.details }), // ✅ Include validation details
+            ...(err.details && { details: err.details }),
             timestamp: err.timestamp
         });
     }

@@ -1,5 +1,5 @@
-import Conversation from "../models/chat/conversationModel.js";
-import Message from "../models/chat/messageModel.js";
+import Conversation from "../../models/chat/conversationModel.js";
+import Message from "../../models/chat/messageModel.js";
 
 export const findAllConversations = async () => {
   return Conversation.find({}).lean();

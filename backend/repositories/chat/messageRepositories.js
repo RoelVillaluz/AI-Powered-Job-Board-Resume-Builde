@@ -1,4 +1,4 @@
-import Message from "../models/chat/messageModel.js";
+import Message from "../../models/chat/messageModel.js";
 
 export const findMessages = async () => {
   return await Message.find({});

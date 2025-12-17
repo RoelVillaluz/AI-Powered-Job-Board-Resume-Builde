@@ -4,7 +4,7 @@ import { STATUS_MESSAGES, sendResponse } from '../../constants.js';
 import { transformConversationsForUser } from '../../services/transformers/conversationTransformers.js';
 import { catchAsync } from '../../utils/errorUtils.js';
 import logger from '../../utils/logger.js';
-import { findAllConversations, findConversationById, findConversationsByUser } from '../../repositories/conversationRepository.js';
+import { findAllConversations, findConversationById, findConversationsByUser } from '../../repositories/chat/conversationRepository.js';
 
 /**
  * Get all conversations

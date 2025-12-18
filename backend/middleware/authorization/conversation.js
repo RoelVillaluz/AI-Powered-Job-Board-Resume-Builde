@@ -5,25 +5,25 @@ import Conversation from '../../models/chat/conversationModel.js';
 // Authorization - check if user owns the conversation
 export const authorizeConversation = catchAsync(async (req, res, next) => {
     const { conversationId } = req.params;
-    const userId = req.user._id;
+    const userId = req.user?._id || req.user?.id;
 
-    const conversation = await Conversation.findById(conversationId);
+    if (!userId) throw new UnauthorizedError('Invalid authentication data');
 
-    if (!conversation) {
-        throw new NotFoundError('Conversation');
-    }
+    const conversation = await Conversation.findById(conversationId).select('users');
+
+    if (!conversation) throw new NotFoundError('Conversation');
 
     // Defensive check
-    if (!conversation.users || !Array.isArray(conversation.users) || conversation.users.length === 0) {
+    if (!Array.isArray(conversation.users) || conversation.users.length === 0) {
         throw new ForbiddenError('Invalid conversation data'); 
     }
 
     const isParticipant = conversation.users.some(
-        user => user?.toString() === userId.toString()
+        u => u?._id?.toString?.() === userId.toString() || u?.toString?.() === userId.toString()
     );
 
     if (!isParticipant) {
-        throw new ForbiddenError('You are not part of this conversation'); // ✅ 403 instead of 401
+        throw new ForbiddenError('You are not part of this conversation');
     }
 
     next();

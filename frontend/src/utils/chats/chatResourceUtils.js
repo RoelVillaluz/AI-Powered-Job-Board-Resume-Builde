@@ -28,9 +28,15 @@ export const fetchResourceCounts = async (baseUrl, dispatch, resourcesRef, conve
     });
 
     try {
+        const token = localStorage.getItem('authToken'); 
         const response = await axios.get(
             `${baseUrl}/conversations/${conversationId}/resources/${endpoint}/count`,
-            { signal }
+            {
+                signal,
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            }
         );
 
         console.log(`✅ Fetched ${resourceType}:`, response.data.data);
@@ -106,10 +112,17 @@ export const fetchResourceType = async (
     });
 
     try {
+        const token = localStorage.getItem('authToken'); 
         const response = await axios.get(
             `${baseUrl}/conversations/${conversationId}/resources/${endpoint}`,
-            { signal }
+            {
+                signal,
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            }
         );
+
 
         // ✅ Extract messages and pagination from nested response
         const { messages, pagination } = response.data.data;

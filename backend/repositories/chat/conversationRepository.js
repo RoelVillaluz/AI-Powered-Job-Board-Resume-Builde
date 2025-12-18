@@ -27,6 +27,11 @@ export const findConversationsByUser = async (userId) => {
 };
 
 export const findMessagesByConversation = async (conversation, messageQuery = {}, limit = 20) => {
+  if (!conversation || !Array.isArray(conversation.messages)) {
+    // Return empty array if conversation is null or messages is not an array
+    return [];
+  }
+
   return await Message.find({ _id: { $in: conversation.messages }, ...messageQuery })
     .sort({ createdAt: -1 })
     .limit(limit)
@@ -35,3 +40,4 @@ export const findMessagesByConversation = async (conversation, messageQuery = {}
     .select('_id sender content createdAt updatedAt seen seenAt attachment isPinned')
     .lean();
 };
+

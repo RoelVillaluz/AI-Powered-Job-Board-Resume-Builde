@@ -51,3 +51,13 @@ export const loginSchema = Joi.object({
             'string.empty': 'Password is required'
         })
 })
+
+export const verificationCodeSchema = Joi.object({
+    verificationCode: Joi.string()
+        .length(6)
+        .required()
+        .messages({
+            'string.length': 'Verification code must be 6 numbers long',
+            'string.empty': 'Verification code is required'
+        })
+})

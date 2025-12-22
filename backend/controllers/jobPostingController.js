@@ -1,122 +1,78 @@
 import JobPosting from "../models/jobPostingModel.js"
+import * as JobPostingService from "../services/jobPostings/jobPostingServices.js";
 import { checkMissingFields } from '../utils.js'
 import { STATUS_MESSAGES, sendResponse } from '../constants.js';
+import { catchAsync } from "../utils/errorUtils.js";
 import User from "../models/userModel.js";
 
-export const getJobPostings = async (req, res) => {
-    try {
-        const skip = parseInt(req.query.skip) || 0;
-        const limit = parseInt(req.query.limit) || 6; 
-        const excludeIds = req.query.exclude ? req.query.exclude.split(',') : [];
-        
-        const totalInDB = await JobPosting.countDocuments();
-        
-        const query = excludeIds.length > 0 
-            ? { _id: { $nin: excludeIds } }
-            : {};
-        
-        const jobPostings = await JobPosting.find(query)
-                                .populate("company", "id name logo industry")
-                                .skip(skip)
-                                .limit(limit);
+/**
+ * Get paginated list of job postings
+ * @route GET /api/job-postings
+ */
+export const getJobPostings = catchAsync(async (req, res) => {
+    const skip = req.query.skip || 0;
+    const limit = req.query.limit || 6;
+    const excludeIds = req.query.exclude ? req.query.exclude.split(',') : [];
 
-        const totalAfterExclude = await JobPosting.countDocuments(query);
-        const hasMore = (skip + jobPostings.length) < totalAfterExclude;
+    const result = await JobPostingService.getJobPostings({ 
+        skip, 
+        limit, 
+        excludeIds 
+    })
 
-        return res.status(200).json({
-            success: true,
-            formattedMessage: 'Job postings fetched successfully',
-            data: jobPostings,
-            total: totalAfterExclude,
-            hasMore: hasMore
-        })
-    } catch (error) {
-        console.error(error)
-        return res.status(500).json({ success: false, formattedMessage: 'Server error' })
-    }
-}
+    return res.status(200).json({
+        success: true,
+        formattedMessage: 'Job postings fetched successfully',
+        data: result
+    })
+})
 
-export const getJobPosting = async (req, res) => {
-    const { id } = req.params
-    try {
-        const jobPosting = await JobPosting.findById(id).populate("company", "id name logo").populate("applicants", "profilePicture");
-        if (!jobPosting) {
-            return res.status(404).json({ success: false, message: 'Job posting not found' })
-        }
-
-        jobPosting.applicants.forEach((applicant) => {
-            if (applicant.profilePicture) {
-                console.log("Original user profile picture", applicant.profilePicture) // Debugging: Check original profile picture
-                applicant.profilePicture = applicant.profilePicture.replace(/\\/g, '/');
-                applicant.profilePicture = `profile_pictures/${applicant.profilePicture.split('/').pop()}`
-                console.log("Normalized user profile picture:", applicant.profilePicture); // Debugging: Check normalized path
-            } else {
-                applicant.profilePicture = 'profile_pictures/default.jpg'
-            }
-        })
-
-        return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.FETCH, data: jobPosting }, 'Job posting')
-    } catch (error) {
-        console.error(error)
-        return sendResponse(res, { ...STATUS_MESSAGES.ERROR.SERVER, success: false })
-    }
-}
-
-export const createJobPosting = async (req, res) => {
-    const jobPosting = req.body
-    const requiredFields = ['title', 'company', 'location', 'jobType', 'requirements', 'skills']
-
-    const missingField = checkMissingFields(requiredFields, jobPosting)
-    if (missingField) {
-        return sendResponse(res, STATUS_MESSAGES.ERROR.MISSING_FIELD(missingField), 'Job posting');
-    }
-
-    try {
-
-        const newJob = new JobPosting(jobPosting)
-        await newJob.save()
-
-        // add job to company jobs list
-        await Company.findByIdAndUpdate(
-            jobPosting.company,
-            { $push: { jobs: newJob } },
-            { new: true }
-        )
-
-        return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.CREATE, data: newJob }, 'Job posting');
-    } catch (error) {
-        console.error('Error', error)
-        return sendResponse(res, { ...STATUS_MESSAGES.ERROR.SERVER, success: false })
-    }
-}
-
-export const updateJobPosting = async (req, res) => {
+/**
+ * Get single job posting by ID
+ * @route GET /api/job-postings/:id
+ */
+export const getJobPosting = catchAsync(async (req, res) => {
     const { id } = req.params;
-    const jobPosting = req.body
 
-    try {
-        const updatedJobPosting = await jobPosting.findByIdAndUpdate(id, user, { new: true })
-        if (!updatedJobPosting) {
-            return sendResponse(res, { ...STATUS_MESSAGES.ERROR.NOT_FOUND, success: false}, 'Job posting')
-        }
-        return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.UPDATE, data: updatedJobPosting }, 'Job posting');
-    } catch (error) {
-        console.error('Error', error)
-        return sendResponse(res, { ...STATUS_MESSAGES.ERROR.SERVER, success: false })
-    }
-}
+    const jobPosting = await JobPostingService.getJobPosting(id)
 
-export const deleteJobPosting = async (req, res) => {
+    return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.FETCH, data: jobPosting }, 'Job posting')
+})
+
+
+/**
+ * Creates job posting
+ * @route POST /api/job/postings
+ */
+export const createJobPosting = catchAsync(async (req, res) => {
+    const jobPostingData = req.body;
+
+    const newJob = await JobPostingService.createJobPosting(jobPostingData)
+
+    return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.CREATE, data: newJob }, 'Job posting');
+})
+
+/**
+ * Updates job posting by id
+ * @route PATCH /api/job/postings/:id
+ */
+export const updateJobPosting = catchAsync(async (req, res) => {
     const { id } = req.params;
-    try {
-        const deletedJobPosting = await JobPosting.findByIdAndDelete(id)
+    const jobPosting = req.body;
 
-        if (!deletedJobPosting) {
-            return sendResponse(res, { ...STATUS_MESSAGES.ERROR.NOT_FOUND, success: false}, 'Job posting')
-        }
-        return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.DELETE }, 'Job posting')
-    } catch (error) {
-        console.error('Error deleting job posting:', error);
-        return sendResponse(res, { ...STATUS_MESSAGES.ERROR.SERVER, success: false });
-    }
-}
+    const updatedJobPosting = await JobPostingService.updateJobPosting(id, jobPosting)
+
+    return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.UPDATE, data: updatedJobPosting }, 'Job posting');
+})
+
+/**
+ * Deletes job posting by id
+ * @route DELETE /api/job-postings/:id
+ */
+export const deleteJobPosting = catchAsync(async (req, res) => {
+    const { id } = req.params;
+
+    const deletedJobPosting = await JobPostingService.deleteJobPosting(id)
+
+    return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.DELETE, data: deleteJobPosting }, 'Job posting')
+})

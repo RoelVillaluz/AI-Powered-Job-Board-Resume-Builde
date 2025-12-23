@@ -1,5 +1,7 @@
+import mongoose from "mongoose";
 import * as JobPostingRepository from "../../repositories/jobPostings/jobPostingRepositories.js";
 import { transformProfilePictureUrl } from "../transformers/urlTransformers.js";
+import JobPosting from "../../models/jobPostingModel.js";
 
 /**
  * Get paginated job postings with metadata
@@ -47,15 +49,30 @@ export const getJobPosting = async (id) => {
  * @returns {Promise<Object>}
  */
 export const createJobPosting = async (jobPostingData) => {
-    const newJob = await JobPostingRepository.createJob(jobPostingData)
+    const session = await mongoose.startSession();
 
-    // Associate job with company
-    await JobPostingRepository.addJobToCompany(
-        jobPostingData.company,
-        newJob._id
-    )
+    try {
+        session.startTransaction();
 
-    return newJob
+        const newJob = await JobPostingRepository.createJob(
+            jobPostingData,
+            { session }
+        )
+
+        await JobPostingRepository.addJobToCompany(
+            jobPostingData.company,
+            newJob._id,
+            { session }
+        )
+
+        await session.commitTransaction()
+        return newJob
+    } catch (error) {
+        await session.abortTransaction();
+        throw error
+    } finally {
+        session.endSession();
+    }
 }
 
 /**

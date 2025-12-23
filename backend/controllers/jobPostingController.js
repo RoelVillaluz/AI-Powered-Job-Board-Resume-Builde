@@ -74,5 +74,5 @@ export const deleteJobPosting = catchAsync(async (req, res) => {
 
     const deletedJobPosting = await JobPostingService.deleteJobPosting(id)
 
-    return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.DELETE, data: deleteJobPosting }, 'Job posting')
+    return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.DELETE, data: deletedJobPosting }, 'Job posting')
 })

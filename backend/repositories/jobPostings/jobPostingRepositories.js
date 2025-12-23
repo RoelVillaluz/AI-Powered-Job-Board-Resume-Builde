@@ -31,7 +31,7 @@ export const findJobsWithPagination = async ({ skip = 0, limit = 6, excludeIds =
  * @param {string} id - Job posting ID
  * @returns {Promise<Object|null>}
  */
-export const findJobId = async (id) => {
+export const findJobById = async (id) => {
     return await JobPosting.findById(id)
         .populate('company', 'id name logo industry')
         .populate('applicants', 'profilePicture')

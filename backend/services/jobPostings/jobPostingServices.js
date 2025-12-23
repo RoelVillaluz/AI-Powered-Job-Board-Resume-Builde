@@ -28,7 +28,7 @@ export const getJobPostings = async ({ skip, limit, excludeIds }) => {
  * @returns {Promise<Object|null>}
  */
 export const getJobPosting = async (id) => {
-    const jobPosting = await JobPostingRepository.findJobId(id)
+    const jobPosting = await JobPostingRepository.findJobById(id)
 
     // Normalize applicant profile pictures
     if (jobPosting.applicants && jobPosting.applicants.length > 0) {
@@ -74,6 +74,6 @@ export const updateJobPosting = async (id, updateData) => {
  * @returns {Promise<boolean>}
  */
 export const deleteJobPosting = async (id) => {
-    const deleted = await jobPostingRepository.deleteById(id);
+    const deleted = await JobPostingRepository.deleteById(id);
     return !!deleted;
 };

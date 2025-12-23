@@ -43,7 +43,12 @@ function CreateJobForm() {
         console.log('Form Data', formData)
 
         try {
-            const response = await axios.post(`${baseUrl}/job-postings`, formData)
+            const token = localStorage.getItem('authToken'); 
+            const response = await axios.post(`${baseUrl}/job-postings`, formData, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            })
             console.log('New job posting created', response.data.data)
 
             const newJobId = response.data.data._id;

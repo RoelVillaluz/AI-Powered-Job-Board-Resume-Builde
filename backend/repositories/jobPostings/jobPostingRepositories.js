@@ -2,28 +2,35 @@ import JobPosting from "../../models/jobPostingModel.js";
 import Company from "../../models/companyModel.js"
 
 /**
- * Find job postings with pagination and exclusion filters
- * @param {Object} options - Query options
- * @param {number} options.skip - Number of documents to skip
- * @param {number} options.limit - Maximum number of documents to return
- * @param {string[]} options.excludeIds - Array of IDs to exclude
- * @returns {Promise<{jobPostings: Array, total: number}>}
+ * Find job postings using cursor-based pagination
+ * @param {Object} options
+ * @param {string|null} options.cursor - ISO date string used as pagination cursor
+ * @param {number} options.limit - Number of documents to fetch
+ * @param {string[]} options.excludeIds - Job IDs to exclude
+ * @returns {Promise<{ jobPostings: Array, hasMore: boolean, nextCursor: string|null }>}
  */
-export const findJobsWithPagination = async ({ skip = 0, limit = 6, excludeIds = [] }) => {
-    const query = excludeIds.length > 0
-        ? { _id: { $nin: excludeIds }}
-        : {};
+export const findJobsWithPagination = async ({ cursor, limit = 6, excludeIds = [] }) => {
+    const query = {
+        ...(cursor ? { postedAt: { $lt: new Date(cursor)} } : {}),
+        ...(excludeIds.length > 0 ? { _id: { $nin: excludeIds } } : {})
+    }
 
-    const [jobPostings, totalJobs] = await Promise.all([
-        JobPosting.find(query)
-            .populate("company", "id name logo industry")
-            .skip(skip)
-            .limit(limit)
-            .lean(),
-        JobPosting.countDocuments(query)
-    ]);
+    const jobPostings = await JobPosting.find(query)
+        .limit(limit)
+        .populate('company', 'id name logo industry')
+        .sort({ postedAt: -1, _id: -1 })
+        .limit(limit + 1)
+        .lean()
 
-    return { jobPostings, total: totalJobs };
+    const hasMore = jobPostings.length > limit;
+    const items = hasMore ? jobPostings.slice(0, limit) : jobPostings;
+    const nextCursor = hasMore ? items[items.length - 1].postedAt.toISOString() : null;
+
+    return {
+        jobPostings: items,
+        hasMore,
+        nextCursor
+    }
 }
 
 /**

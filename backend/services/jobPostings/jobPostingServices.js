@@ -8,21 +8,14 @@ import JobPosting from "../../models/jobPostingModel.js";
  * @param {Object} options - Query options
  * @returns {Promise<Object>}
  */
-export const getJobPostings = async ({ skip, limit, excludeIds }) => {
-    const { jobPostings, total } = await JobPostingRepository.findJobsWithPagination({
-        skip,
+export const getJobPostings = async ({ cursor, limit, excludeIds }) => {
+    return await JobPostingRepository.findJobsWithPagination({
+        cursor,
         limit,
         excludeIds
-    })
+    });
+};
 
-    const hasMore = (skip + jobPostings.length) < total;
-
-    return {
-        jobPostings,
-        total,
-        hasMore
-    };
-}
 
 /**
  * Get a single job posting with normalized applicant data

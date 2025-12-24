@@ -10,22 +10,25 @@ import User from "../models/userModel.js";
  * @route GET /api/job-postings
  */
 export const getJobPostings = catchAsync(async (req, res) => {
-    const skip = req.query.skip || 0;
-    const limit = req.query.limit || 6;
-    const excludeIds = req.query.exclude ? req.query.exclude.split(',') : [];
+    const cursor = req.query.cursor || null;
+    const limit = Number(req.query.limit) || 6;
+    const excludeIds = req.query.exclude
+        ? req.query.exclude.split(',')
+        : [];
 
-    const result = await JobPostingService.getJobPostings({ 
-        skip, 
-        limit, 
-        excludeIds 
-    })
+    const result = await JobPostingService.getJobPostings({
+        cursor,
+        limit,
+        excludeIds
+    });
 
     return res.status(200).json({
         success: true,
         formattedMessage: 'Job postings fetched successfully',
         data: result
-    })
-})
+    });
+});
+
 
 /**
  * Get single job posting by ID

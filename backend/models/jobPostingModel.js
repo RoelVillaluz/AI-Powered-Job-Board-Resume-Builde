@@ -62,5 +62,10 @@ const jobPostingSchema = new mongoose.Schema({
     }   
 })
 
+jobPostingSchema.index({ company: 1, postedAt: -1 }) // For company queries sorted by date
+jobPostingSchema.index({ postedAt: -1 }); // For listing jobs by recency
+jobPostingSchema.index({ location: 1, jobType: 1 }); // If you add filtering later
+jobPostingSchema.index({ 'skills.name': 1 }); // For skill-based searches
+
 const JobPosting = new mongoose.model("JobPosting", jobPostingSchema)
 export default JobPosting

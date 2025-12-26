@@ -1,160 +1,102 @@
-import { createContext, useContext, useState, useCallback, useEffect, useMemo, useRef } from "react";
-import { INDUSTRY_CHOICES } from "../../../backend/constants";
+import { createContext, useContext, useEffect, useMemo, useRef } from "react";
 import { useData } from "./DataProvider";
 import { useAuth } from "./AuthProvider";
 import { useJobFilterLogic } from "../hooks/jobsList/useJobFilterLogic";
-import axios from "axios";
+import { useJobSorting } from "../hooks/jobsList/useJobSorting";
+import { useJobInfiniteScroll } from "../hooks/jobsList/useJobInfiniteScroll";
+import { useClientSideFilters } from "../hooks/jobsList/useClientSideFilters";
+import { useResumeSkills } from "../hooks/resumes/useResumeSkills";
 
 const JobFiltersContext = createContext();
 const JobsStateContext = createContext();
 
 export const useJobFilters = () => {
-    const context = useContext(JobFiltersContext)
+    const context = useContext(JobFiltersContext);
     if (!context) {
         throw new Error('useJobFilters must be used within a JobsListProvider');
     }
     return context;
-}
+};
 
 export const useJobsState = () => {
-    const context = useContext(JobsStateContext)
+    const context = useContext(JobsStateContext);
     if (!context) {
         throw new Error('useJobsState must be used within a JobsListProvider');
     }
-    return context
-}
+    return context;
+};
 
 export const JobsListProvider = ({ children }) => {
     const { user } = useAuth();
-    const {
-        baseUrl,
-        fetchResumes,
+    const { 
+        baseUrl, 
+        fetchResumes, 
+        resumes,
         jobRecommendations,
-        fetchJobRecommendations,
-        resumes
+        fetchJobRecommendations
     } = useData();
 
-    const [loading, setLoading] = useState(true);
-    const [allResumeSkills, setAllResumeSkills] = useState([]);
+    // Track if we've already fetched to prevent duplicate calls
+    const hasFetchedResumes = useRef(false);
+    const hasFetchedRecommendations = useRef(false);
 
-    // Infinite scroll states (cursor-based)
-    const [additionalJobs, setAdditionalJobs] = useState([]);
-    const [hasMoreJobs, setHasMoreJobs] = useState(true);
-    const [isLoadingMoreJobs, setIsLoadingMoreJobs] = useState(false);
-    const [cursor, setCursor] = useState(null);
+    // Extract resume skills
+    const allResumeSkills = useResumeSkills(resumes);
 
-    // Combine resume skills
+    // Fetch resumes on mount (once)
     useEffect(() => {
-        if (!Array.isArray(resumes)) return;
-
-        const skills = resumes
-            .flatMap(resume =>
-                Array.isArray(resume.skills)
-                    ? resume.skills.map(skill => skill.name)
-                    : []
-            );
-
-        setAllResumeSkills([...new Set(skills)]);
-    }, [resumes]);
-
-    useEffect(() => {
-        if (user?._id) {
+        if (user?._id && !hasFetchedResumes.current) {
+            hasFetchedResumes.current = true;
             fetchResumes(user._id);
         }
-    }, [user]);
+    }, [user?._id]); // Remove fetchResumes from dependencies
 
+    // Fetch job recommendations when resumes are loaded (once)
     useEffect(() => {
-        if (resumes.length > 0) {
+        if (resumes.length > 0 && !hasFetchedRecommendations.current) {
+            hasFetchedRecommendations.current = true;
             fetchJobRecommendations();
         }
-    }, [resumes]);
+    }, [resumes.length]); // Remove fetchJobRecommendations from dependencies
 
-    // Combine recommended + additional jobs (no duplicates)
-    const allJobs = useMemo(() => {
-        const recommended = jobRecommendations || [];
-        const additional = additionalJobs || [];
+    // Filter logic
+    const filterLogic = useJobFilterLogic(allResumeSkills);
+    const { filters } = filterLogic;
 
-        return [
-            ...recommended,
-            ...additional.filter(
-                job => !recommended.some(rec => rec._id === job._id)
-            )
-        ];
-    }, [jobRecommendations, additionalJobs]);
+    // Sorting logic
+    const sortingLogic = useJobSorting();
+    const { sortBy } = sortingLogic;
 
-    // Cursor-based infinite loader
-    const loadMoreJobs = useCallback(async () => {
-        if (isLoadingMoreJobs || !hasMoreJobs) return;
+    // API calls and job fetching (pass jobRecommendations from useData)
+    const infiniteScrolledJob = useJobInfiniteScroll(baseUrl, filters, sortBy, jobRecommendations);
+    const { fetchJobs } = infiniteScrolledJob;
 
-        setIsLoadingMoreJobs(true);
-
-        try {
-            const excludeIds = (jobRecommendations || [])
-                .map(job => job._id)
-                .join(",");
-
-            const response = await axios.get(
-                `${baseUrl}/job-postings`,
-                {
-                    params: {
-                        cursor,
-                        exclude: excludeIds
-                    }
-                }
-            );
-
-            const {
-                jobPostings,
-                hasMore,
-                nextCursor
-            } = response.data.data;
-
-            if (!jobPostings || jobPostings.length === 0) {
-                setHasMoreJobs(false);
-            } else {
-                setAdditionalJobs(prev => [...prev, ...jobPostings]);
-                setHasMoreJobs(hasMore);
-                setCursor(nextCursor);
-            }
-        } catch (error) {
-            console.error("Error loading more jobs:", error);
-        } finally {
-            setIsLoadingMoreJobs(false);
+    // Fetch jobs when filters, sort, or recommended jobs change
+    useEffect(() => {
+        if (resumes.length > 0 && jobRecommendations.length >= 0) {
+            fetchJobs(true);
         }
-    }, [
-        baseUrl,
-        cursor,
-        hasMoreJobs,
-        isLoadingMoreJobs,
-        jobRecommendations
-    ]);
+    }, [filters, sortBy, jobRecommendations.length, resumes.length]);
 
-    // Filters logic
-    const jobFiltersLogic = useJobFilterLogic(
-        allResumeSkills,
-        allJobs,
-        user
-    );
+    // Client-side filtering (for match score and application status)
+    const filteredJobs = useClientSideFilters(infiniteScrolledJob.jobs, filters, user);
 
     const JobFiltersValue = useMemo(
         () => ({
-            ...jobFiltersLogic,
+            ...filterLogic,
+            ...sortingLogic,
             allResumeSkills,
             resumes
         }),
-        [jobFiltersLogic, allResumeSkills, resumes]
+        [filterLogic, sortingLogic, allResumeSkills, resumes]
     );
 
     const JobStateValue = useMemo(
         () => ({
-            loading,
-            setLoading,
-            allJobs,
-            loadMoreJobs,
-            isLoadingMoreJobs,
-            hasMoreJobs
+            ...infiniteScrolledJob,
+            jobs: filteredJobs
         }),
-        [loading, allJobs, loadMoreJobs, isLoadingMoreJobs, hasMoreJobs]
+        [infiniteScrolledJob, filteredJobs]
     );
 
     return (

@@ -1,13 +1,172 @@
 import JobPosting from "../../models/jobPostingModel.js";
 import Company from "../../models/companyModel.js"
+import { buildJobQuery, buildIndustryMatch } from "../../../frontend/src/utils/jobPostings/filterJobUtils.js";
+import { buildSortQuery } from "../../../frontend/src/utils/jobPostings/sortUtils.js";
+import { buildCursorQuery } from "../../../frontend/src/utils/jobPostings/cursorUtils.js";
 
 /**
- * Find job postings using cursor-based pagination
- * @param {Object} options
- * @param {string|null} options.cursor - ISO date string used as pagination cursor
- * @param {number} options.limit - Number of documents to fetch
- * @param {string[]} options.excludeIds - Job IDs to exclude
- * @returns {Promise<{ jobPostings: Array, hasMore: boolean, nextCursor: string|null }>}
+ * Find job postings with cursor-based pagination and filters
+ * CURSOR-BASED PAGINATION FOR OPTIMAL PERFORMANCE
+ * @param {Object} options - Query options
+ * @returns {Promise<{jobPostings: Array, nextCursor: string|null, hasMore: boolean}>}
+ */
+export const findJobsWithFilters = async (options) => {
+    const {
+        filters = {},
+        cursor = null,
+        limit = 20,
+        excludeIds = [],
+        sortBy = 'Best Match'
+    } = options;
+
+    // Build base query
+    const baseQuery = buildJobQuery(filters);
+
+    // Add exclude IDs to query
+    if (excludeIds.length > 0) {
+        baseQuery._id = { $nin: excludeIds };
+    }
+
+    // Build sort configuration
+    const sortConfig = buildSortQuery(sortBy);
+    const { sort, cursorFields } = sortConfig;
+
+    // Add cursor query for pagination
+    const cursorQuery = buildCursorQuery(cursor, sortConfig);
+    if (cursorQuery) {
+        // Merge cursor query with base query using $and
+        const finalQuery = { $and: [baseQuery, cursorQuery] };
+        Object.assign(baseQuery, finalQuery);
+    }
+
+    // OPTIMIZATION: If no industry filter, use simple query
+    if (!filters.industry || filters.industry.length === 0) {
+        // Fetch limit + 1 to check if there are more results
+        const jobPostings = await JobPosting.find(baseQuery)
+            .select('title location jobType experienceLevel preScreeningQuestions salary postedAt company skills')
+            .populate('company', 'name logo industry')
+            .sort(sort)
+            .limit(limit + 1) // Fetch one extra
+            .lean();
+
+        // Check if there are more results
+        const hasMore = jobPostings.length > limit;
+        const results = hasMore ? jobPostings.slice(0, limit) : jobPostings;
+        
+        // Create next cursor from last item
+        const nextCursor = hasMore && results.length > 0
+            ? createCursor(results[results.length - 1], cursorFields)
+            : null;
+
+        return { 
+            jobPostings: results, 
+            nextCursor,
+            hasMore 
+        };
+    }
+
+    // COMPLEX QUERY: Use aggregation for industry filtering
+    const industryMatch = buildIndustryMatch(filters.industry);
+
+    const pipeline = [
+        { $match: baseQuery },
+        
+        // Lookup company data
+        {
+            $lookup: {
+                from: 'companies',
+                localField: 'company',
+                foreignField: '_id',
+                as: 'company'
+            }
+        },
+        { $unwind: '$company' },
+
+        // Filter by industry
+        ...(industryMatch ? [{ $match: industryMatch }] : []),
+
+        // Project only needed fields
+        {
+            $project: {
+                title: 1,
+                location: 1,
+                jobType: 1,
+                experienceLevel: 1,
+                salary: 1,
+                postedAt: 1,
+                skills: 1,
+                'company._id': 1,
+                'company.name': 1,
+                'company.logo': 1,
+                'company.industry': 1
+            }
+        },
+
+        // Sort
+        { $sort: sort },
+        
+        // Limit + 1 for hasMore check
+        { $limit: limit + 1 }
+    ];
+
+    const jobPostings = await JobPosting.aggregate(pipeline);
+    
+    // Check if there are more results
+    const hasMore = jobPostings.length > limit;
+    const results = hasMore ? jobPostings.slice(0, limit) : jobPostings;
+    
+    // Create next cursor from last item
+    const nextCursor = hasMore && results.length > 0
+        ? createCursor(results[results.length - 1], cursorFields)
+        : null;
+
+    return {
+        jobPostings: results,
+        nextCursor,
+        hasMore
+    };
+};
+
+/**
+ * Get total count for a given filter set
+ * WARNING: countDocuments can be slow for complex queries
+ * Only use when absolutely necessary (e.g., displaying "X total results")
+ * @param {Object} filters - Filter parameters
+ * @returns {Promise<number>}
+ */
+export const countJobsWithFilters = async (filters) => {
+    const baseQuery = buildJobQuery(filters);
+    
+    // If no industry filter, simple count
+    if (!filters.industry || filters.industry.length === 0) {
+        return await JobPosting.countDocuments(baseQuery);
+    }
+    
+    // With industry filter, use aggregation
+    const industryMatch = buildIndustryMatch(filters.industry);
+    
+    const pipeline = [
+        { $match: baseQuery },
+        {
+            $lookup: {
+                from: 'companies',
+                localField: 'company',
+                foreignField: '_id',
+                as: 'company'
+            }
+        },
+        { $unwind: '$company' },
+        ...(industryMatch ? [{ $match: industryMatch }] : []),
+        { $count: 'total' }
+    ];
+    
+    const result = await JobPosting.aggregate(pipeline);
+    return result[0]?.total || 0;
+};
+
+/**
+ * LEGACY: Simple pagination without filters (for backwards compatibility)
+ * @deprecated Use findJobsWithFilters instead
  */
 export const findJobsWithPagination = async ({ cursor, limit = 6, excludeIds = [] }) => {
     const query = {

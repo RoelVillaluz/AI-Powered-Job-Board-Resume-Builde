@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { useChatResourceManager } from "../../hooks/chats/useChatResourceManager";
+import { useChatResourceManager } from "../../hooks/chats/resources/useChatResourceManager.js";
 import ChatResourceItemList from "./chatResourceComponents/ChatResourceItemList";
 import CurrentChatResourceDetail from "./chatResourceComponents/currentChatResourceDetail";
 

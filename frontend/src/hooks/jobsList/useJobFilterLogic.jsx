@@ -1,55 +1,111 @@
+import { useState, useCallback, useMemo } from "react";
 
-import { useState, useCallback, useMemo, useRef, useEffect } from "react";
-import { INITIAL_FILTERS } from "../../../../backend/constants";
-import { createFilterTypes, filterJobs, updateApplicationStatus, updateArrayFilter, updateDatePostedFilter, updateMinMatchScore, updateSalaryFilter, updateStringFilter } from "../../utils/filterUtils";
-
-export const useJobFilterLogic = (allResumeSkills, allJobs, user) => {
-    const filterRef = useRef(null);
-    const [filters, setFilters] = useState(INITIAL_FILTERS);
+export const useJobFilterLogic = (allResumeSkills) => {
+    const [filters, setFilters] = useState({
+        minMatchScore: 0,
+        salary: { amount: { min: null, max: null } },
+        jobTitle: '',
+        location: '',
+        applicationStatus: {},
+        hasQuestions: false,
+        datePosted: 'Anytime',
+        jobType: [],
+        experienceLevel: [],
+        skills: [],
+        industry: []
+    });
 
     const handleFilterChange = useCallback((filterType, value, key = null) => {
         setFilters((prevFilters) => {
             switch (filterType) {
                 case 'minMatchScore':
-                    return updateMinMatchScore(prevFilters, value);
+                    return { ...prevFilters, minMatchScore: parseInt(value) || 0 };
 
-                case 'salary': 
+                case 'salary':
                     if (key) {
-                        return updateSalaryFilter(prevFilters, key, value)
+                        return {
+                            ...prevFilters,
+                            salary: {
+                                ...prevFilters.salary,
+                                amount: {
+                                    ...prevFilters.salary.amount,
+                                    [key]: value ? parseInt(value) : null
+                                }
+                            }
+                        };
                     }
-                    return prevFilters
+                    return prevFilters;
 
                 case 'jobTitle':
                 case 'location':
-                    return updateStringFilter(prevFilters, filterType, value)
+                    return { ...prevFilters, [filterType]: value };
 
                 case 'applicationStatus':
-                    return updateApplicationStatus(prevFilters, value)
-                case 'hasQuestions':
                     return {
                         ...prevFilters,
-                        hasQuestions: !prevFilters.hasQuestions
+                        applicationStatus: {
+                            ...prevFilters.applicationStatus,
+                            [value]: !prevFilters.applicationStatus[value]
+                        }
                     };
+
+                case 'hasQuestions':
+                    return { ...prevFilters, hasQuestions: !prevFilters.hasQuestions };
+
                 case 'datePosted':
-                    return updateDatePostedFilter(prevFilters, value)
+                    return { ...prevFilters, datePosted: value };
+
                 default:
-                    return updateArrayFilter(prevFilters, filterType, value)
+                    // Array filters (jobType, experienceLevel, skills, industry)
+                    const currentArray = prevFilters[filterType] || [];
+                    const newArray = currentArray.includes(value)
+                        ? currentArray.filter(item => item !== value)
+                        : [...currentArray, value];
+                    return { ...prevFilters, [filterType]: newArray };
             }
-        })
+        });
     }, []);
 
     const handleResetFilters = useCallback(() => {
-        setFilters(INITIAL_FILTERS)
-    })
+        setFilters({
+            minMatchScore: 0,
+            salary: { amount: { min: null, max: null } },
+            jobTitle: '',
+            location: '',
+            applicationStatus: {},
+            hasQuestions: false,
+            datePosted: 'Anytime',
+            jobType: [],
+            experienceLevel: [],
+            skills: [],
+            industry: []
+        });
+    }, []);
 
-    const filterTypes = useMemo(() => 
-        createFilterTypes(allResumeSkills), 
-        [allResumeSkills]
-    );
+    const filterTypes = useMemo(() => ({
+        'Job Type': {
+            filterType: 'jobType',
+            choices: ['Full-Time', 'Part-Time', 'Contract', 'Internship']
+        },
+        'Experience Level': {
+            filterType: 'experienceLevel',
+            choices: ['Entry Level', 'Mid Level', 'Senior Level', 'Lead']
+        },
+        'Skills': {
+            filterType: 'skills',
+            choices: allResumeSkills
+        },
+        'Industry': {
+            filterType: 'industry',
+            choices: ['Technology', 'Finance', 'Healthcare', 'Education', 'Manufacturing']
+        },
+        'Application Status': {
+            filterType: 'applicationStatus',
+            choices: ['applied', 'interviewing', 'offered', 'rejected', 'not applied']
+        }
+    }), [allResumeSkills]);
 
-    const filteredJobs = useMemo(() => {
-        return filterJobs(allJobs, filters, user);
-    }, [allJobs, filters, user]);
+    const filterRef = useMemo(() => ({ handleFilterChange }), [handleFilterChange]);
 
     return {
         filters,
@@ -57,7 +113,6 @@ export const useJobFilterLogic = (allResumeSkills, allJobs, user) => {
         handleFilterChange,
         handleResetFilters,
         filterTypes,
-        filteredJobs,
         filterRef
     };
-}
+};

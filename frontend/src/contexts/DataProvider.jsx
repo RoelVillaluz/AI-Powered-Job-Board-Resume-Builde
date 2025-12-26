@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useCallback, useState } from "react";
 import axios from "axios";
 import { useAuth } from "./AuthProvider";
 
@@ -66,35 +66,35 @@ export const DataProvider = ({ children }) => {
     }
   };
 
-  const fetchResumes = async (userId) => {
+  const fetchResumes = useCallback(async (userId) => {
     if (!userId) {
       console.warn("fetchResumes called without a userId");
       return;
     }
-  
+
     try {
       const response = await axios.get(`${baseUrl}/resumes/user/${userId}`);
       console.log("Resumes API Response:", response.data);
-  
+
       if (!Array.isArray(response.data.data)) {
         console.error("Invalid data format:", response.data);
         return;
       }
-  
+
       setResumes(prev => {
         if (JSON.stringify(prev) !== JSON.stringify(response.data.data)) {
           return response.data.data;
         }
         return prev;
       });
-  
+
       if (response.data.data.length > 0) {
         setName(`${response.data.data[0].firstName} ${response.data.data[0].lastName}`);
       }
     } catch (error) {
       console.error("Error fetching resumes:", error);
     }
-  };
+  }, [baseUrl]);
   
 
   const fetchJobRecommendations = async () => {

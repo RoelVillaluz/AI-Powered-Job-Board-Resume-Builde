@@ -5,7 +5,7 @@ function JobSearchBar({ filterRef }) {
     const [searchQuery, setSearchQuery] = useState({
         jobTitle: "",
         location: ""
-    })
+    });
 
     const handleSearchQueryChange = (value, field) => {
         setSearchQuery((prevQuery) => ({
@@ -17,46 +17,50 @@ function JobSearchBar({ filterRef }) {
     const handleSearchSubmit = useCallback((e, buttonQuery = null) => {
         e.preventDefault();
 
-        const queryToSubmit = buttonQuery || searchQuery
+        const queryToSubmit = buttonQuery || searchQuery;
 
         if (queryToSubmit.jobTitle) {
-            filterRef.current.handleFilterChange('jobTitle', queryToSubmit.jobTitle)
+            filterRef.handleFilterChange('jobTitle', queryToSubmit.jobTitle);
         }
 
         if (queryToSubmit.location) {
-            filterRef.current.handleFilterChange('location', queryToSubmit.location)
+            filterRef.handleFilterChange('location', queryToSubmit.location);
         }
 
-        // create unique key so similar search queries but different types (jobTitle vs location) don't get recognized as same element 
-        const searchKey = `${queryToSubmit.jobTitle}|${queryToSubmit.location}`
+        // Create unique key
+        const searchKey = `${queryToSubmit.jobTitle}|${queryToSubmit.location}`;
 
         setRecentSearches(prevSearches => {
-            const updatedSearches = new Set(prevSearches)
-            updatedSearches.add(searchKey)
-            return updatedSearches
-        })
+            const updatedSearches = new Set(prevSearches);
+            updatedSearches.add(searchKey);
+            return updatedSearches;
+        });
 
         setSearchQuery({
             jobTitle: "",
             location: ""
         });
-    })
+    }, [searchQuery, filterRef]);
+
+    const handleRecentSearchClick = useCallback((search, e) => {
+        handleSearchSubmit(e, search);
+    }, [handleSearchSubmit]);
 
     const recentSearchesList = useMemo(() => {
         const searchesArray = Array.from(recentSearches).map(key => {
-            const [jobTitle, location] = key.split('|') // remove "|" from `${queryToSubmit.jobTitle}|${queryToSubmit.location}`
-            return { jobTitle, location }
-        })
+            const [jobTitle, location] = key.split('|');
+            return { jobTitle, location };
+        });
 
         return searchesArray.map((search, index) => (
             <li key={index}>
-                <button>
+                <button onClick={(e) => handleRecentSearchClick(search, e)}>
                     <i className={`fa-solid fa-${search.jobTitle ? 'briefcase': 'location-dot'}`}></i>
                     {search.jobTitle || search.location}
                 </button>
             </li>
-        ))
-    }, [recentSearches])
+        ));
+    }, [recentSearches, handleRecentSearchClick]);
 
     return (
         <section id="search-job-section">
@@ -67,29 +71,35 @@ function JobSearchBar({ filterRef }) {
 
             <form className="job-search-bar" onSubmit={handleSearchSubmit}>
                 <div id="search-by-job-title">
-                    <input type="text" 
-                            placeholder="Job title or keyword" 
-                            value={searchQuery.jobTitle}
-                            onChange={(e) => handleSearchQueryChange(e.target.value, "jobTitle")}/>
+                    <input 
+                        type="text" 
+                        placeholder="Job title or keyword" 
+                        value={searchQuery.jobTitle}
+                        onChange={(e) => handleSearchQueryChange(e.target.value, "jobTitle")}
+                    />
                     <i className="fa-solid fa-magnifying-glass"></i>
                 </div>
                 <div id="search-by-location">
-                    <input type="text" 
-                            placeholder="Add country or city" 
-                            value={searchQuery.location}
-                            onChange={(e) => handleSearchQueryChange(e.target.value, "location")}/>
+                    <input 
+                        type="text" 
+                        placeholder="Add country or city" 
+                        value={searchQuery.location}
+                        onChange={(e) => handleSearchQueryChange(e.target.value, "location")}
+                    />
                     <i className="fa-solid fa-map-location-dot"></i>
                 </div>
-                <button>Search</button>
+                <button type="submit">Search</button>
             </form>
-            <div id="recent-searches">
-                <h2>Recent Searches: </h2>
-                <ul>
-                    {recentSearchesList}
-                </ul>
-            </div>
+            {recentSearchesList.length > 0 && (
+                <div id="recent-searches">
+                    <h2>Recent Searches: </h2>
+                    <ul>
+                        {recentSearchesList}
+                    </ul>
+                </div>
+            )}
         </section>
-    )
+    );
 }
 
-export default JobSearchBar
+export default JobSearchBar;

@@ -1,46 +1,47 @@
-import { useState, useMemo, useRef, useEffect, useCallback } from "react";
-import JobPostingCard, { JobPostingCardSkeleton } from "./JobPostingCard";
+import { useEffect, useRef } from "react";
+import { VirtuosoGrid } from "react-virtuoso";
+import { useJobsState, useJobFilters } from "../../contexts/JobsListContext";
 import { useAuth } from "../../contexts/AuthProvider";
-import { useJobSortDropdown } from "../../hooks/jobsList/useJobSortDropdown";
-import { useJobSorting } from "../../hooks/jobsList/useJobSorting";
+import JobPostingCard, { JobPostingCardSkeleton } from "./JobPostingCard";
 import JobSorter from "./JobSorter";
-import { useJobFilters, useJobsState } from "../../contexts/JobsListContext";
-import { VirtuosoGrid } from 'react-virtuoso';
-import { useData } from "../../contexts/DataProvider";
 
 function JobPostingsListSection({ currentResume, onShowModal }) {
     const { user } = useAuth();
-    const { baseUrl, jobRecommendations } = useData();
-    const { filteredJobs } = useJobFilters();
-    const { loadMoreJobs, isLoadingMoreJobs, hasMoreJobs } = useJobsState();
-
-    const sortButtonClickedRef = useRef(false);
+    const { jobs, hasMoreJobs, loading, loadMoreJobs } = useJobsState();
+    const { 
+        sortBy, 
+        sortTypes,
+        isDropdownVisible,
+        setIsDropdownVisible,
+        toggleDropdown,
+        handleSortButtonClick
+    } = useJobFilters();
     
-    // Sort Dropdown Hook
-    const { dropdownRef, isDropdownVisible, setIsDropdownVisible, toggleDropdown } = useJobSortDropdown(sortButtonClickedRef);
+    const dropdownRef = useRef(null);
 
-    // Actual Sorting Logic Hook
-    const { currentSortType, sortedJobs, sortTypes, handleSortButtonClick } = useJobSorting(filteredJobs, setIsDropdownVisible, sortButtonClickedRef);
-
-    // Calculate total count including placeholder skeletons
-    const totalCount = hasMoreJobs ? sortedJobs.length + 6 : sortedJobs.length 
-
-    const initialLoadDoneRef = useRef(false);
-
-    // Initial load - only once
+    // Close dropdown when clicking outside
     useEffect(() => {
-        if (!initialLoadDoneRef.current && jobRecommendations.length > 0) {
-            initialLoadDoneRef.current = true;
-            loadMoreJobs();
-        }
-    }, [jobRecommendations, loadMoreJobs]);
+        const handleClickOutside = (event) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setIsDropdownVisible(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [setIsDropdownVisible]);
+
+    const totalCount = hasMoreJobs ? jobs.length + 6 : jobs.length;
 
     return (
         <section id="job-posting-list">
             <header>
-                <h2>Recommended jobs <span className="filtered-jobs-count">{filteredJobs.length}</span></h2>
-                <JobSorter 
-                    currentSortType={currentSortType}
+                <h2>
+                    Job listings{" "}
+                    <span className="filtered-jobs-count">{jobs.length}</span>
+                </h2>
+                <JobSorter
+                    currentSortType={sortBy}
                     sortTypes={sortTypes}
                     isDropdownVisible={isDropdownVisible}
                     dropdownRef={dropdownRef}
@@ -48,31 +49,29 @@ function JobPostingsListSection({ currentResume, onShowModal }) {
                     handleSortButtonClick={handleSortButtonClick}
                 />
             </header>
-            {/* {sortedJobs.map((job) => (
-                <JobPostingCard job={job} user={user} key={job._id} resume={currentResume} onShowModal={onShowModal}/>
-            ))} */}
+
             <VirtuosoGrid
-                style={{ height: '900px', width: '100%' }}
+                style={{ height: "900px", width: "100%" }}
                 totalCount={totalCount}
                 listClassName="job-list-grid"
-                increaseViewportBy={{ top: 200, bottom: 600 }} 
+                increaseViewportBy={{ top: 200, bottom: 600 }}
                 itemContent={(index) => {
-                    const job = sortedJobs[index]
-                    
+                    const job = jobs[index];
+
                     return job ? (
                         <JobPostingCard
+                            key={job._id}
                             job={job}
                             user={user}
                             resume={currentResume}
                             onShowModal={onShowModal}
                         />
                     ) : (
-                        <JobPostingCardSkeleton/>
-                    )
+                        <JobPostingCardSkeleton key={`skeleton-${index}`} />
+                    );
                 }}
                 endReached={() => {
-                    console.log('End reached triggered, hasMoreJobs:', hasMoreJobs);
-                    if (hasMoreJobs && !isLoadingMoreJobs) {
+                    if (hasMoreJobs && !loading) {
                         loadMoreJobs();
                     }
                 }}

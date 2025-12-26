@@ -1,36 +1,30 @@
-import { useState, useImperativeHandle, forwardRef, useMemo } from "react"
+import { useState } from "react";
 import { useJobFilters } from "../contexts/JobsListContext";
-import { DATE_FILTER_MAP } from "../../../backend/constants";
 
-const FilterSidebar = forwardRef((props, ref) => {
-    const { filters, filterTypes, handleFilterChange, handleResetFilters, allResumeSkills } = useJobFilters();
-    const [hiddenSections, setHiddenSections] = useState([]);
+const FilterSidebar = () => {
+    const { 
+        filters, 
+        filterTypes,
+        handleFilterChange, 
+        handleResetFilters
+    } = useJobFilters();
+    
+    const [hiddenSections, setHiddenSections] = useState({});
 
     const toggleVisibility = (section) => {
         setHiddenSections((prevState) => ({
             ...prevState,
             [section]: !prevState[section]
-        }))
-    }
+        }));
+    };
 
-    useImperativeHandle(ref, () => ({
-        handleFilterChange
-    }))
-
-    const DATE_OPTIONS = ['Anytime', 'Today', 'This Week', 'This Month', 'Last 3 Months']
-
-    const currentDateFilter = useMemo(() => {
-        return DATE_FILTER_MAP[filters.datePosted] || 'Anytime';
-    }, [filters.datePosted]);
-
-    const dateDropdownOptions = DATE_OPTIONS.filter(o => o !== currentDateFilter);
-
+    const DATE_OPTIONS = ['Anytime', 'Today', 'This Week', 'This Month', 'Last 3 Months'];
 
     return (
         <aside className="filter-sidebar">
             <header>
                 <h3>Filters</h3>
-                <button type="reset" onClick={() => handleResetFilters()}>Clear All</button>
+                <button type="reset" onClick={handleResetFilters}>Clear All</button>
             </header>
             <ul className="filter-category-list">
 
@@ -38,11 +32,11 @@ const FilterSidebar = forwardRef((props, ref) => {
                     <div className="filter-category">
                         <h4>Date Posted</h4>
                         <div className="select-wrapper">
-                            <label htmlFor="date-select" className="sr-only"></label>
+                            <label htmlFor="date-select" className="sr-only">Date Posted</label>
                             <select
                                 name="datePosted"
                                 id="date-select"
-                                value={currentDateFilter}
+                                value={filters.datePosted}
                                 onChange={(e) => handleFilterChange("datePosted", e.target.value)}
                             >
                                 {DATE_OPTIONS.map((option, index) => (
@@ -60,17 +54,21 @@ const FilterSidebar = forwardRef((props, ref) => {
                         <div className="min-max-container">
                             <div>
                                 <label htmlFor="min-salary">MIN</label>
-                                <input type="number" 
+                                <input 
+                                    type="number" 
                                     id="min-salary"
                                     value={filters.salary.amount.min ?? ''} 
-                                    onChange={(e) => handleFilterChange("salary", e.target.value, "min")}/>
+                                    onChange={(e) => handleFilterChange("salary", e.target.value, "min")}
+                                />
                             </div>
                             <div>
                                 <label htmlFor="max-salary">MAX</label>
-                                <input type="number" 
+                                <input 
+                                    type="number" 
                                     id="max-salary"
                                     value={filters.salary.amount.max ?? ''}
-                                    onChange={(e) => handleFilterChange("salary", e.target.value, "max")}/>
+                                    onChange={(e) => handleFilterChange("salary", e.target.value, "max")}
+                                />
                             </div>
                         </div>
                     </div>
@@ -79,7 +77,7 @@ const FilterSidebar = forwardRef((props, ref) => {
                 <li className="filter-category">
                     <h4>Match Score</h4>
                     <div className="range-slider">
-                        <label htmlFor="match-score-slider" className="sr-only"></label>
+                        <label htmlFor="match-score-slider" className="sr-only">Match Score</label>
                         <input
                             type="range"
                             min="0"
@@ -106,7 +104,7 @@ const FilterSidebar = forwardRef((props, ref) => {
                         <li>
                             <input
                                 type="checkbox"
-                                value={filters.hasQuestions}
+                                checked={filters.hasQuestions}
                                 id="checkbox-has-questions"
                                 onChange={() => handleFilterChange("hasQuestions")}
                             />
@@ -120,7 +118,10 @@ const FilterSidebar = forwardRef((props, ref) => {
                         <div className="filter-category" key={section}>
                             <div className="wrapper">
                                 <h4>{section}</h4>
-                                <i className={`fa-solid fa-angle-${!hiddenSections[section] ? 'up' : 'down'}`} onClick={() => toggleVisibility(section)}></i>
+                                <i 
+                                    className={`fa-solid fa-angle-${!hiddenSections[section] ? 'up' : 'down'}`} 
+                                    onClick={() => toggleVisibility(section)}
+                                ></i>
                             </div>
                             {!hiddenSections[section] && (
                                 <ul className="checkbox-list">
@@ -136,7 +137,9 @@ const FilterSidebar = forwardRef((props, ref) => {
                                                 }
                                                 onChange={() => handleFilterChange(filterTypes[section].filterType, choice)}
                                             />
-                                            <label htmlFor={`checkbox-${choice}`}>{choice.charAt(0).toUpperCase() + choice.slice(1)}</label>
+                                            <label htmlFor={`checkbox-${choice}`}>
+                                                {choice.charAt(0).toUpperCase() + choice.slice(1)}
+                                            </label>
                                         </li>
                                     ))}
                                 </ul>
@@ -147,7 +150,7 @@ const FilterSidebar = forwardRef((props, ref) => {
 
             </ul>
         </aside>
-    )
-})
+    );
+};
 
-export default FilterSidebar
+export default FilterSidebar;

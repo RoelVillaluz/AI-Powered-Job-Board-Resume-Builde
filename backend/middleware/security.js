@@ -21,7 +21,7 @@ export const createMessageLimiter = rateLimit({
 
 // CORS configuration
 export const corsOptions = {
-    origin: process.env.dev.CLIENT_URL || 'localhost:5173',
+    origin: process.env.CLIENT_URL || 'localhost:5173',
     credentials: true,
     optionsSuccessStatus: true
 }

@@ -76,7 +76,7 @@ export const errorHandler = (err, req, res, next) => {
     }
 
     // Development vs Production
-    if (process.env.dev.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV === 'development') {
         return res.status(err.statusCode).json({
             success: false,
             status: err.status,

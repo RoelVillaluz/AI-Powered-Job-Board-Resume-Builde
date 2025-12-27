@@ -15,7 +15,7 @@ from bson import ObjectId
 load_dotenv()
 
 # MongoDB Connection
-mongo_uri = os.getenv('MONGO_URI')
+mongo_uri = os.getenv('MONGO_DEV_URI')
 client = pymongo.MongoClient(mongo_uri)
 db = client["database"]
 

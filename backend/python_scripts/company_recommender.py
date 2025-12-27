@@ -11,7 +11,7 @@ from utils import extract_job_embeddings, extract_resume_embeddings, get_embeddi
 
 load_dotenv()
 
-mongo_uri = os.getenv('MONGO_URI')
+mongo_uri = os.getenv('MONGO_DEV_URI')
 client = pymongo.MongoClient(mongo_uri)
 db = client["database"]
 

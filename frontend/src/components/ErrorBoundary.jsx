@@ -24,7 +24,7 @@ class ErrorBoundary extends React.Component {
         console.error(`Error in: ${this.props.componentName || 'Unknown Component'}`);
         
         // In production, send to error tracking:
-        // if (process.env.dev.NODE_ENV === 'production') {
+        // if (process.env.NODE_ENV === 'production') {
         //     Sentry.captureException(error, {
         //         tags: { component: this.props.componentName },
         //         extra: errorInfo
@@ -69,7 +69,7 @@ class ErrorBoundary extends React.Component {
                         </button>
                         
                         {/* Show details only in development */}
-                        {process.env.dev.NODE_ENV === 'development' && this.state.errorInfo && (
+                        {process.env.NODE_ENV === 'development' && this.state.errorInfo && (
                             <details className="error-details">
                                 <summary>Error Details (Dev Only)</summary>
                                 <pre>{this.state.errorInfo.componentStack}</pre>

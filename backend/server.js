@@ -5,7 +5,14 @@ import app from "./app.js";
 import { connectDB } from "./config/db.js";
 import { initSocket } from "./sockets/index.js";
 
-dotenv.config();
+// Pick env file based on NODE_ENV
+const envFile = process.env.NODE_ENV === "production"
+  ? ".env.production"
+  : process.env.NODE_ENV === "test"
+    ? ".env.test"
+    : ".env.dev";
+
+dotenv.config({ path: envFile });
 
 const server = createServer(app);
 

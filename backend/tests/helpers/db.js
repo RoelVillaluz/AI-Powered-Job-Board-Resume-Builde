@@ -8,7 +8,7 @@ export const connectTestDB = async () => {
   const uri = process.env.MONGO_TEST_URI;
 
   if (!uri) {
-    throw new Error('❌ MONGO_TEST_URI is not defined');
+    throw new Error('❌ MONGO_URI is not defined');
   }
 
   await mongoose.connect(uri);

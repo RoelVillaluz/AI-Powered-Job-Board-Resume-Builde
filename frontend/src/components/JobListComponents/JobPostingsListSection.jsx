@@ -8,27 +8,30 @@ import JobSorter from "./JobSorter";
 function JobPostingsListSection({ currentResume, onShowModal }) {
     const { user } = useAuth();
     const { jobs, hasMoreJobs, loading, loadMoreJobs } = useJobsState();
-    const { 
-        sortBy, 
+    const {
+        sortBy,
         sortTypes,
         isDropdownVisible,
         setIsDropdownVisible,
         toggleDropdown,
         handleSortButtonClick
     } = useJobFilters();
-    
+
     const dropdownRef = useRef(null);
 
-    // Close dropdown when clicking outside
     useEffect(() => {
         const handleClickOutside = (event) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+            if (
+                dropdownRef.current &&
+                !dropdownRef.current.contains(event.target)
+            ) {
                 setIsDropdownVisible(false);
             }
         };
 
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
+        document.addEventListener("mousedown", handleClickOutside);
+        return () =>
+            document.removeEventListener("mousedown", handleClickOutside);
     }, [setIsDropdownVisible]);
 
     const totalCount = hasMoreJobs ? jobs.length + 6 : jobs.length;
@@ -40,6 +43,7 @@ function JobPostingsListSection({ currentResume, onShowModal }) {
                     Job listings{" "}
                     <span className="filtered-jobs-count">{jobs.length}</span>
                 </h2>
+
                 <JobSorter
                     currentSortType={sortBy}
                     sortTypes={sortTypes}
@@ -67,7 +71,9 @@ function JobPostingsListSection({ currentResume, onShowModal }) {
                             onShowModal={onShowModal}
                         />
                     ) : (
-                        <JobPostingCardSkeleton key={`skeleton-${index}`} />
+                        <JobPostingCardSkeleton
+                            key={`skeleton-${index}`}
+                        />
                     );
                 }}
                 endReached={() => {

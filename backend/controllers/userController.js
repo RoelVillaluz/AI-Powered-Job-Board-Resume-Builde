@@ -173,7 +173,7 @@ export const authenticateUser = async (req, res, next) => {
     }
 
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const decoded = jwt.verify(token, process.env.dev.JWT_SECRET);
         req.user = decoded; // Attach user payload to request
         next();
     } catch (error) {
@@ -544,7 +544,7 @@ export const loginUser = async (req, res) => {
         };
 
 
-        const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '24h' });
+        const token = jwt.sign(payload, process.env.dev.JWT_SECRET, { expiresIn: '24h' });
 
         return sendResponse(res, {
             ...STATUS_MESSAGES.SUCCESS.LOGIN,

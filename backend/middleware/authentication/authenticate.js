@@ -11,7 +11,7 @@ export const authenticate = catchAsync(async (req, res, next) => {
     }
 
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const decoded = jwt.verify(token, process.env.dev.JWT_SECRET);
         req.user = decoded;
         next();
     } catch (error) {

@@ -28,7 +28,7 @@ const prodFormat = ':remote-addr - :remote-user [:date[clf]] ":method :url HTTP/
  * Create Morgan middleware
  */
 export const requestLogger = morgan(
-    process.env.NODE_ENV === 'production' ? prodFormat : devFormat,
+    process.env.production.NODE_ENV === 'production' ? prodFormat : devFormat,
     {
         stream: logger.stream,
         skip: (req, res) => {

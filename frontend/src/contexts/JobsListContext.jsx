@@ -1,11 +1,20 @@
-import { createContext, useContext, useEffect, useMemo, useRef } from "react";
+import {
+    createContext,
+    useContext,
+    useEffect,
+    useMemo,
+    useRef
+} from "react";
+
 import { useData } from "./DataProvider";
 import { useAuth } from "./AuthProvider";
+
 import { useJobFilterLogic } from "../hooks/jobsList/useJobFilterLogic";
 import { useJobSorting } from "../hooks/jobsList/useJobSorting";
 import { useJobInfiniteScroll } from "../hooks/jobsList/useJobInfiniteScroll";
 import { useClientSideFilters } from "../hooks/jobsList/useClientSideFilters";
 import { useResumeSkills } from "../hooks/resumes/useResumeSkills";
+import { useDebounce } from "../hooks/useDebounce";
 
 const JobFiltersContext = createContext();
 const JobsStateContext = createContext();
@@ -13,7 +22,7 @@ const JobsStateContext = createContext();
 export const useJobFilters = () => {
     const context = useContext(JobFiltersContext);
     if (!context) {
-        throw new Error('useJobFilters must be used within a JobsListProvider');
+        throw new Error("useJobFilters must be used within a JobsListProvider");
     }
     return context;
 };
@@ -21,65 +30,98 @@ export const useJobFilters = () => {
 export const useJobsState = () => {
     const context = useContext(JobsStateContext);
     if (!context) {
-        throw new Error('useJobsState must be used within a JobsListProvider');
+        throw new Error("useJobsState must be used within a JobsListProvider");
     }
     return context;
 };
 
 export const JobsListProvider = ({ children }) => {
     const { user } = useAuth();
-    const { 
-        baseUrl, 
-        fetchResumes, 
+    const {
+        baseUrl,
+        fetchResumes,
         resumes,
         jobRecommendations,
         fetchJobRecommendations
     } = useData();
 
-    // Track if we've already fetched to prevent duplicate calls
     const hasFetchedResumes = useRef(false);
     const hasFetchedRecommendations = useRef(false);
 
-    // Extract resume skills
+    /* ============================
+       Resume + recommendations
+    ============================ */
+
     const allResumeSkills = useResumeSkills(resumes);
 
-    // Fetch resumes on mount (once)
     useEffect(() => {
         if (user?._id && !hasFetchedResumes.current) {
             hasFetchedResumes.current = true;
             fetchResumes(user._id);
         }
-    }, [user?._id]); // Remove fetchResumes from dependencies
+    }, [user?._id]);
 
-    // Fetch job recommendations when resumes are loaded (once)
     useEffect(() => {
         if (resumes.length > 0 && !hasFetchedRecommendations.current) {
             hasFetchedRecommendations.current = true;
             fetchJobRecommendations();
         }
-    }, [resumes.length]); // Remove fetchJobRecommendations from dependencies
+    }, [resumes.length]);
 
-    // Filter logic
+    /* ============================
+       Filters + sorting
+    ============================ */
+
     const filterLogic = useJobFilterLogic(allResumeSkills);
     const { filters } = filterLogic;
 
-    // Sorting logic
     const sortingLogic = useJobSorting();
     const { sortBy } = sortingLogic;
 
-    // API calls and job fetching (pass jobRecommendations from useData)
-    const infiniteScrolledJob = useJobInfiniteScroll(baseUrl, filters, sortBy, jobRecommendations);
+    /* ============================
+       🔥 Debounced values
+    ============================ */
+
+    const debouncedFilters = useDebounce(filters, 400);
+    const debouncedSortBy = useDebounce(sortBy, 400);
+
+    /* ============================
+       API + infinite scroll
+    ============================ */
+
+    const infiniteScrolledJob = useJobInfiniteScroll(
+        baseUrl,
+        debouncedFilters,
+        debouncedSortBy,
+        jobRecommendations
+    );
+
     const { fetchJobs } = infiniteScrolledJob;
 
-    // Fetch jobs when filters, sort, or recommended jobs change
     useEffect(() => {
         if (resumes.length > 0 && jobRecommendations.length >= 0) {
             fetchJobs(true);
         }
-    }, [filters, sortBy, jobRecommendations.length, resumes.length]);
+    }, [
+        debouncedFilters,
+        debouncedSortBy,
+        resumes.length,
+        jobRecommendations.length
+    ]);
 
-    // Client-side filtering (for match score and application status)
-    const filteredJobs = useClientSideFilters(infiniteScrolledJob.jobs, filters, user);
+    /* ============================
+       Client-side filters
+    ============================ */
+
+    const filteredJobs = useClientSideFilters(
+        infiniteScrolledJob.jobs,
+        filters,
+        user
+    );
+
+    /* ============================
+       Context values
+    ============================ */
 
     const JobFiltersValue = useMemo(
         () => ({

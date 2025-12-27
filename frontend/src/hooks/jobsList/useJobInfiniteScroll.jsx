@@ -1,163 +1,134 @@
-import { useState, useCallback } from "react";
-import axios from "axios";
+import { useState, useCallback, useRef } from "react";
+import { buildJobQueryParams } from "../../utils/jobPostings/filters/buildJobQueryParams";
+import { mergeJobsWithRecommendations } from "../../utils/jobPostings/recommendations/mergeJobsWithRecommendations";
+import { fetchJobPostings } from "../../utils/jobPostings/api/fetchJobPostings";
 
-export const useJobInfiniteScroll = (baseUrl, filters, sortBy, jobRecommendations = []) => {
+export const useJobInfiniteScroll = (
+    baseUrl,
+    filters,
+    sortBy,
+    jobRecommendations = []
+) => {
     const [jobs, setJobs] = useState([]);
-    const [loading, setLoading] = useState(true);
     const [cursor, setCursor] = useState(null);
+    const [loading, setLoading] = useState(false);
     const [hasMoreJobs, setHasMoreJobs] = useState(true);
     const [isLoadingMoreJobs, setIsLoadingMoreJobs] = useState(false);
 
-    // Build query params from filters
-    const buildQueryParams = useCallback((additionalCursor = null) => {
-        const params = new URLSearchParams();
-        
-        // Salary
-        if (filters.salary.amount.min) params.append('minSalary', filters.salary.amount.min);
-        if (filters.salary.amount.max) params.append('maxSalary', filters.salary.amount.max);
-        
-        // Arrays - join with commas
-        if (filters.jobType.length > 0) params.append('jobType', filters.jobType.join(','));
-        if (filters.experienceLevel.length > 0) params.append('experienceLevel', filters.experienceLevel.join(','));
-        if (filters.skills.length > 0) params.append('skills', filters.skills.join(','));
-        if (filters.industry.length > 0) params.append('industry', filters.industry.join(','));
-        
-        // String filters
-        if (filters.jobTitle) params.append('jobTitle', filters.jobTitle);
-        if (filters.location) params.append('location', filters.location);
-        
-        // Boolean/special
-        if (filters.hasQuestions) params.append('hasQuestions', 'true');
-        
-        // Date posted - convert to backend format
-        const dateMap = {
-            'Anytime': null,
-            'Today': 'today',
-            'This Week': 'this_week',
-            'This Month': 'this_month',
-            'Last 3 Months': 'last_3_months'
-        };
-        const dateValue = dateMap[filters.datePosted];
-        if (dateValue) params.append('datePosted', dateValue);
-        
-        // Sort by - convert to backend format
-        const sortMap = {
-            'Best Match (Default)': 'Best Match',
-            'A-Z': 'A-Z',
-            'Z-A': 'Z-A',
-            'Newest First': 'Newest First',
-            'Highest Salary': 'Highest Salary'
-        };
-        params.append('sortBy', sortMap[sortBy] || 'Best Match');
-        
-        // Pagination
-        if (additionalCursor) params.append('cursor', additionalCursor);
-        params.append('limit', '20');
-        
-        // Exclude recommended job IDs to avoid duplicates
-        if (jobRecommendations.length > 0 && !additionalCursor) {
-            const excludeIds = jobRecommendations.map(job => job._id).join(',');
-            params.append('exclude', excludeIds);
+    const abortRef = useRef(null);
+
+    const abortPrevious = () => {
+        if (abortRef.current) {
+            abortRef.current.abort();
         }
-        
-        return params.toString();
-    }, [filters, sortBy, jobRecommendations]);
+        abortRef.current = new AbortController();
+        return abortRef.current.signal;
+    };
 
-    // Merge similarity scores from recommended jobs into fetched jobs
-    const mergeJobsWithSimilarity = useCallback((fetchedJobs) => {
-        return fetchedJobs.map(job => {
-            const recommendedJob = jobRecommendations.find(rec => rec._id === job._id);
-            if (recommendedJob) {
-                return {
-                    ...job,
-                    similarity: recommendedJob.similarity,
-                    matchScore: recommendedJob.matchScore || recommendedJob.similarity
-                };
-            }
-            return job;
-        });
-    }, [jobRecommendations]);
-
-    // Fetch jobs with current filters
-    const fetchJobs = useCallback(async (resetCursor = true) => {
+    const fetchJobs = useCallback(async (reset = true) => {
         try {
-            if (resetCursor) {
+            const signal = abortPrevious();
+
+            if (reset) {
                 setLoading(true);
                 setJobs([]);
                 setCursor(null);
+                setHasMoreJobs(true);
             }
-            
-            const queryString = buildQueryParams(resetCursor ? null : cursor);
-            const response = await axios.get(`${baseUrl}/job-postings?${queryString}`);
-            
-            const { jobPostings, nextCursor, hasMore } = response.data.data;
-            
-            // Merge with similarity scores from recommended jobs
-            const jobsWithSimilarity = mergeJobsWithSimilarity(jobPostings || []);
-            
-            if (resetCursor) {
-                // On initial load, combine recommended jobs with fetched jobs
-                const recommendedIds = jobRecommendations.map(job => job._id);
-                
-                // Add matchScore to recommended jobs if missing
-                const recommendedWithMatchScore = jobRecommendations.map(job => ({
-                    ...job,
-                    matchScore: job.matchScore || job.similarity || 0
+
+            const queryString = buildJobQueryParams({
+                filters,
+                sortBy,
+                cursor: reset ? null : cursor,
+                jobRecommendations
+            });
+
+            const { jobPostings, nextCursor, hasMore } =
+                await fetchJobPostings({
+                    baseUrl,
+                    queryString,
+                    signal
+                });
+
+            const merged = mergeJobsWithRecommendations(
+                jobPostings || [],
+                jobRecommendations
+            );
+
+            if (reset) {
+                const recommendedWithScore = jobRecommendations.map(j => ({
+                    ...j,
+                    matchScore: j.matchScore ?? j.similarity ?? 0,
                 }));
-                
-                // Only include non-recommended jobs from fetch
-                const nonRecommended = jobsWithSimilarity.filter(
-                    job => !recommendedIds.includes(job._id)
+
+                const recommendedIds = new Set(
+                    jobRecommendations.map(j => j._id)
                 );
-                
-                // Prioritize recommended jobs first
-                setJobs([...recommendedWithMatchScore, ...nonRecommended]);
+
+                const nonRecommended = merged.filter(
+                    j => !recommendedIds.has(j._id)
+                );
+
+                setJobs([...recommendedWithScore, ...nonRecommended]);
             } else {
-                setJobs(prev => [...prev, ...jobsWithSimilarity]);
+                setJobs(prev => [...prev, ...merged]);
             }
-            
+
             setCursor(nextCursor);
             setHasMoreJobs(hasMore);
-        } catch (error) {
-            console.error("Error fetching jobs:", error);
-            setJobs([]);
-            setHasMoreJobs(false);
+        } catch (err) {
+            if (err.name !== "CanceledError") {
+                console.error("Job fetch failed:", err);
+                setHasMoreJobs(false);
+            }
         } finally {
             setLoading(false);
         }
-    }, [baseUrl, buildQueryParams, cursor, mergeJobsWithSimilarity, jobRecommendations]);
+    }, [baseUrl, filters, sortBy, cursor, jobRecommendations]);
 
-    // Load more jobs (infinite scroll)
     const loadMoreJobs = useCallback(async () => {
-        if (isLoadingMoreJobs || !hasMoreJobs || !cursor) return;
+        if (!cursor || isLoadingMoreJobs || !hasMoreJobs) return;
 
         setIsLoadingMoreJobs(true);
+
         try {
-            const queryString = buildQueryParams(cursor);
-            const response = await axios.get(`${baseUrl}/job-postings?${queryString}`);
-            
-            const { jobPostings, nextCursor, hasMore } = response.data.data;
-            
-            if (jobPostings && jobPostings.length > 0) {
-                const jobsWithSimilarity = mergeJobsWithSimilarity(jobPostings);
-                setJobs(prev => [...prev, ...jobsWithSimilarity]);
-                setCursor(nextCursor);
-                setHasMoreJobs(hasMore);
-            } else {
+            const signal = abortPrevious();
+
+            const queryString = buildJobQueryParams({
+                filters,
+                sortBy,
+                cursor,
+                jobRecommendations
+            });
+
+            const { jobPostings, nextCursor, hasMore } =
+                await fetchJobPostings({
+                    baseUrl,
+                    queryString,
+                    signal
+                });
+
+            const merged = mergeJobsWithRecommendations(
+                jobPostings || [],
+                jobRecommendations
+            );
+
+            setJobs(prev => [...prev, ...merged]);
+            setCursor(nextCursor);
+            setHasMoreJobs(hasMore);
+        } catch (err) {
+            if (err.name !== "CanceledError") {
+                console.error("Load more failed:", err);
                 setHasMoreJobs(false);
             }
-        } catch (error) {
-            console.error("Error loading more jobs:", error);
-            setHasMoreJobs(false);
         } finally {
             setIsLoadingMoreJobs(false);
         }
-    }, [baseUrl, buildQueryParams, cursor, hasMoreJobs, isLoadingMoreJobs, mergeJobsWithSimilarity]);
+    }, [baseUrl, filters, sortBy, cursor, hasMoreJobs, isLoadingMoreJobs, jobRecommendations]);
 
     return {
         jobs,
         loading,
-        setLoading,
         hasMoreJobs,
         isLoadingMoreJobs,
         fetchJobs,

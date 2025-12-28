@@ -22,18 +22,20 @@ export const connectTestDB = async () => {
 
   if (mongoose.connection.readyState === 0) {
     await mongoose.connect(uri);
+    console.log('✅ Test database connected'); // keep log from test branch
   }
 };
 
 export const disconnectTestDB = async () => {
   if (mongoose.connection.readyState !== 0) {
+    await mongoose.connection.dropDatabase(); // optional: only if you want a clean slate
     await mongoose.connection.close();
+    console.log('✅ Test database disconnected'); // keep log from test branch
   }
 };
 
 /**
- * Clears only the test collections, not the entire database
- * This is safer and prevents accidental data loss
+ * Clears only the test collections, safer than dropping the whole DB
  */
 export const clearTestCollections = async () => {
   if (process.env.NODE_ENV !== 'test') {
@@ -41,20 +43,17 @@ export const clearTestCollections = async () => {
   }
 
   const collections = mongoose.connection.collections;
-  
-  // Only clear specific collections used in tests
   const testCollections = ['users', 'companies', 'jobpostings', 'resumes'];
-  
-  for (const collectionName of testCollections) {
-    if (collections[collectionName]) {
-      await collections[collectionName].deleteMany({});
+
+  for (const name of testCollections) {
+    if (collections[name]) {
+      await collections[name].deleteMany({});
     }
   }
-}
+};
 
 /**
- * Alternative: Clear only documents created during current test
- * Track IDs and delete only those specific documents
+ * Tracks created test data for selective cleanup
  */
 export class TestDataTracker {
   constructor() {
@@ -66,21 +65,10 @@ export class TestDataTracker {
     };
   }
 
-  trackUser(userId) {
-    this.createdIds.users.push(userId);
-  }
-
-  trackCompany(companyId) {
-    this.createdIds.companies.push(companyId);
-  }
-
-  trackJob(jobId) {
-    this.createdIds.jobs.push(jobId);
-  }
-
-  trackResume(resumeId) {
-    this.createdIds.resumes.push(resumeId);
-  }
+  trackUser(id) { this.createdIds.users.push(id); }
+  trackCompany(id) { this.createdIds.companies.push(id); }
+  trackJob(id) { this.createdIds.jobs.push(id); }
+  trackResume(id) { this.createdIds.resumes.push(id); }
 
   async cleanup() {
     // Delete in reverse order to respect foreign key relationships

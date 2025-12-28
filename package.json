@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "NODE_ENV=test node --env-file=.env.test --experimental-vm-modules node_modules/.bin/jest --runInBand",
-    "test:watch": "NODE_ENV=test node --env-file=.env.test --experimental-vm-modules node_modules/.bin/jest --watch --runInBand",
+    "test": "cross-env NODE_ENV=test NODE_OPTIONS=--experimental-vm-modules jest --config ./jest.config.mjs --runInBand",
+    "test:watch": "cross-env NODE_ENV=test NODE_OPTIONS=--experimental-vm-modules jest --config ./jest.config.mjs --watch --runInBand",
     "server": "nodemon backend/server.js",
     "client": "cd frontend && npm run dev",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
@@ -23,7 +23,6 @@
     "bcrypt": "^5.1.1",
     "compute-cosine-similarity": "^1.1.0",
     "cors": "^2.8.5",
-    "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "express-mongo-sanitize": "^2.2.0",
     "express-rate-limit": "^8.2.1",
@@ -55,7 +54,12 @@
     "xss-clean": "^0.1.4"
   },
   "devDependencies": {
+    "@babel/core": "^7.28.5",
+    "@babel/preset-env": "^7.28.5",
+    "babel-jest": "^30.2.0",
     "concurrently": "^9.1.2",
+    "cross-env": "^10.1.0",
+    "dotenv": "^17.2.3",
     "jest": "^30.2.0",
     "mongodb-memory-server": "^10.4.1",
     "nodemon": "^3.1.9",

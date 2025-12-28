@@ -28,7 +28,7 @@ export const connectTestDB = async () => {
 
 export const disconnectTestDB = async () => {
   if (mongoose.connection.readyState !== 0) {
-    await mongoose.connection.dropDatabase(); // optional: drop DB on disconnect
+    await mongoose.connection.dropDatabase(); // optional: only if you want a clean slate
     await mongoose.connection.close();
     console.log('✅ Test database disconnected');
   }
@@ -71,7 +71,7 @@ export class TestDataTracker {
   trackResume(id) { this.createdIds.resumes.push(id); }
 
   async cleanup() {
-    // Delete in reverse order to respect references
+    // Delete in reverse order to respect foreign key relationships
     await JobPosting.deleteMany({ _id: { $in: this.createdIds.jobs } });
     await Company.deleteMany({ _id: { $in: this.createdIds.companies } });
     await Resume.deleteMany({ _id: { $in: this.createdIds.resumes } });

@@ -15,14 +15,14 @@ export const connectTestDB = async () => {
     throw new Error('❌ MONGO_URI is not defined');
   }
 
-  // Ensure we don't connect to a non-test database
+  // Check if URI contains 'test' to prevent accidental production DB connection
   if (!uri.includes('test')) {
     throw new Error('❌ MONGO_URI must contain "test" in the database name');
   }
 
   if (mongoose.connection.readyState === 0) {
     await mongoose.connect(uri);
-    console.log('✅ Test database connected');
+    console.log('✅ Test database connected'); // keep log from test branch
   }
 };
 
@@ -30,7 +30,7 @@ export const disconnectTestDB = async () => {
   if (mongoose.connection.readyState !== 0) {
     await mongoose.connection.dropDatabase(); // optional: only if you want a clean slate
     await mongoose.connection.close();
-    console.log('✅ Test database disconnected');
+    console.log('✅ Test database disconnected'); // keep log from test branch
   }
 };
 

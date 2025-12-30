@@ -73,7 +73,7 @@ const companySchema = new mongoose.Schema({
 
 // Middleware to delete related jobs when a company is deleted
 companySchema.pre("deleteOne", { document: true, query: false }, async function (next) {
-    await JobPosting.deleteMany({ _id: { $in: this.job } })
+    await JobPosting.deleteMany({ _id: { $in: this.jobs } })
     next();
 })
 

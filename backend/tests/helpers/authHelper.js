@@ -16,17 +16,28 @@ export const createAuthenticatedUser = async (app, userOverrides = {}) => {
     password: hashedPassword
   });
 
+  console.log('Created user for login:', { email: userData.email, role: user.role });
+
   // Simulate login to get token
   const loginRes = await request(app)
-    .post('/api/auth/login')
+    .post('/api/users/login')
     .send({
       email: userData.email,
       password: userData.password // Use plain password for login
     });
 
+  console.log('Login status:', loginRes.status);
+  console.log('Login response body:', JSON.stringify(loginRes.body, null, 2));
+
+  // Your login response structure: { success, formattedMessage, data: { token, user } }
+  if (!loginRes.body.data || !loginRes.body.data.token) {
+    console.error('❌ Login failed - Full response:', loginRes.body);
+    throw new Error(`Failed to get authentication token from login response. Status: ${loginRes.status}`);
+  }
+
   return {
     user,
-    token: loginRes.body.token,
+    token: loginRes.body.data.token,
     plainPassword: userData.password
   };
 };
@@ -44,16 +55,27 @@ export const createAuthenticatedEmployer = async (app, employerOverrides = {}) =
     password: hashedPassword
   });
 
+  console.log('Created employer for login:', { email: employerData.email, role: employer.role });
+
   const loginRes = await request(app)
-    .post('/api/auth/login')
+    .post('/api/users/login')
     .send({
       email: employerData.email,
       password: employerData.password
     });
 
+  console.log('Login status:', loginRes.status);
+  console.log('Login response body:', JSON.stringify(loginRes.body, null, 2));
+
+  // Your login response structure: { success, formattedMessage, data: { token, user } }
+  if (!loginRes.body.data || !loginRes.body.data.token) {
+    console.error('❌ Login failed - Full response:', loginRes.body);
+    throw new Error(`Failed to get authentication token from login response. Status: ${loginRes.status}`);
+  }
+
   return {
     employer,
-    token: loginRes.body.token,
+    token: loginRes.body.data.token,
     plainPassword: employerData.password
   };
 };

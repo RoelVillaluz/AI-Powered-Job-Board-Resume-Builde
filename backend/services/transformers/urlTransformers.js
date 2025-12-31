@@ -65,3 +65,45 @@ export const transformAttachmentUrl = (attachment) => {
 
     return null;
 }
+
+export const transformUrl = (url, folder) => {
+    if (!url) return null;
+    const normalized = url.replace(/\\/g, '/');
+    const filename = normalized.split('/').pop();
+    return `${folder}/${filename}`;
+};
+
+/**
+ * Transform all company-related image URLs to standardized paths.
+ * Handles logo, banner, images array, and CEO profile picture.
+ * @param {Object} company - Company object from database
+ * @param {string} [company.logo] - Original logo path
+ * @param {string} [company.banner] - Original banner path
+ * @param {string[]} [company.images] - Array of original image paths
+ * @param {Object} [company.ceo] - CEO object
+ * @param {string} [company.ceo.image] - Original CEO profile picture path
+ * @returns {Object|null} Company object with normalized image URLs, or null if input is invalid
+ */
+export const transformCompanyData = (company) => {
+    if (!company) return null;
+
+    if (company.logo) {
+        company.logo = transformUrl(company.logo, 'company_logos');
+    }
+
+    if (company.banner) {
+        company.banner = transformUrl(company.banner, 'company_banners');
+    }
+
+    if (company.images && company.images.length > 0) {
+        company.images = company.images.map((img) =>
+            transformUrl(img, 'company_images')
+        );
+    }
+
+    if (company.ceo?.image) {
+        company.ceo.image = transformUrl(company.ceo.image, 'ceo_profile_pictures');
+    }
+
+    return company;
+};

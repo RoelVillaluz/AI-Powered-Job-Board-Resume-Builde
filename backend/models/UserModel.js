@@ -130,7 +130,22 @@ const userSchema = new mongoose.Schema({
 // Helper function for role-based validation
 function validateRole(field, role) {
     return function () {
+        // Skip validation if role is not set yet
         if (!this.role) return true; 
+        
+        // For employers, these fields should be undefined (not exist or be empty array)
+        if (this.role === 'employer' && role === 'jobseeker') {
+            // Field must be undefined or empty array
+            return this[field] === undefined || 
+                   (Array.isArray(this[field]) && this[field].length === 0);
+        }
+        
+        // For jobseekers, company should be undefined
+        if (this.role === 'jobseeker' && role === 'employer') {
+            return this[field] === undefined;
+        }
+        
+        // Field is allowed for this role
         return this.role === role;
     };
 }
@@ -141,6 +156,20 @@ userSchema.path("resumes").validate(validateRole("resumes", "jobseeker"), "Only 
 userSchema.path("savedJobs").validate(validateRole("savedJobs", "jobseeker"), "Only jobseekers can save jobs.");
 userSchema.path("appliedJobs").validate(validateRole("appliedJobs", "jobseeker"), "Only jobseekers can apply to jobs.");
 
+// Pre-save hook to clean up role-specific fields BEFORE validation runs
+userSchema.pre('validate', function(next) {
+  if (this.role === 'employer') {
+    // Remove jobseeker-specific fields for employers
+    this.resumes = undefined;
+    this.savedJobs = undefined;
+    this.appliedJobs = undefined;
+  } else if (this.role === 'jobseeker') {
+    // Remove employer-specific fields for jobseekers
+    this.company = undefined;
+  }
+  next();
+});
+
 userSchema.pre("deleteOne", { document: true, query: false }, async function (next) {
     if (this.role === 'jobseeker') {
         await Resume.deleteMany({ _id: { $in: this.resumes }});
@@ -149,18 +178,6 @@ userSchema.pre("deleteOne", { document: true, query: false }, async function (ne
     }
     next();
 }); 
-
-userSchema.pre('save', function(next) {
-  if (this.role === 'employer') {
-    this.resumes = undefined;
-    this.savedJobs = undefined;
-    this.appliedJobs = undefined;
-  } else if (this.role === 'jobseeker') {
-    this.company = undefined;
-  }
-  next();
-});
-
 
 userSchema.virtual('fullName').get(function () {
     return `${this.firstName} ${this.lastName}`

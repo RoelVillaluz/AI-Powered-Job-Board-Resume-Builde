@@ -130,4 +130,5 @@ companySchema.pre("deleteOne", { document: true, query: false }, async function 
 })
 
 
-export default mongoose.model("Company", companySchema);
+const Company = mongoose.model("Company", companySchema);
+export default Company

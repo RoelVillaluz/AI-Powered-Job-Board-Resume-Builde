@@ -1,5 +1,5 @@
-import { catchAsync } from "../../utils/errorUtils";
-import { ForbiddenError, UnauthorizedError } from "../errorHandler";
+import { catchAsync } from "../../utils/errorUtils.js";
+import { ForbiddenError, UnauthorizedError } from "../errorHandler.js";
 
 /**
  * Validates if user role is employer before allowing them to handle company related updates/actions

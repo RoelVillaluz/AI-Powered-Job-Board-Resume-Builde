@@ -1,5 +1,5 @@
 import Joi from "joi";
-import { INDUSTRY_CHOICES } from "../constants";
+import { INDUSTRY_CHOICES } from "../constants.js";
 
 const allowedIndustries = Object.keys(INDUSTRY_CHOICES);
 

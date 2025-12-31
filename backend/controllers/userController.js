@@ -481,7 +481,9 @@ export const verifyUser = async (req, res) => {
             } else {
                 const newUser = new User({
                     email: tempUser.email,
-                    password: tempUser.password, // Already hashed
+                    password: tempUser.password,
+                    firstName: tempUser.firstName,
+                    lastName: tempUser.lastName,
                     isVerified: true,
                 });
 

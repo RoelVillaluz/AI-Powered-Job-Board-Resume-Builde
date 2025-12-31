@@ -61,10 +61,12 @@ export const getCompany = catchAsync(async (req, res) => {
  * @param {Object} res - Express response object
  */
 export const createCompany = catchAsync(async (req, res) => {
-    const companyData = req.body;
-
-    const newCompany = await CompanyRepository.createCompany(companyData)
+    const companyData = {
+        ...req.body,
+        user: req.user.id // ✅ From authenticated token, not client input
+    };
     
+    const newCompany = await CompanyRepository.createCompany(companyData)
     return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.CREATE, data: newCompany }, 'Company')
 })
 

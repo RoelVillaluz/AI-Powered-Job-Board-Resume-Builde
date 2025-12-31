@@ -1,6 +1,6 @@
-import { catchAsync } from "../../utils/errorUtils";
-import { ForbiddenError, NotFoundError, UnauthorizedError } from "../errorHandler";
-import JobPosting from "../../models/jobPostingModel";
+import { catchAsync } from "../../utils/errorUtils.js";
+import { ForbiddenError, NotFoundError, UnauthorizedError } from "../errorHandler.js";
+import JobPosting from "../../models/jobPostingModel.js";
 
 export const authorizeJobPosting = catchAsync(async (req, res, next) => {
     const { id } = req.params; // Match your route parameter

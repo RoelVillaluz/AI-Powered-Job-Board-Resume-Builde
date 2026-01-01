@@ -4,20 +4,21 @@ import { catchAsync } from '../../utils/errorUtils.js';
 import User from '../../models/userModel.js';
 
 export const authenticate = catchAsync(async (req, res, next) => {
-    const token = req.headers.authorization?.replace('Bearer ', '');
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  if (!token) throw new UnauthorizedError('No authentication token provided.');
 
-    if (!token) {
-        throw new UnauthorizedError('No authentication token provided.');
-    }
+  let decoded;
+  try {
+    decoded = jwt.verify(token, process.env.JWT_SECRET);
+  } catch (error) {
+    throw new UnauthorizedError('Invalid authentication token.');
+  }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+  const decodedId = decoded.id || decoded._id;
 
-    // Support both id and _id from JWT payload
-    const decodedId = decoded.id || decoded._id;
+  const user = await User.findById(decodedId).select('-password');
+  if (!user) throw new NotFoundError('User');
 
-    const user = await User.findById(decodedId).select('-password');
-    if (!user) throw new NotFoundError('User');
-
-    req.user = decoded;
-    next();
+  req.user = decoded;
+  next();
 });

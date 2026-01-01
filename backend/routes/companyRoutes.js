@@ -10,14 +10,15 @@ const router = express.Router();
 router.get('/', getCompanies)
 router.get('/:id', getCompany)
 
+// Order matters: auth → role check → validation → business logic
 router.post('/', 
-    authenticate,                // checks if user is logged in
-    requireEmployerRole,         // only employers
-    enforceCompanyOwnership,     // prevent creating for another user
-    ensureSingleCompanyPerEmployer, // prevents user from having more than one company
-    validate(createCompanySchema, 'body'), // body validation without user field
-    createCompany
-)
+    authenticate,                          // 1. Check if user is logged in
+    requireEmployerRole,                   // 2. Check if user is employer
+    validate(createCompanySchema, 'body'), // 3. Validate request data
+    enforceCompanyOwnership,               // 4. Prevent creating for another user
+    ensureSingleCompanyPerEmployer,        // 5. Check single company per employer
+    createCompany                          // 6. Create the company
+);
 
 router.patch('/:id', updateCompany)
 

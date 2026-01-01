@@ -3,7 +3,7 @@ import { validate } from "../middleware/validation.js"
 import { createJobPostingSchema } from "../validators/jobPostingValidators.js"
 import { getJobPostings, getJobPosting, createJobPosting, updateJobPosting, deleteJobPosting } from "../controllers/jobPostingController.js"
 import { authenticate } from "../middleware/authentication/authenticate.js"
-import { authorizeJobPosting } from "../middleware/authorization/jobPosting.js"
+import { requireEmployerRole } from "../middleware/authorization/companyAuthorization.js"
 
 const router = express.Router()
 
@@ -11,9 +11,9 @@ router.get('/', getJobPostings)
 router.get('/:id', getJobPosting)
 
 router.post('/', 
-    authenticate,
-    authorizeJobPosting,
-    validate(createJobPostingSchema, 'body'), // Validate job posting format
+    authenticate,                             // 1. Check if user is logged in
+    requireEmployerRole,                      // 2. Check if user is employer
+    validate(createJobPostingSchema, 'body'), // 3. Validate job posting format
     createJobPosting
 )
 

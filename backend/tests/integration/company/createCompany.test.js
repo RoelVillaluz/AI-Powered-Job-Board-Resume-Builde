@@ -161,22 +161,31 @@ describe('POST /api/companies - Create Company', () => {
       expect(res.body.formattedMessage).toMatch(/only have one company/i);
     });
 
-      const companyData = createTestCompany(employer._id, {
+    test('should fail with duplicate company name', async () => {
+      // First employer creating original company
+      const { employer: employer1, token: token1 } = await createAuthenticatedEmployer(app);
+      dataTracker.trackUser(employer1._id);
+
+      const companyData = createTestCompany(employer1._id, {
         name: 'Unique Company Name'
       });
 
       // Create first company
       const firstResponse = await request(app)
         .post('/api/companies')
-        .set('Authorization', `Bearer ${token}`)
+        .set('Authorization', `Bearer ${token1}`)
         .send(companyData);
       
       dataTracker.trackCompany(firstResponse.body.data._id);
 
+      // Second employer for creating duplicate name
+      const { employer: employer2, token: token2 } = await createAuthenticatedEmployer(app);
+      dataTracker.trackUser(employer2._id);
+
       // Try to create duplicate
       const duplicateResponse = await request(app)
         .post('/api/companies')
-        .set('Authorization', `Bearer ${token}`)
+        .set('Authorization', `Bearer ${token2}`)
         .send(companyData);
 
       expect(duplicateResponse.status).toBe(409);

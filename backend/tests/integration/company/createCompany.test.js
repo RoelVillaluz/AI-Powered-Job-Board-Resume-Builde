@@ -143,9 +143,23 @@ describe('POST /api/companies - Create Company', () => {
       expect(response.body.formattedMessage).toMatch(/industry/i);
     });
 
-    test('should fail with duplicate company name', async () => {
+    test('should fail if employer tries to create a second company', async () => {
       const { employer, token } = await createAuthenticatedEmployer(app);
-      dataTracker.trackUser(employer._id);
+      const companyData = createTestCompany(employer._id, { name: 'Unique Name' });
+
+      // First creation succeeds
+      await request(app).post('/api/companies')
+        .set('Authorization', `Bearer ${token}`)
+        .send(companyData);
+
+      // Second creation fails
+      const res = await request(app).post('/api/companies')
+        .set('Authorization', `Bearer ${token}`)
+        .send(companyData);
+
+      expect(res.status).toBe(409);
+      expect(res.body.formattedMessage).toMatch(/only have one company/i);
+    });
 
       const companyData = createTestCompany(employer._id, {
         name: 'Unique Company Name'

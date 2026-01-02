@@ -21,7 +21,7 @@ export const validate = (schema, property = 'body') => {
                 .join(', ');
             
             // Throw BadRequestError which should have statusCode 400
-            throw new BadRequestError(errorMessage);
+            throw new ValidationError(errorMessage);
         }
         
         // Replace the property with the validated value (sanitized)

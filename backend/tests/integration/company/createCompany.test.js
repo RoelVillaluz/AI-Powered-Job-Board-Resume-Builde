@@ -143,26 +143,49 @@ describe('POST /api/companies - Create Company', () => {
       expect(response.body.formattedMessage).toMatch(/industry/i);
     });
 
-    test('should fail with duplicate company name', async () => {
+    test('should fail if employer tries to create a second company', async () => {
       const { employer, token } = await createAuthenticatedEmployer(app);
-      dataTracker.trackUser(employer._id);
+      const companyData = createTestCompany(employer._id, { name: 'Unique Name' });
 
-      const companyData = createTestCompany(employer._id, {
+      // First creation succeeds
+      await request(app).post('/api/companies')
+        .set('Authorization', `Bearer ${token}`)
+        .send(companyData);
+
+      // Second creation fails
+      const res = await request(app).post('/api/companies')
+        .set('Authorization', `Bearer ${token}`)
+        .send(companyData);
+
+      expect(res.status).toBe(409);
+      expect(res.body.formattedMessage).toMatch(/only have one company/i);
+    });
+
+    test('should fail with duplicate company name', async () => {
+      // First employer creating original company
+      const { employer: employer1, token: token1 } = await createAuthenticatedEmployer(app);
+      dataTracker.trackUser(employer1._id);
+
+      const companyData = createTestCompany(employer1._id, {
         name: 'Unique Company Name'
       });
 
       // Create first company
       const firstResponse = await request(app)
         .post('/api/companies')
-        .set('Authorization', `Bearer ${token}`)
+        .set('Authorization', `Bearer ${token1}`)
         .send(companyData);
       
       dataTracker.trackCompany(firstResponse.body.data._id);
 
+      // Second employer for creating duplicate name
+      const { employer: employer2, token: token2 } = await createAuthenticatedEmployer(app);
+      dataTracker.trackUser(employer2._id);
+
       // Try to create duplicate
       const duplicateResponse = await request(app)
         .post('/api/companies')
-        .set('Authorization', `Bearer ${token}`)
+        .set('Authorization', `Bearer ${token2}`)
         .send(companyData);
 
       expect(duplicateResponse.status).toBe(409);

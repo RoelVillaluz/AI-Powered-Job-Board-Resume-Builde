@@ -1,5 +1,6 @@
 import { catchAsync } from "../../utils/errorUtils.js";
-import { ForbiddenError, UnauthorizedError } from "../errorHandler.js";
+import { ConflictError, ForbiddenError, UnauthorizedError } from "../errorHandler.js";
+import Company from '../../models/companyModel.js'; 
 
 /**
  * Validates if user role is employer before allowing them to handle company related updates/actions
@@ -34,7 +35,7 @@ export const enforceCompanyOwnership = catchAsync(async (req, res, next) => {
 
 /**
  * Middleware to ensure that a logged-in employer can only create a single company.
- * Throws a ForbiddenError if a company already exists for this user.
+ * Throws a ConflictError if a company already exists for this user.
  * 
  * @param {Object} req - Express request object, expects `req.user` to exist
  * @param {Object} res - Express response object
@@ -45,8 +46,26 @@ export const ensureSingleCompanyPerEmployer = catchAsync(async (req, res, next) 
 
     const existingCompany = await Company.findOne({ user: userId });
     if (existingCompany) {
-        throw new ForbiddenError('You already have a company. Cannot create another.');
+        throw new ConflictError('Employer can only have one company')
     }
 
     next();
+});
+
+/**
+ * Prevents more than one company to share the same name
+ * @param {Object} req - Express request object, expects `req.user` to exist
+ * @param {Object} res - Express response object
+ */
+export const ensureUniqueCompanyName = catchAsync(async (req, res, next) => {
+  const { name } = req.body;
+
+  // Trim to avoid accidental duplicates with spaces
+  const existingCompany = await Company.findOne({ name: name.trim() });
+
+  if (existingCompany) {
+    throw new ConflictError('Company name already exists');
+  }
+
+  next();
 });

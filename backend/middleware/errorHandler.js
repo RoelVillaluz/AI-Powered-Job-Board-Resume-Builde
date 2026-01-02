@@ -11,7 +11,7 @@ export class AppError extends Error {
 }
 
 export class ValidationError extends AppError {
-    constructor(message) {
+    constructor(message, details = []) {
         super(message, 400)
         this.name = 'ValidationError';
         this.details = details;
@@ -81,7 +81,7 @@ export const errorHandler = (err, req, res, next) => {
             success: false,
             status: err.status,
             error: err.name,
-            message: err.message,
+            formattedMessage: err.message,  // ← CHANGED from 'message' to 'formattedMessage'
             ...(err.details && { details: err.details }),
             stack: err.stack,
             timestamp: err.timestamp
@@ -93,7 +93,7 @@ export const errorHandler = (err, req, res, next) => {
         return res.status(err.statusCode).json({
             success: false,
             status: err.status,
-            message: err.message,
+            formattedMessage: err.message,  // ← CHANGED from 'message' to 'formattedMessage'
             ...(err.details && { details: err.details }),
             timestamp: err.timestamp
         });
@@ -103,7 +103,7 @@ export const errorHandler = (err, req, res, next) => {
     return res.status(500).json({
         success: false,
         status: 'error',
-        message: 'Something went wrong. Please try again later.',
+        formattedMessage: 'Something went wrong. Please try again later.',  // ← CHANGED
         timestamp: new Date().toISOString()
     });
 };

@@ -9,114 +9,6 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import mongoose from 'mongoose';
 
-export const getUsers = async (req, res) => {
-    try {
-        const users = await User.find({}).select('-password');
-        
-        // Normalize profile picture paths and set default if missing
-        const updatedUsers = users.map(user => {
-            if (user.profilePicture) {
-                user.profilePicture = user.profilePicture.replace(/\\/g, '/');
-                user.profilePicture = `profile_pictures/${user.profilePicture.split('/').pop()}`;
-            } else {
-                user.profilePicture = 'profile_pictures/default.jpg';
-            }
-            return user;
-        });
-        return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.FETCH, data: users }, 'Users');
-    } catch (error) {
-        console.error('Error fetching users:', error);
-        return sendResponse(res, { ...STATUS_MESSAGES.ERROR.SERVER, success: false });
-    }
-};
-
-export const searchUsers = async (req, res) => {
-    try {
-        const { q, limit } = req.query;
-
-        if (!q) {
-            return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.FETCH, data: [] }, 'Search Results')
-        }
-
-        const searchRegex = new RegExp(q, 'i');
-
-        const users = await User.find({
-            name: { $regex: searchRegex }
-        })
-        .select('_id name company profilePicture role')
-        .limit(parseInt(limit) || 10);
-
-        // Normalize profile picture paths and set default if missing
-        const updatedUsers = users.map(user => {
-            if (user.profilePicture) {
-                user.profilePicture = user.profilePicture.replace(/\\/g, '/');
-                user.profilePicture = `profile_pictures/${user.profilePicture.split('/').pop()}`;
-            } else {
-                user.profilePicture = 'profile_pictures/default.jpg';
-            }
-            return user;
-        });
-
-        return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.FETCH, data: updatedUsers }, 'Search Results');
-    } catch (error) {
-        console.error('Error fetching search results', error);
-        return sendResponse(res, STATUS_MESSAGES.ERROR.SERVER, 'Search Results')
-    }
-};
-
-
-export const getUser = async (req, res) => {
-    const { id } = req.params;
-    try {
-        const user = await User.findById(id).select('-password');
-        if (!user) {
-            return sendResponse(res, { ...STATUS_MESSAGES.ERROR.NOT_FOUND, success: false }, 'User');
-        }
-
-        if (user.profilePicture) {
-            console.log("Original user profile picture", user.profilePicture) // Debugging: Check original profile picture
-            user.profilePicture = user.profilePicture.replace(/\\/g, '/');
-            user.profilePicture = `profile_pictures/${user.profilePicture.split('/').pop()}`
-            console.log("Normalized user profile picture:", user.profilePicture); // Debugging: Check normalized path
-        } else {
-            user.profilePicture = 'profile_pictures/default.jpg'
-        }
-
-        return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.FETCH, data: user }, 'User');
-    } catch (error) {
-        console.error('Error fetching user:', error);
-        return sendResponse(res, { ...STATUS_MESSAGES.ERROR.SERVER, success: false });
-    }
-};
-
-export const getCurrentUser = async (req, res) => {
-    try {
-        const user = await User.findById(req.user.id)
-            .select("-password +resumes") 
-            .populate("resumes")
-
-        if (!user) {
-            return sendResponse(res, {...STATUS_MESSAGES.ERROR.NOT_FOUND, success: false}, 'User');
-        }
-
-        if (user.profilePicture) {
-            console.log("Original user profile picture", user.profilePicture)
-            user.profilePicture = user.profilePicture.replace(/\\/g, '/');
-            user.profilePicture = `profile_pictures/${user.profilePicture.split('/').pop()}`
-            console.log("Normalized user profile picture:", user.profilePicture);
-        } else {
-            user.profilePicture = 'profile_pictures/default.jpg'
-        }
-
-        return sendResponse(res, {
-            ...STATUS_MESSAGES.SUCCESS.FETCH,
-            data: { user },
-        }, 'User');
-    } catch (error) {
-        console.error('Error fetching current user:', error);
-        return sendResponse(res, STATUS_MESSAGES.ERROR.SERVER, 'User');
-    }
-};
 
 export const getUserInteractedJobs = async (req, res) => {
     const { id, jobActionType } = req.params // get whether applied or saved jobs
@@ -181,65 +73,6 @@ export const authenticateUser = async (req, res, next) => {
     }
 };
 
-export const createUser = async (req, res) => {
-    const user = req.body;
-    const requiredFields = ['email', 'firstName', 'lastName', 'password'];
-
-    // Check for missing fields
-    const missingField = checkMissingFields(requiredFields, user);
-    if (missingField) {
-        return sendResponse(res, STATUS_MESSAGES.ERROR.MISSING_FIELD(missingField), 'User');
-    }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(user.email)) {
-        return sendResponse(res, STATUS_MESSAGES.ERROR.BAD_REQUEST, 'User');
-    }
-
-    if (user.password.length < 8) {
-        return sendResponse(res, STATUS_MESSAGES.ERROR.WEAK_PASSWORD, 'User');
-    }
-
-    try {
-        const existingEmail = await User.findOne({ email: user.email });
-        if (existingEmail) {
-            return sendResponse(res, {...STATUS_MESSAGES.ERROR.EMAIL_EXISTS, success: false}, 'User');
-        }
-
-        // Hash the password before saving
-        const hashedPassword = await bcrypt.hash(user.password, 10);
-
-        // Generate verification code
-        const verificationCode = Math.floor(10000 + Math.random() * 900000).toString();
-
-        // Create a temp user
-        const tempUser = new TempUser({
-            email: user.email,
-            firstName: user.firstName,
-            lastName: user.lastName,
-            password: hashedPassword,
-            verificationCode
-        });
-
-        const existingTempUser = await TempUser.findOne({ email: user.email })
-        if (existingTempUser) {
-            existingTempUser.verificationCode = verificationCode;
-            await existingTempUser.save();
-            await sendVerificationEmail(existingTempUser, verificationCode);
-            return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.CREATE, message: "Verification code resent to email." }, 'User');
-        }
-
-        await tempUser.save();
-
-        // Send verification email
-        await sendVerificationEmail(tempUser, verificationCode);
-
-        return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.CREATE, message: "Verification code sent to email." }, 'User');
-    } catch (error) {
-        console.error('Error creating user:', error.message);
-        return sendResponse(res, STATUS_MESSAGES.ERROR.SERVER, 'User');
-    }
-};
 
 export const toggleSaveJob = async (req, res) => {
     const { jobId } = req.params;
@@ -381,42 +214,6 @@ export const sendConnectionRequest = async (req, res) => {
     }
 }
 
-export const updateUser = async (req, res) => {
-    const { id } = req.params;
-    const user = req.body;
-
-    try {
-        const updatedUser = await User.findByIdAndUpdate(id, user, { new: true });
-        if (!updatedUser) {
-            return sendResponse(res, { ...STATUS_MESSAGES.ERROR.NOT_FOUND, success: false }, 'User');
-        }
-
-        if (req.file) {
-            const imagePath = `profile_pictures/${req.file.file_name}`;
-            const image = imagePath;
-        }
-
-        return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.UPDATE, data: updatedUser }, 'User');
-    } catch (error) {
-        console.error('Error updating user:', error);
-        return sendResponse(res, { ...STATUS_MESSAGES.ERROR.SERVER, success: false });
-    }
-};
-
-export const deleteUser = async (req, res) => {
-    const { id } = req.params;
-
-    try {
-        const deletedUser = await User.findByIdAndDelete(id);
-        if (!deletedUser) {
-            return sendResponse(res, { ...STATUS_MESSAGES.ERROR.NOT_FOUND, success: false }, 'User');
-        }
-        return sendResponse(res, STATUS_MESSAGES.SUCCESS.DELETE, 'User');
-    } catch (error) {
-        console.error('Error deleting user:', error);
-        return sendResponse(res, { ...STATUS_MESSAGES.ERROR.SERVER, success: false });
-    }
-};
 
 export const resendVerificationCode = async (req, res) => {
     const { email } = req.body;
@@ -481,7 +278,9 @@ export const verifyUser = async (req, res) => {
             } else {
                 const newUser = new User({
                     email: tempUser.email,
-                    password: tempUser.password, // Already hashed
+                    password: tempUser.password,
+                    firstName: tempUser.firstName,
+                    lastName: tempUser.lastName,
                     isVerified: true,
                 });
 

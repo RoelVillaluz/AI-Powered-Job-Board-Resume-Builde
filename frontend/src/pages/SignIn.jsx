@@ -34,7 +34,7 @@ function SignIn() {
         e.preventDefault();
         try {
             // Login user
-            const response = await axios.post(`${baseUrl}/users/login`, formData)
+            const response = await axios.post(`${baseUrl}/auth/login`, formData)
 
             // extract user and token
             const { user, token } = response.data.data

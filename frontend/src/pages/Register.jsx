@@ -39,7 +39,7 @@ function Register() {
         }
 
         try {
-            const response = await axios.post(`${baseUrl}/users`, formData);
+            const response = await axios.post(`${baseUrl}/auth`, formData);
             console.log('Backend response:', response.data); // Log the backend response
 
             setError(false);

@@ -20,7 +20,7 @@ export const createAuthenticatedUser = async (app, userOverrides = {}) => {
 
   // Simulate login to get token
   const loginRes = await request(app)
-    .post('/api/users/login')
+    .post('/api/auth/login')
     .send({
       email: userData.email,
       password: userData.password // Use plain password for login
@@ -58,7 +58,7 @@ export const createAuthenticatedEmployer = async (app, employerOverrides = {}) =
   console.log('Created employer for login:', { email: employerData.email, role: employer.role });
 
   const loginRes = await request(app)
-    .post('/api/users/login')
+    .post('/api/auth/login')
     .send({
       email: employerData.email,
       password: employerData.password

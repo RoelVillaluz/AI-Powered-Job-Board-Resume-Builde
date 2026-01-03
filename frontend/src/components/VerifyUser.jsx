@@ -35,7 +35,7 @@ const VerifyUser = ({ email, password = null, verificationCode, verificationType
 
     const handleResendCode = async () => {
         try {
-            const response = await axios.post(`${baseUrl}/users/resend-verification-code`, {
+            const response = await axios.post(`${baseUrl}/auth/resend-verification-code`, {
                 email
             })
             console.log('Resent Code successfully', response.data.data )
@@ -56,7 +56,7 @@ const VerifyUser = ({ email, password = null, verificationCode, verificationType
     
         try {
             // Verify user
-            const verificationResponse = await axios.post(`${baseUrl}/users/verify`, { 
+            const verificationResponse = await axios.post(`${baseUrl}/auth/verify`, { 
                 email, verificationCode: 
                 localVerificationCode,
                 verificationType: verificationType
@@ -66,7 +66,7 @@ const VerifyUser = ({ email, password = null, verificationCode, verificationType
     
             if (verificationType === "register") {
                 // Login user
-                const loginResponse = await axios.post(`${baseUrl}/users/login`, { email, password });
+                const loginResponse = await axios.post(`${baseUrl}/auth/login`, { email, password });
                 console.log('Login successful:', loginResponse.data);
         
                 // Extract user & token

@@ -15,6 +15,7 @@ import {
 
 export const registerRoutes = (app) => {
   // Core API
+  app.use("api/auth", authRoutes);
   app.use("/api/users", userRoutes);
   app.use("/api/job-postings", jobPostingRoutes);
   app.use("/api/resumes", resumeRoutes);

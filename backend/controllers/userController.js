@@ -3,10 +3,8 @@ import { TempUser } from '../models/tempUserModel.js';
 import Application from '../models/applicationModel.js';
 import JobPosting from "../models/jobPostingModel.js"
 import { checkMissingFields } from '../utils.js';
-import { sendVerificationEmail } from '../utils/serverUtils.js';
 import { STATUS_MESSAGES, sendResponse } from '../constants.js';
 import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
 import mongoose from 'mongoose';
 
 
@@ -55,24 +53,6 @@ export const getUserInteractedJobs = async (req, res) => {
         return sendResponse(res, { ...STATUS_MESSAGES.ERROR.SERVER, success: false })
     }
 }
-
-
-export const authenticateUser = async (req, res, next) => {
-    const token = req.header("Authorization")?.split(" ")[1]; // Expecting "Bearer <token>"
-
-    if (!token) {
-        return res.status(401).json({ message: "Unauthorized, no token provided" });
-    }
-
-    try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        req.user = decoded; // Attach user payload to request
-        next();
-    } catch (error) {
-        return sendResponse(res, { ...STATUS_MESSAGES.ERROR.SERVER })
-    }
-};
-
 
 export const toggleSaveJob = async (req, res) => {
     const { jobId } = req.params;
@@ -211,150 +191,6 @@ export const sendConnectionRequest = async (req, res) => {
     } catch (error) {
         console.error('Error: ', error )
         return sendResponse(res, { ...STATUS_MESSAGES.ERROR.SERVER, success: false })
-    }
-}
-
-
-export const resendVerificationCode = async (req, res) => {
-    const { email } = req.body;
-    
-    if (!email) {
-        return sendResponse(res, STATUS_MESSAGES.ERROR.MISSING_FIELD("email"), "User");
-    }
-
-    try {
-        const tempUser = await TempUser.findOne({ email });
-        const user = await User.findOne({ email });
-
-        if (!tempUser && !user) {
-            return sendResponse(res, { ...STATUS_MESSAGES.ERROR.NOT_FOUND, success: false }, 'User');
-        }
-
-        const newVerificationCode = Math.floor(10000 + Math.random() * 900000).toString();
-
-        if (tempUser) {
-            await TempUser.updateOne(
-                { email },
-                { verificationCode: newVerificationCode }
-            );
-            await sendVerificationEmail(tempUser, newVerificationCode);
-        }
-
-        if (user) {
-            await User.updateOne(
-                { email },
-                { verificationCode: newVerificationCode }
-            );
-            await sendVerificationEmail(user, newVerificationCode);
-        }
-
-        return sendResponse(res, {
-            ...STATUS_MESSAGES.SUCCESS.RESENT_CODE,
-            data: tempUser || user
-        });
-
-    } catch (error) {
-        console.error("Error resending verification code:", error.message);
-        return sendResponse(res, STATUS_MESSAGES.ERROR.SERVER, "User");
-    }
-};
-
-export const verifyUser = async (req, res) => {
-    const { email, verificationCode, verificationType } = req.body;
-
-    try {
-        const tempUser = await TempUser.findOne({ email });
-        const user = await User.findOne({ email })
-
-        // If neither exists
-        if (!tempUser && !user) {
-            return sendResponse(res, {...STATUS_MESSAGES.ERROR.NOT_FOUND, success: false}, 'User');
-        }
-
-        // Verification for temporary user (creating new account)
-        if (tempUser && verificationType === 'register') {
-            if (tempUser.verificationCode.toString() !== verificationCode.toString()) {
-                return sendResponse(res, { ...STATUS_MESSAGES.ERROR.INVALID_CODE, success: false});
-            } else {
-                const newUser = new User({
-                    email: tempUser.email,
-                    password: tempUser.password,
-                    firstName: tempUser.firstName,
-                    lastName: tempUser.lastName,
-                    isVerified: true,
-                });
-
-                // Ensure only the correct field exists before saving
-                if (newUser.role !== "jobseeker") {
-                    delete newUser.resumes; // Ensure resumes is removed
-                }
-                if (newUser.role !== "employer") {
-                    delete newUser.company; // Ensure company is removed
-                }
-
-                await newUser.save();
-                await TempUser.deleteOne({ email });
-
-                return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.CREATE, data: newUser }, 'User');
-            }
-        }
-
-        // Verification for old user (change password request)
-        if (user && verificationType === 'password_reset') {
-            if (user.verificationCode.toString() !== verificationCode.toString()) {
-                return sendResponse(res, { ...STATUS_MESSAGES.ERROR.INVALID_CODE, success: false });
-            } else {
-                return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.MATCHED_CODE })
-            }
-        }
-
-    } catch (error) {
-        console.error('Error', error);
-        return sendResponse(res, STATUS_MESSAGES.ERROR.SERVER, 'User');
-    }
-};
-
-export const loginUser = async (req, res) => {
-    const { email, password } = req.body
-
-    if (!email || !password) {
-        return sendResponse(res, STATUS_MESSAGES.ERROR.MISSING_FIELD('email or password'), 'User');
-    }
-
-    try {
-        const user = await User.findOne({ email })
-
-        if (!user) {
-            return sendResponse(res, {...STATUS_MESSAGES.ERROR.NOT_FOUND, success: false}, 'User')
-        }
-
-        console.log("Entered password:", password);
-        console.log("Stored hashed password:", user.password);
-
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) {
-            return sendResponse(res, { ...STATUS_MESSAGES.ERROR.INVALID_CREDENTIALS, success: false }, 'User');
-        }
-
-        const payload = {
-            id: user._id,
-            email: user.email,
-            role: user.role,
-        };
-
-
-        const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '24h' });
-
-        return sendResponse(res, {
-            ...STATUS_MESSAGES.SUCCESS.LOGIN,
-            data: { 
-                token ,
-                user: { _id: user._id, email: user.email, role: user.role }
-            },
-        }, 'User');
-    } catch (error) {
-        console.error('Error during login:', error);
-        return sendResponse(res, STATUS_MESSAGES.ERROR.SERVER, 'User');
     }
 }
 

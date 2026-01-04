@@ -23,9 +23,6 @@ router.get('/:id', getUser)
 router.get('/:id/interacted-jobs/:jobActionType?', getUserInteractedJobs);
 
 router.post('/', createUser)
-router.post('/resend-verification-code', resendVerificationCode)
-router.post('/verify', verifyUser)
-router.post('/login', loginUser)
 router.post('/track-login/:userId', trackUserLogin)
 router.post('/save-job/:jobId', authenticateUser, toggleSaveJob)
 router.post('/apply-to-job/:jobId', authenticateUser, applyToJob)

@@ -2,7 +2,7 @@
  * Generate cryptographically secure verification code
  * @returns {string} 6-digit verification code
  */
-const generateVerificationCode = () => {
+export const generateVerificationCode = () => {
     return crypto.randomInt(100000, 999999).toString();
 };
 
@@ -12,7 +12,7 @@ const generateVerificationCode = () => {
  * @param {string} b - Second string
  * @returns {boolean} Whether strings match
  */
-const secureCompare = (a, b) => {
+export const secureCompare = (a, b) => {
     if (typeof a !== 'string' || typeof b !== 'string') return false;
     if (a.length !== b.length) return false;
     return crypto.timingSafeEqual(Buffer.from(a), Buffer.from(b));
@@ -23,7 +23,7 @@ const secureCompare = (a, b) => {
  * @param {string} email - Email to sanitize
  * @returns {string} Sanitized email
  */
-const sanitizeEmail = (email) => {
+export const sanitizeEmail = (email) => {
     return email.toLowerCase().trim();
 };
 
@@ -32,7 +32,7 @@ const sanitizeEmail = (email) => {
  * @param {string} code - Plain verification code
  * @returns {Promise<string>} Hashed code
  */
-const hashVerificationCode = async (code) => {
+export const hashVerificationCode = async (code) => {
     return bcrypt.hash(code, 10);
 };
 
@@ -42,6 +42,6 @@ const hashVerificationCode = async (code) => {
  * @param {string} hashedCode - Hashed code from database
  * @returns {Promise<boolean>} Whether codes match
  */
-const verifyHashedCode = async (plainCode, hashedCode) => {
+export const verifyHashedCode = async (plainCode, hashedCode) => {
     return bcrypt.compare(plainCode, hashedCode);
 };

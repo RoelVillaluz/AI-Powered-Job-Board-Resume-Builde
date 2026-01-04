@@ -2,7 +2,7 @@ import { catchAsync } from "../../utils/errorUtils.js";
 import { ForbiddenError, NotFoundError, UnauthorizedError, BadRequestError } from "../errorHandler.js";
 import { userExistsByEmail, findUserByEmail } from "../../repositories/users/userGetRepos.js";
 import { tempUserExistsByEmail, findTempUserByEmail } from "../../repositories/tempUsers/tempUserRepositories.js";
-import { secureCompare } from "../../helpers/cryptoHelpers.js";
+import { secureCompare } from "../../helpers/userHelpers.js";
 
 /**
  * Ensures email is available for new registration.

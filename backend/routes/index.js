@@ -4,6 +4,7 @@ import resumeRoutes from "./resumeRoutes.js";
 import companyRoutes from "./companyRoutes.js";
 import aiRoutes from "./aiRoutes.js";
 import applicationRoutes from "./applicationRoutes.js";
+import authRoutes from "./authRoutes.js"
 
 import {
   conversationRoutes,
@@ -15,7 +16,7 @@ import {
 
 export const registerRoutes = (app) => {
   // Core API
-  app.use("api/auth", authRoutes);
+  app.use("/api/auth", authRoutes);
   app.use("/api/users", userRoutes);
   app.use("/api/job-postings", jobPostingRoutes);
   app.use("/api/resumes", resumeRoutes);

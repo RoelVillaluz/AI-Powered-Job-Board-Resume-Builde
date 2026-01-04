@@ -4,10 +4,12 @@ import { BadRequestError, NotFoundError, UnauthorizedError } from "../../middlew
 import { generateVerificationCode } from "../../helpers/userHelpers.js";
 import User from "../../models/userModel.js";
 import { TempUser } from "../../models/tempUserModel.js";
-import { createUserFromTempUser, deleteTempUserByEmail } from "../../repositories/tempUsers/tempUserRepositories.js";
-import { clearUserVerificationCode, findUserByEmail } from "../../repositories/users/userSetRepos.js";
-import { sendVerificationEmail } from "../../services/emailService.js";
-import { withTransaction } from "../../helpers/dbHelpers.js";
+import { deleteTempUserByEmail } from "../../repositories/tempUsers/tempUserRepositories.js";
+import { createTempUser } from "../../repositories/tempUsers/tempUserRepositories.js";
+import { findUserByEmail } from "../../repositories/users/userGetRepos.js";
+import { clearUserVerificationCode } from "../../repositories/users/userSetRepos.js";
+import { sendVerificationEmail } from "../../utils/serverUtils.js";
+import { withTransaction } from "../../helpers/transactionHelpers.js"
 
 /**
  * Resends a verification code to a user or temporary user.

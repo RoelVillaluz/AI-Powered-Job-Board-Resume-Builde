@@ -1,4 +1,4 @@
-import User from "../../models/userModel";
+import User from "../../models/userModel.js";
 
 /**
  * Finds a user by email and allows selecting optional fields.

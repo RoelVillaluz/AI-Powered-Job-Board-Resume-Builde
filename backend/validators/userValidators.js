@@ -57,3 +57,12 @@ export const loginSchema = Joi.object({
             'string.empty': 'Password is required'
         })
 })
+
+export const passwordSchema = Joi.object({
+    password: Joi.string()
+        .pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/)
+        .message({
+            'string.pattern.base': 'Password must be at least 8 characters long and include uppercase, lowercase, number, and special character',
+            'string.empty': 'Password cannot be empty'
+        })
+})

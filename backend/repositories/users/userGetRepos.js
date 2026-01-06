@@ -35,7 +35,7 @@ export const findUserByEmail = async (
  * @param {number} [params.limit] - Maximum number of results to return
  * @returns {Promise<Array>} Array of user objects matching the search criteria
  */
-export const findUsers = async ({ name, limit }) => {
+export const findUsers = async ({ name, limit = 10 } = {}) => {
     const query = {};
 
     if (name) {
@@ -59,6 +59,59 @@ export const findUsers = async ({ name, limit }) => {
         .populate('company', 'id name')
         .limit(limit)
         .lean();
+};
+
+/**
+ * Finds user by id and gets all their interacted jobs
+ * @param {String} id 
+ * @param {String} jobActionType 
+ * @returns {Promise<Object>} User object with their saved or jobs that they applied to
+ */
+export const findUserInteractedJobs = async (id, jobActionType) => {
+    const query = User.findById(id)
+        .select('savedJobs appliedJobs')
+        .lean();
+
+    if (!jobActionType) {
+        query
+            .populate({
+                path: 'savedJobs',
+                populate: { path: 'company', select: 'name logo' }
+            })
+            .populate({
+                path: 'appliedJobs',
+                populate: {
+                    path: 'jobPosting',
+                    populate: { path: 'company', select: 'name logo' }
+                }
+            });
+    } else if (jobActionType === 'saved') {
+        query.populate({
+            path: 'savedJobs',
+            populate: { path: 'company', select: 'name logo' }
+        });
+    } else if (jobActionType === 'applied') {
+        query.populate({
+            path: 'appliedJobs',
+            populate: {
+                path: 'jobPosting',
+                populate: { path: 'company', select: 'name logo' }
+            }
+        });
+    } else {
+        throw new ValidationError('Invalid jobActionType');
+    }
+
+    const user = await query.exec();
+
+    // Only return the requested jobs if jobActionType is specified
+    if (jobActionType === 'saved') return { savedJobs: user?.savedJobs ?? [] };
+    if (jobActionType === 'applied') return { appliedJobs: user?.appliedJobs ?? [] };
+
+    return {
+        savedJobs: user?.savedJobs ?? [],
+        appliedJobs: user?.appliedJobs ?? []
+    };
 };
 
 /**

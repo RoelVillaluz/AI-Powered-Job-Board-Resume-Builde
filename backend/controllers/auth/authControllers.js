@@ -44,3 +44,11 @@ export const loginUser = catchAsync(async (req, res) => {
         },
     }, 'User')
 })
+
+export const changePassword = catchAsync(async (req, res) => {
+    const { email, newPassword } = req.body;
+
+    const result = await AuthService.changePassword(email, newPassword)
+
+    return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.UPDATE }, 'User')
+})

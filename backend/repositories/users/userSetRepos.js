@@ -1,5 +1,7 @@
 import User from "../../models/userModel.js";
 import { hashVerificationCode } from "../../helpers/userHelpers.js";
+import JobPosting from "../../models/jobPostingModel.js";
+import { findUser } from "./userGetRepos.js";
 
 /**
  * Creates a new user document.
@@ -74,6 +76,27 @@ export const clearUserVerificationCode = async (email) => {
         { new: true }
     ).lean();
 };
+
+export const toggleSaveJob = async (jobId, userId) => {
+    const user = await User.findById(userId)
+
+    const isSaved = user.savedJobs.some(
+        savedJobId => savedJobId.toString() === jobId
+    );
+
+    if (isSaved) {
+        user.savedJobs.pull(jobId);
+    } else {
+        user.savedJobs.addToSet(jobId);
+    }
+
+    await user.save();
+
+    return {
+        isSaved: !isSaved
+    };
+};
+
 
 /**
  * Deletes a user by their ID.

@@ -5,9 +5,8 @@ import { generateVerificationCode } from "../../helpers/userHelpers.js";
 import User from "../../models/userModel.js";
 import { TempUser } from "../../models/tempUserModel.js";
 import { deleteTempUserByEmail } from "../../repositories/tempUsers/tempUserRepositories.js";
-import { createTempUser } from "../../repositories/tempUsers/tempUserRepositories.js";
 import { findUserByEmail } from "../../repositories/users/userGetRepos.js";
-import { clearUserVerificationCode } from "../../repositories/users/userSetRepos.js";
+import { clearUserVerificationCode, updateUserPassword } from "../../repositories/users/userSetRepos.js";
 import { sendVerificationEmail } from "../../utils/serverUtils.js";
 import { withTransaction } from "../../helpers/transactionHelpers.js"
 

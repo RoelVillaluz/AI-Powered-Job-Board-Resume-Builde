@@ -20,7 +20,7 @@ const router = express.Router();
 // router.get("/me", authenticateUser, getCurrentUser)
 // router.get('/search', searchUsers)
 // router.get('/:id', getUser)
-router.get('/:id/interacted-jobs/:jobActionType?', getUserInteractedJobs);
+// router.get('/:id/interacted-jobs/:jobActionType?', getUserInteractedJobs);
 
 // router.post('/', createUser)
 // router.post('/resend-verification-code', resendVerificationCode)

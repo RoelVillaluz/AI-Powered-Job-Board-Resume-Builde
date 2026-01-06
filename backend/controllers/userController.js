@@ -8,85 +8,6 @@ import bcrypt from 'bcrypt';
 import mongoose from 'mongoose';
 
 
-export const getUserInteractedJobs = async (req, res) => {
-    const { id, jobActionType } = req.params // get whether applied or saved jobs
-
-    try {
-        // Find the user by ID and populate the required fields based on jobActionType
-        let userQuery = User.findById(id)
-            .populate({
-                path: 'savedJobs',
-                populate: {
-                    path: 'company',
-                    select: 'name logo' 
-                }
-            })
-            .populate({
-                path: 'appliedJobs',
-                populate: [
-                    { path: 'jobPosting', populate: { path: 'company', select: 'name logo' } },
-                ]
-            });
-
-        // execute the query
-        const user = await userQuery.exec()
-
-        if (!user) {
-            return sendResponse(res, { ...STATUS_MESSAGES.ERROR.NOT_FOUND, success: false }, 'Jobs')
-        }
-
-        if (jobActionType === 'savedJobs') {
-            return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.FETCH, data: user.savedJobs })
-        } else if (jobActionType === 'appliedJobs') {
-            return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.FETCH, data: user.appliedJobs }, 'Jobs')
-        } else {
-            // If no jobActionType, return both savedJobs and appliedJobs
-            return sendResponse(res, { 
-                ...STATUS_MESSAGES.SUCCESS.FETCH, 
-                data: {
-                    savedJobs: user.savedJobs,
-                    appliedJobs: user.appliedJobs
-            }}, 'Jobs')
-        }
-    } catch (error) {
-        console.error('Error', error)
-        return sendResponse(res, { ...STATUS_MESSAGES.ERROR.SERVER, success: false })
-    }
-}
-
-export const toggleSaveJob = async (req, res) => {
-    const { jobId } = req.params;
-    const userId = req.user.id;
-
-    try {
-        const savedJob = await JobPosting.findById(jobId)
-
-        if (!savedJob) {
-            return sendResponse(res, { ...STATUS_MESSAGES.ERROR.NOT_FOUND, success: false}, 'Job posting')
-        }
-
-        const user = await User.findById(userId)
-        if (!user || user.role !== "jobseeker") {
-            return sendResponse(res, { ...STATUS_MESSAGES.ERROR.FORBIDDEN, success: false }, "Only jobseekers can save jobs.");
-        }
-
-        const isSaved = user.savedJobs.includes(jobId)
-
-        if (isSaved) {
-            user.savedJobs = user.savedJobs.filter(savedJobId => savedJobId.toString() !== jobId);
-        } else {
-            user.savedJobs.push(jobId)
-        }
-
-        await user.save();
-
-        return res.json({ message: isSaved ? 'Job saved successfully' : 'Job unsaved successfully', data: isSaved, success: true })
-
-    } catch (error) {
-        console.error(error)
-    }
-}
-
 export const applyToJob = async (req, res) => {
     const jobApplicationData = req.body;
     const { jobId } = req.params;
@@ -238,37 +159,5 @@ export const trackUserLogin = async (req, res) => {
     } catch (error) {
         console.error("Error:", error);
         return res.status(500).json({ success: false, message: "Server error" });
-    }
-};
-
-export const changePassword = async (req, res) => {
-    const { email, newPassword } = req.body;
-
-    try {
-        const user = await User.findOne({ email });
-        if (!user) {
-            return sendResponse(res, {...STATUS_MESSAGES.ERROR.NOT_FOUND, success: false }, 'User')
-        }
-
-        if (newPassword.length < 8) {
-            return sendResponse(res, STATUS_MESSAGES.ERROR.WEAK_PASSWORD, 'User');
-        }
-
-        // Hash the new password
-        const hashedPassword = await bcrypt.hash(newPassword, 10);
-        
-        const result = await User.updateOne(
-            { email },
-            { $set: { password: hashedPassword }}
-        )
-
-        if (result.matchedCount === 0) {
-            return sendResponse(res, {...STATUS_MESSAGES.ERROR.NOT_FOUND, success: false }, 'User');
-        }
-
-        return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.UPDATE }, 'User')
-    } catch (error) {
-        console.error("Error:", error);
-        return sendResponse(res, { ...STATUS_MESSAGES.ERROR.SERVER, success: false })
     }
 };

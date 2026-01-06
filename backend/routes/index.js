@@ -1,4 +1,4 @@
-import userRoutes from "./userRoutes.js";
+import userRoutes from "./users/userRoutes.js";
 import jobPostingRoutes from "./jobPostingRoutes.js";
 import resumeRoutes from "./resumeRoutes.js";
 import companyRoutes from "./companyRoutes.js";

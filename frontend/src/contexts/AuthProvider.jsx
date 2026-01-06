@@ -2,6 +2,8 @@ import { createContext, useContext, useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
 import axios from "axios";
 
+let jwt_decode;
+
 const AuthContext = createContext();
 export const useAuth = () => useContext(AuthContext);
 
@@ -14,12 +16,19 @@ export const AuthProvider = ({ children }) => {
         const fetchUser = async () => {
             const token = localStorage.getItem("authToken");
             if (!token) {
-                setLoading(false); // No token, stop loading
+                setLoading(false);
                 return;
             }
 
             try {
-                const response = await axios.get('http://localhost:5000/api/users/me', {
+                // Lazy load jwt-decode dynamically
+                if (!jwt_decode) {
+                    jwt_decode = (await import("jwt-decode")).default;
+                }
+
+                const userId = decoded.id || decoded._id;
+
+                const response = await axios.get(`http://localhost:5000/api/users/${userId}`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
 
@@ -33,7 +42,7 @@ export const AuthProvider = ({ children }) => {
                 console.error("Error fetching user:", error);
                 logout();
             } finally {
-                setLoading(false); // Stop loading after request finishes
+                setLoading(false);
             }
         };
 
@@ -43,12 +52,19 @@ export const AuthProvider = ({ children }) => {
     const refreshUser = async () => {
         const token = localStorage.getItem("authToken");
         if (!token) return;
-    
+
         try {
-            const response = await axios.get('http://localhost:5000/api/users/me', {
+            // Lazy load jwt-decode dynamically
+            if (!jwt_decode) {
+                jwt_decode = (await import("jwt-decode")).default;
+            }
+            
+            const userId = decoded.id || decoded._id;
+
+            const response = await axios.get(`http://localhost:5000/api/users/${userId}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
-    
+
             if (response.data.success) {
                 setUser(response.data.data.user);
                 localStorage.setItem("user", JSON.stringify(response.data.data.user));
@@ -59,7 +75,7 @@ export const AuthProvider = ({ children }) => {
             console.error("Error refreshing user:", error);
             logout();
         }
-    };    
+    };
 
     const login = async (userData, token) => {
         localStorage.setItem("authToken", token);

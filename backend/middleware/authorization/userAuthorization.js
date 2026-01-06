@@ -1,55 +1,42 @@
 import { catchAsync } from "../../utils/errorUtils.js";
-import { ForbiddenError, NotFoundError, UnauthorizedError, BadRequestError } from "../errorHandler.js";
-import { userExistsByEmail, findUserByEmail } from "../../repositories/users/userGetRepos.js";
-import { tempUserExistsByEmail, findTempUserByEmail } from "../../repositories/tempUsers/tempUserRepositories.js";
+import { NotFoundError, UnauthorizedError, BadRequestError } from "../errorHandler.js";
+import { findUserByEmail } from "../../repositories/users/userGetRepos.js";
+import { findTempUserByEmail } from "../../repositories/tempUsers/tempUserRepositories.js";
 import { secureCompare } from "../../helpers/userHelpers.js";
 
 /**
- * Ensures email is available for new registration.
- * Throws ForbiddenError if email already exists in User or TempUser collections.
- * Used on: /register
- * 
- * @param {Object} req - Express request object, expects `req.body.email`
+ * Middleware to ensure that the logged-in user is allowed to access or modify the target user resource.
+ * Compares req.user.id with user ID from request body or route parameters.
+ *
+ * Checks, in order:
+ * - req.body.id
+ * - req.body.userId
+ * - req.params.id
+ *
+ * Throws a ForbiddenError if the logged-in user does not match the target user.
+ *
+ * Usage:
+ * router.put('/:id/update', authenticate, authorizeSelf, updateUserController)
+ *
+ * @param {Object} req - Express request object
+ * @param {Object} req.body - Request body, may contain `id` or `userId`
+ * @param {Object} req.params - Route parameters, may contain `id`
+ * @param {Object} req.user - Logged-in user object attached by authenticate middleware
  * @param {Object} res - Express response object
  * @param {Function} next - Express next middleware function
  */
-export const checkEmailIfUnique = catchAsync(async (req, res, next) => {
-    const { email } = req.body;
+export const authorizeSelf = catchAsync(async (req, res, next) => {
+    const { id, userId: bodyUserId } = req.body;
+    const paramId = req.params.id;
+    const targetUserId = id || bodyUserId || paramId;
 
-    const [existingUser, existingTempUser] = await Promise.all([
-        userExistsByEmail(email),
-        tempUserExistsByEmail(email)
-    ]);
+    if (!targetUserId) {
+        throw new ForbiddenError('No target user specified');
+    }
 
-    if (existingUser) throw new ForbiddenError('Email already exists');
-    if (existingTempUser) throw new ForbiddenError('A verification email has already been sent to this email');
-
-    next();
-});
-
-/**
- * Ensures email exists in either User or TempUser collections.
- * Attaches `req.user` and/or `req.tempUser` for downstream verification logic.
- * Throws NotFoundError if no matching user is found.
- * Used on: /verify
- * 
- * @param {Object} req - Express request object, expects `req.body.email`
- * @param {Object} res - Express response object
- * @param {Function} next - Express next middleware function
- */
-export const checkEmailIfExists = catchAsync(async (req, res, next) => {
-    const { email } = req.body;
-
-    // Flexible finders now return null if not found
-    const [tempUser, user] = await Promise.all([
-        findTempUserByEmail(email),
-        findUserByEmail(email, { includeVerificationCode: true })
-    ]);
-
-    if (!tempUser && !user) throw new NotFoundError("User not found for verification");
-
-    req.tempUser = tempUser;
-    req.user = user;
+    if (targetUserId !== req.user.id && targetUserId !== req.user._id.toString()) {
+        throw new ForbiddenError('You are not allowed to modify this user');
+    }
 
     next();
 });

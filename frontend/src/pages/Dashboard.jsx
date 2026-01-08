@@ -14,35 +14,36 @@ import GoalsSection from "../components/Dashboard/GoalsSection"
 import NetworkSection from "../components/Dashboard/NetworkSection"
 
 function Dashboard () {
-    const { baseUrl, fetchResumes, name, resumes } = useData();
-    const { user } = useAuth();
-    const [loading, setLoading] = useState(true)
-    const [shuffledSkills, setShuffledSkills] = useState([])
+    const user = useAuthStore(state => state.user);
+    // const { baseUrl, fetchResumes, name, resumes } = useData();
+    // const user = useAuthStore(state => state.user)
+    // const [loading, setLoading] = useState(true)
+    // const [shuffledSkills, setShuffledSkills] = useState([])
 
-    useEffect(() => {
-        document.title = 'Dashboard'
-    }, [])
+    // useEffect(() => {
+    //     document.title = 'Dashboard'
+    // }, [])
 
-    useEffect(() => {
-        if (user?._id) {
-            setLoading(true); // Set loading to true before fetching
-            fetchResumes(user._id).then(() => setLoading(false)); // Set loading to false after fetching
-        }
-    }, [user?._id]);  // Depend only on user._id to prevent redundant fetches
+    // useEffect(() => {
+    //     if (user?._id) {
+    //         setLoading(true); // Set loading to true before fetching
+    //         fetchResumes(user._id).then(() => setLoading(false)); // Set loading to false after fetching
+    //     }
+    // }, [user?._id]);  // Depend only on user._id to prevent redundant fetches
     
-    // Shuffle skills only once
-    useEffect(() => {
-        if (resumes[0]?.skills.length) {
-            const shuffled = resumes[0].skills.sort(() => Math.random() - 0.5).slice(0, 3).map(skill => skill.name).join(", ")
-            setShuffledSkills(shuffled)
-        }
-    }, [resumes]) // Only trigger when resume.skills changes
+    // // Shuffle skills only once
+    // useEffect(() => {
+    //     if (resumes[0]?.skills.length) {
+    //         const shuffled = resumes[0].skills.sort(() => Math.random() - 0.5).slice(0, 3).map(skill => skill.name).join(", ")
+    //         setShuffledSkills(shuffled)
+    //     }
+    // }, [resumes]) // Only trigger when resume.skills changes
     
     return (
         <>
             <Layout>
                 <div className="dashboard">
-                    {user.role === 'jobseeker' && (
+                    {/* {user.role === 'jobseeker' && (
                         <>
                         <header id="dashboard-header">
                             <h1>Welcome Back, {name?.split(" ")[0]}</h1>
@@ -59,7 +60,7 @@ function Dashboard () {
                             <OnlineCoursesSection user={user} baseUrl={baseUrl} loading={loading}/>
                         </div>
                         </>
-                    )}
+                    )} */}
                 </div>
             </Layout>
         </>

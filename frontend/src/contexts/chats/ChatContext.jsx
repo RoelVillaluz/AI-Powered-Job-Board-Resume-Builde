@@ -41,8 +41,7 @@ export const useChatContext = () => {
 }
 
 export const ChatProvider = ({ children }) => {
-    const { user } = useAuth();
-    const { baseUrl } = useData();
+    const user = useAuthStore(state => state.user);
     
     // chat related state (stable)
     const [conversations, setConversations] = useState([]);

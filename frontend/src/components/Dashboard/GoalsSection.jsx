@@ -3,7 +3,7 @@ import { Link } from "react-router-dom"
 import { useAuth } from "../../contexts/AuthProvider";
 
 function GoalsSection({ loading }) {
-    const { user } = useAuth();
+    const user = useAuthStore(state => state.user)
 
     return (
         <>

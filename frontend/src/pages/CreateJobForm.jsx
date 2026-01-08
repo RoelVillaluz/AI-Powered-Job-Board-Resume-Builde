@@ -10,8 +10,7 @@ import PreScreeningQuestionsSection from "../components/MultiStepForm/CreateJobF
 import FinishedSection from "../components/MultiStepForm/CreateJobForm/FinishedSection.jsx";
 
 function CreateJobForm() {
-    const { baseUrl } = useData();
-    const { user } = useAuth();
+    const user = useAuthStore(state => state.user);
     const [formData, setFormData] = useState({
         title: '',
         company: user.company,

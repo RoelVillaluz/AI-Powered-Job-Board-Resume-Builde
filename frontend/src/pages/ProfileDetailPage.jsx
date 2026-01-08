@@ -6,7 +6,6 @@ import { useParams } from "react-router-dom";
 function ProfileDetailPage() {
     const [profile, setProfile] = useState(null);
     const { userId } = useParams();
-    const { baseUrl } = useData();
 
     useEffect(() => {
         const fetchProfile = async () => {

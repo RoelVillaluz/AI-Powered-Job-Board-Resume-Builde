@@ -1,13 +1,12 @@
 import { useState, useEffect } from "react";
-import { useData } from "../contexts/DataProvider";
 import axios from "axios";
-import Layout from "../components/Layout";
-import VerifyUser from "../components/VerifyUser";
 import { Link } from "react-router-dom";
+import VerifyUser from "../components/VerifyUser";
+import { BASE_API_URL } from "../config/api";
 
 function Register() {
-    const { baseUrl, setSuccess, setError, setSuccessMessage } = useData();
-    const [errorMessage, setErrorMessage] = useState(null)
+    const [errorMessage, setErrorMessage] = useState(null);
+
     const [formData, setFormData] = useState({
         email: '',
         firstName: '',
@@ -15,43 +14,44 @@ function Register() {
         password: '',
         confirmPassword: '',
     });
-    const [verificationCode, setVerificationCode] = useState(''); // Store the verification code
-    const [isEmailSent, setIsEmailSent] = useState(false); // To check if the email was sent
-    const [isFormSubmitted, setIsFormSubmitted] = useState(false);
+
+    const [verificationCode, setVerificationCode] = useState('');
+    const [isEmailSent, setIsEmailSent] = useState(false);
 
     useEffect(() => {
         document.title = 'Create an account';
     }, []);
 
     const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
+        setFormData(prev => ({
+            ...prev,
+            [e.target.name]: e.target.value
+        }));
     };
 
     const handleFormSubmit = async (e) => {
         e.preventDefault();
-        console.log(formData);
+        setErrorMessage(null);
 
         if (formData.password !== formData.confirmPassword) {
-            setError(true)
             setErrorMessage('Passwords must match');
-            setSuccess(false);
             return;
         }
 
         try {
-            const response = await axios.post(`${baseUrl}/auth`, formData);
-            console.log('Backend response:', response.data); // Log the backend response
+            const { data } = await axios.post(
+                `${BASE_API_URL}/auth`,
+                formData
+            );
 
-            setError(false);
-            setErrorMessage(null)
+            setVerificationCode(data?.data?.verificationCode || '');
             setIsEmailSent(true);
-            setVerificationCode(response.data?.data?.verificationCode || ''); // Handle undefined verificationCode
-            setIsFormSubmitted(true);
         } catch (error) {
-            console.error('Error', error);
-            setSuccess(false);
-            setError(true);
-            setErrorMessage(error.response?.data?.formattedMessage);
+            console.error('Register error:', error);
+            setErrorMessage(
+                error.response?.data?.formattedMessage ||
+                'Registration failed. Please try again.'
+            );
         }
     };
 

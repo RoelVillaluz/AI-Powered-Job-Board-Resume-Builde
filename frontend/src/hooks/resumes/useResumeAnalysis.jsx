@@ -8,7 +8,6 @@ import { RESUME_ANALYSIS_MESSAGES } from "../../../../backend/constants";
 import { SKILL_ANALYSIS_MESSAGES, EXPERIENCE_ANALYSIS_MESSAGES } from "../../../../backend/constants";
 
 export const useResumeAnalysis = () => {
-    const { baseUrl } = useData();
     const { jobId } = useParams();
     const { currentResume } = useResume();
     const { job, loading } = useJobDetails(baseUrl, jobId);

@@ -1,6 +1,6 @@
-import { DataProvider } from "./contexts/DataProvider.jsx";
 import { SocketProvider } from "./contexts/SocketContext.jsx";
 import { ChatProvider } from "./contexts/chats/ChatContext.jsx";
+import { useAuthStore } from "./stores/authStore.js";
 import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 import LandingPage from "./pages/LandingPage";
 import SideNavbar from "./components/SideNavbar";
@@ -8,7 +8,6 @@ import Register from "./pages/Register";
 import SignIn from "./pages/SignIn";
 import GetStartedForm from "./pages/GetStartedForm";
 import Dashboard from "./pages/Dashboard";
-import { AuthProvider, useAuth } from "./contexts/AuthProvider.jsx";
 import CreateJobForm from "./pages/CreateJobForm";
 import JobPostingsList from "./pages/JobPostingsList";
 import JobDetailPage from "./pages/JobDetailPage.jsx";
@@ -16,7 +15,6 @@ import { useEffect } from "react";
 import ChangePasswordForm from "./pages/ChangePasswordForm";
 import ChatsPage from "./pages/ChatsPage";
 import { JobsListProvider } from "./contexts/JobsListContext.jsx";
-import ResumeProvider from "./contexts/ResumesContext.jsx";
 import JobApplicantsPage from "./pages/JobApplicantsPage.jsx";
 import JobCandidatesPage from "./pages/JobCandidatesPage.jsx";
 
@@ -33,12 +31,12 @@ function ScrollToTop() {
 function App() {
   return (
     <Router>
-      <AuthProvider>
+      {/* <AuthProvider> */}
         <SideNavbar />
-        <DataProvider>
+        {/* <DataProvider> */}
 
           <SocketProvider>
-            <ResumeProvider>
+            {/* <ResumeProvider> */}
               {/* Scroll to top on every route change */}
                   <ScrollToTop />
 
@@ -66,20 +64,20 @@ function App() {
                     </ChatProvider>
                 } />
               </Routes>
-            </ResumeProvider>
+            {/* </ResumeProvider> */}
 
 
           </SocketProvider>
           
-        </DataProvider>
-      </AuthProvider>
+        {/* </DataProvider> */}
+      {/* </AuthProvider> */}
     </Router>
   );
 }
 
 
 function AppRoutes() {
-  const { user } = useAuth(); // Access user state from AuthProvider
+  const user = useAuthStore(state => state.user);
 
   return user ? <Dashboard /> : <LandingPage />;
 }

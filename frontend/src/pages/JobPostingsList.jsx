@@ -14,7 +14,6 @@ import ApplicationFormModal from "../components/JobDetailComponents/ApplicationF
 
 function JobPostingsList() {
     const { user, handleJobAction } = useAuth();
-    const { baseUrl } = useData();
     const { filterRef, resumes } = useJobFilters();
     const [selectedJob, setSelectedJob] = useState(null)
     const [hasQuestions, setHasQuestions] = useState(false);

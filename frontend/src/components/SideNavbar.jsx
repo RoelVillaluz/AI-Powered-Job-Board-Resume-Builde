@@ -1,9 +1,12 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useAuth } from "../contexts/AuthProvider";
+import { useAuthStore } from "../stores/authStore";
 
 function SideNavbar () {
-    const { user, logout } = useAuth();
+    // const { user, logout } = useAuth();
+    const user = useAuthStore(state => state.user);
+    const logout = useAuthStore(state => state.logout);
+    
     const location = useLocation();
     const navigate = useNavigate();
     const hideNavbarLocations = ['/register', '/login', '/get-started', '/sign-in']

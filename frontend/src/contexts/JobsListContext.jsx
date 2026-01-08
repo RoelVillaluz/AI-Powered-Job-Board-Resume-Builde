@@ -7,7 +7,6 @@ import {
 } from "react";
 
 import { useData } from "./DataProvider";
-import { useAuth } from "./AuthProvider";
 
 import { useJobFilterLogic } from "../hooks/jobsList/useJobFilterLogic";
 import { useJobSorting } from "../hooks/jobsList/useJobSorting";
@@ -36,7 +35,7 @@ export const useJobsState = () => {
 };
 
 export const JobsListProvider = ({ children }) => {
-    const { user } = useAuth();
+    const user = useAuthStore(state => state.user);
     const {
         baseUrl,
         fetchResumes,

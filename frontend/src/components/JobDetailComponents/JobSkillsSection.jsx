@@ -6,7 +6,6 @@ import { useResume } from "../../contexts/ResumesContext";
 import { useData } from "../../contexts/DataProvider";
 
 function JobSkillsSection({ job, loading = false }) {
-    const { baseUrl } = useData();
     const { user, setUser } = useAuth();
     const { currentResume, setCurrentResume } = useResume();
     const { handleAddSkillToResume } = useResumeActions(baseUrl, user, setUser, setCurrentResume);

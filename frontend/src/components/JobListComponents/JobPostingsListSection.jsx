@@ -6,7 +6,7 @@ import JobPostingCard, { JobPostingCardSkeleton } from "./JobPostingCard";
 import JobSorter from "./JobSorter";
 
 function JobPostingsListSection({ currentResume, onShowModal }) {
-    const { user } = useAuth();
+    const user = useAuthStore(state => state.user)
     const { jobs, hasMoreJobs, loading, loadMoreJobs } = useJobsState();
     const {
         sortBy,

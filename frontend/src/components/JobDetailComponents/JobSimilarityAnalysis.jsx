@@ -19,7 +19,7 @@ const LoadingSkeleton = () => {
 }
 
 const ResumeList = ({ job }) => {
-    const { user } = useAuth()
+    const user = useAuthStore(state => state.user);
     const { resumes, currentResume, setCurrentResume, loading } = useResume();
 
     const jobSkillsLowercase = useMemo(() => 

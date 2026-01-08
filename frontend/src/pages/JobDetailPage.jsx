@@ -20,9 +20,8 @@ import JobCompany from "../components/JobDetailComponents/JobCompany";
 import JobSimilarityAnalysis from "../components/JobDetailComponents/JobSimilarityAnalysis";
 
 function JobDetailPage() {
-    const { baseUrl } = useData();
     const { jobId } = useParams();
-    const { user } = useAuth();
+    const user = useAuthStore(state => state.user);
     const { job, company, loading, hasQuestions } = useJobDetails(baseUrl, jobId);
     const { currentResume } = useResume();
     const { resumeScore } = useResumeAnalysis();

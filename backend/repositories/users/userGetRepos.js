@@ -123,9 +123,9 @@ export const findUserInteractedJobs = async (id, jobActionType) => {
  */
 export const findUser = async (id) => {
     return await User.findById(id)
-        .select('email firstName lastName role profilePicture industry')
+        .select('email firstName lastName role profilePicture industry appliedJobs savedJobs')
         .populate('company', 'id name')
-        .lean();
+        .lean({ virtuals: true });
 };
 
 /**

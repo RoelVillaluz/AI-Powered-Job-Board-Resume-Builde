@@ -1,14 +1,14 @@
-import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
-import { useAuth } from "../../contexts/AuthProvider";
+import { useAuthStore } from "../../stores/authStore";
 
-function GoalsSection({ loading }) {
-    const user = useAuthStore(state => state.user)
+function GoalsSection() {
+    const user = useAuthStore(state => state.user);
+    const isLoading = useAuthStore(state => state.isLoading);
 
     return (
         <>
             <section className="grid-item" id="goals">
-                {!loading && (
+                {!isLoading && (
                     <Link to="/goals">
                         <header>
                             <h5>Your goals</h5>

@@ -29,6 +29,13 @@ function ScrollToTop() {
 }
 
 function App() {
+  const restoreSession = useAuthStore(state => state.restoreSession);
+
+  // Restore session when app loads
+  useEffect(() => {
+    restoreSession();
+  }, []);
+  
   return (
     <Router>
       {/* <AuthProvider> */}

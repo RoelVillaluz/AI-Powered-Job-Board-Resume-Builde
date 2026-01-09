@@ -8,7 +8,6 @@ const ResumeContext = createContext();
 export const useResume = () => useContext(ResumeContext);
 
 const ResumeProvider = ({ children }) => {
-    const { baseUrl } = useData();
     const { user, setUser } = useAuth();
 
     const [resumes, setResumes] = useState([]);

@@ -9,6 +9,8 @@ export const useJobStore = create(
             // State
             jobPostings: [],
             jobRecommendations: [],
+            appliedJobs: [],
+            savedJobs: [],
             isLoading: false,
             error: null,
 
@@ -51,10 +53,31 @@ export const useJobStore = create(
                 }
             },
 
+            fetchInteractedJobs: async (userId) => {
+                set({ isLoading: true, error: null })
+                try {
+                    const { data } = await axios.get(`${BASE_API_URL}/users/${userId}/interacted-jobs`)
+
+                    set({
+                        appliedJobs: data.data.appliedJobs,
+                        savedJobs: data.data.savedJobs,
+                        isLoading: false
+                    })
+                } catch (error) {
+                    console.error('Error fetching interacted jobs', error)
+                    set({
+                        error: error.message,
+                        isLoading: false
+                    })
+                }
+            },
+
             clearJobs: () =>
                 set({
                 jobPostings: [],
                 jobRecommendations: [],
+                appliedJobs: [],
+                savedJobs: [],
                 error: null,
             }),
         }),

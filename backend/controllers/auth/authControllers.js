@@ -40,7 +40,7 @@ export const loginUser = catchAsync(async (req, res) => {
 
     return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.LOGIN, data: {
             token,
-            user: { _id: user._id, email: user.email, role: user.role }
+            user
         },
     }, 'User')
 })

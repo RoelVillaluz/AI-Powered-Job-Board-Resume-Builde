@@ -84,7 +84,7 @@ export const useAuthStore = create(
 
                         if (data.success) {
                             set({
-                                user: data.data.user,
+                                user: data.data,
                                 isAuthenticated: true,
                                 isLoading: false
                             })
@@ -114,7 +114,7 @@ export const useAuthStore = create(
                         })
 
                         if (data.success) {
-                            set({ user: data.data.user });
+                            set({ user: data.data });
                         }
                     } catch (error) {
                         console.error('User refresh failed:', error);

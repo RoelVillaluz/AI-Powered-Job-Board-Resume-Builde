@@ -9,7 +9,7 @@ export const getResumes = async (req, res) => {
         return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.FETCH, data: resumes }, 'Resumes')
     } catch (error) {
         console.error('Error', error)
-        return sendResponse(res, { ...STATUS_MESSAGES.ERROR.SERVER, succes: false })
+        return sendResponse(res, { ...STATUS_MESSAGES.ERROR.SERVER, success: false })
     }
 }
 

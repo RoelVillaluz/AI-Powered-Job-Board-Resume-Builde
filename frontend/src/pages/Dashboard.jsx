@@ -41,7 +41,7 @@ function Dashboard () {
                             <ApplicationProgressSection/>
                             <SalaryPredictionSection/>
                             <GoalsSection/>
-                            {/* <NetworkSection/> */}
+                            <NetworkSection/>
                             <OnlineCoursesSection/>
                         </div>
                         </>

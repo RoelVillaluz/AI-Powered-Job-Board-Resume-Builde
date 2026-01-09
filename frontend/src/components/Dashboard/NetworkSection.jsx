@@ -1,35 +1,51 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback } from "react"
 import { Link } from "react-router-dom"
-import { useData } from "../../contexts/DataProvider"
 import axios from "axios";
-import { useAuth } from "../../contexts/AuthProvider";
+import { BASE_API_URL } from "../../config/api";
+import { useAuthStore } from "../../stores/authStore";
 
-function NetworkSection({ user, baseUrl }) {
-    const { setUser } = useAuth();
-    const { users, getAllData } = useData();
+function NetworkSection() {
+    const user = useAuthStore(state => state.user);
+    const token = useAuthStore(state => state.token);
     const [connectionRecommendations, setConnectionRecommendations] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
 
-    useEffect(() => {
-        getAllData(["users"])
-    }, [])
+    const fetchRecommendations = useCallback(async () => {
+        if (!user?._id || !token) return;
 
-    useEffect(() => {
-        console.log("User:", user);
-        console.log("Users:", users);
-    
-        if (user && users?.length) {
-            const filteredUsers = users.filter(u => u._id !== user._id && u.role === 'jobseeker');
-            console.log("Filtered Users:", filteredUsers);
-            setConnectionRecommendations(filteredUsers);
+        setLoading(true);
+        setError(null);
+
+        try {
+            const response = await axios.get(
+                `${BASE_API_URL}/users/${user._id}/connection-recommendations`,
+                {
+                headers: { Authorization: `Bearer ${token}` }
+                }
+            );
+
+            setConnectionRecommendations(response.data.data);
+        } catch (err) {
+            console.error('Error fetching connection recommendations', err);
+            setError(err.message);
+        } finally {
+            setLoading(false);
         }
-    }, [users]);
+    }, [user?._id, token]);
+
+    useEffect(() => {
+        if (!user && !token) return
+
+        fetchRecommendations()
+    }, [fetchRecommendations])
 
     const toggleApplicationRequest = async (e, connectionId) => {
         e.preventDefault();
         e.stopPropagation();
     
         try {
-            const response = await axios.post(`${baseUrl}/users/send-connection-request`, 
+            const response = await axios.post(`${BASE_API_URL}/users/send-connection-request`, 
                 { userId: user._id, connectionId },
                 { headers: { "Content-Type": "application/json" } }
             );
@@ -64,7 +80,7 @@ function NetworkSection({ user, baseUrl }) {
                     <li key={connectionRecommendation._id}>
                         <img src={connectionRecommendation.profilePicture} alt={`${connectionRecommendation.name}'s profile picture`} />
                         <div className="person-info">
-                            <h4>{connectionRecommendation.name}</h4>
+                            <h4>{connectionRecommendation.firstName} {connectionRecommendation.lastName}</h4>
                             <p>{connectionRecommendation.role}</p>
                         </div>
                         <button

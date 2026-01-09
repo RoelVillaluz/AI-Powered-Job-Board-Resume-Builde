@@ -1,6 +1,20 @@
 import User from "../../models/userModel.js";
 
 /**
+ * Finds a single user by their ID.
+ * Returns basic user profile information without sensitive data.
+ * 
+ * @param {string} id - The MongoDB ObjectId of the user
+ * @returns {Promise<Object|null>} User object, or null if not found
+ */
+export const findUser = async (id) => {
+    return await User.findById(id)
+        .select('email firstName lastName role profilePicture industry appliedJobs savedJobs')
+        .populate('company', 'id name')
+        .lean({ virtuals: true });
+};
+
+/**
  * Finds a user by email and allows selecting optional fields.
  * 
  * @param {string} email - The email of the user to find
@@ -61,6 +75,25 @@ export const findUsers = async ({ name, limit = 10 } = {}) => {
         .lean();
 };
 
+export const findConnectionRecommendations = async (id, limit = 10) => {
+    const user = await User.findById(id)
+        .select('connections')
+        .lean()
+
+    const excludeIds = [
+        id,
+        ...user.connections.map(c => c.user)
+    ]
+
+    return await User.find({
+        _id: { $nin: excludeIds },
+    })
+        .select('_id email firstName lastName profilePicture role industry')
+        .populate('company', 'name')
+        .limit(limit)
+        .lean();
+}
+
 /**
  * Finds user by id and gets all their interacted jobs
  * @param {String} id 
@@ -112,20 +145,6 @@ export const findUserInteractedJobs = async (id, jobActionType) => {
         savedJobs: user?.savedJobs ?? [],
         appliedJobs: user?.appliedJobs ?? []
     };
-};
-
-/**
- * Finds a single user by their ID.
- * Returns basic user profile information without sensitive data.
- * 
- * @param {string} id - The MongoDB ObjectId of the user
- * @returns {Promise<Object|null>} User object, or null if not found
- */
-export const findUser = async (id) => {
-    return await User.findById(id)
-        .select('email firstName lastName role profilePicture industry appliedJobs savedJobs')
-        .populate('company', 'id name')
-        .lean({ virtuals: true });
 };
 
 /**

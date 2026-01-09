@@ -38,7 +38,7 @@ export const useResumeStore = create(
                 }
             },
 
-            setCurrentResumes: (resume) => set({ currentResume: resume }),
+            setCurrentResume: (resume) => set({ currentResume: resume }),
 
             clearResumes: () =>
                 set({

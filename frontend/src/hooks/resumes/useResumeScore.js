@@ -1,68 +1,46 @@
-import { useEffect, useState } from "react";
-import axios from "axios";
-import { BASE_API_URL } from "../../config/api";
-import { useResumeStore } from "../../stores/resumeStore";
+import { useAuthStore } from "../../stores/authStore"
+import { useResumeStore } from "../../stores/resumeStore"
+import { useResumeScoreQuery, useUserResumesQuery } from "./useResumeQueries"
 
 const messages = {
-  0: {
-    rating: "No Resume yet",
-    message: "You don't have a resume yet. Please add a resume now."
-  },
-  0.25: {
-    rating: "Poor",
-    message: "Your resume needs significant improvement. Consider adding more details about your experience and skills.",
-  },
-  0.5: {
-    rating: "Average",
-    message: "Your resume is decent, but there’s room for improvement. Try refining your descriptions and adding measurable achievements.",
-  },
-  0.75: {
-    rating: "Good",
-    message: "Your resume is well-structured! A few tweaks and refinements could make it even stronger.",
-  },
-  0.9: {
-    rating: "Great",
-    message: "You're almost there, but filling out minor missing details could take it to the next level.",
-  },
-  1: {
-    rating: "Excellent",
-    message: "Nearly flawless! Your resume effectively presents your qualifications",
-  },
-};
+    0: { rating: "No Resume yet", message: "You don't have a resume yet. Please add a resume now." },
+    0.25: { rating: "Poor", message: "Your resume needs significant improvement. Consider adding more details about your experience and skills." },
+    0.5: { rating: "Average", message: "Your resume is decent, but there's room for improvement. Try refining your descriptions and adding measurable achievements." },
+    0.75: { rating: "Good", message: "Your resume is well-structured! A few tweaks and refinements could make it even stronger." },
+    0.9: { rating: "Great", message: "You're almost there, but filling out minor missing details could take it to the next level." },
+    1: { rating: "Excellent", message: "Nearly flawless! Your resume effectively presents your qualifications" },
+}
 
+/**
+ * Convenience hook to get both resume and score for the current user.
+ * Handles the full flow: fetch resumes → set current → fetch score
+ * @returns {Object} { currentResume, progress, loading, error, messages }
+ */
 export const useResumeScore = () => {
-  const resume = useResumeStore(state => state.currentResume);
+    const user = useAuthStore(state => state.user)
+    const currentResume = useResumeStore(state => state.currentResume)
+    
+    // Step 1: Fetch all resumes for the user
+    // This will automatically set currentResume via useEffect in useUserResumesQuery
+    const { data: resumes, isLoading: resumesLoading, error: resumesError } = useUserResumesQuery(user?._id)
 
-  const [progress, setProgress] = useState(0);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+    // Step 2: Fetch score only when currentResume exists
+    const { data: score = 0, isLoading: scoreLoading, error: scoreError } = useResumeScoreQuery(currentResume?._id)
 
-  useEffect(() => {
-    if (!resume?._id) return;
+    // Determine overall loading state
+    const isLoading = resumesLoading || scoreLoading
 
-    const getResumeScore = async () => {
-      setLoading(true);
-      setError(null);
+    // Combine errors
+    const error = resumesError || scoreError
 
-      try {
-        const { data } = await axios.get(
-          `${BASE_API_URL}/ai/resume-score/${resume._id}`
-        );
-        setProgress(data.score / 100);
-      } catch (err) {
-        setError(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    getResumeScore();
-  }, [resume?._id]);
-
-  return {
-    progress,
-    loading,
-    error,
-    messages,
-  };
-};
+    return {
+        currentResume,
+        progress: score ?? 0,
+        loading: isLoading,
+        error,
+        messages,
+        // Extra helpful data
+        hasResume: !!currentResume,
+        totalResumes: resumes?.length ?? 0
+    }
+}

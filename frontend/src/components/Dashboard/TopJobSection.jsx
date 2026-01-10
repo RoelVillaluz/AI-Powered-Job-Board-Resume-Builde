@@ -5,52 +5,35 @@ import { useJobStore } from "../../stores/jobStore";
 import { useResumeStore } from "../../stores/resumeStore";
 import { useAuthStore } from "../../stores/authStore"; // Add this import
 import { formattedSalary } from "../../../../backend/constants";
+import { useJobRecommendations } from "../../hooks/jobs/useJobQueries";
 
 function TopJobSection() {
     const { toggleApplyJob, toggleSaveJob } = useJobActions();
     const user = useAuthStore(state => state.user); // Get user from store
-
-    const jobRecommendations = useJobStore(state => state.jobRecommendations);
-    const fetchJobRecommendations = useJobStore(state => state.fetchJobRecommendations);
-    
-    const isJobLoading = useJobStore(state => state.isLoading); // Rename to avoid conflict
     const resume = useResumeStore(state => state.currentResume);
+
+    const { data: jobRecommendations = [], isLoading, error } =
+        useJobRecommendations(user?._id)
     
-    const [topJob, setTopJob] = useState(null);
+    const topJob = jobRecommendations[0] ?? null;
+    
     const [shuffledSkills, setShuffledSkills] = useState([]);
 
-    // Fetch recommendations on mount
-    useEffect(() => {
-        if (user?._id) {
-            fetchJobRecommendations(user._id);
-        }
-    }, [user?._id, fetchJobRecommendations]);
-
-    // Set top job when recommendations are loaded
-    useEffect(() => {
-        if (jobRecommendations.length > 0) {
-            setTopJob(jobRecommendations[0]);
-        } else {
-            setTopJob(null);
-        }
-    }, [jobRecommendations]);
-
-    // Shuffle skills only once
     useEffect(() => {
         if (resume?.skills?.length) {
-            const shuffled = resume.skills
-                .sort(() => Math.random() - 0.5)
-                .slice(0, 3)
-                .map(skill => skill.name)
-                .join(", ");
-            setShuffledSkills(shuffled);
+        const skills = [...resume.skills]
+            .sort(() => Math.random() - 0.5)
+            .slice(0, 3)
+            .map(skill => skill.name)
+            .join(', ')
+        setShuffledSkills(skills)
         }
-    }, [resume]);
+    }, [resume])
     
     return (
         <>
-            <section className={`grid-item ${!isJobLoading && topJob ? '' : 'skeleton'}`} id="top-job">
-                {!isJobLoading && topJob && user && (
+            <section className={`grid-item ${!isLoading && topJob ? '' : 'skeleton'}`} id="top-job">
+                {!isLoading && topJob && user && (
                     <>
                         <Link to={`job-postings/${topJob._id}`} id="top-job-link">
                             <header>

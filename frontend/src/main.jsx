@@ -8,9 +8,22 @@ import './styles/analysis.css'
 import './styles/jobs.css'
 import './styles/skeleton.css'
 import './styles/chats/chats.css'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: false
+    }
+  }
+})
 
 import App from './App.jsx'
 
 createRoot(document.getElementById('root')).render(
-  <App />
+  <QueryClientProvider client={queryClient}>
+      <App />
+      <ReactQueryDevtools initialIsOpen={false} position="bottom-right" />
+  </QueryClientProvider>
 )

@@ -30,20 +30,20 @@ function Dashboard () {
                 <div className="dashboard">
                     {user && user.role === 'jobseeker' && (
                         <>
-                        <header id="dashboard-header">
-                            <h1>Welcome Back, {user.firstName}</h1>
-                            <p>Let's make this day productive.</p>
-                        </header>
-                        <div className="grid-container">
-                            <UserProfileSection/>
-                            <ResumeScoreSection/>
-                            <TopJobSection/>
-                            <ApplicationProgressSection/>
-                            <SalaryPredictionSection/>
-                            <GoalsSection/>
-                            <NetworkSection/>
-                            <OnlineCoursesSection/>
-                        </div>
+                            <header id="dashboard-header">
+                                <h1>Welcome Back, {user.firstName}</h1>
+                                <p>Let's make this day productive.</p>
+                            </header>
+                            <div className="grid-container">
+                                <UserProfileSection/>
+                                <ResumeScoreSection/>
+                                <TopJobSection/>
+                                <ApplicationProgressSection/>
+                                <SalaryPredictionSection/>
+                                <GoalsSection/>
+                                <NetworkSection/>
+                                <OnlineCoursesSection/>
+                            </div>
                         </>
                     )}
                 </div>

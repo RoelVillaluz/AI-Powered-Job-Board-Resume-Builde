@@ -38,10 +38,7 @@ function App() {
   
   return (
     <Router>
-      {/* <AuthProvider> */}
         <SideNavbar />
-        {/* <DataProvider> */}
-
           <SocketProvider>
             {/* <ResumeProvider> */}
               {/* Scroll to top on every route change */}
@@ -71,13 +68,7 @@ function App() {
                     </ChatProvider>
                 } />
               </Routes>
-            {/* </ResumeProvider> */}
-
-
           </SocketProvider>
-          
-        {/* </DataProvider> */}
-      {/* </AuthProvider> */}
     </Router>
   );
 }

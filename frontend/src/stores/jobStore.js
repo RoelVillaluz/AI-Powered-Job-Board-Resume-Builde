@@ -4,83 +4,15 @@ import axios from 'axios';
 import { BASE_API_URL } from '../config/api.js';
 
 export const useJobStore = create(
-    devtools(
-        (set) => ({
-            // State
-            jobPostings: [],
-            jobRecommendations: [],
-            appliedJobs: [],
-            savedJobs: [],
-            isLoading: false,
-            error: null,
-
-            // Actions
-            fetchJobPostings: async () => {
-                set({ isLoading: true, error: null });
-
-                try {
-                    const { data } = await axios.get(`${BASE_API_URL}/job-postings`)
-
-                    set({
-                        jobPostings: data.data,
-                        isLoading: false
-                    })
-                } catch (error) {
-                    console.error('Error fetching job postings:', error);
-                    set({ 
-                        error: error.message,
-                        isLoading: false, 
-                    })
-                }
-            },
-
-            fetchJobRecommendations: async (userId) => {
-                set({ isLoading: true, error: null });
-
-                try {
-                    const { data } = await axios.get(`${BASE_API_URL}/ai/job-recommendations/${userId}`);
-
-                    set({
-                        jobRecommendations: data.data,
-                        isLoading: false
-                    })
-                } catch (error) {
-                    console.error('Error fetching job recommendations', error)
-                    set({
-                        error: error.message,
-                        isLoading: false
-                    })
-                }
-            },
-
-            fetchInteractedJobs: async (userId) => {
-                set({ isLoading: true, error: null })
-                try {
-                    const { data } = await axios.get(`${BASE_API_URL}/users/${userId}/interacted-jobs`)
-
-                    set({
-                        appliedJobs: data.data.appliedJobs,
-                        savedJobs: data.data.savedJobs,
-                        isLoading: false
-                    })
-                } catch (error) {
-                    console.error('Error fetching interacted jobs', error)
-                    set({
-                        error: error.message,
-                        isLoading: false
-                    })
-                }
-            },
-
-            clearJobs: () =>
-                set({
-                jobPostings: [],
-                jobRecommendations: [],
-                appliedJobs: [],
-                savedJobs: [],
-                error: null,
-            }),
+    devtools((set) => ({
+        selectedJobId: null,
+        activeFilters: {},
+        setSelectedJobId: (id) => set({ selectedJobId: id }),
+        setFilters: (filters) => set({ activeFilters: filters }),
+        clearJobUI: () =>
+        set({
+            selectedJobId: null,
+            activeFilters: {},
         }),
-        { name: 'JobStore' }
-    )
+    }), { name: 'JobStore' })
 )

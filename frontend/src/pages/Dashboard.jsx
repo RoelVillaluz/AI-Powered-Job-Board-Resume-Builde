@@ -10,12 +10,17 @@ import ResumeScoreSection from "../components/Dashboard/ResumeScoreSection"
 import GoalsSection from "../components/Dashboard/GoalsSection"
 import NetworkSection from "../components/Dashboard/NetworkSection"
 import { useUserResumesQuery } from "../hooks/resumes/useResumeQueries"
+import { useEffect } from "react"
 
 function Dashboard () {
     const user = useAuthStore(state => state.user);
     
     // Fetch user's resumes when Dashboard mounts
     const { data: resumes, isLoading: resumesLoading } = useUserResumesQuery(user?._id);
+
+    useEffect(() => {
+        document.title = 'Dashboard'
+    }, [])
     
     return (
         <>

@@ -1,44 +1,58 @@
 import { useEffect, useRef } from "react";
 import { VirtuosoGrid } from "react-virtuoso";
-import { useJobsState, useJobFilters } from "../../contexts/JobsListContext";
-import { useAuth } from "../../contexts/AuthProvider";
+import { useJobInfiniteScroll } from "../../hooks/jobsList/useJobInfiniteScroll";  
 import JobPostingCard, { JobPostingCardSkeleton } from "./JobPostingCard";
 import JobSorter from "./JobSorter";
+import { useAuthStore } from "../../stores/authStore";
+import { useResumeStore } from "../../stores/resumeStore";
 
-function JobPostingsListSection({ currentResume, onShowModal }) {
-    const user = useAuthStore(state => state.user)
-    const { jobs, hasMoreJobs, loading, loadMoreJobs } = useJobsState();
-    const {
-        sortBy,
-        sortTypes,
-        isDropdownVisible,
-        setIsDropdownVisible,
-        toggleDropdown,
-        handleSortButtonClick
-    } = useJobFilters();
+function JobPostingsListSection({ onShowModal }) {
+    const user = useAuthStore(state => state.user);  // Fetch user from Zustand
+    const currentResume = useResumeStore(state => state.currentResume); // Fetch resume from Zustand 
+    const { jobs, hasMoreJobs, loading, loadMoreJobs } = useJobInfiniteScroll();  // Use the updated infinite scroll hook
 
-    const dropdownRef = useRef(null);
+    console.log('Jobs: ', jobs)
+    console.log('Loading: ', loading)
+    console.log('Has more jobs: ', hasMoreJobs)
+    
 
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (
-                dropdownRef.current &&
-                !dropdownRef.current.contains(event.target)
-            ) {
-                setIsDropdownVisible(false);
-            }
-        };
+    // const {
+    //     sortBy,
+    //     sortTypes,
+    //     isDropdownVisible,
+    //     setIsDropdownVisible,
+    //     toggleDropdown,
+    //     handleSortButtonClick
+    // } = useJobFilters();
 
-        document.addEventListener("mousedown", handleClickOutside);
-        return () =>
-            document.removeEventListener("mousedown", handleClickOutside);
-    }, [setIsDropdownVisible]);
+    // const dropdownRef = useRef(null);
+
+    // useEffect(() => {
+    //     const handleClickOutside = (event) => {
+    //         if (
+    //             dropdownRef.current &&
+    //             !dropdownRef.current.contains(event.target)
+    //         ) {
+    //             setIsDropdownVisible(false);
+    //         }
+    //     };
+
+    //     document.addEventListener("mousedown", handleClickOutside);
+    //     return () =>
+    //         document.removeEventListener("mousedown", handleClickOutside);
+    // }, [setIsDropdownVisible]);
 
     const totalCount = hasMoreJobs ? jobs.length + 6 : jobs.length;
 
     return (
         <section id="job-posting-list">
             <header>
+                <h2>
+                    Job listings{" "}
+                    <span className="filtered-jobs-count">{jobs.length}</span>
+                </h2>
+            </header>
+            {/* <header>
                 <h2>
                     Job listings{" "}
                     <span className="filtered-jobs-count">{jobs.length}</span>
@@ -52,7 +66,7 @@ function JobPostingsListSection({ currentResume, onShowModal }) {
                     toggleDropdown={toggleDropdown}
                     handleSortButtonClick={handleSortButtonClick}
                 />
-            </header>
+            </header> */}
 
             <VirtuosoGrid
                 style={{ height: "900px", width: "100%" }}
@@ -78,7 +92,7 @@ function JobPostingsListSection({ currentResume, onShowModal }) {
                 }}
                 endReached={() => {
                     if (hasMoreJobs && !loading) {
-                        loadMoreJobs();
+                        loadMoreJobs();  // Trigger loading more jobs
                     }
                 }}
             />

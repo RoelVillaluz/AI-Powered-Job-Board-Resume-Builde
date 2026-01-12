@@ -1,20 +1,20 @@
-import axios from "axios";
-import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation, Pagination } from "swiper/modules";
+import { Pagination } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 import { useAuthStore } from "../../stores/authStore";
-import { useJobStore } from "../../stores/jobStore";
+import { useInteractedJobs } from "../../hooks/jobs/useJobQueries";
 
 function ApplicationProgressSection() {
     const user = useAuthStore(state => state.user);
-    const isLoading = useAuthStore(state => state.isLoading);
 
-    const appliedJobs = useJobStore(state => state.appliedJobs);
-    const savedJobs = useJobStore(state => state.savedJobs);
+    const { data: interactedJobs = [], isLoading, error }
+        = useInteractedJobs(user._id)
+
+    const appliedJobs = interactedJobs.appliedJobs ?? []
+    const savedJobs = interactedJobs.savedJobs ?? []
 
     const [showOngoing, setShowOngoing] = useState(true);
 

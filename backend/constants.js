@@ -95,6 +95,14 @@ export const DATE_FILTER_MAP = Object.fromEntries(
     Object.entries(DATE_OPTIONS_MAP).map(([k, v]) => [v, k])
 );
 
+export const FILTER_CHOICES = {
+    JOB_TYPE: ['Full-Time', 'Part-Time', 'Contract', 'Internship'],
+    EXPERIENCE_LEVEL: ['Entry', 'Mid', 'Senior', 'Lead'],
+    INDUSTRY: ['Technology', 'Finance', 'Healthcare', 'Education', 'Manufacturing'],
+    APPLICATION_STATUS: ['applied', 'interviewing', 'offered', 'rejected', 'not applied'],
+    DATE_POSTED: ['Anytime', 'Today', 'This Week', 'This Month', 'Last 3 Months']
+};
+
 export const RESUME_ANALYSIS_MESSAGES = {
         0: {
             rating: "No Resume yet",

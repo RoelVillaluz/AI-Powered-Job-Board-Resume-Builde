@@ -14,7 +14,6 @@ import JobDetailPage from "./pages/JobDetailPage.jsx";
 import { useEffect } from "react";
 import ChangePasswordForm from "./pages/ChangePasswordForm";
 import ChatsPage from "./pages/ChatsPage";
-import { JobsListProvider } from "./contexts/JobsListContext.jsx";
 import JobApplicantsPage from "./pages/JobApplicantsPage.jsx";
 import JobCandidatesPage from "./pages/JobCandidatesPage.jsx";
 
@@ -51,11 +50,7 @@ function App() {
                   <Route path="/get-started" element={<GetStartedForm />} />
                   <Route path="/create-job-posting" element={<CreateJobForm />} />
 
-                  <Route path="/job-postings" element={
-                    <JobsListProvider>
-                      <JobPostingsList /> 
-                    </JobsListProvider>
-                  }/>
+                  <Route path="/job-postings" element={<JobPostingsList /> }/>
                   <Route path="/job-postings/:jobId" element={<JobDetailPage />} />
                   <Route path="/job-postings/:jobId/applicants" element={<JobApplicantsPage />} />
                   <Route path="/job-postings/:jobId/candidates" element={<JobCandidatesPage />} />

@@ -46,7 +46,7 @@ export const getJobPostings = catchAsync(async (req, res) => {
     return res.status(200).json({
         success: true,
         message: 'Job postings fetched successfully',
-        data: result,
+        data: result.jobPostings,
         pagination: {
             cursor: result.nextCursor,
             hasMore: result.hasMore,

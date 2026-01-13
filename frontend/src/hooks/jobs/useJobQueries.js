@@ -1,19 +1,33 @@
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { fetchJobPostings, fetchJobRecommendations, fetchInteractedJobs } from "../../../api/jobApis";
+import { useJobStore } from "../../stores/jobStore";
 
 export const useJobPostings = () => {
-    return useQuery({
-        queryKey: ['jobPostings'],
-        queryFn: fetchJobPostings,
-        staleTime: 1000 * 60 * 5
-    })
-}
+    const activeFilters = useJobStore(state => state.activeFilters);
+    const sortBy = useJobStore(state => state.sortBy);
+    
+    return useInfiniteQuery({
+        queryKey: ['jobPostings', activeFilters, sortBy],
+        queryFn: ({ pageParam = null }) =>
+            fetchJobPostings({
+                filters: activeFilters,
+                sortBy: sortBy,
+                cursor: pageParam,
+                limit: 20,
+            }),
+        getNextPageParam: (lastPage) => lastPage.hasMore ? lastPage.nextCursor : undefined,
+        staleTime: 1000 * 60 * 5,
+        retry: 3,
+        initialPageParam: null,
+    });
+};
 
 export const useJobRecommendations = (userId) => {
     return useQuery({
         queryKey: ['jobRecommendations', userId],
         queryFn: () => fetchJobRecommendations(userId),
         enabled: !!userId,
+        retry: 3,
         staleTime: 1000 * 60 * 5
     })
 }
@@ -29,5 +43,6 @@ export const useInteractedJobs = (userId, token) => {
         return data.data
         },
         enabled: !!userId && !!token, // only run if both exist
+        retry: 3,
     })
 }

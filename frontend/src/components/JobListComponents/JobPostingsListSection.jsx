@@ -11,38 +11,12 @@ function JobPostingsListSection({ onShowModal }) {
     const currentResume = useResumeStore(state => state.currentResume); // Fetch resume from Zustand 
     const { jobs, hasMoreJobs, loading, loadMoreJobs } = useJobInfiniteScroll();  // Use the updated infinite scroll hook
 
-    console.log('Jobs: ', jobs)
-    console.log('Loading: ', loading)
-    console.log('Has more jobs: ', hasMoreJobs)
-    
-
-    // const {
-    //     sortBy,
-    //     sortTypes,
-    //     isDropdownVisible,
-    //     setIsDropdownVisible,
-    //     toggleDropdown,
-    //     handleSortButtonClick
-    // } = useJobFilters();
-
-    // const dropdownRef = useRef(null);
-
-    // useEffect(() => {
-    //     const handleClickOutside = (event) => {
-    //         if (
-    //             dropdownRef.current &&
-    //             !dropdownRef.current.contains(event.target)
-    //         ) {
-    //             setIsDropdownVisible(false);
-    //         }
-    //     };
-
-    //     document.addEventListener("mousedown", handleClickOutside);
-    //     return () =>
-    //         document.removeEventListener("mousedown", handleClickOutside);
-    // }, [setIsDropdownVisible]);
-
-    const totalCount = hasMoreJobs ? jobs.length + 6 : jobs.length;
+    const isInitialLoading = loading && jobs.length === 0;
+    const totalCount = isInitialLoading
+        ? SKELETON_COUNT
+        : hasMoreJobs
+            ? jobs.length + SKELETON_COUNT
+            : jobs.length;
 
     return (
         <section id="job-posting-list">

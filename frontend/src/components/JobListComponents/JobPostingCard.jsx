@@ -21,7 +21,8 @@ const JobPostingCard = ({ job, user, resume, onShowModal }) => {
     const appliedJobText = useMemo(() => (isApplied ? "Unapply" : "Apply"), [isApplied]);
 
 
-    const hasQuestions = job.preScreeningQuestions.length > 0;
+    const hasQuestions = Array.isArray(job.preScreeningQuestions)
+        && job.preScreeningQuestions.length > 0;
 
     const handleApplyClick = (e) => {
         e.preventDefault();

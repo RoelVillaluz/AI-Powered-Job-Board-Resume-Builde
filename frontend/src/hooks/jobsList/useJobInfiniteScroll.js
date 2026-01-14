@@ -27,6 +27,7 @@ import { useJobStore } from "../../stores/jobStore";
 export const useJobInfiniteScroll = () => {
     const user = useAuthStore(state => state.user);
     const sortBy = useJobStore(state => state.sortBy);
+    const minMatchScore = useJobStore(state => state.activeFilters.minMatchScore);
 
     const {
         data,
@@ -50,8 +51,11 @@ export const useJobInfiniteScroll = () => {
 
         const merged = mergeJobsWithRecommendations(flatJobs, recommendations);
 
+        // Filter by minimum match score (client-side filter)
+        const filtered = merged.filter(job => (job.matchScore ?? 0) >= minMatchScore);
+
         if (sortBy === "Best Match (Default)") {
-            return [...merged].sort((a, b) => {
+            return [...filtered].sort((a, b) => {
                 const scoreDiff = (b.matchScore ?? 0) - (a.matchScore ?? 0);
                 if (scoreDiff !== 0) return scoreDiff;
 
@@ -60,8 +64,8 @@ export const useJobInfiniteScroll = () => {
             });
         }
 
-        return merged;
-    }, [data, recommendations, sortBy]);
+        return filtered;
+    }, [data, recommendations, sortBy, minMatchScore]);
 
     return {
         jobs,

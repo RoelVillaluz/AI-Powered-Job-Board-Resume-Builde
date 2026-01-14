@@ -81,7 +81,9 @@ export const useFilterHandlers = () => {
      * @param {string|number} value - The numeric value to set
      */
     const handleNumericFilterChange = (filterType, value) => {
-        updateFilter(filterType, parseInt(value) || 0);
+        if (typeof value === "number" && !isNaN(value)) {
+            useJobStore.getState().updateFilter(filterType, value);
+        }
     };
 
     /**

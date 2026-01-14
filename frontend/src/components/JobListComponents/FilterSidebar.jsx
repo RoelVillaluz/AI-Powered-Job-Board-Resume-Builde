@@ -1,4 +1,5 @@
-import { useState, useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
+import { useDebounce } from "../../hooks/useDebounce";
 import { useJobStore } from "../../stores/jobStore";
 import { useResumeStore } from "../../stores/resumeStore";
 import { useToggleSections } from "../../hooks/jobs/useToggleSections";
@@ -8,9 +9,15 @@ import { useFilterHandlers } from "../../hooks/jobs/useFilterHandlers";
 import MatchScoreFilter from "./FilterSidebarComponents/MatchScoreFilter";
 import HasQuestionsFilter from "./FilterSidebarComponents/HasQuestionsFilter";
 import CollapsibleCheckboxFilter from "./FilterSidebarComponents/CollapsibleCheckboxFilter";
-import SalaryFilter from "./FilterSidebarComponents/SalaryFilter"
+import SalaryFilter from "./FilterSidebarComponents/SalaryFilter";
 
-const FilterSidebar = ({ allResumeSkills = [] }) => {
+const FilterSidebar = () => {
+  const currentResume = useResumeStore(state => state.currentResume);
+  const allResumeSkills = useMemo(
+    () => currentResume?.skills?.map(skill => skill.name) || [],
+    [currentResume?.skills]
+  );
+
   const { activeFilters, resetFilters } = useJobStore();
   const { hiddenSections, toggleVisibility } = useToggleSections();
   const {
@@ -23,31 +30,11 @@ const FilterSidebar = ({ allResumeSkills = [] }) => {
   } = useFilterHandlers();
 
   const filterSections = useMemo(() => [
-    {
-      title: 'Job Type',
-      filterType: 'jobType',
-      choices: FILTER_CHOICES.JOB_TYPE
-    },
-    {
-      title: 'Experience Level',
-      filterType: 'experienceLevel',
-      choices: FILTER_CHOICES.EXPERIENCE_LEVEL
-    },
-    {
-      title: 'Skills',
-      filterType: 'skills',
-      choices: allResumeSkills
-    },
-    {
-      title: 'Industry',
-      filterType: 'industry',
-      choices: FILTER_CHOICES.INDUSTRY
-    },
-    {
-      title: 'Application Status',
-      filterType: 'applicationStatus',
-      choices: FILTER_CHOICES.APPLICATION_STATUS
-    }
+    { title: 'Job Type', filterType: 'jobType', choices: FILTER_CHOICES.JOB_TYPE },
+    { title: 'Experience Level', filterType: 'experienceLevel', choices: FILTER_CHOICES.EXPERIENCE_LEVEL },
+    { title: 'Skills', filterType: 'skills', choices: allResumeSkills },
+    { title: 'Industry', filterType: 'industry', choices: FILTER_CHOICES.INDUSTRY },
+    { title: 'Application Status', filterType: 'applicationStatus', choices: FILTER_CHOICES.APPLICATION_STATUS }
   ], [allResumeSkills]);
 
   return (
@@ -56,7 +43,7 @@ const FilterSidebar = ({ allResumeSkills = [] }) => {
         <h3>Filters</h3>
         <button type="reset" onClick={resetFilters}>Clear All</button>
       </header>
-      
+
       <ul className="filter-category-list">
         <li>
           <DatePostedFilter 

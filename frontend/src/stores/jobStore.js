@@ -44,7 +44,7 @@ export const useJobStore = create(
         // State
         selectedJobId: null,
         activeFilters: INITIAL_FILTERS,
-        sortBy: 'Newest First',
+        sortBy: 'Best Match (Default)',
         
         /**
          * Sets the currently selected job ID.

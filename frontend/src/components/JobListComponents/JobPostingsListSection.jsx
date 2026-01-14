@@ -1,10 +1,11 @@
-import { useEffect, useRef } from "react";
 import { VirtuosoGrid } from "react-virtuoso";
-import { useJobInfiniteScroll } from "../../hooks/jobsList/useJobInfiniteScroll";  
+import { useJobInfiniteScroll } from "../../hooks/jobsList/useJobInfiniteScroll.js";  
 import JobPostingCard, { JobPostingCardSkeleton } from "./JobPostingCard";
 import JobSorter from "./JobSorter";
 import { useAuthStore } from "../../stores/authStore";
 import { useResumeStore } from "../../stores/resumeStore";
+
+const SKELETON_COUNT = 9;
 
 function JobPostingsListSection({ onShowModal }) {
     const user = useAuthStore(state => state.user);  // Fetch user from Zustand
@@ -25,22 +26,8 @@ function JobPostingsListSection({ onShowModal }) {
                     Job listings{" "}
                     <span className="filtered-jobs-count">{jobs.length}</span>
                 </h2>
+                <JobSorter />
             </header>
-            {/* <header>
-                <h2>
-                    Job listings{" "}
-                    <span className="filtered-jobs-count">{jobs.length}</span>
-                </h2>
-
-                <JobSorter
-                    currentSortType={sortBy}
-                    sortTypes={sortTypes}
-                    isDropdownVisible={isDropdownVisible}
-                    dropdownRef={dropdownRef}
-                    toggleDropdown={toggleDropdown}
-                    handleSortButtonClick={handleSortButtonClick}
-                />
-            </header> */}
 
             <VirtuosoGrid
                 style={{ height: "900px", width: "100%" }}
@@ -50,17 +37,21 @@ function JobPostingsListSection({ onShowModal }) {
                 itemContent={(index) => {
                     const job = jobs[index];
 
-                    return job ? (
+                    if (!job) {
+                        return (
+                            <JobPostingCardSkeleton
+                                key={`skeleton-${index}`}
+                            />
+                        );
+                    }
+
+                    return (
                         <JobPostingCard
                             key={job._id}
                             job={job}
                             user={user}
                             resume={currentResume}
                             onShowModal={onShowModal}
-                        />
-                    ) : (
-                        <JobPostingCardSkeleton
-                            key={`skeleton-${index}`}
                         />
                     );
                 }}

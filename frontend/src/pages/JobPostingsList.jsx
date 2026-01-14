@@ -2,6 +2,7 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import Layout from "../components/Layout";
 import FilterSidebar from "../components/JobListComponents/FilterSidebar";
 import JobPostingsListSection from "../components/JobListComponents/JobPostingsListSection";
+import JobSearchBar from "../components/JobListComponents/JobSearchBar";
 import ApplicationFormModal from "../components/JobDetailComponents/ApplicationFormModal";
 import { useAuthStore } from "../stores/authStore";
 import { useResumeStore } from "../stores/resumeStore";
@@ -66,7 +67,7 @@ function JobPostingsList() {
                     <FilterSidebar/>
 
                     <main id="job-list-container">
-                        {/* <JobSearchBar /> */}
+                        <JobSearchBar />
                         {/* <TopCompanies baseUrl={baseUrl} user={user} /> */}
 
                         <JobPostingsListSection onShowModal={showModal} />

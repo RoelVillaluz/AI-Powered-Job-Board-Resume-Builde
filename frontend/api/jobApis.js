@@ -42,6 +42,22 @@ export const fetchJobPostings = async ({
 }
 
 /**
+ * Fetches job based on ID param in URL
+ * 
+ * @param {string} id  - ID in URL params used to find the exact job
+ * @returns {Promise<Object>} 
+ */
+export const fetchJobPosting = async (id) => {
+    if (!id || typeof id !== 'string' || id.length !== 24) {
+        throw new Error(`Invalid job ID passed to fetchJobPosting: ${id}`);
+    }
+
+    const { data } = await axios.get(`${BASE_API_URL}/job-postings/${id}`);
+    return data.data;
+};
+
+
+/**
  * Fetches job recommendations for a specific user based on their profile.
  *
  * @param {string} userId - The ID of the user for whom to fetch job recommendations.

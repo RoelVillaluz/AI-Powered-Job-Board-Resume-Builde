@@ -1,0 +1,31 @@
+{
+  "compilerOptions": {
+    // JavaScript / TypeScript target and modules
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true,
+    "jsx": "react-jsx",
+
+    // Libraries for browser + modern JS
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
+
+    // Type checking & safety
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "noUncheckedSideEffectImports": true,
+    "skipLibCheck": true,              
+
+    // Output options
+    "sourceMap": true,
+    "declaration": true,
+    "declarationMap": true,
+
+    // Module detection
+    "moduleDetection": "force"
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "dist"]
+}

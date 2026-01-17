@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types';
+import { useJobDetails } from '../../hooks/jobs/useJobDetails';
 
 const DescriptionSkeleton = () => {
     return (
@@ -19,10 +20,11 @@ const RequirementsSkeleton = () => {
     )
 }
 
-function JobDescription({ job, loading = false }) {
+function JobDescription({ jobId }) {
+    const { job, isLoading } = useJobDetails(jobId);
 
     // Early return for loading state
-    if (loading) {
+    if (isLoading) {
         return (
         <section id="job-description" className="job-description">
             <div className="description-section">

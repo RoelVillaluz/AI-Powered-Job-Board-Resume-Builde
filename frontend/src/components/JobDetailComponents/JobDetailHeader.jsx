@@ -1,23 +1,26 @@
 import { useJobActions } from "../../hooks/jobs/useJobActions"
+import { useJobDetails } from "../../hooks/jobs/useJobDetails";
+import { useAuthStore } from "../../stores/authStore";
 import { formatDate } from "../utils/dateUtils";
+import { useResumeStore } from "../../stores/resumeStore";
 
-const CompanyBanner = ({ company, loading }) => {
-    if (loading) return <div className="banner"/>
+const CompanyBanner = ({ company, isLoading }) => {
+    if (isLoading) return <div className="banner"/>
 
     return company.banner ? (
         <img 
             src={`/${company.banner}`} 
             className="company-banner-image" 
             alt={`${company.name} banner`}
-            loading="lazy"
+            loading="lazy"   
         />
     ) : (
         <div className="banner" />
     );
 }
 
-const CompanyLogo = ({ company, loading }) => {
-    if (loading) return <i className="fa-solid fa-building"></i>
+const CompanyLogo = ({ company, isLoading }) => {
+    if (isLoading) return <i className="fa-solid fa-building"></i>
 
     return company.logo ? (
         <img 
@@ -73,18 +76,22 @@ const ApplicantsList = ({ job }) => {
     )
 }
 
-function JobDetailHeader({ user, job, company, currentResume, loading, hasQuestions, showModal }) {
+function JobDetailHeader({ jobId, showModal }) {
+    const user = useAuthStore(state => state.user);
+    const currentResume = useResumeStore(state => state.currentResume);
+    const { job, company, isLoading, error, hasQuestions } = useJobDetails(jobId)
     const { toggleApplyJob, toggleSaveJob } = useJobActions();
 
+    
     return (
         <header>
-            {!loading ? (
+            {!isLoading ? (
                 <>                    
-                    <CompanyBanner company={company} loading={loading} />
+                    <CompanyBanner company={company} isLoading={isLoading} />
 
                     <div className="icons">
 
-                        <CompanyLogo company={company} loading={loading}/>
+                        <CompanyLogo company={company} isLoading={isLoading}/>
 
                         <SocialMediaLinks company={company}/>
                         
@@ -97,7 +104,7 @@ function JobDetailHeader({ user, job, company, currentResume, loading, hasQuesti
                 </>
             )}
             <div className="job-overview">
-                {!loading ? (
+                {!isLoading ? (
                     <>
                         <div className="row">
                             <h1>{job?.title}</h1>

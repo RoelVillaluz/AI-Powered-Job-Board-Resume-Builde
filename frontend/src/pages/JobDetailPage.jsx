@@ -18,12 +18,11 @@ import JobDescription from "../components/JobDetailComponents/JobDescription";
 import JobSkillsSection from "../components/JobDetailComponents/JobSkillsSection";
 import JobCompany from "../components/JobDetailComponents/JobCompany";
 import JobSimilarityAnalysis from "../components/JobDetailComponents/JobSimilarityAnalysis";
+import { useAuthStore } from "../stores/authStore";
+import { useResumeStore } from "../stores/resumeStore"
 
 function JobDetailPage() {
     const { jobId } = useParams();
-    const user = useAuthStore(state => state.user);
-    const { job, company, loading, hasQuestions } = useJobDetails(baseUrl, jobId);
-    const { currentResume } = useResume();
     const { resumeScore } = useResumeAnalysis();
     const { handleJobAction } = useJobActions();
 
@@ -33,11 +32,11 @@ function JobDetailPage() {
         setShowApplicationModal(prev => !prev)
     }
       
-    useEffect(() => {
-        if (job && company) {
-            document.title = `${job.title} - ${company.name}`
-        }
-    }, [job, company])
+    // useEffect(() => {
+    //     if (job && company) {
+    //         document.title = `${job.title} - ${company.name}`
+    //     }
+    // }, [job, company])
 
     return (
         <>
@@ -48,43 +47,34 @@ function JobDetailPage() {
 
                         {/* move props later directly into component since data is mutated */}
                         <JobDetailHeader
-                            user={user}
-                            job={job}
-                            company={company}
-                            currentResume={currentResume}
-                            loading={loading}
-                            hasQuestions={hasQuestions}
+                            jobId={jobId}
                             showModal={showModal}
                         />
                         
-                        <JobHighlights job={job} company={company} loading={loading}/>
+                        <JobHighlights jobId={jobId}/>
 
                         <div className="wrapper">
-                            <JobDescription job={job} loading={loading}/>
-                        </div>
+                            <JobDescription jobId={jobId}/>
+                        </div> 
 
-                        {/* import statements directly since data is mutated in this specific components */}
                         <div className="wrapper">
                             <JobSkillsSection
-                                job={job} 
-                                loading={loading}
+                                jobId={jobId} 
                             />
                         </div>
 
-                        {/* use props since data is only being shown in this component and is for read only/ display */}
                         <JobCompany
-                            company={company}
-                            loading={loading}
+                            jobId={jobId}
                         />
 
                     </section>
                     <JobSimilarityAnalysis
-                        job={job}
+                        jobId={jobId}
                     />
 
                 </main> 
             </Layout>
-            {showApplicationModal && hasQuestions && (
+            {/* {showApplicationModal && hasQuestions && (
                 <ApplicationFormModal 
                     job={job} 
                     onClose={() => showModal()} 
@@ -98,7 +88,7 @@ function JobDetailPage() {
                         answers // answers from modal
                     )}
                 />
-            )}
+            )} */}
         </>
     )
 }

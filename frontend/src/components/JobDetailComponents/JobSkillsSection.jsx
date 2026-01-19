@@ -1,18 +1,14 @@
 
 import { useMemo } from "react";
-import { useResumeActions } from "../../hooks/resumes/useResumeActions";
-import { useAuth } from "../../contexts/AuthProvider";
-import { useResume } from "../../contexts/ResumesContext";
-import { useData } from "../../contexts/DataProvider";
-import { useAuthStore } from "../../stores/authStore";
 import { useResumeStore } from "../../stores/resumeStore";
-import { useJobDetails } from "../../hooks/jobs/useJobDetails";
+import { useJobDetails } from "../../hooks/jobs/useJobDetails"
+import { useToggleSkill } from "../../hooks/resumes/useResumeMutations";
 
 function JobSkillsSection({ jobId }) {
-    const user = useAuthStore(state => state.user);
     const currentResume = useResumeStore(state => state.currentResume);
-    const { job, isLoading, error }= useJobDetails(jobId);
-    // const { handleAddSkillToResume } = useResumeActions(baseUrl, user, setUser, setCurrentResume);
+    const { job, isLoading, error } = useJobDetails(jobId);
+
+    const toggleSkillMutation = useToggleSkill();
 
     // Calculate once per render instead of per-checkbox
     const checkedSkills = useMemo(() => 
@@ -34,7 +30,10 @@ function JobSkillsSection({ jobId }) {
                                         type="checkbox" 
                                         id={`cbtest-19-${skill.name}`} 
                                         checked={checkedSkills.has(skill.name)} // 0(1) lookup
-                                        // onChange={() => handleAddSkillToResume(currentResume?.name, skill)}
+                                        onChange={() => {
+                                            if (!currentResume) return;
+                                            toggleSkillMutation.mutate({ resume: currentResume, skill })
+                                        }}
                                     />
                                     <label htmlFor={`cbtest-19-${skill.name}`} className="check-box" />
                                 </div>

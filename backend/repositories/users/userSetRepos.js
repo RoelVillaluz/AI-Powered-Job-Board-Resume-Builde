@@ -97,6 +97,24 @@ export const toggleSaveJob = async (jobId, userId) => {
     };
 };
 
+export const toggleApplyJob = async (jobId, userId) => {
+    const user = await User.findById(userId);
+
+    const isApplied = user.appliedJobs.some(appliedJobId => appliedJobId.toString() === jobId);
+
+    if (isApplied) {
+        user.appliedJobs.pull(jobId)
+    } else {
+        user.appliedJobs.addToSet(jobId)
+    }
+
+    await user.save();
+
+    return { 
+        isApplied: !isApplied
+    }
+}
+
 
 /**
  * Deletes a user by their ID.

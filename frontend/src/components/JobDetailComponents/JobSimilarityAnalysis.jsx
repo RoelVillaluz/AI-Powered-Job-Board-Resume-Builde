@@ -22,7 +22,6 @@ const LoadingSkeleton = () => {
 const ResumeList = ({ job }) => {
     const user = useAuthStore(state => state.user);
     const { data: resumes = [], isLoading, error } = useUserResumesQuery(user?._id);
-    // Fix: Use separate selectors instead of returning an object
     const currentResume = useResumeStore(state => state.currentResume);
     const setCurrentResume = useResumeStore(state => state.setCurrentResume);
       
@@ -86,7 +85,7 @@ const ResumeList = ({ job }) => {
 
 function JobSimilarityAnalysis({ jobId }) {
     const { job, isLoading } = useJobDetails(jobId);
-    const { resumeScore, isComparing, messages, strengths, improvements, error } = useResumeAnalysis();
+    const { resumeScore, isComparing, messages, strengths, improvements, error } = useResumeAnalysis(jobId);
 
     return (
         <section id="similarity-analysis">
@@ -129,7 +128,9 @@ function JobSimilarityAnalysis({ jobId }) {
                     </div>
                 )}
 
-                {/* <h2>Error: {error}</h2>  */}
+                {error && (
+                    <h2>Error: {error}</h2> 
+                )}
                 
             </section>
 

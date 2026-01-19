@@ -17,9 +17,14 @@ export const toggleSaveJob = catchAsync(async (req, res) => {
 
     const data = await UserSetRepo.toggleSaveJob(jobId, userId)
 
-    return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.FETCH, data })
+    return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.UPDATE, data })
 })
 
 export const applyToJob = catchAsync(async (req, res) => {
+    const { jobId } = req.params;
+    const userId = req.user._id || req.user.id
 
+    const data = await UserSetRepo.toggleApplyJob(jobId, userId)
+
+    return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.UPDATE, data })
 })

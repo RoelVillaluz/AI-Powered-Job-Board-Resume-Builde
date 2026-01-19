@@ -30,3 +30,14 @@ export const fetchResumeScore = async (resumeId) => {
   const { data } = await axios.get(`${BASE_API_URL}/ai/resume-score/${resumeId}`)
   return data.score / 100
 }
+
+/**
+ * Fetches similarity score between job and resume based on skills, work experience, preferences, etc
+ * @param {string} resumeId - ID of current resume being compared with the job
+ * @param {string} jobId - Job posting being compared
+ * @returns {Promise<Number>} - Similarity percentage from 0-100%
+ */
+export const fetchResumeJobSimilarity = async (resumeId, jobId) => {
+  const { data } = await axios.get(`${BASE_API_URL}/ai//compare/${resumeId}/${jobId}`)
+  return data
+}

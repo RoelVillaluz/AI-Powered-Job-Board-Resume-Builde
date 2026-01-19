@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query"
 import { useResumeStore } from "../../stores/resumeStore";
-import { fetchResume, fetchResumeScore, fetchUserResumes } from "../../../api/resumeApis";
+import { fetchResume, fetchResumeJobSimilarity, fetchResumeScore, fetchUserResumes } from "../../../api/resumeApis";
 import { useEffect } from "react";
 
 /**
@@ -54,5 +54,16 @@ export const useResumeScoreQuery = (resumeId) => {
     queryFn: () => fetchResumeScore(resumeId),
     enabled: !!resumeId, 
     staleTime: 1000 * 60 * 5,
+  })
+}
+
+export const useResumeJobSimilarityQuery = (resumeId, jobId) => {
+  return useQuery({
+    queryKey: ['resumeJobComparison', resumeId, jobId],
+    queryFn: () => fetchResumeJobSimilarity(resumeId, jobId),
+    enabled: !!resumeId && !!jobId,
+    staleTime: 1000 * 60 * 5,
+    retry: 3,
+    refetchOnWindowFocus: false // avoids unnecessary refetches
   })
 }

@@ -1,6 +1,7 @@
 import { useAuthStore } from "../../stores/authStore";
 import axios from "axios";
 import { BASE_API_URL } from "../../config/api";
+import { QueryClient } from "@tanstack/react-query";
 
 export const useJobActions = () => {
     const user = useAuthStore(state => state.user);
@@ -61,6 +62,9 @@ export const useJobActions = () => {
 
             // Refresh user data from the server to get updated savedJobs/appliedJobs
             await refreshUser();
+
+            // ✅ Invalidate interacted jobs cache so it refetches
+            QueryClient.invalidateQueries({ queryKey: ['interactedJobs', user._id]})
 
         } catch (error) {
             console.error('Error', error);

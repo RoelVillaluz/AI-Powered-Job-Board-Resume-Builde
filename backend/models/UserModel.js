@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import bcrypt from 'bcrypt';
 import Company from "./companyModel.js";
-import Resume from "./resumeModel.js";
+import Resume from "./resumes/resumeModel.js";
 
 const userSchema = new mongoose.Schema({
     email: {

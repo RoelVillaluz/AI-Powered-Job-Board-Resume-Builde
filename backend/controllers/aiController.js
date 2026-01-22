@@ -1,5 +1,5 @@
-import Resume from "../models/resumeModel.js";
-import JobPosting from "../models/jobPostingModel.js";
+import Resume from "../models/resumes/resumeModel.js";
+import JobPosting from "../models/jobPostings/jobPostingModel.js";
 import { STATUS_MESSAGES, sendResponse } from '../constants.js';
 import natural from "natural";
 import { kmeans } from "ml-kmeans";
@@ -219,57 +219,44 @@ export const recommendCompanies = async (req, res) => {
         const { userId } = req.params;
 
         const user = await User.findOne({ _id: userId });
-        if (!user) return res.status(404).json({ recommended_companies: [] });
+        if (!user) return res.status(404).json({ error: "User not found" });
 
-        // Wrap the spawn process in a Promise
-        const result = await new Promise((resolve, reject) => {
-            // Use "py" which is the Windows Python launcher
-            const pythonProcess = spawn("py", ["backend/python_scripts/company_recommender.py", userId]);
+        // Start the Python process
+        const pythonProcess = spawn("py", ["backend/python_scripts/company_recommender.py", userId]);
 
-            let output = "";
-            let errorOutput = "";
+        let result = "";
+        let errorOutput = "";
 
-            pythonProcess.stdout.on("data", (data) => {
-                output += data.toString();
-            });
-
-            pythonProcess.stderr.on("data", (data) => {
-                errorOutput += data.toString();
-            });
-
-            pythonProcess.on("close", (code) => {
-                if (code !== 0) {
-                    reject(new Error(`Python script exited with code ${code}: ${errorOutput}`));
-                } else {
-                    resolve(output);
-                }
-            });
-
-            pythonProcess.on("error", (err) => {
-                reject(err);
-            });
+        // Listen for data from stdout
+        pythonProcess.stdout.on("data", (data) => {
+            result += data.toString();
+            console.log("Python stdout:", data.toString());  // Debug logging stdout
         });
 
-        try {
-            const jsonResponse = JSON.parse(result);
-            res.status(200).json(jsonResponse.recommended_companies ? jsonResponse : { recommended_companies: [] });
-        } catch (parseError) {
-            console.error("Error parsing Python result:", parseError.message);
-            console.error("Raw Python stdout:", result);
-            res.status(500).json({
-                recommended_companies: [],
-                error: "Failed to parse Python response",
-                details: parseError.message
-            });
-        }
+        // Listen for errors from stderr
+        pythonProcess.stderr.on("data", (data) => {
+            errorOutput += data.toString();
+            console.error("Python stderr:", data.toString());  // Debug logging stderr
+        });
 
+        // When the Python process is finished
+        pythonProcess.on("close", () => {
+            if (errorOutput) {
+                console.error("Python error output:", errorOutput); // If there's any error output, log it
+            }
+
+            try {
+                // Parse the Python result into JSON
+                const jsonResponse = JSON.parse(result);
+                res.status(200).json(jsonResponse);  // Send the parsed result as the response
+            } catch (error) {
+                console.error("Error parsing Python result:", error.message);
+                res.status(500).json({ error: "Failed to parse Python response", details: error.message });
+            }
+        });
     } catch (error) {
         console.error("Server error:", error.message);
-        res.status(500).json({
-            recommended_companies: [],
-            error: "Server error",
-            details: error.message
-        });
+        return res.status(500).json({ error: "Server error", details: error.message });
     }
 };
 

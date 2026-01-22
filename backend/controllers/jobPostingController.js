@@ -1,4 +1,4 @@
-import JobPosting from "../models/jobPostingModel.js"
+import JobPosting from "../models/jobPostings/jobPostingModel.js"
 import * as JobPostingService from "../services/jobPostings/jobPostingServices.js";
 import { checkMissingFields } from '../utils.js'
 import { STATUS_MESSAGES, sendResponse } from '../constants.js';

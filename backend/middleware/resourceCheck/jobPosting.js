@@ -1,4 +1,4 @@
-import JobPosting from "../../models/jobPostingModel.js";
+import JobPosting from "../../models/jobPostings/jobPostingModel.js";
 import { catchAsync } from "../../utils/errorUtils.js";
 import { NotFoundError } from "../errorHandler.js";
 

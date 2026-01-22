@@ -1,6 +1,6 @@
 import User from "../../models/userModel.js";
 import { hashVerificationCode } from "../../helpers/userHelpers.js";
-import JobPosting from "../../models/jobPostingModel.js";
+import JobPosting from "../../models/jobPostings/jobPostingModel.js";
 import { findUser } from "./userGetRepos.js";
 
 /**

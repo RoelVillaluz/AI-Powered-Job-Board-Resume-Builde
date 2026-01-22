@@ -1,4 +1,4 @@
-import JobPosting from "../../models/jobPostingModel.js";
+import JobPosting from "../../models/jobPostings/jobPostingModel.js";
 import Company from "../../models/companyModel.js"
 import { buildJobQuery, buildIndustryMatch } from "../../../frontend/src/utils/jobPostings/filterJobUtils.js";
 import { buildSortQuery } from "../../../frontend/src/utils/jobPostings/sortUtils.js";

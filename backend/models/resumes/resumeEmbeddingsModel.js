@@ -52,7 +52,7 @@ const resumeEmbeddingSchema = new mongoose.Schema({
     meanEmbeddings: {
         skills: {
             type: [Number],
-            required: true,
+            default: null,
         },
         workExperience: {
             type: [Number],

@@ -107,6 +107,6 @@ const jobPostingEmbeddingSchema = new mongoose.Schema(
 // TTL index — auto-delete embeddings after 90 days
 jobPostingEmbeddingSchema.index({ createdAt: 1 }, { expireAfterSeconds: 60 * 60 * 24 * 90 });
 
-const JobEmbedding = mongoose.model("JobPostingEmbedding", jobPostingEmbeddingSchema);
+const JobEmbedding = mongoose.model("JobEmbedding", jobPostingEmbeddingSchema);
 
 export default JobEmbedding;

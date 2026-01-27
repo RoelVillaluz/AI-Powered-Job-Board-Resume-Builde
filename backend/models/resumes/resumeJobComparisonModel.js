@@ -91,5 +91,5 @@ resumeJobComparisonSchema.index({ resume: 1, jobPosting: 1 }, { unique: true });
 // TTL index - auto-delete after 30 days
 resumeJobComparisonSchema.index({ createdAt: -1 }, { expireAfterSeconds: 2592000 });
 
-const resumeJobComparison = mongoose.model('ResumeJobComparison', resumeJobComparisonSchema);
-export default resumeJobComparison
+const ResumeJobComparison = mongoose.model('ResumeJobComparison', resumeJobComparisonSchema);
+export default ResumeJobComparison

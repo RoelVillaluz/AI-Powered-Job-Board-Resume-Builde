@@ -17,7 +17,7 @@ import * as ResumeService from "../../services/resumes/resumeServices.js";
  * GET /api/resumes?skill=React&certification=AWS&page=2&limit=10
  */
 export const getResumes = catchAsync(async (req, res) => {
-    const result = await findResumesService(req.query);
+    const result = await ResumeService.findResumesService(req.query);
 
     return sendResponse(res, {
     ...STATUS_MESSAGES.SUCCESS.FETCH,

@@ -3,12 +3,8 @@ from typing import Optional, NamedTuple
 import torch
 from bson import ObjectId
 import logging
+from utils.embedding_utils import extract_certification_embeddings, extract_skills_embeddings, extract_work_experience_embeddings
 from config.database import db
-from utils.embedding_utils import (
-    extract_skills_embeddings,
-    extract_work_experience_embeddings,
-    extract_certification_embeddings
-)
 from utils.date_utils import calculate_total_experience
 
 logger = logging.getLogger(__name__)

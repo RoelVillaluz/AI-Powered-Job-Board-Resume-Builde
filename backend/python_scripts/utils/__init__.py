@@ -3,7 +3,7 @@ from .embedding_utils import (
     extract_skills_embeddings,
     extract_work_experience_embeddings,
     extract_certification_embeddings,
-    extract_requirements_embeddings
+    extract_requirement_embeddings
 )
 from .date_utils import (
     parse_date,
@@ -20,7 +20,7 @@ __all__ = [
     'extract_skills_embeddings',
     'extract_work_experience_embeddings',
     'extract_certification_embeddings',
-    'extract_requirements_embeddings',
+    'extract_requirement_embeddings',
     'parse_date',
     'calculate_years_between',
     'calculate_total_experience',

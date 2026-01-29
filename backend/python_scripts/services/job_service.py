@@ -3,9 +3,9 @@ from typing import Optional, NamedTuple
 import torch
 from bson import ObjectId
 import logging
+from utils.embedding_utils import extract_requirement_embeddings, extract_skills_embeddings
 from config.database import db
 from models.embeddings import embedding_model
-from utils.embedding_utils import extract_skills_embeddings, extract_requirement_embeddings
 
 logger = logging.getLogger(__name__)
 

@@ -4,16 +4,17 @@ import { generateResumeEmbeddings, getAllResumeEmbeddings } from "../../controll
 
 const router = express.Router()
 
-router.get('/', getResumes)
-router.get('/:id', getResume)
+// Static routes first
+router.get('/embeddings', getAllResumeEmbeddings)
 router.get('/user/:userId', getResumesByUser)
 
-router.get('/embeddings', getAllResumeEmbeddings)
+// Dynamic routes next
 router.get('/:resumeId/embeddings', generateResumeEmbeddings)
+router.get('/:id', getResume)
+router.get('/', getResumes)
 
 router.post('/', createResume)
 router.patch('/:id', updateResume)
-
 router.delete('/:id', deleteResume)
 
 export default router

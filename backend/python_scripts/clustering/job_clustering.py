@@ -1,4 +1,23 @@
-"""K-Means clustering for job postings."""
+"""
+K-Means clustering for job postings.
+
+=== SKLEARN KMEANS QUICK REFERENCE ===
+For quick lookup when switching between frontend/backend/ML work:
+
+KMeans Methods & Properties:
+- kmeans.fit(X): Computes clustering, finds cluster centers
+- kmeans.labels_: Cluster assignment for each sample (which cluster each job belongs to)
+- kmeans.cluster_centers_: Coordinates of cluster centroids in embedding space
+- kmeans.inertia_: Sum of squared distances to centers (lower = tighter clusters)
+
+NumPy Properties:
+- array.ndim: Number of array dimensions (we need ndim=2 for KMeans)
+- np.array(): Converts list to numpy array
+
+Why These Checks Matter:
+- ndim != 2 check: KMeans requires 2D matrix [num_jobs, embedding_dim]
+- len(job_embeddings) < num_clusters: Can't have more clusters than data points
+"""
 import numpy as np
 from sklearn.cluster import KMeans
 from typing import Optional, NamedTuple

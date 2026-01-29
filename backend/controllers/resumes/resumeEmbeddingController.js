@@ -1,9 +1,24 @@
+import { sendResponse, STATUS_MESSAGES } from "../../constants.js";
 import { resumeEmbeddingQueue } from "../../queues/index.js";
+import { getAllResumeEmbeddingsRepo } from "../../repositories/resumes/resumeEmbeddingRepository.js";
 import { getResumeEmbeddingService } from "../../services/resumes/resumeEmbeddingService.js";
+import { catchAsync } from "../../utils/errorUtils.js";
 import logger from "../../utils/logger.js";
 
 /**
- * POST /api/resume/:resumeId/embeddings
+ * GET /api/resumes/embeddings
+ * 
+ * Get all resume embeddings
+ * 
+ * 
+ */
+export const getAllResumeEmbeddings = catchAsync(async (req, res) => {
+    const embeddings = await getAllResumeEmbeddingsRepo();
+    return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.FETCH, data: embeddings }, 'Resume embeddings');
+})
+
+/**
+ * POST /api/resumes/:resumeId/embeddings
  * 
  * Generate or retrieve embeddings for a resume
  */

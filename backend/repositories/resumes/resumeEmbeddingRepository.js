@@ -1,5 +1,10 @@
 import ResumeEmbedding from "../../models/resumes/resumeEmbeddingsModel.js"
 
+export const getAllResumeEmbeddingsRepo = async () => {
+    return await ResumeEmbedding.find()
+    .select('-model');
+}
+
 export const getResumeEmbeddingsRepo = async (resumeId) => {
     return await ResumeEmbedding.findOne({
         resume: resumeId

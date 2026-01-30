@@ -106,11 +106,11 @@ class ScoringService:
     @staticmethod
     def calculate_skills_score(resume: dict, min_skills: int = 5) -> float:
         """
-        Calculate skills score based on number and diversity of skills.
+        Calculate skills score based on number of skills only (ignoring skill level).
         
         Args:
             resume: Resume document dictionary
-            min_skills: Minimum number of skills for good score
+            min_skills: Minimum number of skills for a good score
             
         Returns:
             Skills score (0-100)
@@ -121,17 +121,17 @@ class ScoringService:
         if num_skills == 0:
             return 0.0
         
-        # Base score on quantity
+        # Base score based on the number of skills
         quantity_score = min(100, (num_skills / min_skills) * 100)
         
-        # Bonus for skill proficiency levels if available
+        # No proficiency bonus for skill level in this version.
         proficiency_bonus = 0
-        for skill in skills:
-            if skill.get('proficiency'):
-                proficiency_bonus += 5
         
+        # Total score is just the quantity score in this case.
         total_score = min(100, quantity_score + proficiency_bonus)
+        
         return total_score
+
     
     @staticmethod
     def calculate_certification_score(resume: dict) -> float:

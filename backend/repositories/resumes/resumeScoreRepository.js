@@ -4,7 +4,7 @@ export const getResumeScoreRepo = async (resumeId) => {
     return await ResumeScore.findOne({
         resume: resumeId
     })
-    .select('-calculationVersion predictedSalary')
+    .select('-calculationVersion -predictedSalary')
 }
 
 export const getPredictedSalaryRepo = async (resumeId) => {

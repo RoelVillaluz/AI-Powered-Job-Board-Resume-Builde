@@ -3,6 +3,39 @@ import logger from "../../utils/logger.js";
 import { runPython } from "../../utils/pythonRunner.js";
 
 /**
+ * Main service function - handles cache check and queue decision
+ */
+export const getOrGenerateResumeEmbeddingService = async (resumeId, invalidateCache = false) => {
+    // Check cache (unless forced to regenerate)
+    if (!invalidateCache) {
+        const cacheResult = await getResumeEmbeddingService();
+        if (cacheResult.cached) {
+            return {
+                cached: true,
+                data: cacheResult.data
+            };
+        }
+    }
+
+    // Cache miss or invalidate - queue generation
+    logger.info(`Queueing embedding generation for resume: ${resumeId}`);
+    
+    const job = await resumeEmbeddingQueue.add('generate-embeddings', {
+        resumeId,
+        invalidateCache
+    }, {
+        attempts: 3,
+        backoff: { type: 'exponential', delay: 2000 },
+        timeout: 30000
+    });
+    
+    return {
+        cached: false,
+        jobId: job.id
+    };
+}
+
+/**
  * Check if cached embeddings exist and are fresh
  * 
  * @param {string} resumeId - Resume ID

@@ -1,4 +1,4 @@
-
+import { jobEmbeddingQueue } from "../../queues/index.js"
 import { createJobEmbeddingRepo, getJobEmbeddingRepo } from "../../repositories/jobPostings/jobEmbeddingRepositories.js"
 import logger from "../../utils/logger.js";
 import { runPython } from "../../utils/pythonRunner.js";
@@ -6,7 +6,7 @@ import { runPython } from "../../utils/pythonRunner.js";
 /**
  * Main service function - handles cache check and queue decision
  */
-export const getOrGenerateJobPostingEmbeddingService = async (jobPostingId) => {
+export const getOrGenerateJobPostingEmbeddingService = async (jobPostingId, invalidateCache = false) => {
     // Check cache first
     const cachedResult = await getJobPostingEmbeddingService(jobPostingId);
 
@@ -70,7 +70,7 @@ export const getJobPostingEmbeddingService = async (jobPostingId) => {
  * @param {Object} job - Optional BullMQ job for progress updates
  * @returns {Promise<{cached: boolean, data: Object}>}
  */
-export const generateJobPostingEmbeddingService = async (jobPostingId, job = null) => {
+export const generateJobPostingEmbeddingService = async (jobPostingId, invalidateCache = false, job = null) => {
     try {
         await job?.updateProgress(10);
 
@@ -95,7 +95,7 @@ export const generateJobPostingEmbeddingService = async (jobPostingId, job = nul
         }
 
         // Check if already exists
-        const existing = getJobEmbeddingRepo(jobPostingId);
+        const existing = await getJobEmbeddingRepo(jobPostingId);
 
         let savedEmbeddings;
 
@@ -105,8 +105,13 @@ export const generateJobPostingEmbeddingService = async (jobPostingId, job = nul
             savedEmbeddings = await existing.save();
         } else {
             // Create new
-            savedEmbeddings = createJobEmbeddingRepo(embeddingData);
+            savedEmbeddings = await createJobEmbeddingRepo(embeddingData);
         }
+
+        return {
+            cached: false,
+            data: savedEmbeddings
+        };
     } catch (error) {
         logger.error(`Error generating embeddings for job: ${jobPostingId}`);
         throw error

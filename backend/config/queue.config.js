@@ -86,4 +86,5 @@ export const workerConcurrency = {
     resumeEmbedding: process.env.NODE_ENV === 'production' ? 5 : 2,
     resumeScoring: process.env.NODE_ENV === 'production' ? 3 : 1,
     resumeComparison: process.env.NODE_ENV === 'production' ? 4 : 2,
+    jobEmbedding: process.env.NODE_ENV === 'production' ? 2 : 1,
 };

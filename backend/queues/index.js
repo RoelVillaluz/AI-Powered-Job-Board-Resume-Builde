@@ -47,6 +47,18 @@ export const resumeComparisonQueue = new Queue(
     }
 )
 
+/**
+ * Job Embedding Queue
+ * Handles background generation of vector embeddings for job postings
+ */
+export const jobEmbeddingQueue = new Queue(
+    queueConfig.jobEmbedding.name,
+    {
+        connection: redisConnection,
+        defaultJobOptions: queueConfig.jobEmbedding.options
+    }
+)
+
 
 /**
  * Graceful shutdown handler
@@ -57,6 +69,7 @@ export const closeQueues = async () => {
         resumeEmbeddingQueue.close(),
         resumeScoringQueue.close(),
         resumeComparisonQueue.close(),
+        jobEmbeddingQueue.close(),
     ]);
     console.log('All queues closed');
 }

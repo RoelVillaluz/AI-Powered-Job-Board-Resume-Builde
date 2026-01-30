@@ -69,6 +69,13 @@ export const queueConfig = {
             priority: 2,
         },
     },
+    jobEmbedding: {
+        name: 'job-embedding',
+        options: {
+            ...defaultOptions,
+            priority: 4
+        }
+    }
 }
 
 /**

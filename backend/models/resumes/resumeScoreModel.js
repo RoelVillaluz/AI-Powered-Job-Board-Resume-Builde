@@ -90,6 +90,7 @@ const resumeScoreSchema = new mongoose.Schema({
         type: String,
         enum: ['A+', 'A', 'B+', 'B', 'C+', 'C', 'D', 'F'],
         required: true,
+        default: 'F',  // Default to 'F' if no grade is provided
         index: true  // For filtering by grade tier
     },
     

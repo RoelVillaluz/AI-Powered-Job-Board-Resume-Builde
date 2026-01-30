@@ -1,3 +1,4 @@
+import { resumeEmbeddingQueue } from "../../queues/index.js";
 import { getResumeEmbeddingsRepo, createResumeEmbeddingRepo } from "../../repositories/resumes/resumeEmbeddingRepository.js"
 import logger from "../../utils/logger.js";
 import { runPython } from "../../utils/pythonRunner.js";
@@ -8,7 +9,7 @@ import { runPython } from "../../utils/pythonRunner.js";
 export const getOrGenerateResumeEmbeddingService = async (resumeId, invalidateCache = false) => {
     // Check cache (unless forced to regenerate)
     if (!invalidateCache) {
-        const cacheResult = await getResumeEmbeddingService();
+        const cacheResult = await getResumeEmbeddingService(resumeId);
         if (cacheResult.cached) {
             return {
                 cached: true,

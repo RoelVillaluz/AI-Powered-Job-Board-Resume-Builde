@@ -42,7 +42,7 @@ export const getJobPostingEmbeddingService = async (jobPostingId) => {
     const cachedEmbeddings = await getJobEmbeddingRepo(jobPostingId);
 
     if (cachedEmbeddings) {
-         const daysSinceGeneration = 
+        const daysSinceGeneration = 
         (Date.now() - new Date(cachedEmbeddings.generatedAt).getTime()) /
         (1000 * 60 * 60 * 24);
 
@@ -78,7 +78,7 @@ export const generateJobPostingEmbeddingService = async (jobPostingId, invalidat
 
         // Call Python to generate embeddings
         await job?.updateProgress(30);
-        const pythonResponse = runPython('generate_job_embeddings');
+        const pythonResponse = await runPython('generate_job_embeddings', [jobPostingId]);
 
         await job?.updateProgress(70);
 

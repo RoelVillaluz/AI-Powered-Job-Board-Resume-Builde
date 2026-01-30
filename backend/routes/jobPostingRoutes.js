@@ -4,10 +4,12 @@ import { createJobPostingSchema } from "../validators/jobPostingValidators.js"
 import { getJobPostings, getJobPosting, createJobPosting, updateJobPosting, deleteJobPosting } from "../controllers/jobPostings/jobPostingController.js"
 import { authenticate } from "../middleware/authentication/authenticate.js"
 import { requireRole } from "../middleware/authorization/roleAuthorization.js"
+import { getOrGenerateJobEmbeddings } from "../controllers/jobPostings/jobPostingEmbeddingController.js"
 
 const router = express.Router()
 
 router.get('/', getJobPostings)
+router.get('/:jobId/embeddings', getOrGenerateJobEmbeddings)
 router.get('/:id', getJobPosting)
 
 router.post('/', 

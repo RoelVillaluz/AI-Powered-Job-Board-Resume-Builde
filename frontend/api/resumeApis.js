@@ -27,8 +27,27 @@ export const fetchResume = async (resumeId) => {
  * @returns {Promise<number>} The resume score normalized between 0 and 1
  */
 export const fetchResumeScore = async (resumeId) => {
-  const { data } = await axios.get(`${BASE_API_URL}/ai/resume-score/${resumeId}`)
-  return data.score / 100
+  const res = await axios.get(`${BASE_API_URL}/resumes/${resumeId}/score`)
+
+  // Cached score
+  if (res.status === 200 && res.data?.data !== undefined) {
+    return {
+      score: res.data.data,
+      status: "ready"
+    }
+  }
+
+  // Queued
+  if (res.status === 202) {
+    return {
+      score: null,
+      status: "queued",
+      jobId: res.data.jobId,
+      statusUrl: res.data.statusUrl
+    }
+  }
+
+  throw new Error("Unexpected resume score response")
 }
 
 /**

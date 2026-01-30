@@ -17,9 +17,9 @@ import { runPython } from "../../utils/pythonRunner.js";
  */
 export const getOrGenerateResumeScoreService = async (resumeId) => {
     // Check cache first
-    const cachedResult = getResumeScoreService(resumeId);
+    const cachedResult = await getResumeScoreService(resumeId);
 
-    if (cachedResult.cache) {
+    if (cachedResult.cached) {
         return {
             data: cachedResult.data,
             cached: true

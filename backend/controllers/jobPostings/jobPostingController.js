@@ -1,9 +1,9 @@
-import JobPosting from "../models/jobPostings/jobPostingModel.js"
-import * as JobPostingService from "../services/jobPostings/jobPostingServices.js";
-import { checkMissingFields } from '../utils.js'
-import { STATUS_MESSAGES, sendResponse } from '../constants.js';
-import { catchAsync } from "../utils/errorUtils.js";
-import User from "../models/userModel.js";
+import JobPosting from "../../models/jobPostings/jobPostingModel.js"
+import * as JobPostingService from "../../services/jobPostings/jobPostingServices.js";
+import { checkMissingFields } from '../../utils.js'
+import { STATUS_MESSAGES, sendResponse } from '../../constants.js';
+import { catchAsync } from "../../utils/errorUtils.js";
+import User from "../../models/userModel.js";
 
 /**
  * Get filtered, sorted, and paginated list of job postings

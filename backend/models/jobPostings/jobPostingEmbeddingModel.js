@@ -89,11 +89,6 @@ const jobPostingEmbeddingSchema = new mongoose.Schema(
             default: null,
         },
     },
-    sourceHash: {
-        type: String,
-        required: true,
-        index: true,
-    },
     generatedAt: {
         type: Date,
         default: Date.now,

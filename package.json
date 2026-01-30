@@ -19,17 +19,21 @@
     "@fortawesome/free-solid-svg-icons": "^6.7.2",
     "@fortawesome/react-fontawesome": "^0.2.2",
     "@hello-pangea/dnd": "^18.0.1",
+    "@tanstack/react-query": "^5.90.16",
+    "@tanstack/react-query-devtools": "^5.91.2",
     "axios": "^1.7.9",
     "bcrypt": "^5.1.1",
+    "bullmq": "^5.66.6",
     "compute-cosine-similarity": "^1.1.0",
     "cors": "^2.8.5",
     "express": "^4.21.2",
     "express-mongo-sanitize": "^2.2.0",
     "express-rate-limit": "^8.2.1",
     "helmet": "^8.1.0",
-    "ioredis": "^5.8.2",
+    "ioredis": "^5.9.2",
     "joi": "^18.0.2",
     "jsonwebtoken": "^9.0.2",
+    "jwt-decode": "^4.0.0",
     "link-preview-js": "^4.0.0",
     "ml-kmeans": "^6.0.0",
     "mongoose": "^8.9.5",
@@ -51,11 +55,15 @@
     "swiper": "^11.2.5",
     "winston": "^3.19.0",
     "winston-daily-rotate-file": "^5.0.0",
-    "xss-clean": "^0.1.4"
+    "xss-clean": "^0.1.4",
+    "zustand": "^5.0.9"
   },
   "devDependencies": {
     "@babel/core": "^7.28.5",
     "@babel/preset-env": "^7.28.5",
+    "@types/react": "^19.2.8",
+    "@types/react-dom": "^19.2.3",
+    "@types/react-router-dom": "^5.3.3",
     "babel-jest": "^30.2.0",
     "concurrently": "^9.1.2",
     "cross-env": "^10.1.0",
@@ -63,6 +71,7 @@
     "jest": "^30.2.0",
     "mongodb-memory-server": "^10.4.1",
     "nodemon": "^3.1.9",
-    "supertest": "^7.1.4"
+    "supertest": "^7.1.4",
+    "typescript": "^5.9.3"
   }
 }

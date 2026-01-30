@@ -1,10 +1,11 @@
-import { useAuth } from "../../contexts/AuthProvider";
-import { useResume } from "../../contexts/ResumesContext";
+import { useAuthStore } from "../../stores/authStore";
+import { useResumeStore } from "../../stores/resumeStore";
+import { useUserResumesQuery } from "../../hooks/resumes/useResumeQueries";
 import { useResumeAnalysis } from "../../hooks/resumes/useResumeAnalysis";
 import Gauge from "../Gauge";
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
-import { SKILL_ANALYSIS_MESSAGES, EXPERIENCE_ANALYSIS_MESSAGES } from "../../../../backend/constants";
+import { useJobDetails } from "../../hooks/jobs/useJobDetails";
 
 const EMPTY_STATE_MESSAGE = 'No resumes found, try creating one first.'
 
@@ -19,13 +20,15 @@ const LoadingSkeleton = () => {
 }
 
 const ResumeList = ({ job }) => {
-    const { user } = useAuth()
-    const { resumes, currentResume, setCurrentResume, loading } = useResume();
-
+    const user = useAuthStore(state => state.user);
+    const { data: resumes = [], isLoading, error } = useUserResumesQuery(user?._id);
+    const currentResume = useResumeStore(state => state.currentResume);
+    const setCurrentResume = useResumeStore(state => state.setCurrentResume);
+      
+    // Fix: Depend on job._id instead of job.skills array
     const jobSkillsLowercase = useMemo(() => 
         job?.skills?.map(s => s.name.toLowerCase()) || [],
-        [job?.skills]
-
+        [job?._id] // ✅ Only recalculate when job ID changes
     )
 
     const getMatchedResumeSkills = (resume) => {
@@ -43,12 +46,12 @@ const ResumeList = ({ job }) => {
     return (
         <section id="resume-list">
             <div className="wrapper" style={{ alignItems: 'center', gap: '0.75rem' }}>
-                <h3>{loading ? 'Loading Resumes' : 'Select Resumes'}</h3>
-                {loading && (
+                <h3>{isLoading ? 'Loading Resumes' : 'Select Resumes'}</h3>
+                {isLoading && (
                     <div className="circle-spinner" aria-label="Loading"></div>
                 )}
             </div>
-            {loading ? (
+            {isLoading ? (
                 <LoadingSkeleton/>
             ) : (
                 
@@ -56,7 +59,7 @@ const ResumeList = ({ job }) => {
                     {resumes.length > 0 ? (
                         resumes.map((resume, index) => (
                             <li 
-                                className={`custom-li ${currentResume._id === resume._id ? 'current': ''}`} 
+                                className={`custom-li ${currentResume?._id === resume._id ? 'current': ''}`} 
                                 key={resume._id}
                                 onClick={() => setCurrentResume(resume)}
                             >
@@ -80,8 +83,9 @@ const ResumeList = ({ job }) => {
     )
 }
 
-function JobSimilarityAnalysis({ job }) {
-    const { resumeScore, isComparing, messages, strengths, improvements, error } = useResumeAnalysis();
+function JobSimilarityAnalysis({ jobId }) {
+    const { job, isLoading } = useJobDetails(jobId);
+    const { resumeScore, isComparing, messages, strengths, improvements, error } = useResumeAnalysis(jobId);
 
     return (
         <section id="similarity-analysis">
@@ -124,7 +128,9 @@ function JobSimilarityAnalysis({ job }) {
                     </div>
                 )}
 
-                {/* <h2>Error: {error}</h2>  */}
+                {error && (
+                    <h2>Error: {error}</h2> 
+                )}
                 
             </section>
 

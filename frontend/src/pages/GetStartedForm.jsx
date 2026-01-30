@@ -13,7 +13,7 @@ import IndustrySection from "../components/Dashboard/IndustrySection.jsx"
 
 function GetStartedForm({ role }) {
     const { baseUrl, setSuccess, setError, setErrorMessage, setSuccessMessage } = useData();
-    const { user } = useAuth();
+    const user = useAuthStore(state => state.user);
     const navigate = useNavigate();
     const [selectedRole, setSelectedRole] = useState(null);
     const steps = [

@@ -6,8 +6,7 @@ import { useData } from "../../contexts/DataProvider";
 import { formatDate } from "../utils/dateUtils";
 
 const MessageGroup = memo(({ group }) => {
-    const { user } = useAuth();
-    const { baseUrl } = useData();
+    const user = useAuthStore(state => state.user);
 
     // Destructure group properties early
     const { sender, senderId, profilePicture, rawDateTime, createdAt, messages } = group

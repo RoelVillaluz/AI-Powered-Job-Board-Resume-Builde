@@ -7,7 +7,6 @@ import { Link, useLocation } from "react-router-dom";
 function ChangePasswordForm() {
     const location = useLocation();
     const email = location.state?.email;
-    const { baseUrl } = useData();
     
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(false);

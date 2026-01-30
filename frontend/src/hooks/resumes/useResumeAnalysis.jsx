@@ -1,153 +1,74 @@
-import { useState, useEffect } from "react";
-import axios from "axios";
-import { useData } from "../../contexts/DataProvider";
-import { useResume } from "../../contexts/ResumesContext";
+import { useMemo } from "react";
+import { useResumeStore } from "../../stores/resumeStore";
 import { useJobDetails } from "../jobs/useJobDetails";
 import { useParams } from "react-router-dom";
-import { RESUME_ANALYSIS_MESSAGES } from "../../../../backend/constants";
-import { SKILL_ANALYSIS_MESSAGES, EXPERIENCE_ANALYSIS_MESSAGES } from "../../../../backend/constants";
+import { RESUME_ANALYSIS_MESSAGES, SKILL_ANALYSIS_MESSAGES, EXPERIENCE_ANALYSIS_MESSAGES } from "../../../../backend/constants";
+import { useResumeJobSimilarityQuery } from "./useResumeQueries";
 
-export const useResumeAnalysis = () => {
-    const { baseUrl } = useData();
-    const { jobId } = useParams();
-    const { currentResume } = useResume();
-    const { job, loading } = useJobDetails(baseUrl, jobId);
+export const useResumeAnalysis = (jobId) => {
+    const currentResume = useResumeStore(state => state.currentResume);
+    const { job, isLoading: isJobLoading } = useJobDetails(jobId);
 
-    const [isComparing, setIsComparing] = useState(false);
-    const [error, setError] = useState(null);
-    const [resumeScore, setResumeScore] = useState({
-        skillSimilarity: 0,
-        experienceSimilarity: 0,
-        requirementsSimilarity: 0,
-        totalScore: 0
-    })
-    const [strengths, setStrengths] = useState([]);
-    const [improvements, setImprovements] = useState([]);
+    // Use React Query to fetch comparison
+    const { data: comparisonData, isLoading: isComparing, error } = useResumeJobSimilarityQuery(currentResume?._id, job?._id);
 
-    // Function to map similarity score to the corresponding message
-    const mapScoreToMessage = (score, analysisMessages) => {
-        // Find the closest threshold
+    // Compute strengths and improvements based on the fetched data
+    const { resumeScore, strengths, improvements } = useMemo(() => {
+        if (!comparisonData) {
+        return {
+            resumeScore: {
+            skillSimilarity: 0,
+            experienceSimilarity: 0,
+            requirementsSimilarity: 0,
+            totalScore: 0,
+            },
+            strengths: [],
+            improvements: [],
+        };
+        }
+
+        const skillSim = comparisonData.skill_similarity || 0;
+        const expSim = comparisonData.experience_similarity || 0;
+
+        const newStrengths = [];
+        const newImprovements = [];
+
+        const mapScoreToMessage = (score, analysisMessages) => {
         const thresholds = [0, 0.25, 0.5, 0.75, 1];
         const closest = thresholds.reduce((prev, curr) =>
             Math.abs(curr - score) < Math.abs(prev - score) ? curr : prev
         );
-        
-        return analysisMessages[closest];
-    };
-
-    useEffect(() => {
-        let isCancelled = false;
-
-        const compareResumeAndJob = async () => {
-            
-            setIsComparing(true);
-            try {
-                const response = await axios.get(`${baseUrl}/ai/compare/${currentResume._id}/${job._id}`);
-                console.log("Feedback:", response.data);
-
-                if (!isCancelled) {
-                    const skillSim = response.data.skill_similarity;
-                    const expSim = response.data.experience_similarity;
-
-                    setResumeScore({
-                        skillSimilarity: skillSim,
-                        experienceSimilarity: expSim,
-                        requirementsSimilarity: response.data.requirements_similarity,
-                        totalScore: response.data.total_score,
-                    });
-
-                    // Determine strengths and improvements dynamically
-                    const newStrengths = [];
-                    const newImprovements = [];
-
-                    // Map skill similarity
-                    const skillMsg = mapScoreToMessage(skillSim, SKILL_ANALYSIS_MESSAGES);
-                    if (skillMsg) {
-                        if (skillSim >= 0.5) {
-                            newStrengths.push(skillMsg.message);
-                        } else {
-                            newImprovements.push(skillMsg.message);
-                        }
-                    }
-
-                    // Map experience similarity
-                    const expMsg = mapScoreToMessage(expSim, EXPERIENCE_ANALYSIS_MESSAGES);
-                    if (expMsg) {
-                        if (expSim >= 0.5) {
-                            newStrengths.push(expMsg.message);
-                        } else {
-                            newImprovements.push(expMsg.message);
-                        }
-                    }
-
-                    // Update the state
-                    setStrengths(newStrengths);
-                    setImprovements(newImprovements);
-
-                    console.log("Strengths:", newStrengths);
-                    console.log("Improvements:", newImprovements);
-                }
-            } catch (err) {
-                if (!isCancelled) {
-                    console.error("Error comparing resume:", err);
-
-                     // Handle different error types from backend
-                    let errorMessage = "Failed to analyze resume";
-                    
-                    if (err.response) {
-                        // Backend returned an error response
-                        const { status, data } = err.response;
-                        
-                        if (status === 404) {
-                            errorMessage = data.message || "Resume or job not found";
-                        } else if (status === 500) {
-                            // Check if it's a Python script error
-                            if (data.error === "Python script error") {
-                                errorMessage = "Analysis service is temporarily unavailable";
-                            } else if (data.error === "Failed to parse Python response") {
-                                errorMessage = "Analysis completed but results couldn't be processed";
-                            } else {
-                                errorMessage = "Server error occurred while analyzing resume";
-                            }
-                        } else {
-                            errorMessage = data.message || "An unexpected error occurred";
-                        }
-                    } else if (err.request) {
-                        // Request was made but no response received
-                        errorMessage = "Network error. Please check your connection.";
-                    } else {
-                        // Something else happened
-                        errorMessage = err.message || "An unexpected error occurred";
-                    }
-                    
-                    setError(errorMessage);
-                    
-                    // Reset scores on error
-                    setResumeScore({
-                        skillSimilarity: 0,
-                        experienceSimilarity: 0,
-                        requirementsSimilarity: 0,
-                        totalScore: 0,
-                    });
-
-                    setStrengths([]);
-                    setImprovements([]);
-                }
-            } finally {
-                setIsComparing(false);
-            }
+            return analysisMessages[closest];
         };
 
-        // Only run once both job and resume are ready and loading has *just finished*
-        if (!loading && currentResume?._id && job?._id) {
-            compareResumeAndJob();
+        const skillMsg = mapScoreToMessage(skillSim, SKILL_ANALYSIS_MESSAGES);
+        if (skillMsg) {
+            skillSim >= 0.5 ? newStrengths.push(skillMsg.message) : newImprovements.push(skillMsg.message);
         }
 
-        return (() => {
-            isCancelled = true;
-        })
+        const expMsg = mapScoreToMessage(expSim, EXPERIENCE_ANALYSIS_MESSAGES);
+        if (expMsg) {
+            expSim >= 0.5 ? newStrengths.push(expMsg.message) : newImprovements.push(expMsg.message);
+        }
 
-    }, [currentResume?._id, job?._id, loading, baseUrl])
+        return {
+        resumeScore: {
+            skillSimilarity: skillSim,
+            experienceSimilarity: expSim,
+            requirementsSimilarity: comparisonData.requirements_similarity || 0,
+            totalScore: comparisonData.total_score || 0,
+        },
+            strengths: newStrengths,
+            improvements: newImprovements,
+        };
+    }, [comparisonData]);
 
-    return { resumeScore, isComparing, messages: RESUME_ANALYSIS_MESSAGES, strengths, improvements, error }
+    return {
+        resumeScore,
+        isComparing: isComparing || isJobLoading,
+        messages: RESUME_ANALYSIS_MESSAGES,
+        strengths,
+        improvements,
+        error,
+    };
 }

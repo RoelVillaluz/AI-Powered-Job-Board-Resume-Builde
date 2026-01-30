@@ -1,40 +1,23 @@
-import { useEffect, useRef } from "react";
 import { VirtuosoGrid } from "react-virtuoso";
-import { useJobsState, useJobFilters } from "../../contexts/JobsListContext";
-import { useAuth } from "../../contexts/AuthProvider";
+import { useJobInfiniteScroll } from "../../hooks/jobsList/useJobInfiniteScroll.js";  
 import JobPostingCard, { JobPostingCardSkeleton } from "./JobPostingCard";
 import JobSorter from "./JobSorter";
+import { useAuthStore } from "../../stores/authStore";
+import { useResumeStore } from "../../stores/resumeStore";
 
-function JobPostingsListSection({ currentResume, onShowModal }) {
-    const { user } = useAuth();
-    const { jobs, hasMoreJobs, loading, loadMoreJobs } = useJobsState();
-    const {
-        sortBy,
-        sortTypes,
-        isDropdownVisible,
-        setIsDropdownVisible,
-        toggleDropdown,
-        handleSortButtonClick
-    } = useJobFilters();
+const SKELETON_COUNT = 9;
 
-    const dropdownRef = useRef(null);
+function JobPostingsListSection({ onShowModal }) {
+    const user = useAuthStore(state => state.user);  // Fetch user from Zustand
+    const currentResume = useResumeStore(state => state.currentResume); // Fetch resume from Zustand 
+    const { jobs, hasMoreJobs, loading, loadMoreJobs } = useJobInfiniteScroll();  // Use the updated infinite scroll hook
 
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (
-                dropdownRef.current &&
-                !dropdownRef.current.contains(event.target)
-            ) {
-                setIsDropdownVisible(false);
-            }
-        };
-
-        document.addEventListener("mousedown", handleClickOutside);
-        return () =>
-            document.removeEventListener("mousedown", handleClickOutside);
-    }, [setIsDropdownVisible]);
-
-    const totalCount = hasMoreJobs ? jobs.length + 6 : jobs.length;
+    const isInitialLoading = loading && jobs.length === 0;
+    const totalCount = isInitialLoading
+        ? SKELETON_COUNT
+        : hasMoreJobs
+            ? jobs.length + SKELETON_COUNT
+            : jobs.length;
 
     return (
         <section id="job-posting-list">
@@ -43,15 +26,7 @@ function JobPostingsListSection({ currentResume, onShowModal }) {
                     Job listings{" "}
                     <span className="filtered-jobs-count">{jobs.length}</span>
                 </h2>
-
-                <JobSorter
-                    currentSortType={sortBy}
-                    sortTypes={sortTypes}
-                    isDropdownVisible={isDropdownVisible}
-                    dropdownRef={dropdownRef}
-                    toggleDropdown={toggleDropdown}
-                    handleSortButtonClick={handleSortButtonClick}
-                />
+                <JobSorter />
             </header>
 
             <VirtuosoGrid
@@ -62,7 +37,15 @@ function JobPostingsListSection({ currentResume, onShowModal }) {
                 itemContent={(index) => {
                     const job = jobs[index];
 
-                    return job ? (
+                    if (!job) {
+                        return (
+                            <JobPostingCardSkeleton
+                                key={`skeleton-${index}`}
+                            />
+                        );
+                    }
+
+                    return (
                         <JobPostingCard
                             key={job._id}
                             job={job}
@@ -70,15 +53,11 @@ function JobPostingsListSection({ currentResume, onShowModal }) {
                             resume={currentResume}
                             onShowModal={onShowModal}
                         />
-                    ) : (
-                        <JobPostingCardSkeleton
-                            key={`skeleton-${index}`}
-                        />
                     );
                 }}
                 endReached={() => {
                     if (hasMoreJobs && !loading) {
-                        loadMoreJobs();
+                        loadMoreJobs();  // Trigger loading more jobs
                     }
                 }}
             />

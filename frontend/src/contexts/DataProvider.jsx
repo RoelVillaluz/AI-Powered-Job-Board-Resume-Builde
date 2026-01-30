@@ -6,7 +6,7 @@ const DataContext = createContext();
 export const useData = () => useContext(DataContext);
 
 export const DataProvider = ({ children }) => {
-  const { user } = useAuth();
+  const user = useAuthStore(state => state.user);
   
   const [name, setName] = useState(null);
 

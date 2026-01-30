@@ -1,52 +1,19 @@
-import { useState, useEffect } from "react";
-import axios from "axios";
+import { useJobPosting } from "./useJobQueries";
+import { useCompany } from "../companies/useCompanyQueries";
+import { useMemo } from "react";
 
-export const useJobDetails = (baseUrl, jobId) => {
-    const [job, setJob] = useState(null);
-    const [company, setCompany] = useState(null);
-    const hasQuestions = job?.preScreeningQuestions?.length > 0
+export const useJobDetails = (jobId) => {
+    const { data: job, isLoading: isJobLoading, error: jobError } = useJobPosting(jobId);
+    const { data: company, isLoading: isCompanyLoading, error: companyError } = useCompany(job?.company._id);
 
-    const [loading, setLoading] = useState(true);
-    const [userPreferences, setUserPreferences] = useState({
-    
-    })
-    
-    useEffect(() => {
-        const fetchJob = async () => {
-            try {
-                const response = await axios.get(`${baseUrl}/job-postings/${jobId}`)
-                console.log('Job Posting: ', response.data.data)
-                
-                setJob(response.data.data)
-            } catch (error) {
-                console.error('Error: ', error)
-            }
-        }
-        fetchJob()
-    }, [jobId])
+    const hasQuestions = Array.isArray(job?.preScreeningQuestions) && job?.preScreeningQuestions.length > 0;
 
-    useEffect(() => {
-        const fetchCompany = async () => {
-            if (!job?.company?._id) return; 
+    const isLoading = isJobLoading || isCompanyLoading;
+    const error = jobError ?? companyError;
 
-            try {
-                const response = await axios.get(`${baseUrl}/companies/${job?.company?._id}`)
-                console.log('Company: ', response.data.data)
-
-                setCompany(response.data.data)
-            } catch (error) {
-                console.error('Error: ', error)
-            }
-        }
-        fetchCompany()
-    }, [job?.company?._id])
-
-    useEffect(() => {
-        if (job && company) {
-            setLoading(false)
-        }
-    }, [job, company])
-
-    
-    return { job, company, loading, hasQuestions }
+    // Memoize the return object to maintain stable reference
+    return useMemo(
+        () => ({ job, company, isLoading, error, hasQuestions }),
+        [job, company, isLoading, error, hasQuestions]
+    );
 }

@@ -1,6 +1,8 @@
 import { useState, useMemo, useCallback, useRef } from "react";
+import { useJobStore } from "../../stores/jobStore";
 
 function JobSearchBar({ filterRef }) {
+    const { updateFilter } = useJobStore();
     const [recentSearches, setRecentSearches] = useState(new Set());
     const [searchQuery, setSearchQuery] = useState({
         jobTitle: "",
@@ -19,28 +21,20 @@ function JobSearchBar({ filterRef }) {
 
         const queryToSubmit = buttonQuery || searchQuery;
 
-        if (queryToSubmit.jobTitle) {
-            filterRef.handleFilterChange('jobTitle', queryToSubmit.jobTitle);
-        }
+        // Update Zustand filters directly
+        updateFilter("jobTitle", queryToSubmit.jobTitle || "");
+        updateFilter("location", queryToSubmit.location || "");
 
-        if (queryToSubmit.location) {
-            filterRef.handleFilterChange('location', queryToSubmit.location);
-        }
-
-        // Create unique key
         const searchKey = `${queryToSubmit.jobTitle}|${queryToSubmit.location}`;
 
-        setRecentSearches(prevSearches => {
-            const updatedSearches = new Set(prevSearches);
-            updatedSearches.add(searchKey);
-            return updatedSearches;
+        setRecentSearches(prev => {
+            const next = new Set(prev);
+            next.add(searchKey);
+            return next;
         });
 
-        setSearchQuery({
-            jobTitle: "",
-            location: ""
-        });
-    }, [searchQuery, filterRef]);
+        setSearchQuery({ jobTitle: "", location: "" });
+    }, [searchQuery, updateFilter]);
 
     const handleRecentSearchClick = useCallback((search, e) => {
         handleSearchSubmit(e, search);

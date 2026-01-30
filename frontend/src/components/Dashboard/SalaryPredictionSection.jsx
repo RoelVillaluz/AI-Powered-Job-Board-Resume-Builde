@@ -1,9 +1,15 @@
 import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 import axios from "axios";
+import { BASE_API_URL } from "../../config/api";
+import { useResumeStore } from "../../stores/resumeStore";
 
-function SalaryPredictionSection({ baseUrl, resume, loading, shuffledSkills }) {
+function SalaryPredictionSection() {
+    const resume = useResumeStore(state => state.currentResume);
+    const isLoading = useResumeStore(state => state.isLoading)
     const [predictedSalary, setPredictedSalary] = useState(0);
+    const [shuffledSkills, setShuffledSkills] = useState([]);
+
     const example = {
         workExperience: [
             {
@@ -63,7 +69,7 @@ function SalaryPredictionSection({ baseUrl, resume, loading, shuffledSkills }) {
     useEffect(() => {
         const getPredictedSalary = async () => {
             try {
-                const response = await axios.get(`${baseUrl}/ai/predicted-salary/${resume._id}`)
+                const response = await axios.get(`${BASE_API_URL}/ai/predicted-salary/${resume._id}`)
                 console.log('Predicted Salary:', response.data)
                 setPredictedSalary(response.data.predictedSalary)
             } catch (error) {
@@ -78,9 +84,16 @@ function SalaryPredictionSection({ baseUrl, resume, loading, shuffledSkills }) {
         return formattedSalary.toLocaleString()
     }
 
+    useEffect(() => {
+        if (resume?.skills.length) {
+            const shuffled = resume.skills.sort(() => Math.random() - 0.5).slice(0, 3).map(skill => skill.name).join(", ")
+            setShuffledSkills(shuffled)
+        }
+    }, [resume])
+
     return (
-        <section className={`grid-item ${!loading ? '' : 'skeleton'}`} id="salary-prediction">
-            {!loading && (
+        <section className={`grid-item ${!isLoading ? '' : 'skeleton'}`} id="salary-prediction">
+            {!isLoading && (
                 <>
                 <header>
                     <div className="wrapper">
@@ -100,8 +113,8 @@ function SalaryPredictionSection({ baseUrl, resume, loading, shuffledSkills }) {
                     )}
                     <div className="stats-list">
                         <div className="stat">
-                            <h4>{resume.skills.length} Skills</h4>
-                            {resume ? (
+                            <h4>{resume?.skills.length} Skills</h4>
+                            {resume && shuffledSkills ? (
                                 <p>{shuffledSkills}</p>
                             ) : (
                                 <p>No skills yet.</p>

@@ -4,7 +4,6 @@ import { useData } from "../../contexts/DataProvider"
 import { useUserSearch } from "../../hooks/chats/useUserSearch.jsx"
 
 function ChatWindowHeader({ user, currentConversation, showComposeMessage, currentReceiver, setCurrentReceiver }) {
-    const { baseUrl } = useData();
     const { formData } = useChatFormData();
     const { handleChange } = useChatSelection();
     const { searchReceiverQuery, setSearchReceiverQuery, searchReceiverResults } = useUserSearch(baseUrl)

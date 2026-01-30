@@ -1,15 +1,21 @@
-import axios from "axios";
-import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation, Pagination } from "swiper/modules";
+import { Pagination } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
+import { useAuthStore } from "../../stores/authStore";
+import { useInteractedJobs } from "../../hooks/jobs/useJobQueries";
 
-function ApplicationProgressSection({ user, baseUrl, loading }) {
-    const [appliedJobs, setAppliedJobs] = useState([]);
-    const [savedJobs, setSavedJobs] = useState([]);
+function ApplicationProgressSection() {
+    const user = useAuthStore(state => state.user);
+
+    const { data: interactedJobs = [], isLoading, error }
+        = useInteractedJobs(user._id)
+
+    const appliedJobs = interactedJobs.appliedJobs ?? []
+    const savedJobs = interactedJobs.savedJobs ?? []
+
     const [showOngoing, setShowOngoing] = useState(true);
 
     const statusOptions = [
@@ -21,25 +27,10 @@ function ApplicationProgressSection({ user, baseUrl, loading }) {
     ? ['Pending', 'Reviewed', 'Interviewing'] 
     : ['Accepted', 'Rejected'];
 
-    useEffect(() => {
-        const fetchInteractedJobs = async () => {
-            try {
-                const response = await axios.get(`${baseUrl}/users/${user._id}/interacted-jobs`)
-                console.log(response.data.data)
-
-                setAppliedJobs(response.data.data.appliedJobs)
-                setSavedJobs(response.data.data.savedJobs)
-            } catch (error) {
-                console.error('Error', error)
-            }
-        }
-        fetchInteractedJobs()
-    }, [baseUrl, user])
-
     return(
         <>
-            <section className={`grid-item ${loading !== true ? '' : 'skeleton'}`} id="application-progress">
-                {loading !== true && (
+            <section className={`grid-item ${isLoading !== true ? '' : 'skeleton'}`} id="application-progress">
+                {isLoading !== true && (
                     <>
                         {appliedJobs.length > 0 ? (
                             <Swiper 

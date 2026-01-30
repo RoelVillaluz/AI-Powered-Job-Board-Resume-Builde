@@ -1,15 +1,13 @@
 import { createContext, useContext, useCallback, useRef, useEffect } from 'react';
 import { useIntersectionObserver } from "../hooks/chats/useIntersectionObserver"
-import { useAuth } from './AuthProvider';
-import { useData } from './DataProvider';
+
 import { useSocket } from '../hooks/useSocket';
 import { markMessagesAsSeen as markMessagesAsSeenAPI } from '../services/messageServices';
 
 const ReadReceiptsContext = createContext();
 
 export const ReadReceiptsProvider = ({ children }) => {
-    const { user } = useAuth();
-    const { baseUrl } = useData();
+    const user = useAuthStore(state => state.user);
     const { socket } = useSocket();
     const { visibleElements, observe, unobserve } = useIntersectionObserver();
     const pendingMessages = useRef(new Set());

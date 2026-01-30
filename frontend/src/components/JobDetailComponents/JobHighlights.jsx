@@ -1,8 +1,12 @@
-function JobHighlights({ job, company, loading }) {
+import { useJobDetails } from "../../hooks/jobs/useJobDetails"
+
+function JobHighlights({ jobId }) {
+    const { job, company, isLoading, error } = useJobDetails(jobId);
+
     return (
         <section className="job-highlights">
             <ul>
-                {!loading ? (
+                {!isLoading ? (
                     <>
                         <li>
                             <i className="fa-solid fa-user-tie" aria-hidden="true"></i>

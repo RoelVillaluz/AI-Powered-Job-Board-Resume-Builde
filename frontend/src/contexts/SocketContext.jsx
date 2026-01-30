@@ -1,13 +1,15 @@
-import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
+import React, { createContext, useEffect, useRef, useState } from 'react';
 import { io } from 'socket.io-client';
-import { useAuth } from '../contexts/AuthProvider';
+import { useAuthStore } from '../stores/authStore';
 
 const SocketContext = createContext();
 
 export const SocketProvider = ({ children }) => {
+  const user = useAuthStore(state => state.user);
+
   const socketRef = useRef(null);
-  const { user } = useAuth();
   const socketUrl = "http://localhost:5000";
+
   const [connected, setConnected] = useState(false);
   const [onlineUsers, setOnlineUsers] = useState(new Set());
 

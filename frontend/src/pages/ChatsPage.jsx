@@ -15,8 +15,7 @@ import MessageOperationsContext from "../contexts/chats/MessageOperationsContext
 import ErrorBoundary from "../components/ErrorBoundary.jsx";
 
 function ChatsPage() {
-    const { baseUrl } = useData();    
-    const { user } = useAuth();
+    const user = useAuthStore(state => state.user);
     const { socket } = useSocket();
     const chatSelectionResult = useChatSelection();
     

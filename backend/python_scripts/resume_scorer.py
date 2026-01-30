@@ -1,6 +1,7 @@
 import json
 import os
 import sys
+import traceback
 from bson import ObjectId
 from dotenv import load_dotenv
 import pymongo
@@ -12,7 +13,7 @@ from utils import extract_job_embeddings, extract_resume_embeddings, get_embeddi
 
 load_dotenv()
 
-mongo_uri = os.getenv('MONGO_DEV_URI')
+mongo_uri = os.getenv('MONGO_URI')
 client = pymongo.MongoClient(mongo_uri)
 db = client["database"]
 
@@ -26,33 +27,37 @@ def evaluate_resume_relevance(resume):
     Returns:
         float: A relevance score (0-100) representing the alignment between skills and work experience.
     """
-    # Extract resume embeddings for skills, work experience, and certifications
-    mean_skill_embedding, mean_work_embedding, certification_embeddings, *_ = extract_resume_embeddings(resume)
-    
-    # Check if the skill embedding is None, and return 0 relevance score if so
-    if mean_skill_embedding is None:
-        return 0  # No valid skill embedding, so no relevance score
+    try:
+        # Extract resume embeddings for skills, work experience, and certifications
+        mean_skill_embedding, mean_work_embedding, certification_embeddings, *_ = extract_resume_embeddings(resume)
+        
+        # Check if the skill embedding is None, and return 0 relevance score if so
+        if mean_skill_embedding is None:
+            return 0  # No valid skill embedding, so no relevance score
 
-    # Get summary embedding
-    summary_embedding = get_embedding(resume.get("summary", "")).squeeze()  # Ensure correct shape
+        # Get summary embedding
+        summary_embedding = get_embedding(resume.get("summary", "")).squeeze()  # Ensure correct shape
 
-    # Combine embeddings safely, filter out None values
-    all_embeddings = [emb for emb in [mean_skill_embedding, mean_work_embedding, summary_embedding, certification_embeddings] if emb is not None]
+        # Combine embeddings safely, filter out None values
+        all_embeddings = [emb for emb in [mean_skill_embedding, mean_work_embedding, summary_embedding, certification_embeddings] if emb is not None]
 
-    if not all_embeddings:
-        return 0  # If no valid embeddings are found, return 0 relevance score
+        if not all_embeddings:
+            return 0  # If no valid embeddings are found, return 0 relevance score
 
-    # Stack and compute final embedding
-    final_embedding = torch.mean(torch.stack(all_embeddings), dim=0)
+        # Stack and compute final embedding
+        final_embedding = torch.mean(torch.stack(all_embeddings), dim=0)
 
-    # Compute similarity score (only if mean_skill_embedding and final_embedding are valid)
-    if final_embedding is not None:
-        similarity_score = torch.cosine_similarity(mean_skill_embedding.unsqueeze(0), final_embedding.unsqueeze(0)).item()
-        relevance_score = similarity_score * 100  # Scale to percentage
-    else:
-        relevance_score = 0
+        # Compute similarity score (only if mean_skill_embedding and final_embedding are valid)
+        if final_embedding is not None:
+            similarity_score = torch.cosine_similarity(mean_skill_embedding.unsqueeze(0), final_embedding.unsqueeze(0)).item()
+            relevance_score = similarity_score * 100  # Scale to percentage
+        else:
+            relevance_score = 0
 
-    return round(relevance_score, 2)
+        return round(relevance_score, 2)
+    except Exception as e:
+        print(json.dumps({"error": f"Error in evaluate_resume_relevance: {str(e)}", "traceback": traceback.format_exc()}), file=sys.stderr)
+        return 0
 
 
 def calculate_resume_score(resume):
@@ -65,168 +70,209 @@ def calculate_resume_score(resume):
     Returns:
         float: A final score (0-100).
     """
+    try:
+        COMPLETENESS_WEIGHT = 0.6
+        RELEVANCE_WEIGHT = 0.4
 
-    COMPLETENESS_WEIGHT = 0.6
-    RELEVANCE_WEIGHT = 0.4
+        # Check completeness
+        required_fields = [
+            ("firstName", 10),
+            ("lastName", 10),
+            ("address", 10),
+            ("phone", 10),
+            ("summary", 15),
+        ]
 
-    # Check completeness
-    required_fields = [
-        ("firstName", 10),
-        ("lastName", 10),
-        ("address", 10),
-        ("phone", 10),
-        ("summary", 15),
-    ]
+        key_sections = [
+            ("skills", 20),
+            ("workExperience", 20),
+            ("certifications", 10)
+        ]
 
-    key_sections = [
-        ("skills", 20),
-        ("workExperience", 20),
-        ("certifications", 10)
-    ]
+        social_media_weight = 5
 
-    social_media_weight = 5
+        # Compute completeness score
+        completeness_score = sum(weight for field, weight in required_fields if resume.get(field))
+        completeness_score += sum(weight for section, weight in key_sections if resume.get(section))
+        completeness_score += social_media_weight if any(resume.get("socialMedia", {}).values()) else 0
 
-    # Compute completeness score
-    completeness_score = sum(weight for field, weight in required_fields if resume.get(field))
-    completeness_score += sum(weight for section, weight in key_sections if resume.get(section))
-    completeness_score += social_media_weight if any(resume.get("socialMedia", {}).values()) else 0
+        relevance_score = evaluate_resume_relevance(resume)
 
-    relevance_score = evaluate_resume_relevance(resume)
+        final_score = (completeness_score * COMPLETENESS_WEIGHT) + (relevance_score * RELEVANCE_WEIGHT)
 
-    final_score = (completeness_score * COMPLETENESS_WEIGHT) + (relevance_score * RELEVANCE_WEIGHT)
-
-    return round(final_score, 2)
+        return round(final_score, 2)
+    except Exception as e:
+        print(json.dumps({"error": f"Error in calculate_resume_score: {str(e)}", "traceback": traceback.format_exc()}), file=sys.stderr)
+        return 0
 
 def compare_resume_to_job(resume_id, job_id):
-    # Ensure to fetch resume and job from the DB using their IDs
-    resume = db.resumes.find_one({"_id": ObjectId(resume_id)})
-    job = db.jobpostings.find_one({"_id": ObjectId(job_id)})
+    try:
+        # Ensure to fetch resume and job from the DB using their IDs
+        resume = db.resumes.find_one({"_id": ObjectId(resume_id)})
+        job = db.jobpostings.find_one({"_id": ObjectId(job_id)})
 
-    if not resume or not job:
-        return {"error": "Resume or Job not found in database."}
+        if not resume:
+            return {"error": f"Resume not found with ID: {resume_id}"}
+        if not job:
+            return {"error": f"Job not found with ID: {job_id}"}
 
-    # Embeddings
-    mean_resume_skill_embedding, mean_resume_work_embedding, certification_embeddings, _ = extract_resume_embeddings(resume)
-    mean_job_skill_embedding, mean_job_requirements_embedding, _, job_title_embedding, _ = extract_job_embeddings(job)
+        # Embeddings
+        mean_resume_skill_embedding, mean_resume_work_embedding, certification_embeddings, _ = extract_resume_embeddings(resume)
+        mean_job_skill_embedding, mean_job_requirements_embedding, _, job_title_embedding, _ = extract_job_embeddings(job)
 
-    feedback = {
-        "debug": {
-            "resume_work_embedding_exists": mean_resume_work_embedding is not None,
-            "job_title_embedding_exists": job_title_embedding is not None,
-            "job_title": job.get("title", "Not found"),
-            "resume_work_experience": [
-                {
-                    "jobTitle": exp.get("jobTitle", "No title"),
-                    "has_responsibilities": "responsibilities" in exp and bool(exp["responsibilities"])
-                }
-                for exp in resume.get("workExperience", [])
-            ]
+        feedback = {
+            "debug": {
+                "resume_work_embedding_exists": mean_resume_work_embedding is not None,
+                "job_title_embedding_exists": job_title_embedding is not None,
+                "job_title": job.get("title", "Not found"),
+                "resume_work_experience": [
+                    {
+                        "jobTitle": exp.get("jobTitle", "No title"),
+                        "has_responsibilities": "responsibilities" in exp and bool(exp["responsibilities"])
+                    }
+                    for exp in resume.get("workExperience", [])
+                ]
+            }
         }
-    }
 
-    # Skill similarity
-    if mean_resume_skill_embedding is not None and mean_job_skill_embedding is not None:
-        # Ensure they're tensors
-        resume_tensor = (
-            torch.tensor(mean_resume_skill_embedding)
-            if not isinstance(mean_resume_skill_embedding, torch.Tensor)
-            else mean_resume_skill_embedding
-        )
-        job_tensor = (
-            torch.tensor(mean_job_skill_embedding)
-            if not isinstance(mean_job_skill_embedding, torch.Tensor)
-            else mean_job_skill_embedding
-        )
+        # Skill similarity
+        if mean_resume_skill_embedding is not None and mean_job_skill_embedding is not None:
+            # Ensure they're tensors
+            resume_tensor = (
+                torch.tensor(mean_resume_skill_embedding)
+                if not isinstance(mean_resume_skill_embedding, torch.Tensor)
+                else mean_resume_skill_embedding
+            )
+            job_tensor = (
+                torch.tensor(mean_job_skill_embedding)
+                if not isinstance(mean_job_skill_embedding, torch.Tensor)
+                else mean_job_skill_embedding
+            )
 
-        # Convert tensor to float for JSON serialization
-        skill_similarity = cosine_similarity(resume_tensor.unsqueeze(0), job_tensor.unsqueeze(0)).item()
-        feedback["skill_similarity"] = float(skill_similarity)
-    else:
-        feedback["skill_similarity"] = None
+            # Convert tensor to float for JSON serialization
+            skill_similarity = cosine_similarity(resume_tensor.unsqueeze(0), job_tensor.unsqueeze(0)).item()
+            feedback["skill_similarity"] = float(skill_similarity)
+        else:
+            feedback["skill_similarity"] = None
 
-    # Experience similarity
-    EXPERIENCE_LEVEL_YEARS = {
-        "Intern": (0, 0),
-        "Junior": (0, 4),
-        "Mid-Level": (3, 7),
-        "Senior": (7, float('inf'))
-    }
+        # Experience similarity
+        if mean_resume_work_embedding is not None and job_title_embedding is not None:
+            resume_tensor = (
+                torch.tensor(mean_resume_work_embedding)
+                if not isinstance(mean_resume_work_embedding, torch.Tensor)
+                else mean_resume_work_embedding
+            )
+            job_tensor = (
+                torch.tensor(job_title_embedding)
+                if not isinstance(job_title_embedding, torch.Tensor)
+                else job_title_embedding
+            )
 
-    if mean_resume_work_embedding is not None and job_title_embedding is not None:
-        resume_tensor = (
-            torch.tensor(mean_resume_work_embedding)
-            if not isinstance(mean_resume_work_embedding, torch.Tensor)
-            else mean_resume_work_embedding
-        )
-        job_tensor = (
-            torch.tensor(job_title_embedding)
-            if not isinstance(job_title_embedding, torch.Tensor)
-            else job_title_embedding
-        )
+            # Convert tensor to float for JSON serialization
+            experience_similarity = cosine_similarity(resume_tensor.unsqueeze(0), job_tensor.unsqueeze(0)).item()
+            feedback["experience_similarity"] = float(experience_similarity)
+        else:
+            feedback["experience_similarity"] = None
 
-        # Convert tensor to float for JSON serialization
-        experience_similarity = cosine_similarity(resume_tensor.unsqueeze(0), job_tensor.unsqueeze(0)).item()
-        feedback["experience_similarity"] = float(experience_similarity)
-    else:
-        feedback["experience_similarity"] = None
+        # Requirements similarity
+        if certification_embeddings is not None and mean_job_requirements_embedding is not None:
+            cert_tensor = (
+                torch.tensor(certification_embeddings)
+                if not isinstance(certification_embeddings, torch.Tensor)
+                else certification_embeddings
+            )
+            job_req_tensor = (
+                torch.tensor(mean_job_requirements_embedding)
+                if not isinstance(mean_job_requirements_embedding, torch.Tensor)
+                else mean_job_requirements_embedding
+            )
 
-    # Requirements similarity
-    if certification_embeddings is not None and mean_job_requirements_embedding is not None:
-        cert_tensor = (
-            torch.tensor(certification_embeddings)
-            if not isinstance(certification_embeddings, torch.Tensor)
-            else certification_embeddings
-        )
-        job_req_tensor = (
-            torch.tensor(mean_job_requirements_embedding)
-            if not isinstance(mean_job_requirements_embedding, torch.Tensor)
-            else mean_job_requirements_embedding
-        )
+            # Convert tensor to float for JSON serialization
+            requirements_similarity = cosine_similarity(cert_tensor.unsqueeze(0), job_req_tensor.unsqueeze(0)).item()
+            feedback["requirements_similarity"] = float(requirements_similarity)
+        else:
+            feedback["requirements_similarity"] = None
 
-        # Convert tensor to float for JSON serialization
-        requirements_similarity = cosine_similarity(cert_tensor.unsqueeze(0), job_req_tensor.unsqueeze(0)).item()
-        feedback["requirements_similarity"] = float(requirements_similarity)
-    else:
-        feedback["requirements_similarity"] = None
+        value_weights = {
+            "skill_similarity": 0.65,
+            "experience_similarity": 0.35,
+            # "requirements_similarity": 0.25
+        }
 
-    value_weights = {
-        "skill_similarity": 0.65,
-        "experience_similarity": 0.35,
-        # "requirements_similarity": 0.25
-    }
+        total_score = 0
+        for key, weight in value_weights.items():
+            value = feedback.get(key, 0)
+            value = value if value is not None else 0
+            total_score += value * weight
 
-    total_score = 0
-    for key, weight in value_weights.items():
-        value = feedback.get(key, 0)
-        value = value if value is not None else 0
-        total_score += value * weight
+        feedback["total_score"] = float(total_score)  # Ensure it's a Python float
 
-    feedback["total_score"] = float(total_score)  # Ensure it's a Python float
-
-    return feedback
+        return feedback
+    except Exception as e:
+        return {
+            "error": f"Error in compare_resume_to_job: {str(e)}",
+            "traceback": traceback.format_exc(),
+            "resume_id": resume_id,
+            "job_id": job_id
+        }
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print(json.dumps({"error": "Missing resumeId"}))
+    try:
+        if len(sys.argv) < 2:
+            print(json.dumps({"error": "Missing mode argument. Usage: python script.py <mode> <resume_id> [job_id]"}))
+            sys.exit(1)
+
+        mode = sys.argv[1]
+
+        if len(sys.argv) < 3:
+            print(json.dumps({"error": "Missing resumeId argument"}))
+            sys.exit(1)
+
+        resume_id = sys.argv[2]
+        
+        # Validate resume_id format
+        try:
+            ObjectId(resume_id)
+        except Exception as e:
+            print(json.dumps({"error": f"Invalid resume_id format: {resume_id}", "details": str(e)}))
+            sys.exit(1)
+
+        resume = get_resume_by_id(resume_id)
+
+        if not resume:
+            print(json.dumps({"error": f"Resume not found with ID: {resume_id}"}))
+            sys.exit(1)
+
+        if mode == "score":
+            score = calculate_resume_score(resume)
+            print(json.dumps({"score": score}))
+
+        elif mode == "compare":
+            if len(sys.argv) < 4:
+                print(json.dumps({"error": "Missing job_id for compare mode"}))
+                sys.exit(1)
+            
+            job_id = sys.argv[3]
+            
+            # Validate job_id format
+            try:
+                ObjectId(job_id)
+            except Exception as e:
+                print(json.dumps({"error": f"Invalid job_id format: {job_id}", "details": str(e)}))
+                sys.exit(1)
+            
+            feedback = compare_resume_to_job(resume_id, job_id)  
+            print(json.dumps(feedback))
+
+        else:
+            print(json.dumps({"error": f"Invalid mode: {mode}. Must be 'score' or 'compare'"}))
+            sys.exit(1)
+
+    except Exception as e:
+        print(json.dumps({
+            "error": "Unexpected error in main",
+            "details": str(e),
+            "traceback": traceback.format_exc(),
+            "argv": sys.argv
+        }))
         sys.exit(1)
-
-    mode = sys.argv[1]
-
-    resume_id = sys.argv[2]
-    resume = get_resume_by_id(resume_id)
-
-    if not resume:
-        print(json.dumps({"error": "Resume not found."}))
-        sys.exit(1)
-
-    if mode == "score":
-        score = calculate_resume_score(resume)
-        print(json.dumps({"score": score}))
-
-    elif mode == "compare":
-        job_id = sys.argv[3]
-        feedback = compare_resume_to_job(resume_id, job_id)  
-        print(json.dumps(feedback))
-
-    else:
-        print(json.dumps({"error": "Invalid mode"}))

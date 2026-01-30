@@ -1,14 +1,19 @@
 import axios from "axios"
 import { useState, useEffect } from "react"
 import { Link } from "react-router-dom";
+import { BASE_API_URL } from "../../config/api";
+import { useAuthStore } from "../../stores/authStore";
 
-function OnlineCoursesSection({ user, baseUrl, loading }) {
+function OnlineCoursesSection() {
+    const user = useAuthStore(state => state.user);
+    const isLoading = useAuthStore(state => state.isLoading);
+
     const [recommendedSkills, setRecommendedSkills] = useState([])
 
     useEffect(() => {
         const fetchRecommendedSkills = async () => {
             try {
-                const response = await axios.get(`${baseUrl}/ai/skill-recommendations/${user._id}`);
+                const response = await axios.get(`${BASE_API_URL}/ai/skill-recommendations/${user._id}`);
                 const responseSkills = response.data;
 
                 console.log("Recommended Skills", responseSkills);
@@ -24,12 +29,12 @@ function OnlineCoursesSection({ user, baseUrl, loading }) {
         if (user?._id) {
             fetchRecommendedSkills();
         }
-    }, [user._id, baseUrl]);
+    }, [user._id]);
 
     return (
         <>
-           <section className={`grid-item ${!loading ? '' : 'skeleton'}`} id="online-courses">
-                {!loading && (
+           <section className={`grid-item ${!isLoading ? '' : 'skeleton'}`} id="online-courses">
+                {!isLoading && (
                     <>
                         <figure>
                             <img src="public/media/pexels-rdne-6517078.jpg" alt="Recommended Skills" />

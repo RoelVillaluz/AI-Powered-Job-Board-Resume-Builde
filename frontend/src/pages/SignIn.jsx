@@ -1,66 +1,51 @@
-import { useEffect, useState } from "react"
-import { Link, useNavigate } from "react-router-dom"
-import { useData} from "../contexts/DataProvider"
-import { useAuth } from "../contexts/AuthProvider"
-import axios from "axios"
-import VerifyUser from "../components/VerifyUser"
-
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import VerifyUser from "../components/VerifyUser";
+import { useAuthStore } from "../stores/authStore";
+import { BASE_API_URL } from "../config/api";
 
 function SignIn() {
+    const navigate = useNavigate();
+
+    const login = useAuthStore(state => state.login);
+
     const [errorMessage, setErrorMessage] = useState(null);
     const [formData, setFormData] = useState({
         email: '',
         password: ''
     });
 
-    const [isEmailValid, setIsEmailValid] = useState(false);
     const [isEmailSent, setIsEmailSent] = useState(false);
     const [verificationCode, setVerificationCode] = useState('');
 
-    const { baseUrl } = useData();
-    const { login } = useAuth();
-
-    const navigate = useNavigate();
+    useEffect(() => {
+        document.title = 'Sign In';
+    }, []);
 
     const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value })
-    }
-
-    useEffect(() => {
-        document.title = 'Sign In'
-    }, [])
+        setFormData(prev => ({
+            ...prev,
+            [e.target.name]: e.target.value
+        }));
+    };
 
     const handleFormSubmit = async (e) => {
         e.preventDefault();
-        try {
-            // Login user
-            const response = await axios.post(`${baseUrl}/users/login`, formData)
+        setErrorMessage(null);
 
-            // extract user and token
-            const { user, token } = response.data.data
-            
-            if (response.data.success === true) {
-                login(user, token)
-                navigate('/');
-            } else {
-                setErrorMessage(response.data.formattedMessage || 'Incorrect username or password.')
-            }
-            
-        } catch (error) {
-            console.error('Error', error.response || error);
-            // If error.response exists, it means Axios returned a response with error details
-            if (error.response && error.response.data && error.response.data.formattedMessage) {
-                setErrorMessage(error.response.data.formattedMessage);  // Show formatted message from backend
-            } else {
-                setErrorMessage('An unexpected error occurred. Please try again.');
-            }
+        const result = await login(formData.email, formData.password);
+
+        if (result.success) {
+            navigate('/');
+        } else {
+            setErrorMessage(result.message);
         }
-    }
+    };
 
     const handleForgotPasswordClick = async (e) => {
         try {
             // send verification code to email
-            const response = await axios.post(`${baseUrl}/users/resend-verification-code`, {
+            const response = await axios.post(`${BASE_API_URL}/users/resend-verification-code`, {
                 email: formData.email
             })
 
@@ -73,16 +58,6 @@ function SignIn() {
             setErrorMessage(error.response?.data?.formattedMessage);
         }
     }
-
-    const checkValidEmailStructure = (email) => {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return emailRegex.test(email);
-    };
-
-    useEffect(() => {
-        setIsEmailValid(checkValidEmailStructure(formData.email))
-        console.log(`Is email valid?`, isEmailValid);
-    }, [formData.email])
 
     return (
         <>
@@ -134,4 +109,4 @@ function SignIn() {
     )
 }
 
-export default SignIn
+export default SignIn;

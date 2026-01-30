@@ -12,7 +12,8 @@ function ApplicationFormModal({ job, onClose, onSubmit }) {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        onSubmit(answers)
+        onSubmit(answers),
+        onClose()
     }
 
     return (

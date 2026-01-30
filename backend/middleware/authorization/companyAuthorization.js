@@ -3,24 +3,6 @@ import { ConflictError, ForbiddenError, UnauthorizedError } from "../errorHandle
 import Company from '../../models/companyModel.js'; 
 
 /**
- * Validates if user role is employer before allowing them to handle company related updates/actions
- * @returns {Promise<Object>}
- */
-export const requireEmployerRole = catchAsync(async (req, res, next) => {
-    const user = req.user // comes from authenticate middleware
-
-    if (!user) throw new UnauthorizedError('Invalid authentication data')
-
-    if (user.role !== 'employer') {
-        throw new ForbiddenError(
-            `This action requires employer role. Your current role: ${user.role}`
-        );
-    }
-
-    next() // user is authenticated and authorized
-})
-
-/**
  * Middleware to enforce that the company being created or updated is always linked to the logged-in user.
  * This prevents a user from creating a company on behalf of another user.
  * 

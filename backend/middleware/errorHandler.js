@@ -18,6 +18,13 @@ export class ValidationError extends AppError {
     }
 }
 
+export class BadRequestError extends Error {
+    constructor(message) {
+        super(message, 400)
+        this.name = 'BadRequestError'
+    }
+}
+
 export class NotFoundError extends AppError {
     constructor(resource) {
         super(`${resource} not found`, 404);

@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import * as JobPostingRepository from "../../repositories/jobPostings/jobPostingRepositories.js";
 import { transformProfilePictureUrl } from "../transformers/urlTransformers.js";
 import { parseFilterParams } from "../../../frontend/src/utils/jobPostings/filterJobUtils.js";
-import JobPosting from "../../models/jobPostingModel.js";
+import JobPosting from "../../models/jobPostings/jobPostingModel.js";
 
 /**
  * Get filtered, sorted, and paginated job postings (cursor-based)

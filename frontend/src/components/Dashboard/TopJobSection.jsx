@@ -1,61 +1,49 @@
 import { useState, useEffect } from "react"
 import { useJobActions } from "../../hooks/jobs/useJobActions";
 import { Link } from "react-router-dom";
-import { useData } from "../../contexts/DataProvider";
+import { useJobStore } from "../../stores/jobStore"; 
+import { useResumeStore } from "../../stores/resumeStore";
+import { useAuthStore } from "../../stores/authStore"; // Add this import
 import { formattedSalary } from "../../../../backend/constants";
+import { useJobRecommendations } from "../../hooks/jobs/useJobQueries";
 
-function TopJobSection({ user, resume, shuffledSkills }) {
+function TopJobSection() {
     const { toggleApplyJob, toggleSaveJob } = useJobActions();
-    const { fetchJobRecommendations } = useData();
-    const [topJob, setTopJob] = useState(null);
-    const [loading, setLoading] = useState(true);
+    const user = useAuthStore(state => state.user); // Get user from store
+    const resume = useResumeStore(state => state.currentResume);
+
+    const { data: jobRecommendations = [], isLoading, error } =
+        useJobRecommendations(user?._id)
+    
+    const topJob = jobRecommendations[0] ?? null;
+    
+    const [shuffledSkills, setShuffledSkills] = useState([]);
 
     useEffect(() => {
-        const getRecommendations = async () => {
-            if (!user) return; // Ensure user exists
-
-            setLoading(true); // Start loading when fetching data
-            const recommendations = await fetchJobRecommendations();
-            console.log("Received recommendations:", recommendations);
-            
-            if (recommendations.length > 0) {
-                setTopJob(recommendations[0]); // Set the first job recommendation
-            } else {
-                setTopJob(null); // Ensure no stale data
-            }
-        };
-
-        getRecommendations();
-    }, [user?._id]);
-
-    // Stop loading when topJob is set
-    useEffect(() => {
-        if (topJob !== null) {
-            setLoading(false);
+        if (resume?.skills?.length) {
+        const skills = [...resume.skills]
+            .sort(() => Math.random() - 0.5)
+            .slice(0, 3)
+            .map(skill => skill.name)
+            .join(', ')
+        setShuffledSkills(skills)
         }
-    }, [topJob]);
-
-    const formatDate = (date) => {
-        const formattedDate = date.toLocaleString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-        })
-        return formattedDate
-    }
+    }, [resume])
     
     return (
         <>
-            <section className={`grid-item ${!loading ? '' : 'skeleton'}`} id="top-job">
-                {!loading && (
+            <section className={`grid-item ${!isLoading && topJob ? '' : 'skeleton'}`} id="top-job">
+                {!isLoading && topJob && user && (
                     <>
                         <Link to={`job-postings/${topJob._id}`} id="top-job-link">
                             <header>
                                 <div>
-                                    <h1>Full Stack Developer</h1>
-                                    <h2>{topJob.company.name}</h2>
+                                    <h1>{topJob.title || 'Full Stack Developer'}</h1>
+                                    <h2>{topJob.company?.name}</h2>
                                 </div>
-                                <img src={topJob.company.logo} alt={`${topJob.company.name} logo`} />
+                                {topJob.company?.logo && (
+                                    <img src={topJob.company.logo} alt={`${topJob.company.name} logo`} />
+                                )}
                             </header>
                             <div className="details">
 
@@ -74,34 +62,46 @@ function TopJobSection({ user, resume, shuffledSkills }) {
                                         <i className="fa-solid fa-user-tie" aria-hidden="true"></i>
                                         <span>{topJob.experienceLevel}</span>
                                     </div>
-                                    <div className="tag-item">
-                                        <i className="fa-solid fa-wrench" aria-hidden="true"></i>
-                                        <span>{topJob.matchedSkills.length}/{topJob.skills.length} Matched Skills</span>
-                                    </div>
+                                    {topJob.matchedSkills && topJob.skills && (
+                                        <div className="tag-item">
+                                            <i className="fa-solid fa-wrench" aria-hidden="true"></i>
+                                            <span>{topJob.matchedSkills.length}/{topJob.skills.length} Matched Skills</span>
+                                        </div>
+                                    )}
                                 </div>
 
                                 <div className="actions">
 
-                                    <button className="apply-btn" onClick={(e) => toggleApplyJob(e, topJob._id, resume)} aria-label="Apply to job">
-                                        {user.appliedJobs.includes(topJob._id) ? 'Unapply': 'Apply Now'}
+                                    <button 
+                                        className="apply-btn" 
+                                        onClick={(e) => toggleApplyJob(e, topJob._id, resume)} 
+                                        aria-label="Apply to job"
+                                    >
+                                        {user.appliedJobs?.includes(topJob._id) ? 'Unapply': 'Apply Now'}
                                     </button>
 
-                                    <button className="save-btn" onClick={(e) => toggleSaveJob(e, topJob._id)} aria-label="Save job">
-                                        <i className={`fa-${user.savedJobs.includes(topJob._id) ? 'solid': 'regular'} fa-bookmark`}></i>
+                                    <button 
+                                        className="save-btn" 
+                                        onClick={(e) => toggleSaveJob(e, topJob._id)} 
+                                        aria-label="Save job"
+                                    >
+                                        <i className={`fa-${user.savedJobs?.includes(topJob._id) ? 'solid': 'regular'} fa-bookmark`}></i>
                                     </button>
 
-                                    <div className="match-score">
-                                        {topJob.similarity}% Match
-                                    </div>
+                                    {topJob.similarity && (
+                                        <div className="match-score">
+                                            {topJob.similarity}% Match
+                                        </div>
+                                    )}
 
                                 </div>
                             </div>
                         </Link>
                         <Link id="recommended-jobs-link" to={'job-postings/'}>
                             <div className="company-images">
-                                <img src="public/company_logos/apple.jpg" alt="" />
-                                <img src="public/company_logos/netflix.jpg" alt="" />
-                                <img src="public/company_logos/meta.jpg" alt="" />
+                                <img src="public/company_logos/apple.jpg" alt="Company logo" />
+                                <img src="public/company_logos/netflix.jpg" alt="Company logo" />
+                                <img src="public/company_logos/meta.jpg" alt="Company logo" />
                             </div>
                             <div className="wrapper">
                                 <div>

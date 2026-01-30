@@ -1,91 +1,80 @@
-import { useEffect, useState, useRef, useMemo, useCallback } from "react"
-import { useAuth } from "../contexts/AuthProvider"
-import { useData } from "../contexts/DataProvider";
-import axios, { all } from "axios";
+import { useEffect, useState, useRef, useCallback } from "react";
 import Layout from "../components/Layout";
-import { Link } from "react-router-dom";
-import JobPostingCard from "../components/JobListComponents/JobPostingCard";
-import FilterSidebar from "../components/FilterSidebar";
-import JobSearchBar from "../components/JobListComponents/JobSearchBar";
-import { useJobFilters, useJobsState } from "../contexts/JobsListContext";
-import TopCompanies from "../components/JobListComponents/TopCompanies";
+import FilterSidebar from "../components/JobListComponents/FilterSidebar";
 import JobPostingsListSection from "../components/JobListComponents/JobPostingsListSection";
+import JobSearchBar from "../components/JobListComponents/JobSearchBar";
 import ApplicationFormModal from "../components/JobDetailComponents/ApplicationFormModal";
+import { useAuthStore } from "../stores/authStore";
+import { useResumeStore } from "../stores/resumeStore";
+import { useJobStore } from "../stores/jobStore";
+import { useUserResumesQuery } from "../hooks/resumes/useResumeQueries";
 
 function JobPostingsList() {
-    const { user, handleJobAction } = useAuth();
-    const { baseUrl } = useData();
-    const { filterRef, resumes } = useJobFilters();
-    const [selectedJob, setSelectedJob] = useState(null)
+    const user = useAuthStore(state => state.user);
+    const { data: resumes, isLoading: resumesLoading } = useUserResumesQuery(user?._id);
+    const currentResume = useResumeStore(state => state.resume);
+
+    const [selectedJob, setSelectedJob] = useState(null);
     const [hasQuestions, setHasQuestions] = useState(false);
     const [showApplicationModal, setShowApplicationModal] = useState(false);
-    const [currentResume, setCurrentResume] = useState(null);
     const lastEventRef = useRef(null);
     const [preScreeningAnswers, setPreScreeningAnswers] = useState(null);
 
-
     useEffect(() => {
-        document.title = 'All Jobs'
-    }, [])
+        document.title = 'All Jobs';
+    }, []);
 
     const showModal = useCallback((job, hasQuestions, event = null) => {
         if (event) lastEventRef.current = event;
         setSelectedJob(job);
         setHasQuestions(hasQuestions);
         setShowApplicationModal(true);
-    }, [])
+    }, []);
 
-    useEffect(() => {
-        if (resumes.length === 0) return;
-
-        setCurrentResume(resumes[0])
-    }, [resumes])
+    const handleJobAction = useCallback(async (
+        event,
+        jobId,
+        resumeId,
+        action,
+        hasQuestions,
+        preScreeningAnswers,
+        isApplied
+    ) => {
+        // Your job action logic here (apply, save, etc.)
+        console.log('Job action:', { jobId, resumeId, action, preScreeningAnswers });
+    }, []);
 
     useEffect(() => {
         if (preScreeningAnswers) {
-            // Call apply after modal submission
             handleJobAction(
-                lastEventRef.current || new Event('submit'),  // Use last stored click event
+                lastEventRef.current || new Event('submit'),
                 selectedJob._id,
                 currentResume._id,
                 'apply',
                 hasQuestions,
                 preScreeningAnswers,
-                false // isApplied
+                false
             );
-            setPreScreeningAnswers(null);  // Reset after submission
-            setShowApplicationModal(false); // Close modal
+            setPreScreeningAnswers(null);
+            setShowApplicationModal(false);
         }
-    }, [preScreeningAnswers]);
-
+    }, [preScreeningAnswers, selectedJob, currentResume, hasQuestions, handleJobAction]);
 
     return (
         <>
             <Layout>
                 <div className="container" style={{ alignItems: 'start' }}>
-
-                    <FilterSidebar ref={filterRef} />
+                    <FilterSidebar/>
 
                     <main id="job-list-container">
+                        <JobSearchBar />
+                        {/* <TopCompanies baseUrl={baseUrl} user={user} /> */}
 
-                        <JobSearchBar
-                            filterRef={filterRef}
-                        />  
-
-                        <TopCompanies
-                            baseUrl={baseUrl}
-                            user={user}
-                        />
-
-                        <JobPostingsListSection
-                            currentResume={currentResume}
-                            onShowModal={showModal}
-                        />
-
+                        <JobPostingsListSection onShowModal={showModal} />
                     </main>
-
                 </div>
             </Layout>
+
             {showApplicationModal && hasQuestions && (
                 <ApplicationFormModal 
                     job={selectedJob} 
@@ -94,7 +83,7 @@ function JobPostingsList() {
                 />
             )}
         </>
-    )
+    );
 }
 
-export default JobPostingsList
+export default JobPostingsList;

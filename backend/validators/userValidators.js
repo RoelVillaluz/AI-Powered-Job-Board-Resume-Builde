@@ -58,12 +58,11 @@ export const loginSchema = Joi.object({
         })
 })
 
-export const verificationCodeSchema = Joi.object({
-    verificationCode: Joi.string()
-        .length(6)
-        .required()
-        .messages({
-            'string.length': 'Verification code must be 6 numbers long',
-            'string.empty': 'Verification code is required'
+export const passwordSchema = Joi.object({
+    password: Joi.string()
+        .pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/)
+        .message({
+            'string.pattern.base': 'Password must be at least 8 characters long and include uppercase, lowercase, number, and special character',
+            'string.empty': 'Password cannot be empty'
         })
 })

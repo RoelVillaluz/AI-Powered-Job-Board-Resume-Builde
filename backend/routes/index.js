@@ -1,9 +1,10 @@
-import userRoutes from "./userRoutes.js";
+import userRoutes from "./users/userRoutes.js";
 import jobPostingRoutes from "./jobPostingRoutes.js";
-import resumeRoutes from "./resumeRoutes.js";
+import resumeRoutes from "./resumes/resumeRoutes.js";
 import companyRoutes from "./companyRoutes.js";
 import aiRoutes from "./aiRoutes.js";
 import applicationRoutes from "./applicationRoutes.js";
+import authRoutes from "./authRoutes.js"
 
 import {
   conversationRoutes,
@@ -15,9 +16,10 @@ import {
 
 export const registerRoutes = (app) => {
   // Core API
+  app.use("/api/auth", authRoutes);
   app.use("/api/users", userRoutes);
   app.use("/api/job-postings", jobPostingRoutes);
-  app.use("/api/resumes", resumeRoutes);
+  
   app.use("/api/companies", companyRoutes);
   app.use("/api/ai", aiRoutes);
   app.use("/api/applications", applicationRoutes);
@@ -28,4 +30,7 @@ export const registerRoutes = (app) => {
   app.use("/api/conversations/:conversationId/resources/attachments", attachmentRoutes);
   app.use("/api/conversations/:conversationId/resources/pinned-messages", pinnedMessageRoutes);
   app.use("/api/conversations/:conversationId/resources/links", linkRoutes);
+
+  // Resumes
+  app.use("/api/resumes", resumeRoutes);
 };

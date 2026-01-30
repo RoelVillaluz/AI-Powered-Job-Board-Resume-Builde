@@ -1,16 +1,11 @@
 import { useEffect } from "react";
-import { useData } from "../contexts/DataProvider";
 import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowRight } from '@fortawesome/free-solid-svg-icons';
 
 function LandingPage () {
-    const { users = [], jobPostings = [], resumes = [], getAllData } = useData();
-
     useEffect(() => {
         document.title = 'Landing Page'
-
-        getAllData(["users", "job-postings", "resumes"])
     }, [])
 
     return (

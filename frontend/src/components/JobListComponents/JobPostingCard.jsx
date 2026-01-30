@@ -14,15 +14,15 @@ export const JobPostingCardSkeleton = () => {
 const JobPostingCard = ({ job, user, resume, onShowModal }) => {
     const { toggleSaveJob, toggleApplyJob } = useJobActions();
 
-    const isApplied = useMemo(() => {
-        return user.appliedJobs.includes(job._id)
-    }, [user.appliedJobs])
+    const appliedJobs = user?.appliedJobs || [];
+    const savedJobs = user?.savedJobs || [];
 
-    const appliedJobText = useMemo(() => {
-        return isApplied ? 'Unapply' : 'Apply'
-    }, [isApplied])
+    const isApplied = useMemo(() => appliedJobs.includes(job._id), [appliedJobs, job._id]);
+    const appliedJobText = useMemo(() => (isApplied ? "Unapply" : "Apply"), [isApplied]);
 
-    const hasQuestions = job.preScreeningQuestions.length > 0;
+
+    const hasQuestions = Array.isArray(job.preScreeningQuestions)
+        && job.preScreeningQuestions.length > 0;
 
     const handleApplyClick = (e) => {
         e.preventDefault();
@@ -78,7 +78,7 @@ const JobPostingCard = ({ job, user, resume, onShowModal }) => {
 
                 <button className="apply-btn" onClick={handleApplyClick}>{appliedJobText}</button>
                 <button className="save-btn" onClick={(e) => toggleSaveJob(e, job._id)} aria-label="Save job">
-                    <i className={`fa-${user.savedJobs.includes(job._id) ? 'solid' : 'regular'} fa-bookmark`}></i>
+                    <i className={`fa-${savedJobs.includes(job._id) ? 'solid' : 'regular'} fa-bookmark`}></i>
                 </button>
                 {job.similarity && (
                     <div className="match-score">

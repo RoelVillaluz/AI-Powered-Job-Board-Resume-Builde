@@ -1,6 +1,6 @@
 import { Worker } from "bullmq";
 import { redisConnection, queueConfig, workerConcurrency } from "../config/queue.config.js";
-import { generateResumeEmbeddingsProcessor } from "../jobs/processes/generateEmbeddings.js";
+import { generateJobPostingEmbeddingsProcessor, generateResumeEmbeddingsProcessor } from "../jobs/processes/generateEmbeddings.js";
 import logger from "../utils/logger.js";
 import { resumeScoreProcessor } from "../jobs/processes/calculateScore.js";
 
@@ -27,6 +27,19 @@ export const resumeScoringWorker = new Worker(
     {
         connection: redisConnection,
         concurrency: workerConcurrency.resumeScoring || 5
+    }
+)
+
+/**
+ * Job Embedding Worker
+ * 
+ */
+export const jobPostingEmbeddingWorker = new Worker(
+    queueConfig.jobEmbedding.name,
+    generateJobPostingEmbeddingsProcessor,
+    {
+        connection: redisConnection,
+        concurrency: workerConcurrency.jobEmbedding
     }
 )
 
@@ -85,6 +98,33 @@ resumeScoringWorker.on('failed', (job, err) => {
 
 resumeScoringWorker.on('error', (err) => {
     logger.error('💥 Scoring worker error:', err);
+});
+
+jobPostingEmbeddingWorker.on('ready', () => {
+    logger.info('🟢 Job posting embedding worker is ready and listening for jobs');
+})
+
+jobPostingEmbeddingWorker.on('active', (job) => {
+    logger.info(`🔵 Processing embedding job ${job.id} for job posting ${job.data.jobId}`);
+});
+
+jobPostingEmbeddingWorker.on('completed', (job, result) => {
+    logger.info(`✅ Embedding job ${job.id} completed`, {
+        resumeId: result.resumeId,
+        cached: result.cached
+    });
+});
+
+jobPostingEmbeddingWorker.on('failed', (job, err) => {
+    logger.error(`❌ Embedding job ${job?.id} failed`, {
+        resumeId: job?.data?.resumeId,
+        error: err.message,
+        stack: err.stack
+    });
+});
+
+jobPostingEmbeddingWorker.on('error', (err) => {
+    logger.error('💥 Worker error:', err);
 });
 
 

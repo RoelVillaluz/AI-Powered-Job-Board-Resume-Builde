@@ -9,7 +9,7 @@ import { catchAsync } from "../../utils/errorUtils.js";
  */
 export const getOrGenerateJobEmbeddings = catchAsync(async (req, res) => {
     const { jobId } = req.params;
-    const { invalidateCache } = req.body;
+    const { invalidateCache = false } = req.body;
 
     // Service handles all logic
     const result = await getOrGenerateJobPostingEmbeddingService(jobId, invalidateCache);

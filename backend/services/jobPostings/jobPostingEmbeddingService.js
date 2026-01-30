@@ -7,12 +7,13 @@ import { runPython } from "../../utils/pythonRunner.js";
  * Main service function - handles cache check and queue decision
  */
 export const getOrGenerateJobPostingEmbeddingService = async (jobPostingId, invalidateCache = false) => {
-    // Check cache first
-    const cachedResult = await getJobPostingEmbeddingService(jobPostingId);
-
-    if (cachedResult.cached) {
-        return { data: cachedResult.data, cached: true }
-    } 
+    // Check cache (unless forced to regenerate)
+    if (!invalidateCache) {
+        const cachedResult = await getJobPostingEmbeddingService(jobPostingId);
+        if (cachedResult.cached) {
+            return { data: cachedResult.data, cached: true }
+        } 
+    }
 
     // Cache miss or invalidate - queue generation
     logger.info(`Queueing embedding generation for job posting: ${jobPostingId}`);

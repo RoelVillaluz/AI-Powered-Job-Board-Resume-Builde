@@ -105,7 +105,7 @@ jobPostingEmbeddingWorker.on('ready', () => {
 })
 
 jobPostingEmbeddingWorker.on('active', (job) => {
-    logger.info(`🔵 Processing embedding job ${job.id} for job posting ${job.data.jobId}`);
+    logger.info(`🔵 Processing embedding job ${job.id} for job posting ${job.data.jobPostingId}`);
 });
 
 jobPostingEmbeddingWorker.on('completed', (job, result) => {
@@ -135,6 +135,7 @@ export const closeWorkers = async () => {
     logger.info('Closing workers...');
     await resumeEmbeddingWorker.close();
     await resumeScoringWorker.close();
+    await jobPostingEmbeddingWorker.close();
     logger.info('All workers closed');
 };
 

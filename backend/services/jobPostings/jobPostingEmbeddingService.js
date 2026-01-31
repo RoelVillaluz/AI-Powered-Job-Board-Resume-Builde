@@ -109,6 +109,10 @@ export const generateJobPostingEmbeddingService = async (jobPostingId, invalidat
             savedEmbeddings = await createJobEmbeddingRepo(embeddingData);
         }
 
+        logger.info(`Embeddings generated successfully for job posting: ${jobPostingId}`, {
+            embeddingId: savedEmbeddings._id,
+        });
+
         return {
             cached: false,
             data: savedEmbeddings

@@ -2,7 +2,7 @@ import JobEmbedding from "../../models/jobPostings/jobPostingEmbeddingModel.js"
 
 export const getJobEmbeddingRepo = async (jobId) => {
     return await JobEmbedding.findOne({
-        job: jobId
+        jobPosting: jobId
     });
 }
 

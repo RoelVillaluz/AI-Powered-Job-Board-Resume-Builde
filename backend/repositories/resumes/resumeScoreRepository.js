@@ -19,12 +19,16 @@ export const createResumeScoreRepo = async (scoreData) => {
     return await newScore.save();
 }
 
-export const updateResumeScoreRepo = async (resumeId, updateData) => {
-    const updatedScore = ResumeScore.findByIdAndUpdate(
-        resumeId,
-        updateData,
-        { new: true }
-    )
-
-    return updatedScore
-}
+export const upsertResumeScoreRepo = async (resumeId, updateData) => {
+    return await ResumeScore.findOneAndUpdate(
+        { resume: resumeId },
+        {
+            $set: updateData,
+            $setOnInsert: { resume: resumeId }
+        },
+        {
+            new: true,
+            upsert: true
+        }
+    );
+};

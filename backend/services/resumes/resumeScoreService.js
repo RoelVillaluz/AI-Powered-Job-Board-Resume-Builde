@@ -1,5 +1,5 @@
 import { resumeScoringQueue } from "../../queues/index.js";
-import { getResumeScoreRepo, createResumeScoreRepo } from "../../repositories/resumes/resumeScoreRepository.js"
+import { getResumeScoreRepo, createResumeScoreRepo, upsertResumeScoreRepo } from "../../repositories/resumes/resumeScoreRepository.js"
 import logger from "../../utils/logger.js";
 import { runPython } from "../../utils/pythonRunner.js";
 
@@ -68,8 +68,18 @@ export const getResumeScoreService = async (resumeId) => {
 };
 
 /**
- * Calculate score using Python and save to database
- * (Business logic - can be called from queue or direct)
+ * Calculate a resume score using the Python scoring service and persist it.
+ *
+ * - Can be executed from a background queue or directly from an API request
+ * - Calls the Python scoring engine to generate score breakdowns
+ * - Persists the score using a single atomic upsert operation
+ *   (creates a new score if none exists, otherwise updates the existing one)
+ * - Reports progress when executed as a queued job
+ *
+ * @param {string} resumeId - The resume ID to score
+ * @param {object|null} job - Optional queue job instance for progress updates
+ * @returns {Promise<{ cached: boolean, data: object }>} The persisted resume score
+ * @throws {Error} If scoring or persistence fails
  */
 export const generateResumeScoreService = async (resumeId, job = null) => {
     try {
@@ -101,16 +111,11 @@ export const generateResumeScoreService = async (resumeId, job = null) => {
             recommendations: pythonResponse.recommendations || [],
             calculatedAt: new Date()
         };
-        
-        const existing = await getResumeScoreRepo(resumeId);
-        
+                
         let savedScore;
-        if (existing) {
-            Object.assign(existing, scoreData);
-            savedScore = await existing.save();
-        } else {
-            savedScore = await createResumeScoreRepo(scoreData);
-        }
+
+        // Creates if resume id score doesn't exist/updates if exists already
+        savedScore = await upsertResumeScoreRepo(resumeId, scoreData); 
         
         await job?.updateProgress(100);
         

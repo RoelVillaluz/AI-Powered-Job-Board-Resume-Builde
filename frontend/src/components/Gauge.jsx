@@ -8,7 +8,8 @@ function Gauge({ progress, messages, loading, objectName = null }) {
         return () => clearTimeout(timeout); // Cleanup function
     }, [progress]); // Runs when `progress` changes
 
-    const rotation = `rotate(${animatedProgress / 2}turn)`;
+    const normalized = Math.min(animatedProgress / 100, 1)
+    const rotation = `rotate(${normalized / 2}turn)`
 
     const showMessage = (value) => {
         const result = Object.entries(messages)
@@ -38,7 +39,7 @@ function Gauge({ progress, messages, loading, objectName = null }) {
                 <div className={`gauge-cover`}>
                     {!loading ? (
                         <>
-                            <h2>{Math.round(progress * 100)}<span>%</span></h2>
+                            <h2>{Math.round(progress)}<span>%</span></h2>
                             <p>Effectiveness</p>
                         </>
                     ) : (

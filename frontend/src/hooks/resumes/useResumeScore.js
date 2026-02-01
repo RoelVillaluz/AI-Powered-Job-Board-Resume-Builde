@@ -4,11 +4,11 @@ import { useResumeScoreQuery, useUserResumesQuery } from "./useResumeQueries"
 
 const messages = {
     0: { rating: "No Resume yet", message: "You don't have a resume yet. Please add a resume now." },
-    0.25: { rating: "Poor", message: "Your resume needs significant improvement. Consider adding more details about your experience and skills." },
-    0.5: { rating: "Average", message: "Your resume is decent, but there's room for improvement. Try refining your descriptions and adding measurable achievements." },
-    0.75: { rating: "Good", message: "Your resume is well-structured! A few tweaks and refinements could make it even stronger." },
-    0.9: { rating: "Great", message: "You're almost there, but filling out minor missing details could take it to the next level." },
-    1: { rating: "Excellent", message: "Nearly flawless! Your resume effectively presents your qualifications" },
+    25: { rating: "Poor", message: "Your resume needs significant improvement. Consider adding more details about your experience and skills." },
+    5: { rating: "Average", message: "Your resume is decent, but there's room for improvement. Try refining your descriptions and adding measurable achievements." },
+    75: { rating: "Good", message: "Your resume is well-structured! A few tweaks and refinements could make it even stronger." },
+    90: { rating: "Great", message: "You're almost there, but filling out minor missing details could take it to the next level." },
+    100: { rating: "Excellent", message: "Nearly flawless! Your resume effectively presents your qualifications" },
 }
 
 /**
@@ -25,7 +25,9 @@ export const useResumeScore = () => {
     const { data: resumes, isLoading: resumesLoading, error: resumesError } = useUserResumesQuery(user?._id)
 
     // Step 2: Fetch score only when currentResume exists
-    const { data: score = 0, isLoading: scoreLoading, error: scoreError } = useResumeScoreQuery(currentResume?._id)
+    const { data: scoreData, isLoading: scoreLoading, error: scoreError } = useResumeScoreQuery(currentResume?._id)
+
+    console.log('Resume score data: ', scoreData)
 
     // Determine overall loading state
     const isLoading = resumesLoading || scoreLoading
@@ -35,7 +37,7 @@ export const useResumeScore = () => {
 
     return {
         currentResume,
-        progress: score ?? 0,
+        progress: scoreData?.data?.totalScore ?? 0,
         loading: isLoading,
         error,
         messages,

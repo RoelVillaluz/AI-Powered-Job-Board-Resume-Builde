@@ -85,6 +85,11 @@ def stack_embeddings(embedding_list: list[torch.Tensor]) -> Optional[torch.Tenso
         if not valid_embeddings:
             return None
         
+        # ✅ Should validate shapes match
+        if not all(emb.shape == valid_embeddings[0].shape for emb in valid_embeddings):
+            logger.error("Embedding shapes don't match")
+            return None
+        
         return torch.stack(valid_embeddings)
     except Exception as e:
         logger.error(f"Error stacking embeddings: {e}")

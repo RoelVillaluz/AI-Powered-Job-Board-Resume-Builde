@@ -40,7 +40,10 @@ export const useResumeScore = () => {
         progress: scoreData?.data?.totalScore ?? 0,
         loading: isLoading,
         error,
-        messages,
+        messages: {
+            grade: scoreData?.data?.grade,
+            overallMessage: scoreData?.data?.overallMessage
+        },
         // Extra helpful data
         hasResume: !!currentResume,
         totalResumes: resumes?.length ?? 0

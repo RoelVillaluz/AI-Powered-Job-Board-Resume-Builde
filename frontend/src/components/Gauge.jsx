@@ -12,16 +12,14 @@ function Gauge({ progress, messages, loading, objectName = null }) {
     const rotation = `rotate(${normalized / 2}turn)`
 
     const showMessage = (value) => {
-        const result = Object.entries(messages)
-            .sort(([a], [b]) => parseFloat(a) - parseFloat(b)) // Sort numerically
-            .find(([key]) => value <= parseFloat(key))?.[1] || messages[1];
-
-        return (
-            <>
-                <h4>{result.rating}</h4>
-                <p>{result.message}</p>
-            </>
-        );
+        if (!loading && messages) {
+            return (
+                <>
+                    <h4>Grade: {messages.grade}</h4>
+                    <p>{messages.overallMessage}</p>
+                </>
+            );
+        }
     };
     
     return (

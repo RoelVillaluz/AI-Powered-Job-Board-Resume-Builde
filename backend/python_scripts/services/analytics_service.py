@@ -115,18 +115,22 @@ class AnalyticsService:
             return None
         
     def get_overall_message(score: float) -> str:
-        if score == 0:
-            return "You don't have a resume yet. Please add a resume now."
-        elif score <= 25:
-            return "Your resume needs significant improvement. Consider adding more details about your experience and skills."
-        elif score <= 50:
-            return "Your resume is decent, but there's room for improvement. Try refining your descriptions and adding measurable achievements."
-        elif score <= 75:
-            return "Your resume is well-structured! A few tweaks and refinements could make it even stronger."
-        elif score <= 90:
-            return "You're almost there, but filling out minor missing details could take it to the next level."
-        else:
-            return "Nearly flawless! Your resume effectively presents your qualifications."
+        if score >= 95:  # A+
+            return "Nearly flawless resume that clearly communicates strong qualifications and is highly competitive in the job market."
+        elif score >= 90:  # A
+            return "Excellent resume with strong structure and content, needing only minor refinements to reach top-tier quality."
+        elif score >= 85:  # B+
+            return "Very strong resume with clear strengths, but a few targeted improvements could increase its impact."
+        elif score >= 80:  # B
+            return "Good resume with a solid foundation, though some sections would benefit from more detail and clarity."
+        elif score >= 75:  # C+
+            return "Above-average resume that is well organized but lacks depth in key areas."
+        elif score >= 65:  # C
+            return "Average resume that meets basic expectations but does not yet stand out to recruiters."
+        elif score >= 50:  # D
+            return "Below-average resume that needs clearer experience, stronger skills presentation, and better completeness."
+        else:  # F
+            return "Resume requires significant improvement and is missing critical information needed for effective evaluation."
 
     @staticmethod
     def _identify_skill_gaps(resume: dict, top_n: int = 10) -> List[str]:

@@ -169,8 +169,8 @@ resumeScoreSchema.statics.calculateGrade = function(totalScore) {
     if (totalScore >= 85) return 'B+';
     if (totalScore >= 80) return 'B';
     if (totalScore >= 75) return 'C+';
-    if (totalScore >= 70) return 'C';
-    if (totalScore >= 60) return 'D';
+    if (totalScore >= 65) return 'C';
+    if (totalScore >= 50) return 'D';
     return 'F';
 };
 

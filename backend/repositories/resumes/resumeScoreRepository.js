@@ -20,10 +20,13 @@ export const createResumeScoreRepo = async (scoreData) => {
 }
 
 export const upsertResumeScoreRepo = async (resumeId, updateData) => {
+    // Make a shallow copy and remove 'resume' if present
+    const { resume, ...dataToSet } = updateData;
+
     return await ResumeScore.findOneAndUpdate(
         { resume: resumeId },
         {
-            $set: updateData,
+            $set: dataToSet,
             $setOnInsert: { resume: resumeId }
         },
         {
@@ -32,3 +35,4 @@ export const upsertResumeScoreRepo = async (resumeId, updateData) => {
         }
     );
 };
+

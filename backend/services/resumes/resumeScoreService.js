@@ -109,6 +109,7 @@ export const generateResumeScoreService = async (resumeId, job = null) => {
             strengths: pythonResponse.strengths || [],
             improvements: pythonResponse.improvements || [],
             recommendations: pythonResponse.recommendations || [],
+            overallMessage: pythonResponse.overall_message || '',
             calculatedAt: new Date()
         };
                 

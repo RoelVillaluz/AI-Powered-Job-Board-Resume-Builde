@@ -93,6 +93,12 @@ const resumeScoreSchema = new mongoose.Schema({
         default: 'F',  // Default to 'F' if no grade is provided
         index: true  // For filtering by grade tier
     },
+
+    overallMessage: {
+        type: String,
+        required: true,
+        default: 'No message yet',
+    },
     
     // Predicted metrics (optional, for future features)
     predictedSalary: {

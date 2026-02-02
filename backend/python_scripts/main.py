@@ -127,10 +127,10 @@ def generate_job_embeddings(job_id: str):
         logger.error(f"Error generating job embeddings: {e}", exc_info=True)
         return {"error": str(e)}
     
-def score_resume(resume_id):
+def score_resume(resume_id: str) -> dict:
     """
     Calculate comprehensive score for a resume.
-    
+
     Returns JSON:
     {
         "resume_id": "...",
@@ -142,17 +142,30 @@ def score_resume(resume_id):
             "skills": 85,
             "certifications": 75
         },
-        "total_experience_years": 5.2
+        "total_experience_years": 5.2,
+        "strengths": [...],
+        "improvements": [...],
+        "recommendations": [...],
+        "overall_message": "Nearly flawless! Your resume effectively presents your qualifications"
     }
     """
     try:
+        # Fetch the resume
         resume = ResumeService.get_full_resume(resume_id)
         if not resume:
             return {"error": f"Resume not found: {resume_id}"}
-        
+
+        # Extract embeddings and calculate scores
         embeddings = ResumeService.extract_embeddings(resume)
         score = ScoringService.calculate_resume_score(resume, embeddings.total_experience_years)
-        
+
+        # Analyze resume for insights
+        insights = AnalyticsService.analyze_resume(user_id=None, resume_id=resume_id)
+
+        # Compute overall message
+        overall_message = AnalyticsService.get_overall_message(score.overall_score)
+
+        # Build response
         result = {
             "resume_id": resume_id,
             "overall_score": score.overall_score,
@@ -163,16 +176,13 @@ def score_resume(resume_id):
                 "skills": score.skills_score,
                 "certifications": score.certification_score
             },
-            "total_experience_years": embeddings.total_experience_years
+            "total_experience_years": embeddings.total_experience_years,
+            "strengths": insights.strengths if insights else [],
+            "improvements": insights.improvement_suggestions if insights else [],
+            "recommendations": insights.skill_gaps if insights else [],
+            "overall_message": overall_message
         }
-        
-        # Add insights if available
-        insights = AnalyticsService.analyze_resume("", resume_id)
-        if insights:
-            result["strengths"] = insights.strengths
-            result["improvements"] = insights.improvement_suggestions
-            result["recommendations"] = insights.skill_gaps
-        
+
         return result
 
     except Exception as e:

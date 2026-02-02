@@ -20,6 +20,7 @@ class ResumeInsights(NamedTuple):
     weaknesses: List[str]
     improvement_suggestions: List[str]
     skill_gaps: List[str]
+    overall_message: str
 
 
 class MarketInsights(NamedTuple):
@@ -96,6 +97,8 @@ class AnalyticsService:
             
             # Identify skill gaps based on market demand
             skill_gaps = AnalyticsService._identify_skill_gaps(resume)
+
+            overall_message = AnalyticsService.get_overall_message(resume_score.overall_score)
             
             return ResumeInsights(
                 overall_score=resume_score.overall_score,
@@ -103,13 +106,28 @@ class AnalyticsService:
                 strengths=strengths,
                 weaknesses=weaknesses,
                 improvement_suggestions=suggestions,
-                skill_gaps=skill_gaps[:5]  # Top 5 gaps
+                skill_gaps=skill_gaps[:5],  # Top 5 gaps
+                overall_message=overall_message
             )
             
         except Exception as e:
             logger.error(f"Error analyzing resume: {e}")
             return None
-    
+        
+    def get_overall_message(score: float) -> str:
+        if score == 0:
+            return "You don't have a resume yet. Please add a resume now."
+        elif score <= 25:
+            return "Your resume needs significant improvement. Consider adding more details about your experience and skills."
+        elif score <= 50:
+            return "Your resume is decent, but there's room for improvement. Try refining your descriptions and adding measurable achievements."
+        elif score <= 75:
+            return "Your resume is well-structured! A few tweaks and refinements could make it even stronger."
+        elif score <= 90:
+            return "You're almost there, but filling out minor missing details could take it to the next level."
+        else:
+            return "Nearly flawless! Your resume effectively presents your qualifications."
+
     @staticmethod
     def _identify_skill_gaps(resume: dict, top_n: int = 10) -> List[str]:
         """

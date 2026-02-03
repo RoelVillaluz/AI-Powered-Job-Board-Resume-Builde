@@ -1,3 +1,4 @@
+import { generateVerificationCode } from "../../helpers/userHelpers.js";
 import { TempUser } from "../../models/tempUserModel.js";
 
 // ===============================
@@ -31,7 +32,10 @@ export const findTempUserByEmail = async (email) => {
  * @returns {Promise<Object>} Newly created temporary user document
  */
 export const createTempUser = async (data) => {
-    const newTempUser = new TempUser(data);
+    const newTempUser = new TempUser({
+        ...data,
+        verificationCode: generateVerificationCode()
+    });
     return await newTempUser.save();
 };
 

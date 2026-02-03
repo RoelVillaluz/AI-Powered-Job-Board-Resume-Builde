@@ -20,6 +20,13 @@ export const createUser = async (userData) => {
     return await newUser.save();
 };
 
+
+export const createUserFromTempUser = async (userData, session = null) => {
+    const newUser = new User(userData);
+    await newUser.save({ session });
+    return newUser;
+};
+
 /**
  * Updates a user's data by their ID.
  * Runs validation on the updated fields and returns the updated document.

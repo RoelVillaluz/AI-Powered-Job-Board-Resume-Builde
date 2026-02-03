@@ -4,6 +4,7 @@ import * as UserSetRepo from '../../repositories/users/userSetRepos.js';
 import * as TempUserRepository from "../../repositories/tempUsers/tempUserRepositories.js";
 import { sendResponse, STATUS_MESSAGES } from "../../constants.js";
 import * as UserService from '../../services/users/userServices.js';
+import logger from '../../utils/logger.js'
 
 export const getUsers = catchAsync(async (req, res) => {
     const users = await UserGetRepo.findUsers()
@@ -32,7 +33,9 @@ export const registerUser = catchAsync(async (req, res) => {
 
     const newTempUser = await TempUserRepository.createTempUser(data) // create temporary user instance first for verification
 
-    return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.CREATE, message: "Verification code sent to email." }, 'User');
+    logger.info('New temporary user created: ', newTempUser)
+
+    return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.CREATE, data: newTempUser, message: "Verification code sent to email." }, 'User');
 })
 
 export const updateUser = catchAsync(async (req, res) => {

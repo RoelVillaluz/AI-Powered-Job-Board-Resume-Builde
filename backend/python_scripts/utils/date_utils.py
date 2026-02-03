@@ -49,27 +49,6 @@ def calculate_years_between(start_date: datetime, end_date: Optional[datetime] =
     
     return max(0.0, years)
 
-
-def calculate_years_between(start_date: datetime, end_date: Optional[datetime] = None) -> float:
-    """
-        Calculates years between two dates
-
-        Args:
-            start_date: Start datetime
-            end_date: End datetime (defaults to "now" if None)
-        
-        Returns:
-            Number of years as float
-        
-    """
-    if end_date is None:
-        end_date = datetime.now()
-    
-    days_diff = (end_date - start_date).days
-    years = days_diff / 365.25
-    
-    return max(0.0, years)
-
 def calculate_total_experience(work_experiences: list[dict]) -> float:
     """
         Calculate total years of work experience from list of work entries.

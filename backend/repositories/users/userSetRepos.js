@@ -21,10 +21,19 @@ export const createUser = async (userData) => {
 };
 
 
-export const createUserFromTempUser = async (userData, session = null) => {
-    const newUser = new User(userData);
-    await newUser.save({ session });
-    return newUser;
+export const createUserFromTempUser = async (tempUser, session = null) => {
+    const user = new User({
+        email: tempUser.email,
+        firstName: tempUser.firstName,
+        lastName: tempUser.lastName,
+        password: tempUser.password,
+
+        isVerified: true,
+        verificationCode: undefined, // 🔐 explicit guarantee
+    });
+
+    await user.save({ session });
+    return user;
 };
 
 /**

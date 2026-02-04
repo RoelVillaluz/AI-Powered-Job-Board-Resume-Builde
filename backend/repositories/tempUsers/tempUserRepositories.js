@@ -1,5 +1,6 @@
 import { generateVerificationCode } from "../../helpers/userHelpers.js";
 import { TempUser } from "../../models/tempUserModel.js";
+import bcrypt from 'bcrypt';
 
 // ===============================
 // READ / FIND
@@ -32,11 +33,16 @@ export const findTempUserByEmail = async (email) => {
  * @returns {Promise<Object>} Newly created temporary user document
  */
 export const createTempUser = async (data) => {
-    const newTempUser = new TempUser({
+    const hashedPassword = await bcrypt.hash(data.password, 12);
+
+    const tempUser = new TempUser({
         ...data,
-        verificationCode: generateVerificationCode()
+        password: hashedPassword,
+        verificationCode: generateVerificationCode(),
     });
-    return await newTempUser.save();
+
+    await tempUser.save();
+    return tempUser;
 };
 
 // ===============================

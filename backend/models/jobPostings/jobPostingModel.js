@@ -11,6 +11,12 @@ const jobPostingSchema = new mongoose.Schema({
         ref: "Company",
         required: true
     },
+    status: {
+        type: String,
+        enum: ['Active', 'Closed', 'Archived'],
+        required: true,
+        default: 'Active',
+    },
     location: {
         type: String,
         required: true

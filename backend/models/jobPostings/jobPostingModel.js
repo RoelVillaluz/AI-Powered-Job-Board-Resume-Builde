@@ -37,9 +37,27 @@ const jobPostingSchema = new mongoose.Schema({
             enum: ['$', '₱', '€', '¥', '£'], 
             default: '$'
         },
-        amount: {
-            type: Number,
-            default: null
+        salary: {
+            currency: {
+                type: String,
+                enum: ['$', '₱', '€', '¥', '£'], 
+                default: '$'
+            },
+            min: {
+                type: Number,
+                min: 0,
+                default: null
+            },
+            max: {
+                type: Number,
+                min: 0,
+                default: null
+            },
+            frequency: {
+                type: String,
+                enum: ['hour', 'day', 'week', 'month', 'year'],
+                default: 'year'
+            }
         },
         frequency: {
             type: String,
@@ -48,11 +66,37 @@ const jobPostingSchema = new mongoose.Schema({
         }
     },    
     requirements: {
-        type: [String],
-        required: true
+        // Freeform field (always required as fallback)
+        description: {
+            type: String,
+            required: true
+        },
+        education: {
+            type: String,
+            enum: ['High School', 'Associate', 'Bachelor', 'Master', 'PhD', 'None Required'],
+            required: false
+        },
+        yearsOfExperience: {
+            type: Number,
+            min: 0,
+            required: false
+        },
+        certifications: [{
+            type: String,
+            trim: true,
+            required: false
+        }],
     },
     skills: [{
-        name: { type: String, required: true }
+        name: { 
+            type: String, 
+            required: true 
+        },
+        requirementLevel: {
+            type: String,
+            enum: ['required', 'preferred', 'nice-to-have'],
+            required: false
+        }
     }],  
     preScreeningQuestions: [{
         question: { type: String, required: true },
@@ -114,6 +158,34 @@ jobPostingSchema.index({
     postedAt: -1 
 });
 
+function inferSkillImportance(skill, jobPosting) {
+    let importanceScore = 0;
+    
+    // 1. Check if mentioned in title (high importance)
+    if (jobPosting.title.toLowerCase().includes(skill.name.toLowerCase())) {
+        importanceScore += 50;
+    }
+    
+    // 2. Check frequency in requirements description
+    const mentions = countMentions(skill.name, jobPosting.requirements.description);
+    importanceScore += mentions * 10;
+    
+    // 3. Check if in keyRequirements array
+    if (jobPosting.requirements.includes(skill.name)) {
+        importanceScore += 30;
+    }
+    
+    // 4. Industry-standard critical skills (your database)
+    if (isCriticalForRole(skill.name, jobPosting.title)) {
+        importanceScore += 40;
+    }
+    
+    // Map score to level
+    if (importanceScore >= 60) return 'required';
+    if (importanceScore >= 30) return 'preferred';
+    return 'nice-to-have';
+}
+
 // ============================================
 // INDEX MANAGEMENT NOTES
 // ============================================
@@ -122,6 +194,13 @@ jobPostingSchema.index({
 // - Monitor index usage with: db.jobPostings.aggregate([{$indexStats:{}}])
 // - Drop unused indexes after analyzing production queries
 // - For 100k jobs: Expect ~50-100MB total index size
+
+jobPostingSchema.pre('save', function(next) {
+    if (this.salary.min && this.salary.max && this.salary.max < this.salary.min) {
+        next(new Error('Salary max cannot be less than min'));
+    }
+    next();
+});
 
 const JobPosting = mongoose.model("JobPosting", jobPostingSchema);
 export default JobPosting;

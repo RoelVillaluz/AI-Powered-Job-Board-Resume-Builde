@@ -3,7 +3,7 @@ import type { UseMutationResult } from "@tanstack/react-query";
 import { useAuthStore } from "../../stores/authStore";
 import { useResumeStore } from "../../stores/resumeStore";
 import { updateResumeService } from "../../services/resumeServices";
-import type { Resume, Skill } from "../../../types/resume";
+import type { Resume, Skill } from "../../../types/models/resume";
 
 interface ToggleSkillVariables {
     resume?: Resume;

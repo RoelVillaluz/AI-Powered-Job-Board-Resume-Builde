@@ -1,6 +1,6 @@
 import axios from "axios"
 import { BASE_API_URL } from "../config/api"
-import type { Resume } from "../../types/resume";
+import type { Resume } from "../../types/models/resume";
 
 export const updateResumeService = async (
     resumeId: string,

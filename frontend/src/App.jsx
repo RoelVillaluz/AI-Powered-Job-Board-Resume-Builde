@@ -70,9 +70,20 @@ function App() {
 
 
 function AppRoutes() {
-  const user = useAuthStore(state => state.user);
+    const user = useAuthStore(state => state.user);
 
-  return user ? <Dashboard /> : <LandingPage />;
+    // Check if the user exists and if they have a role assigned
+    if (user) {
+      // If user has role already and has at least one resume or has company, redirect to dashboard
+      if (user.role && (user.resumes.length > 0 || user.company)) {
+          return <Dashboard />;
+      } else {
+          return <GetStartedForm />;
+      }
+    } else {
+        return <LandingPage />;
+    }
 }
+
 
 export default App;

@@ -1,5 +1,6 @@
 import { hasScoreableChange, hasSignificantChange, withTransaction } from "../../helpers/transactionHelpers.js";
 import * as ResumeRepo from "../../repositories/resumes/resumeRepository.js";
+import Resume from "../../models/resumes/resumeModel.js";
 
 /**
  * Find resumes based on query parameters.

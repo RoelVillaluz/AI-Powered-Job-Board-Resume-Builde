@@ -1,7 +1,21 @@
 import type { Skill, WorkExperience, Certification, SocialMedia } from "../models/resume";
-import type { Company } from "../models/company";
 
-export type StepName = 'role' | 'details' | 'skills' | 'workExperience' | 'resume' | 'industry' | 'finished';
+export type UserRole = 'jobseeker' | 'employer' | null;
+
+export type JobseekerStepKey =
+  | 'role'
+  | 'details'
+  | 'skills'
+  | 'workExperience'
+  | 'resume'
+  | 'finished';
+
+export type EmployerStepKey =
+  | 'role'
+  | 'details'
+  | 'industry'
+  | 'finished';
+
 
 export type JobseekerFormData = {
     user: { id: string } | null;
@@ -26,3 +40,31 @@ export type EmployerFormData = {
     description: string;
     logo: string;
 }
+
+export type GetStartedFormData =
+    | {
+        role: "jobseeker";
+        data: JobseekerFormData;
+        }
+    | {
+        role: "employer";
+        data: EmployerFormData;
+        };
+
+export type StepConfig =
+  | {
+      role: 'jobseeker';
+      key: JobseekerStepKey;
+      icon: string;
+      title: string;
+      description: string;
+      validate?: (formData: Extract<GetStartedFormData, { role: 'jobseeker' }>) => boolean;
+    }
+  | {
+      role: 'employer';
+      key: EmployerStepKey;
+      icon: string;
+      title: string;
+      description: string;
+      validate?: (formData: Extract<GetStartedFormData, { role: 'employer' }>) => boolean;
+    };

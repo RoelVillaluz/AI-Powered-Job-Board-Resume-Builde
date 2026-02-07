@@ -1,4 +1,4 @@
-export type UserRole = 'jobseeker' | 'employer';
+import type { UserRole } from "../forms/getStartedForm.types";
 
 export interface User {
     _id?: string;

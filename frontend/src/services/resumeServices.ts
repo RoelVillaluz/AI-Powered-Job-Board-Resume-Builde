@@ -1,7 +1,7 @@
 import axios from "axios"
 import { BASE_API_URL } from "../config/api"
 import type { Resume } from "../../types/models/resume";
-import { JobseekerFormData } from "../../types/forms/getStartedForm.types";
+import type { JobseekerFormData } from "../../types/forms/getStartedForm.types";
 
 export const createResumeService = async (
     resumeData: JobseekerFormData,

@@ -1,120 +1,179 @@
-import React, { useState } from "react"
-import { FormEvent, ChangeEvent, KeyboardEvent } from "react";
-import { JobseekerFormData, EmployerFormData, GetStartedFormData, UserRole } from "../../../types/forms/getStartedForm.types";
+import { useState, useEffect } from "react";
+import type {
+  JobseekerFormData,
+  EmployerFormData,
+  GetStartedFormData,
+  UserRole,
+} from "../../../types/forms/getStartedForm.types";
+import type { SocialMedia } from "../../../types/models/resume";
+import { JOBSEEKER_INITIAL_FORM_DATA, COMPANY_INITIAL_FORM_DATA } from "../../../constants/formSchemas";
 
-type FormHandlerProps<T extends GetStartedFormData> = {
-    formData: T,
-    setFormData: React.Dispatch<React.SetStateAction<T>>,
-    userId: string,
-    selectedRole: UserRole,
-    navigate: (path: string) => void;
-}
+type InputEvent = React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>;
 
-export const useGetStartedFormData = <T extends GetStartedFormData>(
-    initialData: T
+// Fully typed hook
+export const useGetStartedFormData = (
+  selectedRole: UserRole | null,
+  userId: string | null
 ) => {
-    const [formData, setFormData] = useState<T>(initialData);
+    // --- Helper: create initial form data based on role ---
+    const getInitialData = (
+        role: UserRole | null,
+        userId: string | null
+    ): GetStartedFormData | null => {
+        if (!role) return null;
 
-    // Handle input change
-    const handleChange = (
-        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
-    ) => {
+        if (role === "jobseeker") {
+            return {
+                role: "jobseeker",
+                data: {
+                    user: userId ? { id: userId } : null,
+                    ...JOBSEEKER_INITIAL_FORM_DATA,
+                },
+            };
+        }
+
+        if (role === "employer") {
+            return {
+                role: "employer",
+                data: {
+                    user: userId ? { id: userId } : null,
+                    ...COMPANY_INITIAL_FORM_DATA,
+                },
+            };
+        }
+
+        return null;
+    };
+
+    // --- State ---
+    const [formData, setFormData] = useState<GetStartedFormData | null>(
+        getInitialData(selectedRole, userId)
+    );
+
+    // Reset form if role or user changes
+    useEffect(() => {
+        setFormData(getInitialData(selectedRole, userId));
+    }, [selectedRole, userId]);
+
+    // --- Handle input changes ---
+    const handleChange = (e: InputEvent) => {
         const { name, value } = e.target;
         const keys = name.split(".");
 
-        setFormData(prev => {
-            if (!prev) return prev;
+        setFormData((prev) => {
+        if (!prev) return prev;
 
-            // Jobseeker-specific fields
-            if (prev.role === "jobseeker") {
-                // socialMedia nested update
-                if (keys[0] === "socialMedia") {
-                    return {
-                        ...prev,
-                        data: {
-                            ...prev.data,
-                            socialMedia: {
-                                ...prev.data.socialMedia,
-                                [keys[1]]: value
-                            }
-                        }
-                    };
-                }
-
-                // default top-level field
+        // --- Jobseeker fields ---
+        if (prev.role === "jobseeker") {
+            if (keys[0] === "socialMedia") {
                 return {
                     ...prev,
                     data: {
                         ...prev.data,
-                        [name]: value
-                    }
+                        socialMedia: {
+                            ...prev.data.socialMedia,
+                            [keys[1] as keyof SocialMedia]: value,
+                        },
+                    },
                 };
             }
 
-            // Employer-specific fields
-            if (prev.role === "employer") {
+            // top-level field
+            if (name in prev.data) {
                 return {
                     ...prev,
                     data: {
                         ...prev.data,
-                        [name]: value
-                    }
+                        [name]: value,
+                    } as JobseekerFormData,
                 };
             }
+        }
 
-            return prev;
+        // --- Employer fields ---
+        if (prev.role === "employer") {
+            if (name in prev.data) {
+            return {
+                ...prev,
+                data: {
+                    ...prev.data,
+                    [name]: value,
+                } as EmployerFormData,
+                };
+            }
+        }
+
+        return prev;
         });
     };
 
-    // Remove item from a list (skills, workExperience, certifications, etc.)
-    const handleRemoveListItem = (name: keyof JobseekerFormData, index: number) => {
-        setFormData(prev => {
+    // --- Remove item from list ---
+    const handleRemoveListItem = <K extends keyof JobseekerFormData>(
+        name: K,
+        index: number
+    ) => {
+            setFormData((prev) => {
             if (!prev || prev.role !== "jobseeker") return prev;
-            const updatedList = [...prev.data[name] as any];
+
+            const list = prev.data[name];
+            if (!Array.isArray(list)) return prev;
+
+            const updatedList = [...list];
             updatedList.splice(index, 1);
-            return {
-                ...prev,
-                data: {
-                    ...prev.data,
-                    [name]: updatedList
-                }
-            }
-        })
-    }
-
-    // Drag and drop reordering
-    const handleDragEnd = (name: keyof JobseekerFormData, result: any) => {
-        if (!result.destination) return;
-        setFormData(prev => {
-            if (!prev || prev.role !== "jobseeker") return prev;
-
-            const reorderedList = [...prev.data[name] as any];
-            const [movedItem] = reorderedList.splice(result.source.index, 1);
-            reorderedList.splice(result.destination.index, 0, movedItem);
 
             return {
                 ...prev,
                 data: {
-                    ...prev.data,
-                    [name]: reorderedList
-                }
+                ...prev.data,
+                [name]: updatedList,
+                } as JobseekerFormData,
             };
         });
     };
 
-    // Handle enter key to prevent form submission
-    const handleKeyDown = (e: React.KeyboardEvent) => {
-        if (e.key === "Enter") {
-            e.preventDefault();
-        }
+    // --- Drag & drop reorder ---
+    const handleDragEnd = <K extends keyof JobseekerFormData>(
+        name: K,
+        result: { source: { index: number }; destination?: { index: number } | null }
+    ) => {
+        // Check if destination is null or undefined, return early if true
+        if (!result.destination) return;
+
+        // Now TypeScript knows destination exists
+        const destination = result.destination; // TypeScript now knows it's not undefined or null
+
+        setFormData((prev) => {
+            if (!prev || prev.role !== "jobseeker") return prev;
+
+            const list = prev.data[name];
+            if (!Array.isArray(list)) return prev;
+
+            const updatedList = [...list];
+            const [movedItem] = updatedList.splice(result.source.index, 1);
+            updatedList.splice(destination.index, 0, movedItem);
+
+            return {
+                ...prev,
+                data: {
+                    ...prev.data,
+                    [name]: updatedList,
+                } as JobseekerFormData,
+            };
+        });
     };
 
-    return {
+
+    // --- Prevent Enter key submit ---
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key === "Enter") e.preventDefault();
+    };
+
+  return {
         formData,
         setFormData,
         handleChange,
         handleKeyDown,
         handleRemoveListItem,
-        handleDragEnd
+        handleDragEnd,
     };
-}
+};

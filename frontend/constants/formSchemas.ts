@@ -1,4 +1,4 @@
-import { JobseekerFormData, EmployerFormData } from "../types/forms/getStartedForm.types";
+import type { JobseekerFormData, EmployerFormData } from "../types/forms/getStartedForm.types";
 
 export const JOBSEEKER_INITIAL_FORM_DATA: Omit<JobseekerFormData, 'user'> = {
     firstName: "",

@@ -16,6 +16,7 @@ import ChangePasswordForm from "./pages/ChangePasswordForm";
 import ChatsPage from "./pages/ChatsPage";
 import JobApplicantsPage from "./pages/JobApplicantsPage.jsx";
 import JobCandidatesPage from "./pages/JobCandidatesPage.jsx";
+import { Navigate } from "react-router-dom";
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -70,17 +71,17 @@ function App() {
 
 
 function AppRoutes() {
-    const user = useAuthStore(state => state.user);
-    
-    if (user) {
-        if (user.role) {
-          return <Dashboard />;
-        }
+  const user = useAuthStore(state => state.user);
 
-        return <GetStartedForm />;
+  if (user) {
+    if (user.role) {
+      return <Navigate to="/dashboard" replace />;
     }
 
-    return <LandingPage />;
+    return <Navigate to="/get-started" replace />;
+  }
+
+  return <LandingPage />;
 }
 
 

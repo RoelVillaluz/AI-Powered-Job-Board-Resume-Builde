@@ -1,7 +1,7 @@
 import express from "express"
 import multer from "multer"
 import path from "path";
-import { getUser, getUsers, registerUser, deleteUser, getUserConnectionRecommendations } from "../../controllers/users/userController.js";
+import { getUser, getUsers, registerUser, deleteUser, getUserConnectionRecommendations, updateUser } from "../../controllers/users/userController.js";
 import { getUserInteractedJobs, toggleSaveJob, applyToJob } from "../../controllers/users/userJobsController.js";
 import { authenticate } from "../../middleware/authentication/authenticate.js";
 import { requireRole } from "../../middleware/authorization/roleAuthorization.js";
@@ -60,6 +60,12 @@ router.post('/apply-to-job/:jobId',
     requireRole('jobseeker'),
     checkIfJobExists,
     applyToJob
+)
+
+// PATCH
+router.patch('/:id',
+    authenticate,
+    updateUser
 )
 
 // DELETE

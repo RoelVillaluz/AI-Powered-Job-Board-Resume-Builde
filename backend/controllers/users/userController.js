@@ -42,7 +42,7 @@ export const updateUser = catchAsync(async (req, res) => {
     const { id } = req.params;
     const updateData = req.body;
 
-    const updatedUser = await UserGetRepo.updateUser(id, updateData)
+    const updatedUser = await UserSetRepo.updateUser(id, updateData)
 
     return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.UPDATE, data: updatedUser }, 'User');
 })

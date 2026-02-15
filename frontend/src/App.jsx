@@ -75,7 +75,7 @@ function AppRoutes() {
 
   if (user) {
     if (user.role) {
-      return <Navigate to="/dashboard" replace />;
+      return <Dashboard/>;
     }
 
     return <Navigate to="/get-started" replace />;

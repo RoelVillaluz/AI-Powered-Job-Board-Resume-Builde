@@ -1,85 +1,64 @@
+// useGetStartedFormSubmission.ts
 import { useState } from "react";
 import axios from "axios";
+import type { GetStartedFormData, UserRole } from "../../../types/forms/getStartedForm.types";
 import { BASE_API_URL } from "../../config/api";
-import { UserRole, GetStartedFormData } from "../../../types/forms/getStartedForm.types";
 import { useAuthStore } from "../../stores/authStore";
-import { createResumeService } from "../../services/resumeServices";
-import { updateUserService } from "../../services/userServices";
-import { createCompanyService } from "../../services/companyServices"
 
-type useGetStartedFormSubmissionParams = {
-    formData: GetStartedFormData,
-    selectedRole: UserRole | undefined,
-    user: any,
-    navigate: (path: string) => void;
+interface UseGetStartedFormSubmissionProps {
+    formData: GetStartedFormData | null;
+    selectedRole: UserRole;
+    user: any;
+    navigate: any;
 }
 
-export const useGetStartedFormSubmission = ({
-    formData,
-    selectedRole,
-    user,
-    navigate,
-}: useGetStartedFormSubmissionParams) => {
-    const token = useAuthStore(state => state.token); 
+export const useGetStartedFormSubmission = ({ 
+    formData, 
+    selectedRole, 
+    user, 
+    navigate 
+}: UseGetStartedFormSubmissionProps) => {
+    const token = useAuthStore((state) => state.token);
     const [error, setError] = useState<string | null>(null);
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
 
-    const handleFormSubmit = async (
-        e: React.FormEvent<HTMLFormElement>
-    ) => {
+    const handleFormSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (!selectedRole) {
-            setError("You must select a role first.");
-            return;
-        }
-
-        if (!token) {
-            setError("Authentication required.");
-            return;
-        }
-
         try {
-            setIsLoading(true);
-            setError(null);
+            // Guard clause - don't submit if no formData or role
+                if (!formData || !selectedRole) {
+                    setError("Please complete all required steps");
+                    return;
+                }
 
-            // ✅ Jobseeker flow
-            if (formData.role === "jobseeker") {
-                await createResumeService({
-                    ...formData.data,
-                    user: user.id || user._id,
-                });
-
-                navigate("/");
+           //  Guard clause - ensure user exists
+            if (!user || !user._id) {
+                setError("User session not found. Please log in again.");
                 return;
             }
 
-            // ✅ Employer flow
-            if (formData.role === "employer") {
-                const company = await createCompanyService(
-                    {
-                        ...formData.data,
-                        user: user.id || user._id,
-                    },
-                    token
-                );
+            setIsLoading(true);
+            setError(null);
 
-                await updateUserService(user.id || user._id, {
-                    company: company._id,
-                });
+            const response = await axios.post(`${BASE_API_URL}/users/${user._id}/onboarding`, {
+                role: selectedRole,
+                data: formData
+            }, { headers: { Authorization: `Bearer ${token}` }})
 
-                navigate("/");
+            navigate(`/dashboard/${selectedRole}`);
+
+            return response.data.data;
+        } catch (error: any) {
+            if (error.response) {
+                setError(error.response.message || 'Onboarding failed')
+            } else {
+                setError("Network error. Please try again.");
             }
-        } catch (err: any) {
-            setError(err?.response?.data?.message ?? "Something went wrong");
         } finally {
             setIsLoading(false);
         }
-    };
+    }
 
-    return {
-        handleFormSubmit,
-        error,
-        isLoading,
-    };
+    return { handleFormSubmit, error, isLoading };
 };

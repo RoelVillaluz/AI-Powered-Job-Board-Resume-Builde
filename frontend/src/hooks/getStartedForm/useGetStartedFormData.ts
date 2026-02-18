@@ -1,20 +1,21 @@
 import { useState, useEffect } from "react";
 import type {
-  JobseekerFormData,
-  EmployerFormData,
-  GetStartedFormData,
-  UserRole,
+    JobseekerFormData,
+    EmployerFormData,
+    GetStartedFormData,
+    UserRole,
 } from "../../../types/forms/getStartedForm.types";
 import type { SocialMedia } from "../../../types/models/resume";
-import { JOBSEEKER_INITIAL_FORM_DATA, COMPANY_INITIAL_FORM_DATA } from "../../../constants/formSchemas";
+import {
+    JOBSEEKER_INITIAL_FORM_DATA,
+    COMPANY_INITIAL_FORM_DATA,
+} from "../../../constants/formSchemas";
+import type { DropResult } from "react-beautiful-dnd";
 
 type InputEvent = React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>;
 
 // Fully typed hook
-export const useGetStartedFormData = (
-  selectedRole: UserRole | null,
-  userId: string | null
-) => {
+export const useGetStartedFormData = (selectedRole: UserRole | null, userId: string | null) => {
     // --- Helper: create initial form data based on role ---
     const getInitialData = (
         role: UserRole | null,
@@ -26,7 +27,7 @@ export const useGetStartedFormData = (
             return {
                 role: "jobseeker",
                 data: {
-                    user: userId ? { id: userId } : null,
+                    user: userId ? userId : null,
                     ...JOBSEEKER_INITIAL_FORM_DATA,
                 },
             };
@@ -36,7 +37,7 @@ export const useGetStartedFormData = (
             return {
                 role: "employer",
                 data: {
-                    user: userId ? { id: userId } : null,
+                    user: userId ? userId : null,
                     ...COMPANY_INITIAL_FORM_DATA,
                 },
             };
@@ -56,54 +57,54 @@ export const useGetStartedFormData = (
     }, [selectedRole, userId]);
 
     // --- Handle input changes ---
-    const handleChange = (e: InputEvent) => {
+    const handleChange = (e: InputEvent | { target: { name: string; value: any } }) => {
         const { name, value } = e.target;
         const keys = name.split(".");
 
         setFormData((prev) => {
-        if (!prev) return prev;
+            if (!prev) return prev;
 
-        // --- Jobseeker fields ---
-        if (prev.role === "jobseeker") {
-            if (keys[0] === "socialMedia") {
-                return {
-                    ...prev,
-                    data: {
-                        ...prev.data,
-                        socialMedia: {
-                            ...prev.data.socialMedia,
-                            [keys[1] as keyof SocialMedia]: value,
+            // --- Jobseeker fields ---
+            if (prev.role === "jobseeker") {
+                if (keys[0] === "socialMedia") {
+                    return {
+                        ...prev,
+                        data: {
+                            ...prev.data,
+                            socialMedia: {
+                                ...prev.data.socialMedia,
+                                [keys[1] as keyof SocialMedia]: value,
+                            },
                         },
-                    },
-                };
+                    };
+                }
+
+                // top-level field
+                if (name in prev.data) {
+                    return {
+                        ...prev,
+                        data: {
+                            ...prev.data,
+                            [name]: value,
+                        } as JobseekerFormData,
+                    };
+                }
             }
 
-            // top-level field
-            if (name in prev.data) {
-                return {
-                    ...prev,
-                    data: {
-                        ...prev.data,
-                        [name]: value,
-                    } as JobseekerFormData,
-                };
+            // --- Employer fields ---
+            if (prev.role === "employer") {
+                if (name in prev.data) {
+                    return {
+                        ...prev,
+                        data: {
+                            ...prev.data,
+                            [name]: value,
+                        } as EmployerFormData,
+                    };
+                }
             }
-        }
 
-        // --- Employer fields ---
-        if (prev.role === "employer") {
-            if (name in prev.data) {
-            return {
-                ...prev,
-                data: {
-                    ...prev.data,
-                    [name]: value,
-                } as EmployerFormData,
-                };
-            }
-        }
-
-        return prev;
+            return prev;
         });
     };
 
@@ -112,7 +113,7 @@ export const useGetStartedFormData = (
         name: K,
         index: number
     ) => {
-            setFormData((prev) => {
+        setFormData((prev) => {
             if (!prev || prev.role !== "jobseeker") return prev;
 
             const list = prev.data[name];
@@ -124,23 +125,20 @@ export const useGetStartedFormData = (
             return {
                 ...prev,
                 data: {
-                ...prev.data,
-                [name]: updatedList,
+                    ...prev.data,
+                    [name]: updatedList,
                 } as JobseekerFormData,
             };
         });
     };
 
     // --- Drag & drop reorder ---
-    const handleDragEnd = <K extends keyof JobseekerFormData>(
-        name: K,
-        result: { source: { index: number }; destination?: { index: number } | null }
-    ) => {
+    const handleDragEnd = <K extends keyof JobseekerFormData>(name: K, result: DropResult) => {
         // Check if destination is null or undefined, return early if true
         if (!result.destination) return;
 
         // Now TypeScript knows destination exists
-        const destination = result.destination; // TypeScript now knows it's not undefined or null
+        const destination = result.destination;
 
         setFormData((prev) => {
             if (!prev || prev.role !== "jobseeker") return prev;
@@ -162,13 +160,16 @@ export const useGetStartedFormData = (
         });
     };
 
-
     // --- Prevent Enter key submit ---
     const handleKeyDown = (e: React.KeyboardEvent) => {
         if (e.key === "Enter") e.preventDefault();
     };
 
-  return {
+    useEffect(() => {
+        console.log('Form Data: ', formData)
+    }, [formData])
+
+    return {
         formData,
         setFormData,
         handleChange,

@@ -18,7 +18,7 @@ export type EmployerStepKey =
 
 
 export type JobseekerFormData = {
-    user: { id: string } | null;
+    user: string | null;
     firstName: string;
     lastName: string;
     phone: string;
@@ -31,7 +31,7 @@ export type JobseekerFormData = {
 };
 
 export type EmployerFormData = {
-    user: { id: string } | null;
+    user: string | null;
     name: string;
     industry: string[];
     location: string;

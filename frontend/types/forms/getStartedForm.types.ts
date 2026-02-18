@@ -51,20 +51,11 @@ export type GetStartedFormData =
         data: EmployerFormData;
         };
 
-export type StepConfig =
-  | {
-      role: 'jobseeker';
-      key: JobseekerStepKey;
-      icon: string;
-      title: string;
-      description: string;
-      validate?: (formData: Extract<GetStartedFormData, { role: 'jobseeker' }>) => boolean;
-    }
-  | {
-      role: 'employer';
-      key: EmployerStepKey;
-      icon: string;
-      title: string;
-      description: string;
-      validate?: (formData: Extract<GetStartedFormData, { role: 'employer' }>) => boolean;
-    };
+// Simplified StepConfig - no validate function tied to formData
+export type StepConfig = {
+    role: 'jobseeker' | 'employer' | null; // null for the role selection step
+    key: JobseekerStepKey | EmployerStepKey;
+    icon: string;
+    title: string;
+    description: string;
+};

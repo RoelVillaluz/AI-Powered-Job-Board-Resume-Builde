@@ -12,10 +12,10 @@ export const getResumeEmbeddingsRepo = async (resumeId) => {
     .select('-model');
 }
 
-export const createResumeEmbeddingRepo = async (embeddingData) => {
-    const newEmbedding = new ResumeEmbedding(embeddingData);
-    return await newEmbedding.save();
-}
+export const createResumeEmbeddingRepo = async (data, { session } = {}) => {
+    const embedding = new ResumeEmbedding(data);
+    return await embedding.save({ session });
+};
 
 export const updateResumeEmbeddingRepo = async (resumeId, updateData) => {
     const updatedEmbeddings = await ResumeEmbedding.findByIdAndUpdate(

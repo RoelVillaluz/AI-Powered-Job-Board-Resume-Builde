@@ -47,6 +47,33 @@ export const updateUser = catchAsync(async (req, res) => {
     return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.UPDATE, data: updatedUser }, 'User');
 })
 
+export const completeOnboardingUser = catchAsync(async (req, res) => {
+    const { id } = req.params;
+    const { role, data } = req.body;
+
+    // Validate required parameters
+    if (!id) {
+        throw new BadRequestError('User ID is required in URL params');
+    }
+    if (!role) {
+        throw new BadRequestError('Role is required in request body');
+    }
+    if (!data) {
+        throw new BadRequestError('Onboarding data is required');
+    }
+
+    const updatedUser = await UserService.completeUserOnboardingService({
+        userId: id,           
+        userRole: role,       
+        onboardingData: data.data
+    });
+
+    return sendResponse(res, { 
+        ...STATUS_MESSAGES.SUCCESS.UPDATE, 
+        data: updatedUser 
+    }, 'User');
+});
+
 export const deleteUser = catchAsync(async (req, res) => {
     const { id } = req.params;
 

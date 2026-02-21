@@ -35,6 +35,11 @@ const userSchema = new mongoose.Schema({
         required: true,
         default: false
     },
+    isOnboardingComplete: {
+        type: Boolean,
+        required: true,
+        default: false
+    },
     verificationCode: {
         type: String,
         required: false

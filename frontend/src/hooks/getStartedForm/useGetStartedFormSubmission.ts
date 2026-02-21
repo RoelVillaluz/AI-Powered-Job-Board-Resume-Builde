@@ -46,7 +46,7 @@ export const useGetStartedFormSubmission = ({
                 data: formData
             }, { headers: { Authorization: `Bearer ${token}` }})
 
-            navigate(`/dashboard/${selectedRole}`);
+            navigate(`/`);
 
             return response.data.data;
         } catch (error: any) {

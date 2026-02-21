@@ -51,6 +51,9 @@ function GetStartedForm() {
         document.title = "Let's get started";
     }, []);
 
+      console.log('App user: ', user)
+
+
     const currentStep = steps[currentStepIndex];
 
     // Return only role selection page if no formdata exists yet/role has been selected yet

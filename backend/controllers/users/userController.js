@@ -51,17 +51,6 @@ export const completeOnboardingUser = catchAsync(async (req, res) => {
     const { id } = req.params;
     const { role, data } = req.body;
 
-    // Validate required parameters
-    if (!id) {
-        throw new BadRequestError('User ID is required in URL params');
-    }
-    if (!role) {
-        throw new BadRequestError('Role is required in request body');
-    }
-    if (!data) {
-        throw new BadRequestError('Onboarding data is required');
-    }
-
     const updatedUser = await UserService.completeUserOnboardingService({
         userId: id,           
         userRole: role,       

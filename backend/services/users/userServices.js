@@ -60,16 +60,10 @@ export const completeUserOnboardingService = async ({ userId, userRole, onboardi
                 ...onboardingData,
             }, { session });
 
-            console.log('Resume created with ID:', resume._id);
             user.resumes = [resume._id];
         }
 
         if (userRole === 'employer') {
-            console.log('Creating company with data:', {
-                user: user._id,
-                ...onboardingData,
-            });
-
             const newCompany = await createCompany({
                 user: user._id,
                 ...onboardingData
@@ -79,7 +73,7 @@ export const completeUserOnboardingService = async ({ userId, userRole, onboardi
         }
 
         // 3️⃣ Finalize onboarding
-        user.onboardingCompleted = true;
+        user.isOnboardingComplete = true;
         await user.save({ session });
 
         return user;

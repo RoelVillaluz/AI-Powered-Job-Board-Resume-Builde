@@ -2,6 +2,7 @@ import { hasScoreableChange, hasSignificantChange, withTransaction } from "../..
 import * as ResumeRepo from "../../repositories/resumes/resumeRepository.js";
 import * as ResumeEmbeddingRepo from "../../repositories/resumes/resumeEmbeddingRepository.js"
 import * as ResumeScoreRepo from "../../repositories/resumes/resumeScoreRepository.js"
+import * as ResumeEmbeddingService from "../../services/resumes/resumeEmbeddingService.js"
 import Resume from "../../models/resumes/resumeModel.js";
 
 /**
@@ -91,6 +92,16 @@ export const createResumeService = async (resumeData, { session } = {}) => {
         { resume: resume._id },
         { session } // ⚠️ FIX: Wrap session in object
     );
+
+    // Queue embedding generation AFTER transaction commits
+    // setImmediate ensures the transaction has already committed before the job runs
+    setImmediate(async () => {
+        try {
+            await ResumeEmbeddingService.createResumeEmbeddingService(resume._id.toString());
+        } catch (err) {
+            logger.error(`Failed to generate embeddings for resume ${resume._id}:`, err);
+        }
+    });
 
     return { resume, embedding, score };
 }

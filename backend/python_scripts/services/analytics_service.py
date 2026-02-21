@@ -49,7 +49,7 @@ class AnalyticsService:
         """
         try:
             # Get resume
-            resume = ResumeService.get_by_id(resume_id)
+            resume = ResumeService.get_full_resume(resume_id)
             if not resume:
                 logger.error(f"Resume {resume_id} not found")
                 return None
@@ -146,26 +146,30 @@ class AnalyticsService:
         """
         try:
             # Get user's current skills
-            user_skills = set(skill['name'].lower() for skill in resume.get('skills', []))
-            
-            # Get top skills from active job postings
-            jobs = list(db.job_postings.find({"status": "active"}).limit(200))
-            
-            all_job_skills = []
-            for job in jobs:
-                job_skills = [skill['name'].lower() for skill in job.get('skills', [])]
-                all_job_skills.extend(job_skills)
-            
-            # Count skill frequency
-            skill_counts = Counter(all_job_skills)
-            top_market_skills = skill_counts.most_common(top_n * 2)
-            
-            # Find gaps
+            user_skills = {skill['name'].lower() for skill in resume.get('skills', [])}
+
+            # Run aggregation in MongoDB
+            pipeline = [
+                {"$match": {"status": "active"}},
+                {"$limit": 200},
+                {"$unwind": "$skills"},
+                {"$group": {
+                    "_id": {"$toLower": "$skills.name"},
+                    "count": {"$sum": 1}
+                }},
+                {"$sort": {"count": -1}},
+                {"$limit": top_n * 2}
+            ]
+
+            market_skills = list(db.job_postings.aggregate(pipeline))
+
+            # Find skill gaps
             gaps = []
-            for skill, count in top_market_skills:
-                if skill not in user_skills and len(gaps) < top_n:
-                    gaps.append(skill.title())
-            
+            for skill in market_skills:
+                skill_name = skill["_id"]
+                if skill_name not in user_skills and len(gaps) < top_n:
+                    gaps.append(skill_name.title())
+
             return gaps
             
         except Exception as e:

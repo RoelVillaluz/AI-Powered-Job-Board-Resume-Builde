@@ -69,12 +69,11 @@ function App() {
   );
 }
 
-
 function AppRoutes() {
   const user = useAuthStore(state => state.user);
 
   if (user) {
-    if (user.role) {
+    if (user.isOnboardingComplete) {
       return <Dashboard/>;
     }
 

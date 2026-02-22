@@ -59,8 +59,7 @@ export const findResumesService = async (query) => {
 };
 
 /**
- * Creates resume and initializes empty embeddings/scores within a transaction.
- * Background jobs will populate these later.
+ * Creates resume 
  * 
  * @async
  * @function createResumeService
@@ -71,40 +70,13 @@ export const findResumesService = async (query) => {
  * Flow:
  * 1. Start transaction
  * 2. Create resume in DB
- * 3. Create empty embedding record (queued for background processing)
- * 4. Create empty score record (queued for background processing)
- * 5. Commit transaction
- * 6. Queue background jobs (outside transaction)
- * 7. Return resume immediately
+ * 3. Return resume 
  */
 export const createResumeService = async (resumeData, { session } = {}) => {
-    // Step 1: Create the resume document
     const resume = await ResumeRepo.createResumeRepo(resumeData, { session });
 
-    // Step 2: Create empty embedding record (will be populated by background job)
-    const embedding = await ResumeEmbeddingRepo.createResumeEmbeddingRepo(
-        { resume: resume._id },
-        { session } // ⚠️ FIX: Wrap session in object
-    );
-
-    // Step 3: Create empty resume score document (will be populated later by background job)
-    const score = await ResumeScoreRepo.createResumeScoreRepo(
-        { resume: resume._id },
-        { session } // ⚠️ FIX: Wrap session in object
-    );
-
-    // Queue embedding generation AFTER transaction commits
-    // setImmediate ensures the transaction has already committed before the job runs
-    setImmediate(async () => {
-        try {
-            await ResumeEmbeddingService.createResumeEmbeddingService(resume._id.toString());
-        } catch (err) {
-            logger.error(`Failed to generate embeddings for resume ${resume._id}:`, err);
-        }
-    });
-
-    return { resume, embedding, score };
-}
+    return { resume };
+};
 
 /**
  * Updates resume and invalidates related embeddings/scores within a transaction.

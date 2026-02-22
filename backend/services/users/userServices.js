@@ -5,6 +5,7 @@ import { createResumeService } from "../resumes/resumeServices.js"
 import { transformProfilePictureUrl } from "../transformers/urlTransformers.js"
 import User from "../../models/userModel.js"
 import { NotFoundError } from "../../middleware/errorHandler.js"
+import { getOrGenerateResumeEmbeddingService } from "../resumes/resumeEmbeddingService.js"
 
 /**
  * Fetches connection recommendations for a given user and transforms their profile pictures.
@@ -39,28 +40,22 @@ export const getConnectionRecommendationService = async (id) => {
  * @param {Object} onboardingData - creates either resume/company
  */
 export const completeUserOnboardingService = async ({ userId, userRole, onboardingData }) => {
-    return await withTransaction(async (session) => {
-        // 1️⃣ Load user inside transaction
-        const user = await User.findById(userId).session(session);
-        if (!user) {
-            throw new NotFoundError('User');
-        }
+    let createdResumeId = null;
 
-        // 2️⃣ Set role
+    const user = await withTransaction(async (session) => {
+        const user = await User.findById(userId).session(session);
+        if (!user) throw new NotFoundError('User');
+
         user.role = userRole;
 
         if (userRole === 'jobseeker') {
-            console.log('Creating resume with data:', {
-                user: user._id,
-                ...onboardingData,
-            });
-
             const { resume } = await createResumeService({
                 user: user._id,
                 ...onboardingData,
             }, { session });
 
             user.resumes = [resume._id];
+            createdResumeId = resume._id.toString(); // capture ID before transaction closes
         }
 
         if (userRole === 'employer') {
@@ -68,14 +63,18 @@ export const completeUserOnboardingService = async ({ userId, userRole, onboardi
                 user: user._id,
                 ...onboardingData
             }, { session });
-
             user.company = newCompany._id;
         }
 
-        // 3️⃣ Finalize onboarding
         user.isOnboardingComplete = true;
         await user.save({ session });
-
         return user;
     });
+
+    // ✅ Only reaches here after transaction is fully committed
+    if (createdResumeId) {
+        await getOrGenerateResumeEmbeddingService(createdResumeId, true);
+    }
+
+    return user;
 };

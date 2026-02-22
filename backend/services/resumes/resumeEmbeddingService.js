@@ -1,5 +1,7 @@
 import { resumeEmbeddingQueue } from "../../queues/index.js";
 import { getResumeEmbeddingsRepo, createResumeEmbeddingRepo } from "../../repositories/resumes/resumeEmbeddingRepository.js"
+import { getOrGenerateResumeScoreService } from "./resumeScoreService.js";
+import { validateResumeEmbeddings } from "../../utils/embeddingValidationUtils.js";
 import logger from "../../utils/logger.js";
 import { runPython } from "../../utils/pythonRunner.js";
 
@@ -10,16 +12,38 @@ export const getOrGenerateResumeEmbeddingService = async (resumeId, invalidateCa
     // Check cache (unless forced to regenerate)
     if (!invalidateCache) {
         const cacheResult = await getResumeEmbeddingService(resumeId);
+
         if (cacheResult.cached) {
-            return {
-                cached: true,
-                data: cacheResult.data
-            };
+            // Validate cached embeddings
+            const validation = validateResumeEmbeddings(cacheResult.data);
+            
+            if (validation.valid) {
+                logger.info(`Valid cached embeddings for ${resumeId}`, {
+                    validSections: validation.validSections,
+                    warnings: validation.warnings
+                });
+
+                return {
+                    cached: true,
+                    data: cacheResult.data
+                };
+            }
+
+            // Invalid cache
+            logger.warn(`Invalid cached embeddings for resume: ${resumeId}. Regenerating...`, {
+                errors: validation.errors,
+                resumeId
+            });
+            
+            // Mark for regeneration
+            invalidateCache = true;
         }
     }
 
-    // Cache miss or invalidate - queue generation
-    logger.info(`Queueing embedding generation for resume: ${resumeId}`);
+    // Queue generation
+    logger.info(`Queueing embedding generation for resume: ${resumeId}`, {
+        reason: invalidateCache ? 'forced_regeneration' : 'cache_miss'
+    });
     
     const job = await resumeEmbeddingQueue.add('generate-embeddings', {
         resumeId,
@@ -52,8 +76,19 @@ export const getResumeEmbeddingService = async (resumeId) => {
 
         // Return cached if less than 30 days old
         if (daysSinceGeneration < 30) {
-            logger.info(`Cache hit for resume embeddings: ${resumeId}`)
-            return { cached: true, data: cachedEmbeddings };
+            const validation = validateResumeEmbeddings(cachedEmbeddings);
+
+            if (validation.valid) {
+                logger.info(`Valid cache hit for resume embeddings: ${resumeId}`, {
+                    validSections: validation.validSections
+                });
+
+                return { cached: true, data: cachedEmbeddings };
+            }
+
+            logger.warn(`Cached embeddings invalid for ${resumeId}, treating as miss`, {
+                errors: validation.errors
+            });
         }
     }
 
@@ -112,6 +147,12 @@ export const createResumeEmbeddingService = async (resumeId, invalidateCache = f
             // Create new
             savedEmbeddings = await createResumeEmbeddingRepo(embeddingData);
         }
+
+        // After embeddings saved successfully
+        await job?.updateProgress(90);
+
+        logger.info(`Embeddings generated, queueing score calculation for resume: ${resumeId}`);
+        await getOrGenerateResumeScoreService(resumeId, true); // true = force, no empty doc issue
 
         await job?.updateProgress(100);
 

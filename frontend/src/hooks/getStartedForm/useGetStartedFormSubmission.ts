@@ -19,6 +19,7 @@ export const useGetStartedFormSubmission = ({
     navigate 
 }: UseGetStartedFormSubmissionProps) => {
     const token = useAuthStore((state) => state.token);
+    const refreshUser = useAuthStore((state) => state.refreshUser);
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -45,6 +46,9 @@ export const useGetStartedFormSubmission = ({
                 role: selectedRole,
                 data: formData
             }, { headers: { Authorization: `Bearer ${token}` }})
+
+            // Refresh store user 
+            await refreshUser();
 
             navigate(`/`);
 

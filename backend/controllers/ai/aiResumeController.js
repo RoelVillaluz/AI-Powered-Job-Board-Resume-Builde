@@ -17,8 +17,9 @@ import logger from "../../utils/logger.js";
  */
 export const getOrGenerateResumeScore = catchAsync(async (req, res) => {
     const { resumeId } = req.params
+    const userId = (req.user._id || req.user.id).toString(); // ← same fix as embedding controller
     
-    const result = await getOrGenerateResumeScoreService(resumeId);
+    const result = await getOrGenerateResumeScoreService(resumeId, false, userId);
 
     if (result.cached) {
         return sendResponse(res, {

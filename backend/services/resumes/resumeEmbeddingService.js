@@ -1,14 +1,15 @@
 import { resumeEmbeddingQueue } from "../../queues/index.js";
 import { getResumeEmbeddingsRepo, createResumeEmbeddingRepo } from "../../repositories/resumes/resumeEmbeddingRepository.js"
 import { getOrGenerateResumeScoreService } from "./resumeScoreService.js";
-import { validateResumeEmbeddings } from "../../utils/embeddingValidationUtils.js";
+import { validateResumeEmbeddings } from "../../utils/embeddingValidationUtils.ts";
 import logger from "../../utils/logger.js";
 import { runPython } from "../../utils/pythonRunner.js";
+import { UnauthorizedError } from "../../middleware/errorHandler.js";
 
 /**
  * Main service function - handles cache check and queue decision
  */
-export const getOrGenerateResumeEmbeddingService = async (resumeId, invalidateCache = false) => {
+export const getOrGenerateResumeEmbeddingService = async (resumeId, invalidateCache = false, userId) => {
     // Check cache (unless forced to regenerate)
     if (!invalidateCache) {
         const cacheResult = await getResumeEmbeddingService(resumeId);
@@ -40,6 +41,10 @@ export const getOrGenerateResumeEmbeddingService = async (resumeId, invalidateCa
         }
     }
 
+    if (!userId) {
+        throw new UnauthorizedError();
+    }
+
     // Queue generation
     logger.info(`Queueing embedding generation for resume: ${resumeId}`, {
         reason: invalidateCache ? 'forced_regeneration' : 'cache_miss'
@@ -47,6 +52,7 @@ export const getOrGenerateResumeEmbeddingService = async (resumeId, invalidateCa
     
     const job = await resumeEmbeddingQueue.add('generate-embeddings', {
         resumeId,
+        userId,
         invalidateCache
     }, {
         attempts: 3,
@@ -76,19 +82,8 @@ export const getResumeEmbeddingService = async (resumeId) => {
 
         // Return cached if less than 30 days old
         if (daysSinceGeneration < 30) {
-            const validation = validateResumeEmbeddings(cachedEmbeddings);
-
-            if (validation.valid) {
-                logger.info(`Valid cache hit for resume embeddings: ${resumeId}`, {
-                    validSections: validation.validSections
-                });
-
-                return { cached: true, data: cachedEmbeddings };
-            }
-
-            logger.warn(`Cached embeddings invalid for ${resumeId}, treating as miss`, {
-                errors: validation.errors
-            });
+            logger.info(`Cache hit for resume embeddings: ${resumeId}`);
+            return { cached: true, data: cachedEmbeddings }; // ← no validation here
         }
     }
 
@@ -109,7 +104,7 @@ export const getResumeEmbeddingService = async (resumeId) => {
  * @param {Object} job - Optional BullMQ job for progress updates
  * @returns {Promise<{cached: boolean, data: Object}>}
  */
-export const createResumeEmbeddingService = async (resumeId, invalidateCache = false, job = null) => {
+export const createResumeEmbeddingService = async (resumeId, invalidateCache = false, job = null, userId = null) => {
     try {
         // Update progress if called from queue
         await job?.updateProgress(10);
@@ -152,7 +147,7 @@ export const createResumeEmbeddingService = async (resumeId, invalidateCache = f
         await job?.updateProgress(90);
 
         logger.info(`Embeddings generated, queueing score calculation for resume: ${resumeId}`);
-        await getOrGenerateResumeScoreService(resumeId, true); // true = force, no empty doc issue
+        await getOrGenerateResumeScoreService(resumeId, true, userId); // true = force, no empty doc issue
 
         await job?.updateProgress(100);
 

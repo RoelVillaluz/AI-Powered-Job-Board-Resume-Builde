@@ -73,7 +73,7 @@ export const completeUserOnboardingService = async ({ userId, userRole, onboardi
 
     // ✅ Only reaches here after transaction is fully committed
     if (createdResumeId) {
-        await getOrGenerateResumeEmbeddingService(createdResumeId, true);
+        await getOrGenerateResumeEmbeddingService(createdResumeId, true, userId);
     }
 
     return user;

@@ -1,5 +1,6 @@
 import { resumeScoringQueue } from "../../queues/index.js";
 import { getResumeScoreRepo, createResumeScoreRepo, upsertResumeScoreRepo } from "../../repositories/resumes/resumeScoreRepository.js"
+import { validateResumeScore } from "../../utils/scoreValidationUtils.ts";
 import logger from "../../utils/logger.js";
 import { runPython } from "../../utils/pythonRunner.js";
 
@@ -15,35 +16,45 @@ import { runPython } from "../../utils/pythonRunner.js";
  * - { cached: true, data: scoreObject } - Immediate result
  * - { cached: false, jobId: "123" } - Queued for processing
  */
-export const getOrGenerateResumeScoreService = async (resumeId) => {
-    // Check cache first
-    const cachedResult = await getResumeScoreService(resumeId);
+export const getOrGenerateResumeScoreService = async (resumeId, invalidateCache = false, userId = null) => {
+    if (!invalidateCache) {
+        const cachedResult = await getResumeScoreService(resumeId);
 
-    if (cachedResult.cached) {
-        return {
-            data: cachedResult.data,
-            cached: true
+        if (cachedResult.cached) {
+            const validation = validateResumeScore(cachedResult.data);
+
+            if (validation.valid) {
+                logger.info(`Valid cached score for ${resumeId}`, {
+                    warnings: validation.warnings
+                });
+                return { cached: true, data: cachedResult.data };
+            }
+
+            logger.warn(`Invalid cached score for resume: ${resumeId}. Regenerating...`, {
+                errors: validation.errors,
+                resumeId
+            });
+
+            invalidateCache = true;
         }
     }
 
-    // Cache miss - queue the calculation
-    logger.info(`Queueing score generation for resume: ${resumeId}`);
+    logger.info(`Queueing score generation for resume: ${resumeId}`, {
+        reason: invalidateCache ? 'forced_regeneration' : 'cache_miss'
+    });
 
     const job = await resumeScoringQueue.add('calculate-score', {
         resumeId,
-        invalidateCache: false
+        userId,         // ← thread through
+        invalidateCache
     }, {
         attempts: 3,
         backoff: { type: 'exponential', delay: 2000 },
         timeout: 60000
-    })
+    });
 
-    // Return job info for polling
-    return {
-        cached: false,
-        jobId: job.id
-    };
-}
+    return { cached: false, jobId: job.id };
+};
 
 /**
  * Calculate score using Python and save to database

@@ -1,6 +1,8 @@
 import { Server } from "socket.io";
 import { registerSocketHandlers } from "./handlers.js";
 
+let io;
+
 export const initSocket = (server) => {
   const io = new Server(server, {
     cors: {
@@ -13,5 +15,10 @@ export const initSocket = (server) => {
     registerSocketHandlers(io, socket);
   });
 
+  return io;
+};
+
+export const getIO = () => {
+  if (!io) throw new Error("Socket.io not initialized");
   return io;
 };

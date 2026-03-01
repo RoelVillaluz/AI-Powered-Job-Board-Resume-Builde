@@ -26,8 +26,10 @@ export const fetchResume = async (resumeId) => {
  * @param {string} resumeId - The ID of the resume
  * @returns {Promise<number>} The resume score normalized between 0 and 1
  */
-export const fetchResumeScore = async (resumeId) => {
-  const res = await axios.get(`${BASE_API_URL}/resumes/${resumeId}/score`);
+export const fetchResumeScore = async (resumeId, token) => {
+  const res = await axios.get(`${BASE_API_URL}/resumes/${resumeId}/score`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
 
   // Cached score
   if (res.status === 200 && res.data?.data !== undefined) {

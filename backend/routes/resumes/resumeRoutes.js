@@ -2,6 +2,7 @@ import express from "express"
 import { createResume, deleteResume, getResume, getResumes, getResumesByUser, updateResume } from "../../controllers/resumes/resumeController.js"
 import { getOrGenerateResumeEmbeddings, getAllResumeEmbeddings } from "../../controllers/resumes/resumeEmbeddingController.js"
 import { getOrGenerateResumeScore } from "../../controllers/ai/aiResumeController.js"
+import { authenticate } from "../../middleware/authentication/authenticate.js"
 
 const router = express.Router()
 
@@ -10,8 +11,8 @@ router.get('/embeddings', getAllResumeEmbeddings)
 router.get('/user/:userId', getResumesByUser)
 
 // Dynamic routes next
-router.get('/:resumeId/embeddings', getOrGenerateResumeEmbeddings)
-router.get('/:resumeId/score', getOrGenerateResumeScore)
+router.get('/:resumeId/embeddings', authenticate, getOrGenerateResumeEmbeddings)
+router.get('/:resumeId/score', authenticate, getOrGenerateResumeScore)
 router.get('/:id', getResume)
 router.get('/', getResumes)
 

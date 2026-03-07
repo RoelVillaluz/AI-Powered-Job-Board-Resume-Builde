@@ -1,44 +1,82 @@
 /**
- * Generate Resume Embeddings Job Processor
+ * BullMQ processors for resume and job posting embedding generation.
  *
- * Handles the full embedding + scoring pipeline as a single BullMQ job.
- * Score generation is triggered directly inside createResumeEmbeddingService
- * (not via a separate queue job) to guarantee sequential execution.
+ * Embedding + scoring for resumes is handled as a single sequential pipeline
+ * within one job — score generation is triggered directly inside
+ * `createResumeEmbeddingService`, not via a separate queue job, to guarantee
+ * embeddings are fully saved before scoring begins.
  */
-import Resume from '../../models/resumes/resumeModel.js';
-import JobPosting from '../../models/jobPostings/jobPostingModel.js';
-import logger from '../../utils/logger.js';
-import { AppError, NotFoundError } from '../../middleware/errorHandler.js';
-import { getResumeEmbeddingService, createResumeEmbeddingService } from '../../services/resumes/resumeEmbeddingService.js';
-import { getResumeScoreService } from '../../services/resumes/resumeScoreService.js';
-import { getJobPostingEmbeddingService, generateJobPostingEmbeddingService } from '../../services/jobPostings/jobPostingEmbeddingService.js';
-import { getSocketId } from '../../sockets/presence.js';
-import { getIO } from '../../sockets/index.js';
+
+import Resume from "../../models/resumes/resumeModel.js";
+import JobPosting from "../../models/jobPostings/jobPostingModel.js";
+import logger from "../../utils/logger.js";
+import { AppError, NotFoundError } from "../../middleware/errorHandler.js";
+import {
+    getResumeEmbeddingService,
+    createResumeEmbeddingService
+} from "../../services/resumes/resumeEmbeddingService.js";
+import { getResumeScoreService } from "../../services/resumes/resumeScoreService.js";
+import {
+    getJobPostingEmbeddingService,
+    generateJobPostingEmbeddingService
+} from "../../services/jobPostings/jobPostingEmbeddingService.js";
+import { getSocketId } from "../../sockets/presence.js";
+import { getIO } from "../../sockets/index.js";
 
 /**
  * BullMQ processor for resume embedding generation jobs.
  *
- * Orchestrates the full pipeline:
- *   1. Validate resume exists
- *   2. Check embedding cache (return early if valid)
- *   3. Call createResumeEmbeddingService — which runs Python embedding,
- *      saves to DB, then runs Python scoring and saves that too
- *   4. Fetch the saved score and emit score:complete to the client
+ * Orchestrates the full embedding + scoring pipeline as a single job:
  *
- * Socket events emitted (absolute 0–100% scale across full pipeline):
- *   embedding:progress → 2%, 8% (pre-service setup)
- *   embedding:progress → 10%, 20%, 60%, 70% (inside createResumeEmbeddingService)
- *   score:progress     → 75%, 88%, 95% (inside generateResumeScoreService)
- *   score:complete     → emitted here after everything resolves
- *   embedding:error / score:error → on failure
+ *   1. Validate resume exists in the database.
+ *   2. Return early with cached data if embeddings (and score) are still fresh.
+ *   3. Call `createResumeEmbeddingService`, which runs the full sequential pipeline:
+ *        a. Python generates embedding vectors (progress streamed via `emit`)
+ *        b. Embeddings saved to DB
+ *        c. Python calculates score (progress streamed via `emit`)
+ *        d. Score saved to DB
+ *   4. Fetch the freshly saved score and emit `score:complete` to the client.
  *
- * @param {import('bullmq').Job} job - BullMQ job object with { resumeId, userId, invalidateCache }
- * @returns {Promise<{ resumeId, embeddingId, generatedAt, cached, durationMs }>}
+ * ## Socket events emitted (absolute 0–100% scale across the full pipeline)
+ *
+ * | Event               | Progress | Source                                    |
+ * |---------------------|----------|-------------------------------------------|
+ * | embedding:progress  | 2%, 5%   | This processor (setup phase)              |
+ * | embedding:progress  | 8%       | This processor (pre-service)              |
+ * | embedding:progress  | 15%–58%  | Python via `runPython` stream             |
+ * | score:progress      | 68%–94%  | Python via `runPython` stream             |
+ * | embedding:complete  | —        | This processor (after pipeline resolves)  |
+ * | score:complete      | —        | This processor (after pipeline resolves)  |
+ * | embedding:error     | —        | This processor (on any failure)           |
+ * | score:error         | —        | This processor (on any failure)           |
+ *
+ * All user-facing message strings originate from Python's `emit_progress()` calls.
+ * This processor does not emit any hardcoded progress messages.
+ *
+ * @param {import('bullmq').Job} job
+ *   BullMQ job with payload: `{ resumeId: string, userId: string, invalidateCache: boolean }`
+ *
+ * @returns {Promise<{
+ *   resumeId: string,
+ *   embeddingId: string,
+ *   generatedAt: Date,
+ *   cached: boolean,
+ *   durationMs: number
+ * }>}
+ *
+ * @throws {AppError} If the resume document is not found.
+ * @throws {Error} If the Python pipeline or DB operations fail.
  */
 export const generateResumeEmbeddingsProcessor = async (job) => {
     const { resumeId, userId, invalidateCache = false } = job.data;
     const startTime = Date.now();
 
+    /**
+     * Emit a socket event to the authenticated user if they are currently connected.
+     *
+     * @param {string} event - Socket event name (e.g. "embedding:progress").
+     * @param {object} data - Payload forwarded to the client.
+     */
     const emit = (event, data) => {
         if (!userId) return;
         const socketId = getSocketId(userId);
@@ -46,10 +84,14 @@ export const generateResumeEmbeddingsProcessor = async (job) => {
         if (socketId && io) io.to(socketId).emit(event, data);
     };
 
-    logger.info('📊 [Queue] Starting embedding generation job', { jobId: job.id, resumeId, invalidateCache });
+    logger.info("📊 [Queue] Starting embedding generation job", {
+        jobId: job.id,
+        resumeId,
+        invalidateCache
+    });
 
     try {
-        emit('embedding:progress', { progress: 2, message: 'Starting analysis...' });
+        emit("embedding:progress", { progress: 2 });
         await job.updateProgress(2);
 
         const resume = await Resume.findById(resumeId);
@@ -57,41 +99,45 @@ export const generateResumeEmbeddingsProcessor = async (job) => {
 
         await job.updateProgress(5);
 
+        // Return early if both embeddings and score are already cached and fresh
         if (!invalidateCache) {
             const cacheResult = await getResumeEmbeddingService(resumeId);
+
             if (cacheResult.cached) {
-                // Embeddings cached — check if score is also cached
                 const cachedScore = await getResumeScoreService(resumeId);
-                emit('embedding:complete', { cached: true, data: cacheResult.data });
+
+                emit("embedding:complete", { cached: true, data: cacheResult.data });
                 if (cachedScore.cached) {
-                    emit('score:complete', { cached: true, data: cachedScore.data });
+                    emit("score:complete", { cached: true, data: cachedScore.data });
                 }
+
                 await job.updateProgress(100);
+
+                logger.info("✅ [Queue] Returning cached embeddings + score", { resumeId });
                 return { resumeId, cached: true, embeddingId: cacheResult.data._id };
             }
         }
 
-        emit('embedding:progress', { progress: 8, message: 'Reading your resume...' });
         await job.updateProgress(8);
 
-        logger.info('🐍 [Queue] Calling embedding + score pipeline', { resumeId });
+        logger.info("🐍 [Queue] Starting embedding + score pipeline", { resumeId });
 
-        // createResumeEmbeddingService runs Python embedding → saves → runs Python
-        // scoring → saves. emit is passed through so progress fires continuously.
+        // createResumeEmbeddingService runs:
+        //   Python embedding → save → Python scoring → save
+        // emit is passed through so Python progress fires on this socket connection.
         const result = await createResumeEmbeddingService(resumeId, invalidateCache, job, userId, emit);
 
-        // Both embedding and score are saved at this point — fetch score to emit complete
+        // Both embedding and score are persisted at this point
         const finalScore = await getResumeScoreService(resumeId);
-
         const duration = Date.now() - startTime;
 
-        emit('embedding:complete', { cached: false, data: result.data });
+        emit("embedding:complete", { cached: false, data: result.data });
 
         if (finalScore.cached) {
-            emit('score:complete', { cached: false, data: finalScore.data });
+            emit("score:complete", { cached: false, data: finalScore.data });
         }
 
-        logger.info('✅ [Queue] Embedding + score pipeline completed', {
+        logger.info("✅ [Queue] Embedding + score pipeline completed", {
             jobId: job.id,
             resumeId,
             embeddingId: result.data._id,
@@ -108,15 +154,17 @@ export const generateResumeEmbeddingsProcessor = async (job) => {
         };
 
     } catch (error) {
-        emit('embedding:error', { message: 'Resume analysis failed. Please try again.' });
-        emit('score:error', { message: 'Resume analysis failed. Please try again.' });
-        logger.error('💥 [Queue] Embedding + score pipeline failed', {
+        emit("embedding:error", { message: "Resume analysis failed. Please try again." });
+        emit("score:error", { message: "Resume analysis failed. Please try again." });
+
+        logger.error("💥 [Queue] Embedding + score pipeline failed", {
             jobId: job.id,
             resumeId,
             error: error.message,
             stack: error.stack,
             durationMs: Date.now() - startTime
         });
+
         throw error;
     }
 };
@@ -124,16 +172,30 @@ export const generateResumeEmbeddingsProcessor = async (job) => {
 /**
  * BullMQ processor for job posting embedding generation jobs.
  *
- * Validates the job posting exists, checks the embedding cache,
- * and generates new embeddings via Python if needed.
+ * Validates the job posting exists, checks the embedding cache, and generates
+ * new embeddings via Python if the cache is missing or invalidated.
  *
- * @param {import('bullmq').Job} job - BullMQ job with { jobPostingId, invalidateCache }
- * @returns {Promise<{ jobPostingId, embeddingId, generatedAt, cached }>}
+ * Progress events from Python are streamed via `runPython` inside
+ * `generateJobPostingEmbeddingService` — this processor does not emit
+ * socket events (job postings are a server-side background operation).
+ *
+ * @param {import('bullmq').Job} job
+ *   BullMQ job with payload: `{ jobPostingId: string, invalidateCache: boolean }`
+ *
+ * @returns {Promise<{
+ *   jobPostingId: string,
+ *   embeddingId: string,
+ *   generatedAt: Date,
+ *   cached: boolean
+ * }>}
+ *
+ * @throws {NotFoundError} If the job posting document is not found.
+ * @throws {Error} If the Python pipeline or DB operations fail.
  */
 export const generateJobPostingEmbeddingsProcessor = async (job) => {
     const { jobPostingId, invalidateCache = false } = job.data;
 
-    logger.info('📊 [Queue] Starting job posting embedding generation job', {
+    logger.info("📊 [Queue] Starting job posting embedding generation job", {
         jobId: job.id,
         jobPostingId,
         invalidateCache
@@ -149,17 +211,19 @@ export const generateJobPostingEmbeddingsProcessor = async (job) => {
 
         if (!invalidateCache) {
             const cacheResult = await getJobPostingEmbeddingService(jobPostingId);
+
             if (cacheResult.cached) {
-                logger.info('✅ [Queue] Using cached job posting embeddings', { jobPostingId });
+                logger.info("✅ [Queue] Using cached job posting embeddings", { jobPostingId });
                 await job.updateProgress(100);
                 return { jobPostingId, cached: true, embeddingId: cacheResult.data._id };
             }
         }
 
-        logger.info('🐍 [Queue] Calling job embedding service', { jobPostingId });
+        logger.info("🐍 [Queue] Calling job embedding service", { jobPostingId });
+
         const result = await generateJobPostingEmbeddingService(jobPostingId, invalidateCache, job);
 
-        logger.info('✅ [Queue] Job posting embedding generation completed', {
+        logger.info("✅ [Queue] Job posting embedding generation completed", {
             jobId: job.id,
             jobPostingId,
             embeddingId: result.data._id
@@ -173,7 +237,7 @@ export const generateJobPostingEmbeddingsProcessor = async (job) => {
         };
 
     } catch (error) {
-        logger.error('💥 [Queue] Job posting embedding generation failed', {
+        logger.error("💥 [Queue] Job posting embedding generation failed", {
             jobId: job.id,
             jobPostingId,
             error: error.message,

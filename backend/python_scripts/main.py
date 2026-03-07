@@ -1,72 +1,72 @@
-"""
-Main CLI entry point for Node.js to call Python functions.
-
-Usage:
-    python main.py <command> <args...>
-
-Commands:
-    score_resume <resume_id>
-    compare_resume_job <resume_id> <job_id> [resume_cache_status] [job_cache_status]
-    generate_resume_embeddings <resume_id>
-    generate_job_embeddings <job_id>
-    batch_compare <resume_id> <job_ids_json> <limit>
-    get_recommendations <user_id> <resume_id> <limit>
-"""
-
 import sys
 import json
 import logging
 
-# Configure logging
+# Configure logging to stderr so stdout stays clean for JSON output
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[logging.StreamHandler(sys.stderr)]  # Log to stderr so stdout is clean JSON
+    handlers=[logging.StreamHandler(sys.stderr)]
 )
 
 logger = logging.getLogger(__name__)
 
-# Import all the services
 from services.analytics_service import AnalyticsService
 from services.scoring_service import ScoringService
 from services.resume_service import ResumeService
 from services.job_service import JobService
 from utils.tensor_utils import tensor_to_list
+from utils.websocket_utils import emit_progress
 
-def generate_resume_embeddings(resume_id: str):
+
+def generate_resume_embeddings(resume_id: str) -> dict:
     """
-    Generate embeddings for a resume.
-    
-    Returns JSON:
-    {
-        "resume_id": "...",
-        "embeddings": {
-            "skills": [[...], [...]],
-            "workExperience": [[...], [...]],
-            "certifications": [[...]]
-        },
-        "meanEmbeddings": {
-            "skills": [...],
-            "workExperience": [...],
-            "certifications": [...]
-        },
-        "metrics": {
-            "totalExperienceYears": 5.2
+    Generate mean embeddings and experience metrics for a resume.
+
+    Args:
+        resume_id (str): MongoDB ObjectId string for the resume document.
+
+    Returns:
+        dict: {
+            "resume_id": str,
+            "embeddings": {
+                "skills": [],           # Reserved — individual embeddings not cached
+                "workExperience": [],
+                "certifications": []
+            },
+            "meanEmbeddings": {
+                "skills": list[float],
+                "workExperience": list[float],
+                "certifications": list[float]
+            },
+            "metrics": {
+                "totalExperienceYears": float
+            }
         }
-    }
+        On error: { "error": str }
     """
     try:
+        emit_progress("embedding:progress", 15, "Fetching your resume data...")
+
         resume = ResumeService.get_job_relevant_resume(resume_id)
         if not resume:
             return {"error": f"Resume not found: {resume_id}"}
 
+        emit_progress("embedding:progress", 25, "Analyzing your skills...")
+
         embeddings = ResumeService.extract_embeddings(resume)
 
-        # Convert tensors to lists for JSON serialization
+        emit_progress("embedding:progress", 40, "Reviewing your work experience...")
+
+        # Work experience is the most time-intensive section — emit after it resolves
+        emit_progress("embedding:progress", 52, "Checking your certifications...")
+
+        emit_progress("embedding:progress", 58, "Finalizing embedding vectors...")
+
         result = {
             "resume_id": resume_id,
             "embeddings": {
-                "skills": [],  # Individual embeddings not needed for cache
+                "skills": [],
                 "workExperience": [],
                 "certifications": []
             },
@@ -81,37 +81,51 @@ def generate_resume_embeddings(resume_id: str):
         }
 
         return result
+
     except Exception as e:
         logger.error(f"Error generating resume embeddings: {e}", exc_info=True)
         return {"error": str(e)}
-    
-def generate_job_embeddings(job_id: str):
+
+
+def generate_job_embeddings(job_id: str) -> dict:
     """
-    Generate embeddings for a job posting.
-    
-    Returns JSON:
-    {
-        "job_id": "...",
-        "embeddings": {...},
-        "meanEmbeddings": {
-            "jobTitle": [...],
-            "skills": [...],
-            "requirements": [...],
-            "experienceLevel": [...],
-            "location": [...]
+    Generate mean embeddings for a job posting.
+
+    Args:
+        job_id (str): MongoDB ObjectId string for the job posting document.
+
+    Returns:
+        dict: {
+            "job_id": str,
+            "embeddings": {},           # Reserved — individual embeddings not cached
+            "meanEmbeddings": {
+                "jobTitle": list[float],
+                "skills": list[float],
+                "requirements": list[float],
+                "experienceLevel": list[float],
+                "location": list[float]
+            }
         }
-    }
+        On error: { "error": str }
     """
     try:
+        emit_progress("embedding:progress", 15, "Fetching job posting data...")
+
         job = JobService.get_job_relevant_fields(job_id)
         if not job:
             return {"error": f"Job not found: {job_id}"}
-        
+
+        emit_progress("embedding:progress", 30, "Analyzing job title and requirements...")
+
         embeddings = JobService.extract_embeddings(job)
+
+        emit_progress("embedding:progress", 50, "Processing skills and experience level...")
+
+        emit_progress("embedding:progress", 58, "Finalizing job embedding vectors...")
 
         result = {
             "job_id": job_id,
-            "embeddings": {},  # Individual embeddings not needed
+            "embeddings": {},
             "meanEmbeddings": {
                 "jobTitle": tensor_to_list(embeddings.title),
                 "skills": tensor_to_list(embeddings.skills),
@@ -120,52 +134,63 @@ def generate_job_embeddings(job_id: str):
                 "location": tensor_to_list(embeddings.location)
             }
         }
-        
+
         return result
-        
+
     except Exception as e:
         logger.error(f"Error generating job embeddings: {e}", exc_info=True)
         return {"error": str(e)}
-    
+
+
 def score_resume(resume_id: str) -> dict:
     """
-    Calculate comprehensive score for a resume.
+    Calculate a comprehensive effectiveness score for a resume.
 
-    Returns JSON:
-    {
-        "resume_id": "...",
-        "overall_score": 85.5,
-        "grade": "B+",
-        "breakdown": {
-            "completeness": 90,
-            "experience": 80,
-            "skills": 85,
-            "certifications": 75
-        },
-        "total_experience_years": 5.2,
-        "strengths": [...],
-        "improvements": [...],
-        "recommendations": [...],
-        "overall_message": "Nearly flawless! Your resume effectively presents your qualifications"
-    }
+    Args:
+        resume_id (str): MongoDB ObjectId string for the resume document.
+
+    Returns:
+        dict: {
+            "resume_id": str,
+            "overall_score": float,
+            "grade": str,
+            "breakdown": {
+                "completeness": float,
+                "experience": float,
+                "skills": float,
+                "certifications": float
+            },
+            "total_experience_years": float,
+            "strengths": list[str],
+            "improvements": list[str],
+            "recommendations": list[str],
+            "overall_message": str
+        }
+        On error: { "error": str }
     """
     try:
-        # Fetch the resume
+        emit_progress("score:progress", 68, "Fetching your resume data...")
+
         resume = ResumeService.get_full_resume(resume_id)
         if not resume:
             return {"error": f"Resume not found: {resume_id}"}
 
-        # Extract embeddings and calculate scores
         embeddings = ResumeService.extract_embeddings(resume)
+
+        emit_progress("score:progress", 76, "Scoring your experience depth...")
+
         score = ScoringService.calculate_resume_score(resume, embeddings.total_experience_years)
 
-        # Analyze resume for insights
+        emit_progress("score:progress", 83, "Evaluating your skill coverage...")
+
         insights = AnalyticsService.analyze_resume(user_id=None, resume_id=resume_id)
 
-        # Compute overall message
+        emit_progress("score:progress", 89, "Identifying strengths and gaps...")
+
         overall_message = AnalyticsService.get_overall_message(score.overall_score)
 
-        # Build response
+        emit_progress("score:progress", 94, "Composing your final score...")
+
         result = {
             "resume_id": resume_id,
             "overall_score": score.overall_score,
@@ -188,26 +213,38 @@ def score_resume(resume_id: str) -> dict:
     except Exception as e:
         logger.error(f"Error scoring resume: {e}", exc_info=True)
         return {"error": str(e)}
-    
+
+
 def main():
-    """Main CLI entry point."""
+    """
+    CLI entry point invoked by the Node.js pythonRunner.
+
+    Reads the command from sys.argv[1] and dispatches to the appropriate
+    handler function. The final result is printed as JSON to stdout.
+    Progress events are emitted to stdout mid-execution by individual handlers
+    via emit_progress() — the runner distinguishes them by "type": "progress".
+
+    Exit codes:
+        0 — success (result JSON printed to stdout)
+        1 — missing arguments or unhandled exception
+    """
     if len(sys.argv) < 2:
         print(json.dumps({"error": "No command provided"}))
         sys.exit(1)
-    
+
     command = sys.argv[1]
-    result = None  # Initialize result
+    result = None
 
     try:
         if command == 'generate_resume_embeddings':
             if len(sys.argv) < 3:
-                print(json.dumps({"error": f"Resume ID required for embedding generation"}))
+                print(json.dumps({"error": "Resume ID required for embedding generation"}))
                 sys.exit(1)
             result = generate_resume_embeddings(sys.argv[2])
 
         elif command == 'generate_job_embeddings':
             if len(sys.argv) < 3:
-                print(json.dumps({"error": f"Job ID required for embedding generation"}))
+                print(json.dumps({"error": "Job ID required for embedding generation"}))
                 sys.exit(1)
             result = generate_job_embeddings(sys.argv[2])
 
@@ -216,13 +253,18 @@ def main():
                 print(json.dumps({"error": "Resume ID required"}))
                 sys.exit(1)
             result = score_resume(sys.argv[2])
-        
+
+        else:
+            print(json.dumps({"error": f"Unknown command: {command}"}))
+            sys.exit(1)
+
         print(json.dumps(result, indent=2))
 
     except Exception as e:
         logger.error(f"Fatal error in main: {e}", exc_info=True)
         print(json.dumps({"error": str(e)}))
         sys.exit(1)
+
 
 if __name__ == '__main__':
     main()

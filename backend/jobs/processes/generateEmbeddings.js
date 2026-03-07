@@ -10,6 +10,8 @@ import logger from '../../utils/logger.js';
 import { AppError, NotFoundError } from '../../middleware/errorHandler.js';
 import { getResumeEmbeddingService, createResumeEmbeddingService } from '../../services/resumes/resumeEmbeddingService.js';
 import { getJobPostingEmbeddingService, generateJobPostingEmbeddingService } from '../../services/jobPostings/jobPostingEmbeddingService.js';
+import { getSocketId } from '../../sockets/presence.js';
+import { getIO } from '../../sockets/index.js';
 
 /**
  * BullMQ Processor for embedding generation jobs
@@ -23,31 +25,38 @@ import { getJobPostingEmbeddingService, generateJobPostingEmbeddingService } fro
  * @returns {Promise<Object>} Result to be stored in job
  */
 export const generateResumeEmbeddingsProcessor = async (job) => {
-    const { resumeId, invalidateCache = false } = job.data;
-    
+    const { resumeId, userId, invalidateCache = false } = job.data; // ← destructure userId
+    const startTime = Date.now();
+
+    const emit = (event, data) => {
+        if (!userId) return;
+        const socketId = getSocketId(userId);
+        const io = getIO();
+        if (socketId && io) io.to(socketId).emit(event, data);
+    };
+
     logger.info('📊 [Queue] Starting embedding generation job', {
         jobId: job.id,
         resumeId,
         invalidateCache
     });
-    
-    await job.updateProgress(5);
-    
+
     try {
-        // Step 1: Validate resume exists
+        emit('embedding:progress', { status: 'starting', progress: 5, message: 'Starting embedding generation...' });
+        await job.updateProgress(5);
+
         const resume = await Resume.findById(resumeId);
         if (!resume) {
             logger.error('❌ Resume not found for embedding generation', { resumeId });
             throw new AppError(`Resume not found: ${resumeId}`, 404);
         }
-        
+
         await job.updateProgress(10);
-        
-        // Step 2: Check if we should use cache
+
         if (!invalidateCache) {
             const cacheResult = await getResumeEmbeddingService(resumeId);
-            
             if (cacheResult.cached) {
+                emit('embedding:complete', { cached: true, data: cacheResult.data });
                 logger.info('✅ [Queue] Using cached embeddings', { resumeId });
                 await job.updateProgress(100);
                 return {
@@ -58,30 +67,40 @@ export const generateResumeEmbeddingsProcessor = async (job) => {
                 };
             }
         }
-        
-        // Step 3: Generate new embeddings via SERVICE
+
+        emit('embedding:progress', { status: 'generating', progress: 20, message: 'Analyzing your resume sections...' });
         logger.info('🐍 [Queue] Calling embedding service', { resumeId });
-        const result = await createResumeEmbeddingService(resumeId, invalidateCache, job);
-        
+
+        // ✅ pass userId as 4th argument
+        const result = await createResumeEmbeddingService(resumeId, invalidateCache, job, userId);
+        const duration = Date.now() - startTime;
+
+        emit('embedding:complete', { cached: false, data: result.data });
+
         logger.info('✅ [Queue] Embedding generation job completed', {
             jobId: job.id,
             resumeId,
-            embeddingId: result.data._id
+            embeddingId: result.data._id,
+            durationMs: duration,
+            durationReadable: `${(duration / 1000).toFixed(1)}s`
         });
-        
+
         return {
             resumeId,
             embeddingId: result.data._id,
             generatedAt: result.data.generatedAt,
-            cached: false
+            cached: false,
+            durationMs: duration
         };
-        
+
     } catch (error) {
+        emit('embedding:error', { message: 'Embedding generation failed. Please try again.' });
         logger.error('💥 [Queue] Embedding generation job failed', {
             jobId: job.id,
             resumeId,
             error: error.message,
-            stack: error.stack
+            stack: error.stack,
+            durationMs: Date.now() - startTime
         });
         throw error;
     }

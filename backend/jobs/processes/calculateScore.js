@@ -18,7 +18,8 @@ export const resumeScoreProcessor = async (job) => {
     const emit = (event, data) => {
         if (!userId) return;
         const socketId = getSocketId(userId);
-        if (socketId) getIO().to(socketId).emit(event, data);
+        const io = getIO();
+        if (socketId && io) io.to(socketId).emit(event, data); // ← guard for null io
     };
 
     logger.info('📊 [Queue] Starting score calculation job', {

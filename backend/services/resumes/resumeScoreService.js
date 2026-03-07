@@ -17,6 +17,13 @@ import { runPython } from "../../utils/pythonRunner.js";
  * - { cached: false, jobId: "123" } - Queued for processing
  */
 export const getOrGenerateResumeScoreService = async (resumeId, invalidateCache = false, userId = null) => {
+    logger.info(`getOrGenerateResumeScoreService called`, {
+        resumeId,
+        invalidateCache,
+        userId,
+        stack: new Error().stack // ← this shows you exactly who called it
+    });
+    
     if (!invalidateCache) {
         const cachedResult = await getResumeScoreService(resumeId);
 

@@ -134,3 +134,121 @@ This platform aims to:
 - Centralize the entire job application lifecycle — from discovery and application to interview and communication — in a single web application
 
 By combining AI-powered analysis, an integrated resume builder, interview scheduling, and real-time communication tools, the platform empowers job seekers to make informed decisions, improve their employability, and move through the hiring process more efficiently.
+
+## 🛠️ Setup and Configuration
+Follow these steps to get the project up and running on your local machine.
+
+
+### 1. Clone the Repository
+
+First, clone the repository to your local machine:
+
+```bash
+git clone https://github.com/your-username/job-board.git
+cd job-board
+```
+
+### 2. Install Backend and Frontend Dependencies
+
+2.1. Install Backend Dependencies (Node.js + Express):
+Navigate to the backend directory and install the required npm packages:
+```bash
+cd backend
+npm install
+```
+Note: If you need to freeze the backend dependencies (for production or sharing purposes), you can use npm install --save for specific dependencies.
+
+2.2. Install Frontend Dependencies (React.js):
+Navigate to the frontend directory and install the required npm packages:
+```bash
+cd frontend
+npm install
+```
+Note: Similarly, freeze frontend dependencies using npm install --save.
+
+### 3. Create Environment Configuration File
+Create a .env file in the root directory to store your environment variables.
+
+3.1. Example .env Configuration:
+```bash
+# MongoDB URI
+MONGO_URI=mongodb://localhost:27017/job_board
+
+# Email credentials (for email notifications)
+EMAIL_USER=fakeemail@email.com
+EMAIL_PASS=fakepassword123
+
+# JWT secret for authentication
+JWT_SECRET=your_jwt_secret_key
+
+# Node environment (e.g., development, production)
+NODE_ENV=development
+LOG_LEVEL=debug
+
+# Client URL (frontend URL)
+CLIENT_URL=http://localhost:5173
+
+# Server port
+PORT=5000
+
+# Redis configuration (optional, for caching)
+REDIS_HOST=localhost
+REDIS_PORT=6379
+```
+Note: Replace the placeholder values in .env with your actual credentials and create your own mongoDb database (e.g., MongoDB URI, JWT Secret, etc.). Ensure that the JWT_SECRET is strong and unique.
+
+3.2. Create .env from .env.example
+```
+cp .env.example .env
+```
+
+### 4. Running the Project
+Once the setup is complete, you can run the project locally.
+
+4.1. Start Redis (Optional for caching)
+You need to run Redis to use the caching functionality. Start Redis using WSL and the redis-cli:
+Open WSL terminal.
+Run redis-server to start Redis.
+Use redis-cli to connect to Redis and ensure it's working by running:
+```
+redis-cli
+ping (should return PONG if connected)
+```
+4.2. Start the Backend Server
+Navigate to the backend directory and start the server:
+```
+cd backend
+npm run server
+```
+This will start the backend server, typically on http://localhost:5000.
+
+4.3. Start the Frontend Server
+Navigate to the frontend directory and start the React development server:
+```
+cd frontend
+npm run dev
+```
+This will start the frontend server, typically on http://localhost:5173.
+
+4.4. Run Both Backend and Frontend Simultaneously (Development Mode)
+You can run both the backend and frontend servers simultaneously using the following command:
+```
+npm run dev
+```
+This will use concurrently to run both the server and client scripts in parallel.
+
+### 5. Running Tests
+The project includes unit and integration tests. You can run the tests with the following commands:
+
+5.1. Run Tests Once
+To run the tests once, use:
+```
+npm test
+```
+
+5.2. Run Tests in Watch Mode
+To run the tests in watch mode (automatically re-run tests on file changes), use:
+```
+npm run test:watch
+```
+

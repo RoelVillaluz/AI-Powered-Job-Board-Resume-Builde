@@ -2,7 +2,7 @@ import Gauge from "../Gauge";
 import { useResumeScore } from "../../hooks/resumes/useResumeScore";
 
 function ResumeScoreSection() {
-  const { progress, loading, messages } = useResumeScore();
+  const { score, jobProgress, loading, messages, isQueued } = useResumeScore();
 
   return (
     <section className="grid-item" id="resume-score">
@@ -11,9 +11,11 @@ function ResumeScoreSection() {
       </header>
 
       <Gauge
-        progress={progress}
+        value={score}           // actual score (null while calculating)
+        jobProgress={jobProgress} // 0-100 job progress
         messages={messages}
         loading={loading}
+        isAnalyzing={isQueued}  // drives the visual style
         objectName="Resume"
       />
     </section>

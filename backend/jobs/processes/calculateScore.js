@@ -6,10 +6,22 @@ import { getSocketId } from "../../sockets/presence.js";
 import { getIO } from "../../sockets/index.js";
 
 /**
- * BullMQ Processor for resume scoring jobs
- */
-/**
- * BullMQ Processor for resume scoring jobs
+ * BullMQ processor for standalone resume score calculation jobs.
+ *
+ * Flow:
+ *   1. Validate resume exists
+ *   2. Check score cache (return early if valid and invalidateCache is false)
+ *   3. Call generateResumeScoreService — runs Python scoring and saves result
+ *   4. Emit score:complete to client
+ *
+ * Socket events emitted:
+ *   score:progress → 5%, 20%, 35% (processor setup, pre-Python)
+ *   score:progress → 75%, 88%, 95% (inside generateResumeScoreService, during Python)
+ *   score:complete → after save succeeds
+ *   score:error    → on any failure
+ *
+ * @param {import('bullmq').Job} job - BullMQ job with { resumeId, userId, invalidateCache }
+ * @returns {Promise<{ resumeId, score, grade, cached, durationMs }>}
  */
 export const resumeScoreProcessor = async (job) => {
     const { resumeId, userId, invalidateCache = false } = job.data;
@@ -19,17 +31,13 @@ export const resumeScoreProcessor = async (job) => {
         if (!userId) return;
         const socketId = getSocketId(userId);
         const io = getIO();
-        if (socketId && io) io.to(socketId).emit(event, data); // ← guard for null io
+        if (socketId && io) io.to(socketId).emit(event, data);
     };
 
-    logger.info('📊 [Queue] Starting score calculation job', {
-        jobId: job.id,
-        resumeId,
-        invalidateCache
-    });
+    logger.info('📊 [Queue] Starting score calculation job', { jobId: job.id, resumeId, invalidateCache });
 
     try {
-        emit('score:progress', { status: 'starting', progress: 5, message: 'Starting score calculation...' });
+        emit('score:progress', { progress: 5, message: 'Starting score calculation...' });
         await job.updateProgress(5);
 
         const resume = await Resume.findById(resumeId);
@@ -41,15 +49,19 @@ export const resumeScoreProcessor = async (job) => {
             const cacheResult = await getResumeScoreService(resumeId);
             if (cacheResult.cached) {
                 emit('score:complete', { cached: true, data: cacheResult.data });
-                logger.info('✅ [Queue] Using cached score', { resumeId });
                 await job.updateProgress(100);
                 return { resumeId, cached: true };
             }
         }
 
-        emit('score:progress', { status: 'calculating', progress: 20, message: 'Analyzing your resume...' });
+        emit('score:progress', { progress: 20, message: 'Analyzing your experience...' });
+        await job.updateProgress(20);
 
-        const result = await generateResumeScoreService(resumeId, job);
+        emit('score:progress', { progress: 35, message: 'Evaluating your skills...' });
+        await job.updateProgress(35);
+
+        // generateResumeScoreService emits score:progress at 75%, 88%, 95%
+        const result = await generateResumeScoreService(resumeId, job, emit);
 
         const duration = Date.now() - startTime;
 

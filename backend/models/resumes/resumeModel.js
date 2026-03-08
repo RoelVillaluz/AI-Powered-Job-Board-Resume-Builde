@@ -6,6 +6,11 @@ const resumeSchema = new mongoose.Schema({
         ref: 'User',
         required: true
     },
+    jobTitle: {
+        type: mongoose.Schema.Types.Mixed,  // Accepts either ObjectId or String
+        ref: 'JobTitle', // Allows for a reference to the JobTitle model
+        required: false
+    },
     firstName: {
         type: String,
         required: true

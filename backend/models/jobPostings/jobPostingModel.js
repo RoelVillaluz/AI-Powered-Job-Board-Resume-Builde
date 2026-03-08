@@ -3,8 +3,9 @@ import mongoose from "mongoose";
 
 const jobPostingSchema = new mongoose.Schema({
     title: {
-        type: String,
-        required: true
+        type: mongoose.Schema.Types.Mixed,
+        required: true,
+        ref: 'JobTitle'
     },
     company: {
         type: mongoose.Schema.Types.ObjectId,

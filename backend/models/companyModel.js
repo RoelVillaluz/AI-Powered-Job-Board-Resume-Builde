@@ -11,24 +11,18 @@ const companySchema = new mongoose.Schema({
         unique: true,
         required: true
     },
-    industry: {
-        type: [String],
+    industry: [{
+        type: mongoose.Schema.Types.Mixed,
         required: true,
-        enum: [
-            "Technology",
-            "Marketing",
-            "Healthcare",
-            "Finance",
-            "Education",
-            "Retail",
-            "Manufacturing",
-            "Media",
-            "Entertainment",
-            "Energy",
-            "Travel",
-            "Government",
-        ]
-    },
+        validate: {
+            validator: val => {
+            // Accept string from enum or an ObjectId
+            return typeof val === 'string' && INDUSTRY_NAMES.includes(val)
+                || mongoose.Types.ObjectId.isValid(val);
+            },
+            message: props => `${props.value} is not a valid industry string or ID!`
+        }
+    }],
     location: {
         type: String,
         required: true

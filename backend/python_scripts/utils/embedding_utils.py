@@ -26,6 +26,27 @@ def extract_skills_embeddings(skills: list[dict]) -> Optional[torch.Tensor]:
     embeddings = embedding_model.encode_batch(skill_names)
     return safe_mean_embedding(embeddings)
 
+def extract_job_title_embedding(job_title: str) -> Optional[torch.Tensor]:
+    """
+    Extract embedding for a single job title string.
+    Used as fallback when job title ObjectId ref is unavailable.
+    No mean needed — single text input produces single tensor.
+
+    Args:
+        job_title: Job title string
+
+    Returns:
+        Embedding tensor or None
+    """
+    if not job_title:
+        return None
+    
+    embedding = embedding_model.encode(job_title)
+    if embedding is None:
+        return None
+    
+    return embedding.detach().cpu()
+
 def extract_work_experience_embeddings(work_experiences: list[dict]) -> Optional[torch.Tensor]:
     """
         Extract and compute mean embedding for work experiences.

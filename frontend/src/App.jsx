@@ -71,12 +71,18 @@ function App() {
 
 function AppRoutes() {
   const user = useAuthStore(state => state.user);
+  const isLoading = useAuthStore(state => state.isLoading);
+
+    console.log('isLoading:', isLoading, 'user:', user, 'isOnboardingComplete:', user?.isOnboardingComplete);
+  // Wait for restoreSession() to finish before making routing decisions
+  if (isLoading) {
+    return null; // or <LoadingSpinner />
+  }
 
   if (user) {
     if (user.isOnboardingComplete) {
       return <Dashboard/>;
     }
-
     return <Navigate to="/get-started" replace />;
   }
 

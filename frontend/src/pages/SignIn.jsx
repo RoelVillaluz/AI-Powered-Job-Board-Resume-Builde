@@ -8,6 +8,7 @@ function SignIn() {
     const navigate = useNavigate();
 
     const login = useAuthStore(state => state.login);
+    const refreshUser = useAuthStore(state => state.refreshUser);
 
     const [errorMessage, setErrorMessage] = useState(null);
     const [formData, setFormData] = useState({
@@ -36,6 +37,7 @@ function SignIn() {
         const result = await login(formData.email, formData.password);
 
         if (result.success) {
+            await refreshUser(); // ← fetches full user with isOnboardingComplete
             navigate('/');
         } else {
             setErrorMessage(result.message);

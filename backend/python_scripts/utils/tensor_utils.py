@@ -129,3 +129,46 @@ def tensor_to_list(tensor: Optional[torch.Tensor]) -> Optional[list]:
     except Exception as e:
         logger.error(f"Error converting tensor to list: {e}")
         return None
+
+def list_to_tensor(data) -> Optional[torch.Tensor]:
+    """
+    Safely convert a list-like structure into a PyTorch tensor.
+
+    This utility standardizes tensor creation from Python lists,
+    numpy arrays, or other compatible array-like objects while
+    ensuring the tensor uses float32 dtype.
+
+    Args:
+        data: List, numpy array, or tensor-compatible data structure
+
+    Returns:
+        PyTorch tensor with dtype float32, or None if input is None
+        or conversion fails.
+
+    Examples:
+        Success (list input):
+            >>> list_to_tensor([1.0, 2.0, 3.0])
+            tensor([1., 2., 3.])
+
+        Success (nested list):
+            >>> list_to_tensor([[1, 2], [3, 4]])
+            tensor([[1., 2.],
+                    [3., 4.]])
+
+        Success (numpy array):
+            >>> import numpy as np
+            >>> list_to_tensor(np.array([1, 2, 3]))
+            tensor([1., 2., 3.])
+
+        Failure (None input):
+            >>> list_to_tensor(None)
+            None
+    """
+    if data is None:
+        return None
+
+    try:
+        return torch.as_tensor(data, dtype=torch.float32)
+    except Exception as e:
+        logger.error(f"Error converting data to tensor: {e}")
+        return None

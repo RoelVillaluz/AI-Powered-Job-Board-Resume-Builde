@@ -9,10 +9,10 @@ const skillSchema = new mongoose.Schema({
         trim: true,
         index: true
     },
-    type: {
-        type: String,
-        enum: ['technical', 'soft'],
-        required: false
+    similarSkills: {
+        skill: { type: mongoose.Schema.Types.ObjectId, ref: 'Skill' },
+        skillName: String ,
+        similarityScore: { type: Number, default: 0, min: 0, max: 1 }
     },
 
     // Core metrics
@@ -50,12 +50,25 @@ const skillSchema = new mongoose.Schema({
         },
         salaryRange: {
             min: { type: Number, default: 0 },
-            max: { type: Number, default: 0 }
+            max: { type: Number, default: 0 },
+            p25: { type: Number, default: 0 }, // 25th percentile
+            p75: { type: Number, default: 0 }, // 75th percentile
+        },
+        currency: {
+            type: String,
+            default: '$',
+            enum: ['$', '₱', '€', '¥', '£'],
         },
         lastCalculated: {
             type: Date,
             default: Date.now
         }
+    },
+
+    embedding: {
+        type: [Number],   // stored as flat float array
+        default: null,
+        select: false     // exclude from normal queries, only fetch when needed
     },
     
     // Metadata

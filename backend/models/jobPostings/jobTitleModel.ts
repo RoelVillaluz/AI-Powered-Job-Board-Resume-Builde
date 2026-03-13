@@ -13,17 +13,22 @@ const jobTitleSchema = new Schema(
       trim: true,
       index: true,
     },
-    normalizedTitle: {
+
+    
+    normalizedTitle: { // e.g., "Software Engineer" for "Sr. Software Engineer", "Software Engineer II", etc.
       type: String,
       required: true,
       index: true,
-      // e.g., "Software Engineer" for "Sr. Software Engineer", "Software Engineer II", etc.
     },
-    aliases: [
+    similarJobs: {
+      jobTitle: { type: mongoose.Schema.Types.ObjectId, ref: 'JobTitle'},
+      titleName: String,
+      similarityScore: { type: Number, default: 0, min: 0, max: 1 },
+    },
+    aliases: [ // e.g., ["Full Stack Developer", "Full-Stack Engineer"] for "Full Stack Engineer"
       {
         type: String,
         trim: true,
-        // e.g., ["Full Stack Developer", "Full-Stack Engineer"] for "Full Stack Engineer"
       },
     ],
 
@@ -85,6 +90,7 @@ const jobTitleSchema = new Schema(
         p75: { type: Number, default: 0 }, // 75th percentile
       },
       bySeniority: {
+        Intern: { median: Number, average: Number },
         Entry: { avg: Number, median: Number },
         'Mid-Level': { avg: Number, median: Number },
         Senior: { avg: Number, median: Number },
@@ -161,6 +167,12 @@ const jobTitleSchema = new Schema(
         type: Number,
         default: 0, // % YoY growth
       },
+    },
+
+    embedding: {
+        type: [Number],   // stored as flat float array
+        default: null,
+        select: false     // exclude from normal queries, only fetch when needed
     },
 
     // Metadata

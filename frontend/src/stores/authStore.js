@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
 import axios from 'axios';
 import { BASE_API_URL } from '../config/api.js';
+import { useResumeStore } from './resumeStore.js';
 
 // Helper to decode JWT (lazy load)
 let jwtDecodeFn = null
@@ -65,6 +66,7 @@ export const useAuthStore = create(
                         token: null,
                         isAuthenticated: false
                     })
+                    useResumeStore.getState().clearCurrentResume();
                 },
 
                 // Restore session from token
@@ -84,6 +86,8 @@ export const useAuthStore = create(
                             headers: { Authorization: `Bearer ${token}`}
                         })
 
+                        console.log('user: ', data.data)
+
                         if (data.success) {
                             set({
                                 user: data.data,
@@ -96,9 +100,9 @@ export const useAuthStore = create(
                     } catch (error) {
                         console.error('Session restore failed:', error);
                         if (error.response?.status === 401) {
-                        get().logout();
+                            get().logout();
                         }
-                        set({ isLoading: false });
+                        set({ isLoading: false }); 
                     }
                 },
 

@@ -49,6 +49,15 @@ function UserDetailsSection({ selectedRole, formData, handleChange }: UserDetail
                             </div>
                         </div>
                         <div className="form-group">
+                            <label>Job Title</label>
+                            <input
+                                type="text"
+                                name="jobTitle"
+                                value={formData.data.jobTitle || ""}
+                                onChange={handleChange}
+                            />
+                        </div>
+                        <div className="form-group">
                             <label>Phone</label>
                             <input
                                 type="text"

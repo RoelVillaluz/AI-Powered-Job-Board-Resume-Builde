@@ -47,10 +47,16 @@ export const useGetStartedFormSubmission = ({
                 data: formData
             }, { headers: { Authorization: `Bearer ${token}` }})
 
-            // Refresh store user 
             await refreshUser();
 
-            navigate(`/`);
+            // Use store's getState() to read fresh value synchronously after refresh
+            const updatedUser = useAuthStore.getState().user;
+
+            if (updatedUser?.isOnboardingComplete) {
+                navigate('/');
+            } else {
+                setError("Onboarding did not complete. Please try again.");
+            }
 
             return response.data.data;
         } catch (error: any) {

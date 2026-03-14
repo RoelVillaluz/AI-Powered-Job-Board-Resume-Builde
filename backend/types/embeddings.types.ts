@@ -16,3 +16,5 @@ export type EmbeddingValidationReturn = {
   warnings: string[];
   validSections?: string[];
 };
+
+export type Embedding = number[];

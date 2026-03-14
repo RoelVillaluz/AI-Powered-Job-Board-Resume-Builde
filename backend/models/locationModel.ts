@@ -3,7 +3,10 @@ import mongoose from "mongoose";
 const locationSchema = new mongoose.Schema({
     name: {
         type: String,
-        required: true
+        required: true,
+        unique: true,   
+        trim: true,     
+        index: true     
     },
     
     salaryData: {
@@ -36,6 +39,11 @@ const locationSchema = new mongoose.Schema({
         type: Number,
         default: 0,   // deviation from global median e.g. +0.3 = 30% above median
         index: true
+    },
+
+    costOfLivingIndex: {
+        type: Number,
+        default: 100,   // add — 100 = baseline, used for salary normalization
     },
 
     demandMetrics: {

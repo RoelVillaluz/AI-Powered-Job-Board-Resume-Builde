@@ -20,13 +20,14 @@ class LocationService:
                     'name': 1,
                     'salaryData': 1,
                     'baselineFactor': 1,
+                    'costOfLivingIndex': 1,
                     'demandMetrics': 1,
                 }
             )
 
             return location
         except Exception as e:
-            logger.error(f'Error fetching location: {location_id}')
+            logger.error(f'Error fetching location: {location_id}: {e}')
             return None
     
     @staticmethod
@@ -39,13 +40,14 @@ class LocationService:
                     'name': 1,
                     'salaryData': 1,
                     'baselineFactor': 1,
+                    'costOfLivingIndex': 1,
                     'demandMetrics': 1,
                 }
             )
 
             return location
         except Exception as e:
-            logger.error(f'Error fetching location: {location_name}')
+            logger.error(f'Error fetching location: {location_name}: {e}')
             return None
 
     @staticmethod

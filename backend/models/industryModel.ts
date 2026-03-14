@@ -60,10 +60,10 @@ const industrySchema = new mongoose.Schema(
         },
       ],
       bySeniority: {
-        Intern: { median: Number, average: Number },
-        Entry: { median: Number, average: Number },
-        "Mid-Level": { median: Number, average: Number },
-        Senior: { median: Number, average: Number },
+        Intern: { avg: Number, median: Number },
+        Entry: { avg: Number, median: Number },
+        'Mid-Level': { avg: Number, median: Number },
+        Senior: { avg: Number, median: Number },
       },
       salaryGrowthRate: {
         type: Number,

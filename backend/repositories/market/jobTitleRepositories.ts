@@ -1,6 +1,6 @@
 // repositories/jobTitleRepository.ts
-import JobTitle from "../models/jobPostings/jobTitleModel";
-import { JobTitleInterface, CreateJobTitlePayload, UpdateJobTitlePayload } from "../types/jobTitle.types";
+import JobTitle from "../../models/market/jobTitleModel";
+import { JobTitleInterface, CreateJobTitlePayload, UpdateJobTitlePayload } from "../../types/jobTitle.types";
 import { Types } from "mongoose";
 
 /**

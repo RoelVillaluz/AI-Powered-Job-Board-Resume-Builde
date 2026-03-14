@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { HydratedDocument } from "mongoose";
-import { LocationInterface } from "../types/location.types";
+import { LocationInterface } from "../../types/location.types";
 
 export type LocationDocument = HydratedDocument<LocationInterface>
 

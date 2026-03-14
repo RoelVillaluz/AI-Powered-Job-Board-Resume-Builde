@@ -1,6 +1,6 @@
 // repositories/locationRepository.ts
-import Location from "../models/locationModel";
-import { LocationInterface, CreateLocationPayload, UpdateLocationPayload } from "../types/location.types";
+import Location from "../../models/market/locationModel";
+import { LocationInterface, CreateLocationPayload, UpdateLocationPayload } from "../../types/location.types";
 import { Types } from "mongoose";
 
 /**

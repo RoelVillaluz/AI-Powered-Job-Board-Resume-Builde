@@ -1,6 +1,6 @@
 import mongoose, { Document, HydratedDocument } from "mongoose";
-import { INDUSTRY_NAMES } from "../../shared/constants/jobsAndIndustries/constants";
-import { IndustryInterface } from "../types/industry.types"; // Import the correct types
+import { INDUSTRY_NAMES } from "../../../shared/constants/jobsAndIndustries/constants";
+import { IndustryInterface } from "../../types/industry.types"; // Import the correct types
 
 export type IndustryDocument = HydratedDocument<IndustryInterface>;
 

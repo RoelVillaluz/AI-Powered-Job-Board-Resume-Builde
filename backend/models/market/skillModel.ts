@@ -1,5 +1,5 @@
 import mongoose, { HydratedDocument } from "mongoose";
-import { SkillInterface } from "../types/skill.types";
+import { SkillInterface } from "../../types/skill.types";
 
 export type SkillDocument = HydratedDocument<SkillInterface>;
 

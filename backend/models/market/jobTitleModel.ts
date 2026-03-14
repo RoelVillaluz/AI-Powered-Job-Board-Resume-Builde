@@ -196,7 +196,6 @@ jobTitleSchema.index({ normalizedTitle: 1, seniorityLevel: 1 });
 jobTitleSchema.index({ 'demandMetrics.demandScore': -1 });
 jobTitleSchema.index({ 'salaryData.medianSalary': -1 });
 jobTitleSchema.index({ 'trendData.growthRate': -1 });
-jobTitleSchema.index({ seniorityLevel: 1 });
 
 // Create and export the model
 const JobTitle = mongoose.model<JobTitleInterface>('JobTitle', jobTitleSchema);

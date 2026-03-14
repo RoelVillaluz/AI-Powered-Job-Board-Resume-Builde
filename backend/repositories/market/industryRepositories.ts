@@ -1,6 +1,6 @@
 // repositories/industryRepository.ts
-import Industry from "../models/industryModel";
-import { IndustryInterface, UpdateIndustryPayload } from "../types/industry.types";
+import Industry from "../../models/market/industryModel";
+import { IndustryInterface, UpdateIndustryPayload } from "../../types/industry.types";
 import { Types } from "mongoose";
 
 /**

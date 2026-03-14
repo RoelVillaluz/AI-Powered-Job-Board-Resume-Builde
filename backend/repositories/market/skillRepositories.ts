@@ -1,6 +1,6 @@
 // repositories/skillRepository.ts
-import Skill from "../models/skillModel";
-import { SkillInterface, CreateSkillPayload, UpdateSkillPayload } from "../types/skill.types";
+import Skill from "../../models/market/skillModel";
+import { SkillInterface, CreateSkillPayload, UpdateSkillPayload } from "../../types/skill.types";
 import { Types } from "mongoose";
 
 /**

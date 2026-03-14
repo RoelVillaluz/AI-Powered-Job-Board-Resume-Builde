@@ -1,4 +1,8 @@
 import mongoose from "mongoose";
+import { HydratedDocument } from "mongoose";
+import { LocationInterface } from "../types/location.types";
+
+export type LocationDocument = HydratedDocument<LocationInterface>
 
 const locationSchema = new mongoose.Schema({
     name: {
@@ -60,4 +64,25 @@ const locationSchema = new mongoose.Schema({
 
 }, { timestamps: true })
 
-locationSchema.index({ })
+// Name search
+locationSchema.index({ name: 1 }, { unique: true });
+
+// Salary metrics
+locationSchema.index({ 'salaryData.averageSalary': -1 });
+locationSchema.index({ 'salaryData.medianSalary': -1 });
+
+// Baseline / cost-of-living
+locationSchema.index({ baselineFactor: -1 });
+locationSchema.index({ costOfLivingIndex: 1 });
+
+// Demand metrics
+locationSchema.index({ 'demandMetrics.totalPostings': -1 });
+locationSchema.index({ 'demandMetrics.growthRate': -1 });
+
+// Example compound index (optional)
+locationSchema.index({ 'salaryData.averageSalary': -1, 'demandMetrics.totalPostings': -1 });
+
+// Create and export the model
+const Location = mongoose.model<LocationInterface>("Location", locationSchema);
+
+export default Location

@@ -1,8 +1,10 @@
 import mongoose, { Document, Schema } from "mongoose";
 import { INDUSTRY_NAMES } from "../../../shared/constants/jobsAndIndustries/constants";
-import { JobTitle as JobTitleType } from "../../types/jobTitle.types";
+import { JobTitleInterface } from "../../types/jobTitle.types";
+import { HydratedDocument } from "mongoose";
 
-// Define the schema (no changes to schema itself)
+export type JobTitleDocument = HydratedDocument<JobTitleInterface>;
+
 const jobTitleSchema = new Schema(
   {
     // Basic Information
@@ -196,8 +198,6 @@ jobTitleSchema.index({ 'salaryData.medianSalary': -1 });
 jobTitleSchema.index({ 'trendData.growthRate': -1 });
 jobTitleSchema.index({ seniorityLevel: 1 });
 
-interface JobTitleDocument extends Document, JobTitleType {}
-
 // Create and export the model
-const JobTitle = mongoose.model<JobTitleDocument>('JobTitle', jobTitleSchema);
+const JobTitle = mongoose.model<JobTitleInterface>('JobTitle', jobTitleSchema);
 export default JobTitle;

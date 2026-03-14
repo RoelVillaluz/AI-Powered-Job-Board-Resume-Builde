@@ -1,8 +1,9 @@
-import mongoose, { Document } from "mongoose";
+import mongoose, { Document, HydratedDocument } from "mongoose";
 import { INDUSTRY_NAMES } from "../../shared/constants/jobsAndIndustries/constants";
-import { Industry as IndustryType } from "../types/industry.types"; // Import the correct types
+import { IndustryInterface } from "../types/industry.types"; // Import the correct types
 
-// Define the schema (no changes to schema itself)
+export type IndustryDocument = HydratedDocument<IndustryInterface>;
+
 const industrySchema = new mongoose.Schema(
   {
     name: {
@@ -23,10 +24,6 @@ const industrySchema = new mongoose.Schema(
         trim: true,
       },
     ],
-    description: {
-      type: String,
-      trim: true,
-    },
     marketMetrics: {
       totalCompanies: {
         type: Number,
@@ -133,6 +130,11 @@ const industrySchema = new mongoose.Schema(
       min: 0,
       max: 100,
     },
+    embedding: {
+        type: [Number],   // stored as flat float array
+        default: null,
+        select: false     // exclude from normal queries, only fetch when needed
+    },
   },
   { timestamps: true }
 );
@@ -142,10 +144,7 @@ industrySchema.index({ name: 1 });
 industrySchema.index({ "salaryBenchmarks.salaryGrowthRate": -1 });
 industrySchema.index({ "marketMetrics.monthlyJobGrowth": -1 });
 
-// Define the model using the Mongoose schema and the correct types
-interface IndustryDocument extends Document, IndustryType {}
-
 // Create and export the model
-const Industry = mongoose.model<IndustryDocument>("Industry", industrySchema);
+const Industry = mongoose.model<IndustryInterface>("Industry", industrySchema);
 
 export default Industry;

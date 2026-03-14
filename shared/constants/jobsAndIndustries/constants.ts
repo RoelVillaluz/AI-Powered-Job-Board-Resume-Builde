@@ -19,7 +19,9 @@ export const INDUSTRY_CHOICES = {
 } as const;
 
 
-export const INDUSTRY_NAMES = Object.keys(INDUSTRY_CHOICES) as IndustryName[];
+// Derive INDUSTRY_NAMES directly from the object keys — no IndustryName ref needed
+export const INDUSTRY_NAMES = Object.keys(INDUSTRY_CHOICES) as (keyof typeof INDUSTRY_CHOICES)[];
+
 
 // Seniority levels
 export const SENIORITY_LEVELS = ['Intern', 'Entry', 'Mid-Level', 'Senior'] as const;

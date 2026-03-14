@@ -20,11 +20,11 @@ const jobTitleSchema = new Schema(
       required: true,
       index: true,
     },
-    similarJobs: {
+    similarJobs: [{
       jobTitle: { type: mongoose.Schema.Types.ObjectId, ref: 'JobTitle'},
       titleName: String,
       similarityScore: { type: Number, default: 0, min: 0, max: 1 },
-    },
+    }],
     aliases: [ // e.g., ["Full Stack Developer", "Full-Stack Engineer"] for "Full Stack Engineer"
       {
         type: String,
@@ -90,7 +90,7 @@ const jobTitleSchema = new Schema(
         p75: { type: Number, default: 0 }, // 75th percentile
       },
       bySeniority: {
-        Intern: { median: Number, average: Number },
+        Intern: { avg: Number, median: Number },
         Entry: { avg: Number, median: Number },
         'Mid-Level': { avg: Number, median: Number },
         Senior: { avg: Number, median: Number },

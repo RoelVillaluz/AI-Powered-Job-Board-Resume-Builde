@@ -9,11 +9,11 @@ const skillSchema = new mongoose.Schema({
         trim: true,
         index: true
     },
-    similarSkills: {
+    similarSkills: [{
         skill: { type: mongoose.Schema.Types.ObjectId, ref: 'Skill' },
         skillName: String ,
         similarityScore: { type: Number, default: 0, min: 0, max: 1 }
-    },
+    }],
 
     // Core metrics
     demandScore: {

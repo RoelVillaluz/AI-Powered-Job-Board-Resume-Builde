@@ -35,7 +35,7 @@ export const getSkillMetricsRepository = (id: Types.ObjectId) => {
  * Use only when semantic similarity search is needed.
  */
 export const getSkillEmbeddingRepository = (id: Types.ObjectId) => {
-    return Skill.findById(id).select('_id name embedding')
+    return Skill.findById(id).select('_id name embedding embeddingGeneratedAt')
 }
 
 /**
@@ -107,7 +107,7 @@ export const updateSkillRepository = (id: Types.ObjectId, updateData: UpdateSkil
 export const updateSkillEmbeddingRepository = (id: Types.ObjectId, embedding: number[]) => {
     return Skill.findByIdAndUpdate(
         id,
-        { $set: { embedding, lastUpdated: new Date() } },
+        { $set: { embedding, embeddingGeneratedAt: new Date, lastUpdated: new Date() } },
         { new: true }
     )
 }

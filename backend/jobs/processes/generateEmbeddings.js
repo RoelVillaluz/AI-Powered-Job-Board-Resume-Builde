@@ -20,6 +20,7 @@ import {
     getJobPostingEmbeddingService,
     generateJobPostingEmbeddingService
 } from "../../services/jobPostings/jobPostingEmbeddingService.js";
+import { upsertSkillEmbeddingService } from "../../services/market/skillService.js";
 import { getSocketId } from "../../sockets/presence.js";
 import { getIO } from "../../sockets/index.js";
 
@@ -246,3 +247,64 @@ export const generateJobPostingEmbeddingsProcessor = async (job) => {
         throw error;
     }
 };
+
+/**
+ * BullMQ processor for skill embedding generation jobs.
+ *
+ * Validates the skill if it exists, checks the embedding cache, and generates
+ * new embeddings via Python if the cache is missing or invalidated.
+ *
+ * Progress events from Python are streamed via `runPython` inside
+ * `generateSkillEmbeddingService` — this processor does not emit
+ * socket events (job postings are a server-side background operation).
+ *
+ * @param {import('bullmq').Job} job
+ *   BullMQ job with payload: `{ skillId: string, invalidateCache: boolean }`
+ *
+ * @returns {Promise<{
+ *   skillId: string,
+ *   embeddingId: string,
+ *   generatedAt: Date,
+ *   cached: boolean
+ * }>}
+ *
+ * @throws {NotFoundError} If the job posting document is not found.
+ * @throws {Error} If the Python pipeline or DB operations fail.
+ */
+export const generateSkillEmbeddingsProcessor = async (job) => {
+    const { skillId } = job.data;
+
+    logger.info('📊 [Queue] Starting skill embedding generation job', {
+        jobId: job.id,
+        skillId,
+    });
+
+    await job.updateProgress(5);
+
+    try {
+        const result = await upsertSkillEmbeddingService(
+            skillId,
+            job,        // pass job for progress tracking inside the service
+            () => {}    // no emit needed in queue context — no socket to stream to
+        );
+
+        logger.info('✅ [Queue] Skill embedding generation complete', {
+            jobId: job.id,
+            skillId,
+            embeddingLength: result.data?.embedding?.length
+        });
+
+        return result;
+
+    } catch (error) {
+        logger.error('💥 [Queue] Skill embedding generation failed', {
+            jobId: job.id,
+            skillId,
+            error: error.message,
+            stack: error.stack
+        });
+
+        // Re-throw so BullMQ marks the job as failed and triggers retry
+        throw error;
+    }
+}

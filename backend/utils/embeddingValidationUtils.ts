@@ -7,7 +7,7 @@ import { EmbeddingValidationReturn, EmbeddingVector, ResumeEmbeddings } from "..
  * @param {EmbeddingVector | undefined | null} embedding - The embedding vector to validate
  * @returns {boolean} Whether the embedding is valid and usable
  */
-const isValidEmbedding = (embedding: EmbeddingVector | undefined | null): boolean => {
+export const isValidEmbedding = (embedding: EmbeddingVector | undefined | null): boolean => {
     if (!embedding || embedding.length === 0) return false;
 
     const allZeroes = embedding.every(val => val === 0);
@@ -17,6 +17,24 @@ const isValidEmbedding = (embedding: EmbeddingVector | undefined | null): boolea
     if (hasInvalidValues) return false;
 
     return true;
+};
+
+/**
+ * Checks whether an embedding is stale based on its generation timestamp.
+ *
+ * An embedding is considered stale if:
+ * - The `generatedAt` timestamp is missing (`null`), or
+ * - The embedding was generated more than `maxAgeDays` ago.
+ *
+ * @param {Date | null} generatedAt - The timestamp when the embedding was last generated.
+ * @param {number} [maxAgeDays=90] - Maximum allowed age of the embedding in days before it is considered stale.
+ * @returns {boolean} Returns `true` if the embedding is stale or `generatedAt` is null; otherwise `false`.
+ */
+export const isEmbeddingStale = (generatedAt: Date | null | undefined, maxAgeDays = 90): boolean => {
+    if (!generatedAt) return true;
+
+    const ageMs = Date.now() - generatedAt.getTime();
+    return ageMs > maxAgeDays * 24 * 60 * 60 * 1000;
 };
 
 /**

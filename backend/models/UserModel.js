@@ -24,7 +24,7 @@ const userSchema = new mongoose.Schema({
     role: {
         type: String,
         default: undefined,
-        enum: ['jobseeker', 'employer'],
+        enum: ['jobseeker', 'employer', 'admin'],
     },
     profilePicture: {
         type: String,

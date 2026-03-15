@@ -1,6 +1,6 @@
 import { Worker } from "bullmq";
 import { redisConnection, queueConfig, workerConcurrency } from "../config/queue.config.js";
-import { generateJobPostingEmbeddingsProcessor, generateResumeEmbeddingsProcessor } from "../jobs/processes/generateEmbeddings.js";
+import { generateJobPostingEmbeddingsProcessor, generateResumeEmbeddingsProcessor, generateSkillEmbeddingsProcessor } from "../jobs/processes/generateEmbeddings.js";
 import logger from "../utils/logger.js";
 import { resumeScoreProcessor } from "../jobs/processes/calculateScore.js";
 
@@ -43,13 +43,25 @@ export const jobPostingEmbeddingWorker = new Worker(
     }
 )
 
+/**
+ * Skill Embedding Worker
+ */
+export const skillEmbeddingWorker = new Worker(
+    queueConfig.skillEmbedding.name,
+    generateSkillEmbeddingsProcessor,
+    {
+        connection: redisConnection,
+        concurrency: workerConcurrency.skillEmbedding
+    }
+)
+
 // Event listeners for debugging
 resumeEmbeddingWorker.on('ready', () => {
     logger.info('🟢 Resume embedding worker is ready and listening for jobs');
 })
 
 resumeEmbeddingWorker.on('active', (job) => {
-    logger.info(`🔵 Processing embedding job ${job.id} for resume ${job.data.resumeId}`);
+    logger.info(`🔵 Processing embedding job ${job.id} for resume ${job.data.uy}`);
 });
 
 resumeEmbeddingWorker.on('completed', (job, result) => {
@@ -100,6 +112,7 @@ resumeScoringWorker.on('error', (err) => {
     logger.error('💥 Scoring worker error:', err);
 });
 
+// Event listeners for job embedding worker
 jobPostingEmbeddingWorker.on('ready', () => {
     logger.info('🟢 Job posting embedding worker is ready and listening for jobs');
 })
@@ -110,14 +123,14 @@ jobPostingEmbeddingWorker.on('active', (job) => {
 
 jobPostingEmbeddingWorker.on('completed', (job, result) => {
     logger.info(`✅ Embedding job ${job.id} completed`, {
-        resumeId: result.resumeId,
+        jobPosting: result.jobPostingId,
         cached: result.cached
     });
 });
 
 jobPostingEmbeddingWorker.on('failed', (job, err) => {
     logger.error(`❌ Embedding job ${job?.id} failed`, {
-        resumeId: job?.data?.resumeId,
+        jobPosting: job?.data?.jobPostingId,
         error: err.message,
         stack: err.stack
     });
@@ -127,6 +140,33 @@ jobPostingEmbeddingWorker.on('error', (err) => {
     logger.error('💥 Worker error:', err);
 });
 
+// Event listeners for skill embedding worker
+skillEmbeddingWorker.on('ready', () => {
+    logger.info('🟢 Skill embedding worker is ready and listening for jobs')
+});
+
+skillEmbeddingWorker.on('active', (job) => {
+    logger.info(`🔵 Processing embedding job ${job.id} for skill ${job.data.skillId}`);
+});
+
+skillEmbeddingWorker.on('completed', (job, result) => {
+    logger.info(`✅ Embedding job ${job.id} completed`, {
+        skill: job?.data?.skillId,
+        cached: result.cached
+    });
+});
+
+skillEmbeddingWorker.on('failed', (job, err) => {
+    logger.error(`❌ Embedding job ${job?.id} failed`, {
+        skill: job?.data?.skillId,
+        error: err.message,
+        stack: err.stack
+    });
+})
+
+skillEmbeddingWorker.on('error', (err) => {
+    logger.error('💥 Worker error:', err);
+});
 
 /**
  * Graceful shutdown
@@ -136,6 +176,7 @@ export const closeWorkers = async () => {
     await resumeEmbeddingWorker.close();
     await resumeScoringWorker.close();
     await jobPostingEmbeddingWorker.close();
+    await skillEmbeddingWorker.close();
     logger.info('All workers closed');
 };
 

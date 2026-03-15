@@ -59,6 +59,17 @@ export const jobEmbeddingQueue = new Queue(
     }
 )
 
+/**
+ * Skill Embedding Queue
+ * Handles background generation of vector embeddings for skills
+ */
+export const skillEmbeddingQueue = new Queue(
+    queueConfig.skillEmbedding.name,
+    {
+        connection: redisConnection,
+        defaultJobOptions: queueConfig.skillEmbedding.options
+    }
+)
 
 /**
  * Graceful shutdown handler
@@ -70,6 +81,7 @@ export const closeQueues = async () => {
         resumeScoringQueue.close(),
         resumeComparisonQueue.close(),
         jobEmbeddingQueue.close(),
+        skillEmbeddingQueue.close(),
     ]);
     console.log('All queues closed');
 }

@@ -10,6 +10,7 @@
  * - NODE_ENV: Environment (development/production)
  */
 import { config } from "dotenv";
+import { skillEmbeddingQueue } from "../queues";
 config();
 
 
@@ -75,6 +76,13 @@ export const queueConfig = {
             ...defaultOptions,
             priority: 4
         }
+    },
+    skillEmbedding: {
+        name: 'skill-embedding',
+        options: {
+            ...defaultOptions,
+            priority: 5
+        }
     }
 }
 
@@ -87,4 +95,5 @@ export const workerConcurrency = {
     resumeScoring: process.env.NODE_ENV === 'production' ? 3 : 1,
     resumeComparison: process.env.NODE_ENV === 'production' ? 4 : 2,
     jobEmbedding: process.env.NODE_ENV === 'production' ? 2 : 1,
+    skillEmbedding: process.env.NODE_ENV === 'production' ? 5 : 3,
 };

@@ -2,6 +2,8 @@ import sys
 import json
 import logging
 
+import torch
+
 # Configure logging to stderr so stdout stays clean for JSON output
 logging.basicConfig(
     level=logging.INFO,
@@ -13,12 +15,13 @@ logger = logging.getLogger(__name__)
 
 from models.embeddings import embedding_model
 from services.analytics_service import AnalyticsService
+from services.scoring_service import ScoringService
 from services.resume_service import ResumeEmbeddings, ResumeService
-from services.resume_service import ResumeService
 from services.job_service import JobService
 from utils.tensor_utils import tensor_to_list
 from utils.websocket_utils import emit_progress
-
+from config.database import db
+from bson import ObjectId
 
 def generate_resume_embeddings(resume_id: str) -> dict:
     """
@@ -216,8 +219,29 @@ def score_resume(resume_id: str) -> dict:
         resume = ResumeService.get_full_resume(resume_id)
         if not resume:
             return {"error": f"Resume not found: {resume_id}"}
+        
+        existing_embeddings = db.resumeEmbeddings.find_one(
+            {'resume': ObjectId(resume_id)},
+            {
+                'meanEmbeddings.skills': 1,
+                'meanEmbeddings.workExperience': 1,
+                'meanEmbeddings.certifications': 1,
+                'metrics.totalYears': 1,
+                '_id': 0
+            }
+        )
 
-        embeddings = ResumeService.extract_embeddings(resume)
+        if not existing_embeddings:
+            embeddings = ResumeService.extract_embeddings(resume)
+        else:
+            # Reconstruct NamedTuple from stored doc so .total_experience_years works
+            mean = existing_embeddings.get('meanEmbeddings', {})
+            embeddings = ResumeEmbeddings(
+                skills=torch.tensor(mean["skills"], dtype=torch.float32) if mean.get("skills") else None,
+                work_experience=torch.tensor(mean["workExperience"], dtype=torch.float32) if mean.get("workExperience") else None,
+                certifications=torch.tensor(mean["certifications"], dtype=torch.float32) if mean.get("certifications") else None,
+                total_experience_years=existing_embeddings.get("totalExperienceYears", 0.0)
+            )
 
         emit_progress("score:progress", 76, "Scoring your experience depth...")
 

@@ -2,8 +2,9 @@
   "compilerOptions": {
     "target": "ESNext",
     "module": "ESNext",
-    "moduleResolution": "bundler",
-    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "esModuleInterop": true,   // <--- needed for named import from JS
+    "allowJs": true,           // <--- allows importing JS files
     "strict": true,
     "skipLibCheck": true,
     "sourceMap": true,

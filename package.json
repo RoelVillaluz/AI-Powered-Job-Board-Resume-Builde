@@ -8,7 +8,8 @@
     "server": "nodemon --exec tsx --tsconfig backend/tsconfig.json backend/server.js",
     "client": "cd frontend && npm run dev",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
-    "convert:images": "node convert-images.js"
+    "convert:images": "node convert-images.js",
+    "seed:market": "tsx --tsconfig backend/tsconfig.json backend/scripts/seedMarketData.ts"
   },
   "type": "module",
   "keywords": [],

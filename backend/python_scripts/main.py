@@ -11,8 +11,9 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
+from models.embeddings import embedding_model
 from services.analytics_service import AnalyticsService
-from services.scoring_service import ScoringService
+from services.resume_service import ResumeEmbeddings, ResumeService
 from services.resume_service import ResumeService
 from services.job_service import JobService
 from utils.tensor_utils import tensor_to_list
@@ -141,6 +142,47 @@ def generate_job_embeddings(job_id: str) -> dict:
         logger.error(f"Error generating job embeddings: {e}", exc_info=True)
         return {"error": str(e)}
 
+def generate_skill_embeddings(skill_id: str) -> dict:
+    """
+    Generate embedding for a skill by fetching its name from the DB
+    and encoding it using the pre-loaded sentence transformer model.
+
+    Args:
+        skill_id (str): MongoDB ObjectId string for the skill document.
+
+    Returns:
+        dict: {
+            "skill_id": str,
+            "embedding": list[float]  # Flat float array e.g. 384 dims for MiniLM
+        }
+        On error: { "error": str }
+    """
+    try:
+        skill = db.skills.find_one(
+            {"_id": ObjectId(skill_id)},
+            {"name": 1}
+        )
+
+        if not skill:
+            return {"error": f"Skill not found: {skill_id}"}
+
+        skill_name = skill.get("name")
+        if not skill_name:
+            return {"error": f"Skill has no name: {skill_id}"}
+
+        embedding = embedding_model.encode(skill_name)
+
+        if embedding is None:
+            return {"error": f"Embedding model returned None for skill: {skill_id}"}
+
+        return {
+            "skill_id": skill_id,
+            "embedding": embedding.detach().cpu().tolist()
+        }
+
+    except Exception as e:
+        logger.error(f"Error generating embedding for skill {skill_id}: {e}")
+        return {"error": str(e)}
 
 def score_resume(resume_id: str) -> dict:
     """
@@ -247,6 +289,12 @@ def main():
                 print(json.dumps({"error": "Job ID required for embedding generation"}))
                 sys.exit(1)
             result = generate_job_embeddings(sys.argv[2])
+
+        elif command == 'generate_skill_embeddings':
+            if len(sys.argv) < 3:
+                print(json.dumps({'error': 'Skill ID required'}))
+                sys.exit(1)
+            result = generate_skill_embeddings(sys.argv[2])
 
         elif command == 'score_resume':
             if len(sys.argv) < 3:

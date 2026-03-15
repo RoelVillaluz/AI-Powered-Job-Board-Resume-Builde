@@ -62,13 +62,20 @@ const skillSchema = new mongoose.Schema<SkillInterface>({
     embedding: {
         type: [Number],
         default: null,
+        select: false,
+    },
+
+    embeddingGeneratedAt: {
+        type: Date,
+        default: null,
         select: false
     },
 
     lastUpdated: {
         type: Date,
         default: Date.now
-    }
+    },
+
 
 }, {
     timestamps: true

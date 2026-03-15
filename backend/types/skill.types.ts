@@ -32,6 +32,7 @@ export interface SkillInterface {
   seniorityMultiplier: number;
   salaryData: SalaryData;
   embedding: Embedding | null;
+  embeddingGeneratedAt?: Date;
   lastUpdated: Date;
 
   createdAt?: Date;

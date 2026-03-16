@@ -20,6 +20,7 @@ import {
     getJobPostingEmbeddingService,
     generateJobPostingEmbeddingService
 } from "../../services/jobPostings/jobPostingEmbeddingService.js";
+import { upsertJobTitleEmbeddingService } from "../../services/market/jobTitleService.js";
 import { upsertSkillEmbeddingService } from "../../services/market/skillService.js";
 import { getSocketId } from "../../sockets/presence.js";
 import { getIO } from "../../sockets/index.js";
@@ -305,6 +306,43 @@ export const generateSkillEmbeddingsProcessor = async (job) => {
         });
 
         // Re-throw so BullMQ marks the job as failed and triggers retry
+        throw error;
+    }
+}
+
+export const generateJobTitleEmbeddingsProcessor = async (job) => {
+    const { titleId } = job.data;
+
+    logger.info('📊 [Queue] Starting job title embedding generation job', {
+        jobId: job.id,
+        titleId,
+    });
+
+    await job.updateProgress(5);
+
+    try {
+        const result = await upsertJobTitleEmbeddingService(
+            titleId,
+            job,
+            () => {}
+        );
+
+        logger.info('✅ [Queue] Job title embedding generation complete', {
+            jobId: job.id,
+            titleId,
+            embeddingLength: result.data?.embedding?.length
+        });
+
+        return result;
+
+    } catch (error) {
+        logger.error('💥 [Queue] Job title embedding generation failed', {
+            jobId: job.id,
+            titleId,
+            error: error.message,
+            stack: error.stack
+        });
+
         throw error;
     }
 }

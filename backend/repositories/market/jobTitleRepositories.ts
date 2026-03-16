@@ -13,26 +13,35 @@ export const getJobTitleByIdRepository = (id: Types.ObjectId) => {
 }
 
 /**
- * Fetch a job title by its exact normalized title string.
- * Fallback when ObjectId ref is unavailable — e.g. legacy job postings or free-text input.
- *
- * @param normalizedTitle - Normalized title string e.g. "Software Engineer"
+ * Fetch a job title by its title/normalized title string.
  */
-export const getJobTitleByNormalizedTitleRepository = (normalizedTitle: string) => {
-    return JobTitle.findOne({ normalizedTitle })
-        .select('_id title normalizedTitle seniorityLevel industry demandMetrics salaryData trendData topSkills commonEducation experienceDistribution similarJobs isActive lastAnalyzed')
+export const searchJobTitlesByNameRepository = (title: string) => {
+    const normalizedTitle = title.toLowerCase().trim();  // Normalize the input
+
+    return JobTitle.find({
+        $or: [
+            { title: { $regex: `${normalizedTitle}`, $options: 'i' } },
+            { normalizedTitle: normalizedTitle }
+        ]
+    })
+    .select('_id title normalizedTitle seniorityLevel industry topSkill similarJobs')
+    .limit(10)
 }
 
 /**
- * Search job titles by partial name — case insensitive.
- * Used for autocomplete on job posting creation forms.
- * Limited to 10 results.
+ * Fetch a job title including its embedding by normalized title string.
+ * Fallback when only a name string is available from job postings or free-text input.
+ * Attempts exact match first, falls back to normalized lowercase.
  *
- * @param title - Partial or full title string
+ * @param title - Job title string to search for
  */
-export const searchJobTitlesByTitleRepository = (title: string) => {
-    return JobTitle.find({ title: { $regex: title, options: 'i' } })
-        .select('_id title normalizedTitle industry')
+export const getJobTitleEmbeddingByNameRepository = (title: string) => {
+    return JobTitle.findOne({
+        $or: [
+            { title },
+            { normalizedTitle: title.toLowerCase().trim() }
+        ]
+    }).select('_id title normalizedTitle embedding embeddingGeneratedAt')
 }
 
 /**
@@ -40,9 +49,9 @@ export const searchJobTitlesByTitleRepository = (title: string) => {
  * Embeddings are excluded from normal queries via select:false on the schema.
  * Use only when semantic similarity search is needed.
  */
-export const getJobTitleEmbeddingsRepositoryById = (id: Types.ObjectId) => {
+export const getJobTitleEmbeddingsByIdRepository = (id: Types.ObjectId) => {
     return JobTitle.findById(id)
-        .select('_id title normalizedTitle embedding')
+        .select('_id title normalizedTitle embedding embeddingGeneratedAt')
 }
 
 /**
@@ -53,7 +62,7 @@ export const getJobTitleEmbeddingsRepositoryById = (id: Types.ObjectId) => {
  */
 export const getJobTitleEmbeddingsByNormalizedTitleRepository = (normalizedTitle: string) => {
     return JobTitle.findOne({ normalizedTitle })
-        .select('_id title normalizedTitle embedding')
+        .select('_id title normalizedTitle embedding embeddingGeneratedAt')
 }
 
 /**
@@ -63,8 +72,15 @@ export const getJobTitleEmbeddingsByNormalizedTitleRepository = (normalizedTitle
  * @param industry - Industry name string from INDUSTRY_NAMES constants
  */
 export const getJobTitlesByIndustryRepository = (industry: string) => {
-    return JobTitle.find({ industry })
-        .select('_id title normalizedTitle seniorityLevel demandMetrics salaryData')
+    return JobTitle.find({
+        'commonIndustries.industryName': industry,
+    })
+    .select('_id title normalizedTitle seniorityLevel demandMetrics salaryData')
+}
+
+export const getJobTitleMetricsByIdRepository = (id: Types.ObjectId) => {
+    return JobTitle.find(id)
+        .select('-embedding -embeddingGeneratedAt') // Include all fields except embedding fields
 }
 
 /**
@@ -94,7 +110,7 @@ export const updateJobTitleRepository = (id: Types.ObjectId, updateData: UpdateJ
 export const updateJobTitleEmbeddingRepository = (id: Types.ObjectId, embedding: number[]) => {
     return JobTitle.findByIdAndUpdate(
         id,
-        { $set: embedding },
+        { $set: { embedding, embeddingGeneratedAt: new Date, lastUpdated: new Date() } },
         { new: true }
     )
 }

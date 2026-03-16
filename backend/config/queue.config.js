@@ -83,6 +83,13 @@ export const queueConfig = {
             ...defaultOptions,
             priority: 5
         }
+    },
+    jobTitleEmbedding: {
+        name: 'job-title-embedding',
+        options: {
+            ...defaultOptions,
+            priority: 6
+        }
     }
 }
 
@@ -96,4 +103,5 @@ export const workerConcurrency = {
     resumeComparison: process.env.NODE_ENV === 'production' ? 4 : 2,
     jobEmbedding: process.env.NODE_ENV === 'production' ? 2 : 1,
     skillEmbedding: process.env.NODE_ENV === 'production' ? 5 : 3,
+    jobTitleEmbedding: process.env.NODE_ENV === 'production' ? 5 : 3,
 };

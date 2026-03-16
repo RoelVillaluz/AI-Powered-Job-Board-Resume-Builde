@@ -177,6 +177,11 @@ const jobTitleSchema = new Schema(
         select: false     // exclude from normal queries, only fetch when needed
     },
 
+    embeddingGeneratedAt: {
+      type: Date,
+      default: null,
+    },
+
     // Metadata
     isActive: {
       type: Boolean,

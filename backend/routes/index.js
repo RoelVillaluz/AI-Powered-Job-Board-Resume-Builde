@@ -6,6 +6,7 @@ import aiRoutes from "./aiRoutes.js";
 import applicationRoutes from "./applicationRoutes.js";
 import authRoutes from "./authRoutes.js"
 import skillRoutes from './market/skillRoutes.ts'
+import jobTitleRoutes from './market/jobTitleRoutes.ts'
 
 import {
   conversationRoutes,
@@ -26,7 +27,7 @@ export const registerRoutes = (app) => {
   app.use("/api/applications", applicationRoutes);
 
   // Market
-  // app.use('/api/job-titles', );
+  app.use('/api/job-titles', jobTitleRoutes);
   app.use('/api/skills', skillRoutes);
   // app.use('api/locations', );
   // app.use('/api/industries');

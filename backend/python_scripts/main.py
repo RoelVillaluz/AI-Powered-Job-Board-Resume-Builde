@@ -187,6 +187,52 @@ def generate_skill_embeddings(skill_id: str) -> dict:
         logger.error(f"Error generating embedding for skill {skill_id}: {e}")
         return {"error": str(e)}
 
+def generate_job_title_embeddings(title_id: str) -> dict:
+    """
+    Generate embedding for a job title using its normalizedTitle.
+    Uses normalizedTitle instead of title for encoding — more semantically
+    consistent since aliases like "Sr. Engineer" and "Senior Engineer"
+    map to the same normalizedTitle "Software Engineer".
+
+    Args:
+        title_id (str): MongoDB ObjectId string for the job title document.
+
+    Returns:
+        dict: {
+            "title_id": str,
+            "embedding": list[float]
+        }
+        On error: { "error": str }
+    """
+    try:
+        title_doc = db.jobtitles.find_one(
+            {"_id": ObjectId(title_id)},
+            {"normalizedTitle": 1, "title": 1}
+        )
+
+        if not title_doc:
+            return {"error": f"Job title not found: {title_id}"}
+
+        # Prefer normalizedTitle — consistent across aliases
+        text_to_encode = title_doc.get("normalizedTitle") or title_doc.get("title")
+
+        if not text_to_encode:
+            return {"error": f"Job title has no title to encode: {title_id}"}
+
+        embedding = embedding_model.encode(text_to_encode)
+
+        if embedding is None:
+            return {"error": f"Embedding model returned None for job title: {title_id}"}
+
+        return {
+            "title_id": title_id,
+            "embedding": embedding.detach().cpu().tolist()
+        }
+
+    except Exception as e:
+        logger.error(f"Error generating embedding for job title {title_id}: {e}")
+        return {"error": str(e)}
+
 def score_resume(resume_id: str) -> dict:
     """
     Calculate a comprehensive effectiveness score for a resume.
@@ -319,6 +365,12 @@ def main():
                 print(json.dumps({'error': 'Skill ID required'}))
                 sys.exit(1)
             result = generate_skill_embeddings(sys.argv[2])
+
+        elif command == 'generate_job_title_embeddings':
+            if len(sys.argv) < 3:
+                print(json.dumps({'error': 'Job Title ID required'}))
+                sys.exit(1)
+            result = generate_job_title_embeddings(sys.argv[2])
 
         elif command == 'score_resume':
             if len(sys.argv) < 3:

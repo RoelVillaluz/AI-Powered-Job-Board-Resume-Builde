@@ -76,6 +76,7 @@ export interface JobTitleInterface {
     experienceDistribution: ExperienceDistribution;
     trendData: TrendData;
     embedding: Embedding | null;
+    embeddingGeneratedAt?: Date;
     isActive: boolean;
     lastAnalyzed: Date;
     createdAt?: Date;

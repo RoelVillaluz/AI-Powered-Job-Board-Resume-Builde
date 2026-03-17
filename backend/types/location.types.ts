@@ -32,14 +32,10 @@ export interface LocationInterface {
 
 export interface CreateLocationPayload {
     name: string;
-    costOfLivingIndex?: number;
-    baselineFactor?: number;
 }
 
 export interface UpdateLocationPayload {
     name?: string;
-    costOfLivingIndex?: number;
-    baselineFactor?: number;
 }
 
 export interface LocationEmbeddingData {

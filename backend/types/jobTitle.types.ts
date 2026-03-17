@@ -97,3 +97,11 @@ export interface UpdateJobTitlePayload {
     aliases?: string[];
     isActive?: boolean;
 }
+
+export interface JobTitleEmbeddingData {
+    _id: Types.ObjectId,
+    title: string;
+    normalizedTitle: string;
+    embedding: Embedding | null,
+    embeddingGeneratedAt?: Date | null;
+}

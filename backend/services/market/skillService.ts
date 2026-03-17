@@ -220,7 +220,7 @@ export const updateSkillService = async (skillId: Types.ObjectId, updateData: Up
 
     // Only re-queue if name changed — name affects semantic embedding
     if (updateData.name) {
-        await Skill.findByIdAndUpdate(skillId, { $unset: { embedding: "", embeddingGeneratedAt: "" } });
+        await Skill.findByIdAndUpdate(skillId, { $set: { embedding: null, embeddingGeneratedAt: null } });
 
         await skillEmbeddingQueue.add(
             'generate-embeddings',
@@ -231,6 +231,8 @@ export const updateSkillService = async (skillId: Types.ObjectId, updateData: Up
                 timeout: 120000
             } as any
         );
+
+        logger.info(`Skill updated — embedding invalidated and re-queued: ${skillId}`);
     }
 
     return updatedSkill;

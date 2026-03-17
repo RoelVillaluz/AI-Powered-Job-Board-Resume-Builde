@@ -1,6 +1,7 @@
 // types/location.types.ts
 import { Types } from "mongoose";
 import { Currency, SalaryRange } from "./salaryTypes";
+import { Embedding } from "./embeddings.types";
 
 export interface LocationSalaryData {
     averageSalary: number;
@@ -17,13 +18,14 @@ export interface LocationDemandMetrics {
 }
 
 export interface LocationInterface {
-    _id?: Types.ObjectId;
+    _id: Types.ObjectId;
     name: string;
     costOfLivingIndex: number;
     baselineFactor: number;
     salaryData: LocationSalaryData;
     demandMetrics: LocationDemandMetrics;
     embedding: number[] | null;
+    embeddingGeneratedAt?: Date;
     createdAt?: Date;
     updatedAt?: Date;
 }
@@ -38,4 +40,11 @@ export interface UpdateLocationPayload {
     name?: string;
     costOfLivingIndex?: number;
     baselineFactor?: number;
+}
+
+export interface LocationEmbeddingData {
+    _id: Types.ObjectId;
+    name: string;
+    embedding: Embedding | null;
+    embeddingGeneratedAt?: Date | null;
 }

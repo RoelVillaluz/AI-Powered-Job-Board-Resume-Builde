@@ -1,6 +1,6 @@
 import { Worker } from "bullmq";
 import { redisConnection, queueConfig, workerConcurrency } from "../config/queue.config.js";
-import { generateJobPostingEmbeddingsProcessor, generateJobTitleEmbeddingsProcessor, generateResumeEmbeddingsProcessor, generateSkillEmbeddingsProcessor } from "../jobs/processes/generateEmbeddings.js";
+import { generateJobPostingEmbeddingsProcessor, generateJobTitleEmbeddingsProcessor, generateResumeEmbeddingsProcessor, generateSkillEmbeddingsProcessor, generateLocationEmbeddingsProcessor } from "../jobs/processes/generateEmbeddings.js";
 import logger from "../utils/logger.js";
 import { resumeScoreProcessor } from "../jobs/processes/calculateScore.js";
 
@@ -62,6 +62,16 @@ export const jobTitleEmbeddingWorker = new Worker(
     {
         connection: redisConnection,
         concurrency: workerConcurrency.jobTitleEmbedding
+    }
+)
+
+// Job Title Embedding Worker
+export const locationEmbeddingWorker = new Worker(
+    queueConfig.locationEmbedding.name,
+    generateLocationEmbeddingsProcessor,
+    {
+        connection: redisConnection,
+        concurrency: workerConcurrency.locationEmbedding
     }
 )
 
@@ -206,6 +216,34 @@ jobTitleEmbeddingWorker.on('error', (err) => {
     logger.error('💥 Worker error:', err);
 });
 
+// Event listeners for location embedding worker
+locationEmbeddingWorker.on('ready', () => {
+    logger.info('🟢 Location embedding worker is ready and listening for jobs');
+})
+
+locationEmbeddingWorker.on('active', (job) => {
+    logger.info(`🔵 Processing embedding job ${job.id} for location ${job.data.locationId}`);
+});
+
+locationEmbeddingWorker.on('completed', (job, result) => {
+    logger.info(`✅ Embedding job ${job.id} completed`, {
+        location: result.locationId,
+        cached: result.cached
+    });
+});
+
+locationEmbeddingWorker.on('failed', (job, err) => {
+    logger.error(`❌ Embedding job ${job?.id} failed`, {
+        location: job?.data?.locationId,
+        error: err.message,
+        stack: err.stack
+    });
+});
+
+locationEmbeddingWorker.on('error', (err) => {
+    logger.error('💥 Worker error:', err);
+});
+
 /**
  * Graceful shutdown
  */
@@ -216,6 +254,7 @@ export const closeWorkers = async () => {
     await jobPostingEmbeddingWorker.close();
     await skillEmbeddingWorker.close();
     await jobTitleEmbeddingWorker.close();
+    await locationEmbeddingWorker.close(),
     logger.info('All workers closed');
 };
 

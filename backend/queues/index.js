@@ -84,6 +84,18 @@ export const jobTitleEmbeddingQueue = new Queue(
 )
 
 /**
+ * Location Embedding Queue
+ * Handles background generation of vector embeddings for locations
+ */
+export const locationEmbeddingQueue = new Queue(
+    queueConfig.locationEmbedding.name,
+    {
+        connection: redisConnection,
+        defaultJobOptions: queueConfig.locationEmbedding.options
+    }
+);
+
+/**
  * Graceful shutdown handler
  * Closes all queue connections when app shuts down
  */
@@ -95,6 +107,7 @@ export const closeQueues = async () => {
         jobEmbeddingQueue.close(),
         skillEmbeddingQueue.close(),
         jobTitleEmbeddingQueue.close(),
+        locationEmbeddingQueue.close(),
     ]);
     console.log('All queues closed');
 }

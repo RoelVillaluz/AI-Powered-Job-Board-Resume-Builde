@@ -8,18 +8,18 @@ import { runPython } from '../../utils/pythonRunner';
 import { QueueJob } from '../../types/queues.types';
 import { jobTitleEmbeddingQueue } from '../../queues';
 import JobTitle, { JobTitleDocument } from '../../models/market/jobTitleModel';
-import { CreateJobTitlePayload, UpdateJobTitlePayload } from '../../types/jobTitle.types';
+import { CreateJobTitlePayload, UpdateJobTitlePayload, JobTitleEmbeddingData } from '../../types/jobTitle.types';
 
 // ============================================
 // RETURN TYPES
 // ============================================
 
 type JobTitleEmbeddingCacheResult =
-    | { cached: true;  data: JobTitleDocument }
+    | { cached: true;  data: JobTitleEmbeddingData }
     | { cached: false; data: null }
 
 type JobTitleEmbeddingOrchestrationResult =
-    | { cached: true;  data: JobTitleDocument; jobId?: never }
+    | { cached: true;  data: JobTitleEmbeddingData; jobId?: never }
     | { cached: false; data?: never; jobId: string | undefined }
 
 // ============================================
@@ -207,7 +207,7 @@ export const updateJobTitleService = async (
 
     if (updateData.title || updateData.normalizedTitle) {
         await JobTitle.findByIdAndUpdate(id, {
-            $unset: { embedding: "", embeddingGeneratedAt: "" }
+            $set: { embedding: null, embeddingGeneratedAt: null }
         });
 
         await jobTitleEmbeddingQueue.add(

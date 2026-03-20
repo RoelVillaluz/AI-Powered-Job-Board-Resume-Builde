@@ -48,7 +48,7 @@ export const searchLocationsByNameRepository = (name: string) => {
  */
 export const getLocationEmbeddingByIdRepository = (id: Types.ObjectId) => {
     return Location.findById(id)
-        .select('_id name embedding')
+        .select('_id name embedding embeddingGeneratedAt')
 }
 
 /**
@@ -59,7 +59,7 @@ export const getLocationEmbeddingByIdRepository = (id: Types.ObjectId) => {
  */
 export const getLocationEmbeddingByNameRepository = (name: string) => {
     return Location.findOne({ name })
-        .select('_id name embedding')
+        .select('_id name embedding embeddingGeneratedAt')
 }
 
 /**

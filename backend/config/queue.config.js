@@ -11,6 +11,8 @@
  */
 import { config } from "dotenv";
 import { skillEmbeddingQueue } from "../queues";
+import logger from "../utils/logger";
+
 config();
 
 
@@ -90,6 +92,13 @@ export const queueConfig = {
             ...defaultOptions,
             priority: 6
         }
+    },
+    locationEmbedding: {
+        name: 'location-embedding',
+        options: {
+            ...defaultOptions,
+            priority: 7
+        }
     }
 }
 
@@ -104,4 +113,5 @@ export const workerConcurrency = {
     jobEmbedding: process.env.NODE_ENV === 'production' ? 2 : 1,
     skillEmbedding: process.env.NODE_ENV === 'production' ? 5 : 3,
     jobTitleEmbedding: process.env.NODE_ENV === 'production' ? 5 : 3,
+    locationEmbedding: process.env.NODE_ENV === 'production' ? 4 : 2,
 };

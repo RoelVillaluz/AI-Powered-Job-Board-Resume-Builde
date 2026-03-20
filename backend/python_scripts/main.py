@@ -233,6 +233,50 @@ def generate_job_title_embeddings(title_id: str) -> dict:
         logger.error(f"Error generating embedding for job title {title_id}: {e}")
         return {"error": str(e)}
 
+def generate_location_embeddings(location_id: str) -> dict:
+    """
+    Generate embedding for a location using its name.
+    Location names have meaningful semantic relationships —
+    embeddings capture geographic and cultural proximity
+    e.g. "New York, NY" and "Manhattan, NY" will be close vectors.
+
+    Args:
+        location_id (str): MongoDB ObjectId string for the location document.
+
+    Returns:
+        dict: {
+            "location_id": str,
+            "embedding": list[float]
+        }
+        On error: { "error": str }
+    """
+    try:
+        location_doc = db.locations.find_one(
+            {"_id": ObjectId(location_id)},
+            {"name": 1}
+        )
+
+        if not location_doc:
+            return {"error": f"Location not found: {location_id}"}
+
+        name = location_doc.get("name")
+        if not name:
+            return {"error": f"Location has no name to encode: {location_id}"}
+
+        embedding = embedding_model.encode(name)
+
+        if embedding is None:
+            return {"error": f"Embedding model returned None for location: {location_id}"}
+
+        return {
+            "location_id": location_id,
+            "embedding": embedding.detach().cpu().tolist()
+        }
+
+    except Exception as e:
+        logger.error(f"Error generating embedding for location {location_id}: {e}")
+        return {"error": str(e)}
+
 def score_resume(resume_id: str) -> dict:
     """
     Calculate a comprehensive effectiveness score for a resume.
@@ -371,6 +415,12 @@ def main():
                 print(json.dumps({'error': 'Job Title ID required'}))
                 sys.exit(1)
             result = generate_job_title_embeddings(sys.argv[2])
+
+        elif command == 'generate_location_embeddings':
+            if len(sys.argv) < 3:
+                print(json.dumps({'error': 'Location ID required'}))
+                sys.exit(1)
+            result = generate_location_embeddings(sys.argv[2])
 
         elif command == 'score_resume':
             if len(sys.argv) < 3:

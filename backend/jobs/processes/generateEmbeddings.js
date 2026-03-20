@@ -22,6 +22,7 @@ import {
 } from "../../services/jobPostings/jobPostingEmbeddingService.js";
 import { upsertJobTitleEmbeddingService } from "../../services/market/jobTitleService.js";
 import { upsertSkillEmbeddingService } from "../../services/market/skillService.js";
+import { upsertLocationEmbeddingService } from "../../services/market/locationService.js";
 import { getSocketId } from "../../sockets/presence.js";
 import { getIO } from "../../sockets/index.js";
 
@@ -339,6 +340,43 @@ export const generateJobTitleEmbeddingsProcessor = async (job) => {
         logger.error('💥 [Queue] Job title embedding generation failed', {
             jobId: job.id,
             titleId,
+            error: error.message,
+            stack: error.stack
+        });
+
+        throw error;
+    }
+}
+
+export const generateLocationEmbeddingsProcessor = async (job) => {
+    const { locationId } = job.data;
+
+    logger.info('📊 [Queue] Starting location embedding generation job', {
+        jobId: job.id,
+        locationId,
+    });
+
+    await job.updateProgress(5);
+
+    try {
+        const result = await upsertLocationEmbeddingService(
+            new Types.ObjectId(locationId),
+            job,
+            () => {}
+        );
+
+        logger.info('✅ [Queue] Location embedding generation complete', {
+            jobId: job.id,
+            locationId,
+            embeddingLength: result.data?.embedding?.length
+        });
+
+        return result;
+
+    } catch (error) {
+        logger.error('💥 [Queue] Location embedding generation failed', {
+            jobId: job.id,
+            locationId,
             error: error.message,
             stack: error.stack
         });

@@ -60,6 +60,11 @@ const locationSchema = new mongoose.Schema({
         type: [Number],
         default: null,
         select: false
+    },
+
+    embeddingGeneratedAt: {
+        type: Date,
+        default: null
     }
 
 }, { timestamps: true })

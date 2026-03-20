@@ -24,8 +24,14 @@ export const redisConnection = {
     host: process.env.REDIS_HOST || 'localhost',
     port: parseInt(process.env.REDIS_PORT || '6379'),
     password: process.env.REDIS_PASSWORD || undefined,
-    maxRetriesPerRequest: null, // BullMQ requirement
-    enableReadyCheck: false,     // BullMQ requirement
+    maxRetriesPerRequest: null,
+    enableReadyCheck: false,
+    // Add these two:
+    lazyConnect: true,
+    retryStrategy: (times) => {
+        if (times >= 3) return null; // stop retrying — prevents infinite spam
+        return Math.min(times * 500, 2000);
+    },
 };
 
 /**

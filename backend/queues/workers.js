@@ -4,6 +4,9 @@ import { generateJobPostingEmbeddingsProcessor, generateJobTitleEmbeddingsProces
 import logger from "../utils/logger.js";
 import { resumeScoreProcessor } from "../jobs/processes/calculateScore.js";
 
+// At the top of workers.js, add a Set to track which workers have already logged
+const loggedWorkerErrors = new Set();
+
 /**
  * Resume Embedding Worker
  * Processes embedding generation jobs from the queue
@@ -100,7 +103,10 @@ resumeEmbeddingWorker.on('failed', (job, err) => {
 });
 
 resumeEmbeddingWorker.on('error', (err) => {
-    logger.error('💥 Worker error:', err);
+    if (!loggedWorkerErrors.has('resumeEmbedding')) {
+        logger.error('💥 Resume embedding worker error (will retry silently):', err);
+        loggedWorkerErrors.add('resumeEmbedding');
+    }
 });
 
 //  Event listeners for scoring worker
@@ -129,7 +135,10 @@ resumeScoringWorker.on('failed', (job, err) => {
 });
 
 resumeScoringWorker.on('error', (err) => {
-    logger.error('💥 Scoring worker error:', err);
+    if (!loggedWorkerErrors.has('resumeScoring')) {
+        logger.error('💥 Resume scoring worker error (will retry silently):', err);
+        loggedWorkerErrors.add('resumeScoring');
+    }
 });
 
 // Event listeners for job embedding worker
@@ -157,7 +166,10 @@ jobPostingEmbeddingWorker.on('failed', (job, err) => {
 });
 
 jobPostingEmbeddingWorker.on('error', (err) => {
-    logger.error('💥 Worker error:', err);
+    if (!loggedWorkerErrors.has('jobPostingEmbedding')) {
+        logger.error('💥 Job posting embedding worker error (will retry silently):', err);
+        loggedWorkerErrors.add('jobPostingEmbedding');
+    }
 });
 
 // Event listeners for skill embedding worker
@@ -185,7 +197,10 @@ skillEmbeddingWorker.on('failed', (job, err) => {
 })
 
 skillEmbeddingWorker.on('error', (err) => {
-    logger.error('💥 Worker error:', err);
+    if (!loggedWorkerErrors.has('skillEmbedding')) {
+        logger.error('💥 Skill embedding worker error (will retry silently):', err);
+        loggedWorkerErrors.add('skillEmbedding');
+    }
 });
 
 // Event listeners for job embedding worker
@@ -213,7 +228,10 @@ jobTitleEmbeddingWorker.on('failed', (job, err) => {
 });
 
 jobTitleEmbeddingWorker.on('error', (err) => {
-    logger.error('💥 Worker error:', err);
+    if (!loggedWorkerErrors.has('jobTitleEmbedding')) {
+        logger.error('💥 Job title embedding worker error (will retry silently):', err);
+        loggedWorkerErrors.add('jobTitleEmbedding');
+    }
 });
 
 // Event listeners for location embedding worker
@@ -241,7 +259,10 @@ locationEmbeddingWorker.on('failed', (job, err) => {
 });
 
 locationEmbeddingWorker.on('error', (err) => {
-    logger.error('💥 Worker error:', err);
+    if (!loggedWorkerErrors.has('locationEmbedding')) {
+        logger.error('💥 Location embedding worker error (will retry silently):', err);
+        loggedWorkerErrors.add('locationEmbedding');
+    }
 });
 
 /**

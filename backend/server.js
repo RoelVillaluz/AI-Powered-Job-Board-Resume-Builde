@@ -6,6 +6,7 @@ import { connectDB } from "./config/db.js";
 import { initSocket } from "./sockets/index.js";
 import "./queues/workers.js";
 import logger from "./utils/logger.js";
+import { existsSync } from "fs";
 
 // Pick env file based on NODE_ENV
 const envFile = process.env.NODE_ENV === "production"
@@ -14,7 +15,11 @@ const envFile = process.env.NODE_ENV === "production"
     ? ".env.test"
     : ".env.dev";
 
-dotenv.config({ path: envFile });
+// Only load dotenv if the file actually exists (local dev)
+// On Render, env vars are already injected by the platform
+if (existsSync(envFile)) {
+  dotenv.config({ path: envFile });
+}
 
 const server = createServer(app);
 
@@ -25,7 +30,7 @@ initSocket(server);
 await connectDB();
 
 const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => {
+server.listen(PORT, '0.0.0.0', () => {
   logger.info(`🚀 Server running at http://localhost:${PORT}`);
   logger.info(`✅ Queue workers active and processing jobs`);
 });

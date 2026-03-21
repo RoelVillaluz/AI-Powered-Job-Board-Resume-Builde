@@ -14,19 +14,7 @@ const HEALTH_CHECK_TTL_MS = 30_000; // re-check every 30s once marked down
  * - retryStrategy caps retries so ioredis stops hammering the connection
  * - lazyConnect prevents an immediate connection attempt on import
  */
-const redisClient = new Redis({
-    host: redisConnection.host,
-    port: redisConnection.port,
-    password: redisConnection.password,
-    maxRetriesPerRequest: null,
-    enableReadyCheck: false,
-    lazyConnect: true,
-    retryStrategy(times) {
-        // Stop retrying after 3 attempts — prevents infinite reconnect spam
-        if (times >= 3) return null;
-        return Math.min(times * 500, 2000);
-    },
-});
+const redisClient = new Redis(redisConnection);
 
 // Suppress ioredis's own unhandled error events — we handle errors manually
 redisClient.on("error", () => {});
@@ -66,12 +54,8 @@ export const checkRedisConnectionHealth = async (): Promise<void> => {
 
         // Only log once per transition (healthy → down), not on every call
         if (wasHealthy) {
-            logger.warn("Redis is unavailable — falling back to inline processing", {
-                host: redisConnection.host,
-                port: redisConnection.port,
-            });
+            logger.warn("Redis is unavailable — falling back to inline processing");
         }
-
         throw err;
     }
 };

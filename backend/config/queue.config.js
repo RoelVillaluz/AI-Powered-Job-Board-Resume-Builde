@@ -10,7 +10,7 @@
  * - NODE_ENV: Environment (development/production)
  */
 import { config } from "dotenv";
-import { skillEmbeddingQueue } from "../queues";
+import { industryEmbeddingDLQ, skillEmbeddingQueue } from "../queues";
 import logger from "../utils/logger";
 
 config();
@@ -21,17 +21,18 @@ config();
  * Used by both queues and workers
  */
 export const redisConnection = {
+  ...(process.env.REDIS_URL ? { url: process.env.REDIS_URL } : {
     host: process.env.REDIS_HOST || 'localhost',
     port: parseInt(process.env.REDIS_PORT || '6379'),
     password: process.env.REDIS_PASSWORD || undefined,
-    maxRetriesPerRequest: null,
-    enableReadyCheck: false,
-    // Add these two:
-    lazyConnect: true,
-    retryStrategy: (times) => {
-        if (times >= 3) return null; // stop retrying — prevents infinite spam
-        return Math.min(times * 500, 2000);
-    },
+  }),
+  maxRetriesPerRequest: null,
+  enableReadyCheck: false,
+  lazyConnect: true,
+  retryStrategy: (times) => {
+    if (times >= 3) return null;
+    return Math.min(times * 500, 2000);
+  },
 };
 
 /**
@@ -105,6 +106,30 @@ export const queueConfig = {
             ...defaultOptions,
             priority: 7
         }
+    },
+    industryEmbedding: {
+        name: 'industry-embedding',
+        options: {
+            ...defaultOptions,
+            priority: 8
+        }
+    },
+
+
+    locationEmbeddingDLQ: {
+        name: 'location-embedding-failed',
+    },
+    skillEmbeddingDLQ: {
+        name: 'skill-embedding-failed',
+    },
+    jobTitleEmbeddingDLQ: {
+        name: 'job-title-embedding-failed',
+    },
+    jobEmbeddingDLQ: {
+        name: 'job-embedding-failed',
+    },
+    industryEmbeddingDLQ: {
+        name: 'industry-embedding-failed'
     }
 }
 
@@ -120,4 +145,5 @@ export const workerConcurrency = {
     skillEmbedding: process.env.NODE_ENV === 'production' ? 5 : 3,
     jobTitleEmbedding: process.env.NODE_ENV === 'production' ? 5 : 3,
     locationEmbedding: process.env.NODE_ENV === 'production' ? 4 : 2,
+    industryEmbedding: process.env.NODE_ENV === 'production' ? 2 : 1,
 };

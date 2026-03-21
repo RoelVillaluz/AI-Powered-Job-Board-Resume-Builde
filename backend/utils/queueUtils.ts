@@ -54,12 +54,8 @@ export const checkRedisConnectionHealth = async (): Promise<void> => {
 
         // Only log once per transition (healthy → down), not on every call
         if (wasHealthy) {
-            logger.warn("Redis is unavailable — falling back to inline processing", {
-                host: redisConnection.host,
-                port: redisConnection.port,
-            });
+            logger.warn("Redis is unavailable — falling back to inline processing");
         }
-
         throw err;
     }
 };

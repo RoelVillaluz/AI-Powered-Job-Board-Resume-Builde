@@ -10,8 +10,6 @@
  * - NODE_ENV: Environment (development/production)
  */
 import { config } from "dotenv";
-import { industryEmbeddingDLQ, skillEmbeddingQueue } from "../queues";
-import logger from "../utils/logger";
 
 config();
 

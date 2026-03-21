@@ -1,96 +1,135 @@
 import { Worker } from "bullmq";
 import { redisConnection, queueConfig, workerConcurrency } from "../config/queue.config.js";
-import { generateJobPostingEmbeddingsProcessor, generateJobTitleEmbeddingsProcessor, generateResumeEmbeddingsProcessor, generateSkillEmbeddingsProcessor, generateLocationEmbeddingsProcessor } from "../jobs/processes/generateEmbeddings.js";
+import {
+    generateJobPostingEmbeddingsProcessor,
+    generateJobTitleEmbeddingsProcessor,
+    generateResumeEmbeddingsProcessor,
+    generateSkillEmbeddingsProcessor,
+    generateLocationEmbeddingsProcessor,
+} from "../jobs/processes/generateEmbeddings.js";
 import logger from "../utils/logger.js";
 import { resumeScoreProcessor } from "../jobs/processes/calculateScore.js";
+import {
+    locationEmbeddingDLQ,
+    skillEmbeddingDLQ,
+    jobTitleEmbeddingDLQ,
+    jobEmbeddingDLQ,
+} from "../queues/index.js";
 
-// At the top of workers.js, add a Set to track which workers have already logged
+// Tracks which workers have already emitted their first error log,
+// preventing log spam on repeated Redis connection errors.
 const loggedWorkerErrors = new Set();
 
-/**
- * Resume Embedding Worker
- * Processes embedding generation jobs from the queue
- */
+// ─── Workers ──────────────────────────────────────────────────────────────────
+
 export const resumeEmbeddingWorker = new Worker(
     queueConfig.resumeEmbedding.name,
     generateResumeEmbeddingsProcessor,
     {
         connection: redisConnection,
-        concurrency: workerConcurrency.resumeEmbedding
+        concurrency: workerConcurrency.resumeEmbedding,
     }
-)
+);
 
-/**
- * Resume Scoring Worker
- * Processses score calculation jobs from the queue
- */
 export const resumeScoringWorker = new Worker(
     queueConfig.resumeScoring.name,
     resumeScoreProcessor,
     {
         connection: redisConnection,
-        concurrency: workerConcurrency.resumeScoring || 5
+        concurrency: workerConcurrency.resumeScoring || 5,
     }
-)
+);
 
-/**
- * Job Embedding Worker
- * 
- */
 export const jobPostingEmbeddingWorker = new Worker(
     queueConfig.jobEmbedding.name,
     generateJobPostingEmbeddingsProcessor,
     {
         connection: redisConnection,
-        concurrency: workerConcurrency.jobEmbedding
+        concurrency: workerConcurrency.jobEmbedding,
     }
-)
+);
 
-/**
- * Skill Embedding Worker
- */
 export const skillEmbeddingWorker = new Worker(
     queueConfig.skillEmbedding.name,
     generateSkillEmbeddingsProcessor,
     {
         connection: redisConnection,
-        concurrency: workerConcurrency.skillEmbedding
+        concurrency: workerConcurrency.skillEmbedding,
     }
-)
+);
 
-// Job Title Embedding Worker
 export const jobTitleEmbeddingWorker = new Worker(
     queueConfig.jobTitleEmbedding.name,
     generateJobTitleEmbeddingsProcessor,
     {
         connection: redisConnection,
-        concurrency: workerConcurrency.jobTitleEmbedding
+        concurrency: workerConcurrency.jobTitleEmbedding,
     }
-)
+);
 
-// Job Title Embedding Worker
 export const locationEmbeddingWorker = new Worker(
     queueConfig.locationEmbedding.name,
     generateLocationEmbeddingsProcessor,
     {
         connection: redisConnection,
-        concurrency: workerConcurrency.locationEmbedding
+        concurrency: workerConcurrency.locationEmbedding,
     }
-)
+);
 
-// Event listeners for debugging
+// ─── Dead Letter Helpers ──────────────────────────────────────────────────────
+
+/**
+ * Moves a fully-exhausted job into its dead letter queue.
+ *
+ * Called from each worker's 'failed' listener only when attemptsMade
+ * equals the job's configured max attempts — i.e. no retries remain.
+ * Earlier failures are left in the main queue so BullMQ can retry them.
+ *
+ * The DLQ job carries the original payload plus failure metadata so
+ * it can be replayed or debugged without re-triggering the source event.
+ */
+const moveToDLQ = async (dlq, job, err) => {
+    try {
+        await dlq.add(
+            'dead-letter',
+            {
+                originalJobId: job.id,
+                originalQueue: job.queueName,
+                payload: job.data,
+                failedReason: err.message,
+                failedAt: new Date().toISOString(),
+                attemptsMade: job.attemptsMade,
+            },
+            {
+                // Keep DLQ jobs for 30 days then auto-remove
+                removeOnComplete: { age: 30 * 24 * 3600 },
+                removeOnFail: true,
+            }
+        );
+    } catch (dlqError) {
+        // DLQ write failing must never throw — log and move on
+        logger.error('💀 Failed to write job to DLQ', {
+            originalJobId: job.id,
+            queue: job.queueName,
+            dlqError: dlqError.message,
+        });
+    }
+};
+
+// ─── Resume Embedding Events ──────────────────────────────────────────────────
+
 resumeEmbeddingWorker.on('ready', () => {
     logger.info('🟢 Resume embedding worker is ready and listening for jobs');
-})
+});
 
 resumeEmbeddingWorker.on('active', (job) => {
-    logger.info(`🔵 Processing embedding job ${job.id} for resume ${job.data.uy}`);
+    logger.info(`🔵 Processing embedding job ${job.id} for resume ${job.data.resumeId}`);
 });
 
 resumeEmbeddingWorker.on('completed', (job, result) => {
     logger.info(`✅ Embedding job ${job.id} completed`, {
         resumeId: result.resumeId,
-        cached: result.cached
+        cached: result.cached,
     });
 });
 
@@ -98,8 +137,10 @@ resumeEmbeddingWorker.on('failed', (job, err) => {
     logger.error(`❌ Embedding job ${job?.id} failed`, {
         resumeId: job?.data?.resumeId,
         error: err.message,
-        stack: err.stack
+        attemptsMade: job?.attemptsMade,
+        stack: err.stack,
     });
+    // Resume has its own pipeline — no DLQ needed here yet
 });
 
 resumeEmbeddingWorker.on('error', (err) => {
@@ -109,7 +150,8 @@ resumeEmbeddingWorker.on('error', (err) => {
     }
 });
 
-//  Event listeners for scoring worker
+// ─── Resume Scoring Events ────────────────────────────────────────────────────
+
 resumeScoringWorker.on('ready', () => {
     logger.info('🟢 Resume scoring worker is ready and listening for jobs');
 });
@@ -122,7 +164,7 @@ resumeScoringWorker.on('completed', (job, result) => {
     logger.info(`✅ Score job ${job.id} completed`, {
         resumeId: result?.data?.resume,
         totalScore: result?.data?.totalScore,
-        grade: result?.data?.grade
+        grade: result?.data?.grade,
     });
 });
 
@@ -130,7 +172,7 @@ resumeScoringWorker.on('failed', (job, err) => {
     logger.error(`❌ Score job ${job?.id} failed`, {
         resumeId: job?.data?.resumeId,
         error: err.message,
-        stack: err.stack
+        stack: err.stack,
     });
 });
 
@@ -141,10 +183,11 @@ resumeScoringWorker.on('error', (err) => {
     }
 });
 
-// Event listeners for job embedding worker
+// ─── Job Posting Embedding Events ─────────────────────────────────────────────
+
 jobPostingEmbeddingWorker.on('ready', () => {
     logger.info('🟢 Job posting embedding worker is ready and listening for jobs');
-})
+});
 
 jobPostingEmbeddingWorker.on('active', (job) => {
     logger.info(`🔵 Processing embedding job ${job.id} for job posting ${job.data.jobPostingId}`);
@@ -153,16 +196,26 @@ jobPostingEmbeddingWorker.on('active', (job) => {
 jobPostingEmbeddingWorker.on('completed', (job, result) => {
     logger.info(`✅ Embedding job ${job.id} completed`, {
         jobPosting: result.jobPostingId,
-        cached: result.cached
+        cached: result.cached,
     });
 });
 
-jobPostingEmbeddingWorker.on('failed', (job, err) => {
+jobPostingEmbeddingWorker.on('failed', async (job, err) => {
     logger.error(`❌ Embedding job ${job?.id} failed`, {
         jobPosting: job?.data?.jobPostingId,
         error: err.message,
-        stack: err.stack
+        attemptsMade: job?.attemptsMade,
+        stack: err.stack,
     });
+
+    // Move to DLQ only when all retries are exhausted
+    if (job && job.attemptsMade >= (job.opts.attempts ?? 3)) {
+        logger.warn(`💀 Job posting embedding exhausted retries — moving to DLQ`, {
+            jobId: job.id,
+            jobPostingId: job.data.jobPostingId,
+        });
+        await moveToDLQ(jobEmbeddingDLQ, job, err);
+    }
 });
 
 jobPostingEmbeddingWorker.on('error', (err) => {
@@ -172,9 +225,10 @@ jobPostingEmbeddingWorker.on('error', (err) => {
     }
 });
 
-// Event listeners for skill embedding worker
+// ─── Skill Embedding Events ───────────────────────────────────────────────────
+
 skillEmbeddingWorker.on('ready', () => {
-    logger.info('🟢 Skill embedding worker is ready and listening for jobs')
+    logger.info('🟢 Skill embedding worker is ready and listening for jobs');
 });
 
 skillEmbeddingWorker.on('active', (job) => {
@@ -184,17 +238,26 @@ skillEmbeddingWorker.on('active', (job) => {
 skillEmbeddingWorker.on('completed', (job, result) => {
     logger.info(`✅ Embedding job ${job.id} completed`, {
         skill: job?.data?.skillId,
-        cached: result.cached
+        cached: result.cached,
     });
 });
 
-skillEmbeddingWorker.on('failed', (job, err) => {
+skillEmbeddingWorker.on('failed', async (job, err) => {
     logger.error(`❌ Embedding job ${job?.id} failed`, {
         skill: job?.data?.skillId,
         error: err.message,
-        stack: err.stack
+        attemptsMade: job?.attemptsMade,
+        stack: err.stack,
     });
-})
+
+    if (job && job.attemptsMade >= (job.opts.attempts ?? 3)) {
+        logger.warn(`💀 Skill embedding exhausted retries — moving to DLQ`, {
+            jobId: job.id,
+            skillId: job.data.skillId,
+        });
+        await moveToDLQ(skillEmbeddingDLQ, job, err);
+    }
+});
 
 skillEmbeddingWorker.on('error', (err) => {
     if (!loggedWorkerErrors.has('skillEmbedding')) {
@@ -203,28 +266,38 @@ skillEmbeddingWorker.on('error', (err) => {
     }
 });
 
-// Event listeners for job embedding worker
+// ─── Job Title Embedding Events ───────────────────────────────────────────────
+
 jobTitleEmbeddingWorker.on('ready', () => {
     logger.info('🟢 Job title embedding worker is ready and listening for jobs');
-})
+});
 
 jobTitleEmbeddingWorker.on('active', (job) => {
-    logger.info(`🔵 Processing embedding job ${job.id} for job title ${job.data.jobTitleId}`);
+    logger.info(`🔵 Processing embedding job ${job.id} for job title ${job.data.titleId}`);
 });
 
 jobTitleEmbeddingWorker.on('completed', (job, result) => {
     logger.info(`✅ Embedding job ${job.id} completed`, {
-        jobTitle: result.jobTitleId,
-        cached: result.cached
+        jobTitle: result.titleId,
+        cached: result.cached,
     });
 });
 
-jobTitleEmbeddingWorker.on('failed', (job, err) => {
+jobTitleEmbeddingWorker.on('failed', async (job, err) => {
     logger.error(`❌ Embedding job ${job?.id} failed`, {
-        jobTitle: job?.data?.jobTitleId,
+        jobTitle: job?.data?.titleId,
         error: err.message,
-        stack: err.stack
+        attemptsMade: job?.attemptsMade,
+        stack: err.stack,
     });
+
+    if (job && job.attemptsMade >= (job.opts.attempts ?? 3)) {
+        logger.warn(`💀 Job title embedding exhausted retries — moving to DLQ`, {
+            jobId: job.id,
+            titleId: job.data.titleId,
+        });
+        await moveToDLQ(jobTitleEmbeddingDLQ, job, err);
+    }
 });
 
 jobTitleEmbeddingWorker.on('error', (err) => {
@@ -234,10 +307,11 @@ jobTitleEmbeddingWorker.on('error', (err) => {
     }
 });
 
-// Event listeners for location embedding worker
+// ─── Location Embedding Events ────────────────────────────────────────────────
+
 locationEmbeddingWorker.on('ready', () => {
     logger.info('🟢 Location embedding worker is ready and listening for jobs');
-})
+});
 
 locationEmbeddingWorker.on('active', (job) => {
     logger.info(`🔵 Processing embedding job ${job.id} for location ${job.data.locationId}`);
@@ -246,16 +320,25 @@ locationEmbeddingWorker.on('active', (job) => {
 locationEmbeddingWorker.on('completed', (job, result) => {
     logger.info(`✅ Embedding job ${job.id} completed`, {
         location: result.locationId,
-        cached: result.cached
+        embeddingLength: result.embeddingLength,
     });
 });
 
-locationEmbeddingWorker.on('failed', (job, err) => {
+locationEmbeddingWorker.on('failed', async (job, err) => {
     logger.error(`❌ Embedding job ${job?.id} failed`, {
         location: job?.data?.locationId,
         error: err.message,
-        stack: err.stack
+        attemptsMade: job?.attemptsMade,
+        stack: err.stack,
     });
+
+    if (job && job.attemptsMade >= (job.opts.attempts ?? 3)) {
+        logger.warn(`💀 Location embedding exhausted retries — moving to DLQ`, {
+            jobId: job.id,
+            locationId: job.data.locationId,
+        });
+        await moveToDLQ(locationEmbeddingDLQ, job, err);
+    }
 });
 
 locationEmbeddingWorker.on('error', (err) => {
@@ -265,21 +348,21 @@ locationEmbeddingWorker.on('error', (err) => {
     }
 });
 
-/**
- * Graceful shutdown
- */
+// ─── Graceful Shutdown ────────────────────────────────────────────────────────
+
 export const closeWorkers = async () => {
     logger.info('Closing workers...');
-    await resumeEmbeddingWorker.close();
-    await resumeScoringWorker.close();
-    await jobPostingEmbeddingWorker.close();
-    await skillEmbeddingWorker.close();
-    await jobTitleEmbeddingWorker.close();
-    await locationEmbeddingWorker.close(),
+    await Promise.all([
+        resumeEmbeddingWorker.close(),
+        resumeScoringWorker.close(),
+        jobPostingEmbeddingWorker.close(),
+        skillEmbeddingWorker.close(),
+        jobTitleEmbeddingWorker.close(),
+        locationEmbeddingWorker.close(),
+    ]);
     logger.info('All workers closed');
 };
 
-// Handle process termination
 process.on('SIGTERM', closeWorkers);
 process.on('SIGINT', closeWorkers);
 

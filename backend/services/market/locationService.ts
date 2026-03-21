@@ -50,7 +50,10 @@ export const getOrGenerateLocationEmbeddingService = async (
                 {
                     attempts: 3,
                     backoff: { type: 'exponential', delay: 2000 },
-                    timeout: 120000
+                    timeout: 120000,
+                    // Dedup key — if a job for this location is already pending
+                    // or active, this add() is a no-op instead of queuing duplicate work
+                    jobId: `location-embedding-${locationId.toString()}`
                 } as any
             );
 
@@ -167,7 +170,8 @@ export const createLocationService = async (data: CreateLocationPayload): Promis
                 {
                     attempts: 3,
                     backoff: { type: 'exponential', delay: 2000 },
-                    timeout: 120000
+                    timeout: 120000,
+                    jobId: `location-embedding-${newLocation._id.toString()}`
                 } as any
             );
 
@@ -207,7 +211,8 @@ export const updateLocationservice = async (
                     {
                         attempts: 3,
                         backoff: { type: 'exponential', delay: 2000 },
-                        timeout: 120000
+                        timeout: 120000,
+                        jobId: `location-embedding-${updatedLocation._id.toString()}`
                     } as any
                 );
 

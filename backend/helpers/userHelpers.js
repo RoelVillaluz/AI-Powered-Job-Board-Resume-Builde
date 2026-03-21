@@ -1,3 +1,5 @@
+import crypto from "crypto";
+
 /**
  * Generate cryptographically secure verification code
  * @returns {string} 6-digit verification code

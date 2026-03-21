@@ -1,6 +1,7 @@
 import { catchAsync } from "../../utils/errorUtils.js";
 import * as AuthService from "../../services/auth/authServices.js";
 import { sendResponse, STATUS_MESSAGES } from "../../constants.js";
+import logger from "../../utils/logger.js";
 
 export const resendVerificationCode = catchAsync(async (req, res) => {
     const { email } = req.body;
@@ -26,6 +27,8 @@ export const verifyUser = catchAsync(async (req, res) => {
     const statusMessage = result.type === 'CREATE' 
         ? STATUS_MESSAGES.SUCCESS.CREATE 
         : STATUS_MESSAGES.SUCCESS.MATCHED_CODE;
+
+    logger.info('User verification successful: ', result.data)
 
     return sendResponse(res, { 
         ...statusMessage, 

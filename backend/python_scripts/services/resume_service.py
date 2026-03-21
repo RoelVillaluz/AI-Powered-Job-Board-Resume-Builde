@@ -22,24 +22,6 @@ class ResumeService:
     """Handles resume data retrieval and processing."""
     
     @staticmethod
-    def get_by_id(resume_id: str) -> Optional[dict]:
-        """
-        Fetch resume by ID (alias for get_full_resume).
-        
-        Args:
-            resume_id: Resume ObjectId as string
-            
-        Returns:
-            Resume document or None if not found
-        """
-        try:
-            resume = db.resumes.find_one({"_id": ObjectId(resume_id)})
-            return resume
-        except Exception as e:
-            logger.error(f"Error fetching resume {resume_id}: {e}")
-            return None
-    
-    @staticmethod
     def get_full_resume(resume_id: str) -> Optional[dict]:
         """
         Fetch the **complete resume** by ID, including all fields.

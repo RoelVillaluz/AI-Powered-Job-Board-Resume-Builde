@@ -9,7 +9,7 @@ import User from "../../models/userModel.js";
  */
 export const findUser = async (id) => {
     return await User.findById(id)
-        .select('email firstName lastName role profilePicture industry appliedJobs savedJobs')
+        .select('email firstName lastName role profilePicture industry appliedJobs savedJobs isOnboardingComplete')
         .populate('company', 'id name')
         .lean({ virtuals: true });
 };

@@ -91,8 +91,6 @@ export const createResume = catchAsync(async (req, res) => {
             ...STATUS_MESSAGES.SUCCESS.CREATE,
             data: {
                 resume: data.resume,
-                embedding: data.embedding,
-                score: data.score
             }
         },
         'Resume'

@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
-import { useData } from "../contexts//DataProvider";
-import { useAuth } from "../contexts/AuthProvider";
+import { useState } from "react";
+import { useAuthStore } from "../stores/authStore"
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { BASE_API_URL } from "../config/api";
 
 const VerifyUser = ({ email, password = null, verificationCode, verificationType }) => {
     const [enteredCode, setEnteredCode] = useState(['', '', '', '', '', '']);
@@ -10,7 +10,8 @@ const VerifyUser = ({ email, password = null, verificationCode, verificationType
     const [errorMessage, setErrorMessage] = useState(null)
     const [isLoading, setIsLoading] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
-    const { login } = useAuth();
+
+    const login = useAuthStore(state => state.login);
 
     const navigate = useNavigate();
 
@@ -54,8 +55,10 @@ const VerifyUser = ({ email, password = null, verificationCode, verificationType
         setErrorMessage(null);
     
         try {
+            setIsSuccess(true);
+
             // Verify user
-            const verificationResponse = await axios.post(`${baseUrl}/auth/verify`, { 
+            const verificationResponse = await axios.post(`${BASE_API_URL}/auth/verify`, { 
                 email, verificationCode: 
                 localVerificationCode,
                 verificationType: verificationType
@@ -65,13 +68,13 @@ const VerifyUser = ({ email, password = null, verificationCode, verificationType
     
             if (verificationType === "register") {
                 // Login user
-                const loginResponse = await axios.post(`${baseUrl}/auth/login`, { email, password });
-                console.log('Login successful:', loginResponse.data);
-        
-                // Extract user & token
-                const { token, user } = loginResponse.data.data;
-        
-                login(user, token)
+                const result = await login(email, password);
+
+                if (result.success) {
+                    navigate('/get-started');
+                } else {
+                    setErrorMessage(result.message);
+                }
         
                 navigate('/get-started');
             }
@@ -91,7 +94,6 @@ const VerifyUser = ({ email, password = null, verificationCode, verificationType
             setIsSuccess(false);
         } finally {
             setIsLoading(false);
-            setIsSuccess(true);
         }
     };
     

@@ -19,7 +19,7 @@ export interface Certification {
 
 export interface SocialMedia {
     facebook?: string | null;
-    linkedin?: string | null;
+    linkedIn?: string | null;
     github?: string | null;
     website?: string | null;
 }

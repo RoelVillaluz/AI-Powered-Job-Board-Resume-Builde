@@ -17,9 +17,9 @@ import logger from "./logger.js";
  *
  * @throws {Error} If process exits non-zero or JSON parsing fails
  */
-export const runPython = (command, args = []) => {
-    logger.debug(`🐍 [DEBUG] Python command: ${command}`);
-    logger.debug(`🐍 [DEBUG] Python args: ${args}`);
+export const runPython = (command, args = [], emit = () => {}) => {
+    logger.debug(`🐍 [Python] Command: ${command}`);
+    logger.debug(`🐍 [Python] Args: ${JSON.stringify(args)}`);
 
     return new Promise((resolve, reject) => {
         const pythonArgs = [
@@ -28,51 +28,82 @@ export const runPython = (command, args = []) => {
             ...args
         ];
 
-        logger.debug(`🐍 [DEBUG] Full command: py ${pythonArgs.join(" ")}`);
+        logger.debug(`🐍 [Python] Full invocation: py ${pythonArgs.join(" ")}`);
 
         const pythonProcess = spawn("py", pythonArgs, {
             shell: true,
             env: {
                 ...process.env,
-                // Set PYTHONPATH so Python can find services and utils packages
-                PYTHONPATH: process.cwd() 
+                // Allow Python to resolve internal service/util packages
+                PYTHONPATH: process.cwd()
             }
         });
 
-        let result = "";
-        let error = "";
+        // Accumulates non-progress stdout lines — should parse to the final result
+        let resultBuffer = "";
+        let errorBuffer = "";
 
         pythonProcess.stdout.on("data", (data) => {
-            const output = data.toString();
-            logger.debug(`🐍 [STDOUT]: ${output}`);
-            result += output;
+            const lines = data.toString().split("\n");
+
+            for (const line of lines) {
+                const trimmed = line.trim();
+                if (!trimmed) continue;
+
+                let parsed;
+                try {
+                    parsed = JSON.parse(trimmed);
+                } catch {
+                    // Non-JSON stdout (e.g. accidental print statements) — accumulate
+                    // as-is so the close handler can surface a meaningful parse error
+                    logger.debug(`🐍 [Python] Non-JSON stdout: ${trimmed}`);
+                    resultBuffer += trimmed;
+                    continue;
+                }
+
+                if (parsed.type === "progress") {
+                    // Mid-stream progress event — forward to socket immediately
+                    logger.debug(`🐍 [Python] Progress: [${parsed.event}] ${parsed.progress}% — ${parsed.message}`);
+                    emit(parsed.event, { progress: parsed.progress, message: parsed.message });
+                } else {
+                    // Final result payload — accumulate for return
+                    resultBuffer += trimmed;
+                }
+            }
         });
 
         pythonProcess.stderr.on("data", (data) => {
-            const errMsg = data.toString();
-            logger.error(`🐍 [STDERR]: ${errMsg}`);
-            error += errMsg;
+            const msg = data.toString();
+            logger.error(`🐍 [Python STDERR]: ${msg}`);
+            errorBuffer += msg;
         });
 
         pythonProcess.on("close", (code) => {
-            logger.debug(`🐍 [DEBUG] Process exited with code: ${code}`);
+            logger.debug(`🐍 [Python] Process exited with code: ${code}`);
 
             if (code !== 0) {
-                return reject(new Error(error || `Python exited with code ${code}`));
+                return reject(new Error(errorBuffer || `Python process exited with code ${code}`));
+            }
+
+            if (!resultBuffer) {
+                return reject(new Error("Python produced no result output"));
             }
 
             try {
-                logger.debug(`🐍 [DEBUG] Raw result: ${result}`);
-                const parsed = JSON.parse(result);
-                resolve(parsed);
+                const result = JSON.parse(resultBuffer);
+                logger.debug(`🐍 [Python] Result parsed successfully`);
+                resolve(result);
             } catch (e) {
-                reject(new Error(`JSON parse error: ${e.message}`));
+                reject(new Error(
+                    `Failed to parse Python result as JSON: ${e.message}. ` +
+                    `Raw output: ${resultBuffer.slice(0, 500)}`
+                ));
             }
         });
 
         pythonProcess.on("error", (err) => {
-            logger.error(`🐍 [ERROR] Failed to spawn: ${err.message}`);
-            reject(new Error(`Failed to spawn Python: ${err.message}`));
+            logger.error(`🐍 [Python] Failed to spawn process: ${err.message}`);
+            reject(new Error(`Failed to spawn Python process: ${err.message}`));
         });
     });
 };

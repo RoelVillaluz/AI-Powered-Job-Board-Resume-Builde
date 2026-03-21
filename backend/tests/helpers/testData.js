@@ -78,7 +78,7 @@ export const createTestJob = (companyId, overrides = {}) => {
 export const createTestResume = (userId, overrides = {}) => {
   const defaults = {
     user: userId,
-    title: `Resume ${Date.now()}`,
+    jobTitle: 'Full Stack Developer',
     // Add other resume fields based on your resume model
     ...overrides
   };

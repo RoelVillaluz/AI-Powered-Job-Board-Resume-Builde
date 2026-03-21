@@ -93,9 +93,9 @@ export const findResumesByUserRepo = async (userId) => {
  * @example
  * const newResume = await createResumeRepo({ firstName: "John", lastName: "Doe", skills: [...] });
  */
-export const createResumeRepo = async (resumeData) => {
+export const createResumeRepo = async (resumeData, { session } = {}) => {
     const newResume = new Resume(resumeData);
-    return await newResume.save();
+    return await newResume.save({ session });
 };
 
 /**

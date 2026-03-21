@@ -24,9 +24,10 @@ export const getAllResumeEmbeddings = catchAsync(async (req, res) => {
 export const getOrGenerateResumeEmbeddings = catchAsync(async (req, res) => {
     const { resumeId } = req.params;
     const { invalidateCache = false } = req.body;
+    const userId = (req.user._id || req.user.id).toString()
     
     // Service handles all logic
-    const result = await getOrGenerateResumeEmbeddingService(resumeId, invalidateCache);
+    const result = await getOrGenerateResumeEmbeddingService(resumeId, invalidateCache, userId);
     
     // Controller only handles HTTP response
     if (result.cached) {

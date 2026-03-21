@@ -1,6 +1,11 @@
 import Joi from "joi";
 
 export const createResumeSchema = new Joi.object({
+    jobTitle: Joi.string()
+        .min(5)
+        .messages({
+            'string.min': 'Job title must be at least 5 letters long'
+        }),
     firstName: Joi.string()
         .required()
         .min(2)

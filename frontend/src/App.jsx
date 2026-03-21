@@ -16,6 +16,7 @@ import ChangePasswordForm from "./pages/ChangePasswordForm";
 import ChatsPage from "./pages/ChatsPage";
 import JobApplicantsPage from "./pages/JobApplicantsPage.jsx";
 import JobCandidatesPage from "./pages/JobCandidatesPage.jsx";
+import { Navigate } from "react-router-dom";
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -68,11 +69,26 @@ function App() {
   );
 }
 
-
 function AppRoutes() {
   const user = useAuthStore(state => state.user);
+  const isLoading = useAuthStore(state => state.isLoading);
 
-  return user ? <Dashboard /> : <LandingPage />;
+    console.log('isLoading:', isLoading, 'user:', user, 'isOnboardingComplete:', user?.isOnboardingComplete);
+  // Wait for restoreSession() to finish before making routing decisions
+  if (isLoading) {
+    return null; // or <LoadingSpinner />
+  }
+
+  if (user) {
+    if (user.isOnboardingComplete) {
+      return <Dashboard/>;
+    }
+    return <Navigate to="/get-started" replace />;
+  }
+
+  return <LandingPage />;
 }
+
+
 
 export default App;

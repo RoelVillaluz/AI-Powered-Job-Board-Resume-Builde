@@ -20,6 +20,7 @@ class ResumeInsights(NamedTuple):
     weaknesses: List[str]
     improvement_suggestions: List[str]
     skill_gaps: List[str]
+    overall_message: str
 
 
 class MarketInsights(NamedTuple):
@@ -48,7 +49,7 @@ class AnalyticsService:
         """
         try:
             # Get resume
-            resume = ResumeService.get_by_id(resume_id)
+            resume = ResumeService.get_full_resume(resume_id)
             if not resume:
                 logger.error(f"Resume {resume_id} not found")
                 return None
@@ -96,6 +97,8 @@ class AnalyticsService:
             
             # Identify skill gaps based on market demand
             skill_gaps = AnalyticsService._identify_skill_gaps(resume)
+
+            overall_message = AnalyticsService.get_overall_message(resume_score.overall_score)
             
             return ResumeInsights(
                 overall_score=resume_score.overall_score,
@@ -103,13 +106,32 @@ class AnalyticsService:
                 strengths=strengths,
                 weaknesses=weaknesses,
                 improvement_suggestions=suggestions,
-                skill_gaps=skill_gaps[:5]  # Top 5 gaps
+                skill_gaps=skill_gaps[:5],  # Top 5 gaps
+                overall_message=overall_message
             )
             
         except Exception as e:
             logger.error(f"Error analyzing resume: {e}")
             return None
-    
+        
+    def get_overall_message(score: float) -> str:
+        if score >= 95:  # A+
+            return "Nearly flawless resume that clearly communicates strong qualifications and is highly competitive in the job market."
+        elif score >= 90:  # A
+            return "Excellent resume with strong structure and content, needing only minor refinements to reach top-tier quality."
+        elif score >= 85:  # B+
+            return "Very strong resume with clear strengths, but a few targeted improvements could increase its impact."
+        elif score >= 80:  # B
+            return "Good resume with a solid foundation, though some sections would benefit from more detail and clarity."
+        elif score >= 75:  # C+
+            return "Above-average resume that is well organized but lacks depth in key areas."
+        elif score >= 65:  # C
+            return "Average resume that meets basic expectations but does not yet stand out to recruiters."
+        elif score >= 50:  # D
+            return "Below-average resume that needs clearer experience, stronger skills presentation, and better completeness."
+        else:  # F
+            return "Resume requires significant improvement and is missing critical information needed for effective evaluation."
+
     @staticmethod
     def _identify_skill_gaps(resume: dict, top_n: int = 10) -> List[str]:
         """
@@ -124,26 +146,30 @@ class AnalyticsService:
         """
         try:
             # Get user's current skills
-            user_skills = set(skill['name'].lower() for skill in resume.get('skills', []))
-            
-            # Get top skills from active job postings
-            jobs = list(db.job_postings.find({"status": "active"}).limit(200))
-            
-            all_job_skills = []
-            for job in jobs:
-                job_skills = [skill['name'].lower() for skill in job.get('skills', [])]
-                all_job_skills.extend(job_skills)
-            
-            # Count skill frequency
-            skill_counts = Counter(all_job_skills)
-            top_market_skills = skill_counts.most_common(top_n * 2)
-            
-            # Find gaps
+            user_skills = {skill['name'].lower() for skill in resume.get('skills', [])}
+
+            # Run aggregation in MongoDB
+            pipeline = [
+                {"$match": {"status": "active"}},
+                {"$limit": 200},
+                {"$unwind": "$skills"},
+                {"$group": {
+                    "_id": {"$toLower": "$skills.name"},
+                    "count": {"$sum": 1}
+                }},
+                {"$sort": {"count": -1}},
+                {"$limit": top_n * 2}
+            ]
+
+            market_skills = list(db.job_postings.aggregate(pipeline))
+
+            # Find skill gaps
             gaps = []
-            for skill, count in top_market_skills:
-                if skill not in user_skills and len(gaps) < top_n:
-                    gaps.append(skill.title())
-            
+            for skill in market_skills:
+                skill_name = skill["_id"]
+                if skill_name not in user_skills and len(gaps) < top_n:
+                    gaps.append(skill_name.title())
+
             return gaps
             
         except Exception as e:

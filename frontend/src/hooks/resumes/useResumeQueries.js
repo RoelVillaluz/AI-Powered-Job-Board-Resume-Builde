@@ -48,10 +48,10 @@ export const useResumeQuery = (resumeId) => {
  * @param {string} resumeId - The ID of the resume
  * @returns {Object} { data, isLoading, error }
  */
-export const useResumeScoreQuery = (resumeId) => {
+export const useResumeScoreQuery = (resumeId, token) => {
   return useQuery({
     queryKey: ['resumeScore', resumeId],
-    queryFn: () => fetchResumeScore(resumeId),
+    queryFn: () => fetchResumeScore(resumeId, token),
     enabled: !!resumeId, 
     staleTime: 1000 * 60 * 5,
   })

@@ -1,8 +1,11 @@
 import { Server } from "socket.io";
 import { registerSocketHandlers } from "./handlers.js";
+import logger from "../utils/logger.js";
+
+let io;
 
 export const initSocket = (server) => {
-  const io = new Server(server, {
+  io = new Server(server, {
     cors: {
       origin: "http://localhost:5173",
       methods: ["GET", "POST"],
@@ -14,4 +17,12 @@ export const initSocket = (server) => {
   });
 
   return io;
+};
+
+export const getIO = () => {
+    if (!io) {
+        logger.warn('Socket.io not initialized — skipping emit');
+        return null;
+    }
+    return io;
 };

@@ -2,31 +2,32 @@ import { ValidationError } from "./errorHandler.js";
 
 /**
  * Validation middleware factory
- * @param {Object} schema - Joi validation schema
- * @param {string} property - Property to validate ('body', 'params', 'query')
- * @returns {Function} Express middleware function
+ *
+ * @param {import('joi').Schema} schema - Joi validation schema
+ * @param {'body'|'params'|'query'} [property='body'] - Request property to validate
+ * @returns {import('express').RequestHandler} Express middleware
+ *
+ * @example
+ * router.post('/users', validate(createUserSchema, 'body'), UserController.createUser)
  */
 export const validate = (schema, property = 'body') => {
+    /**
+     * @param {import('express').Request} req
+     * @param {import('express').Response} res
+     * @param {import('express').NextFunction} next
+     */
     return (req, res, next) => {
-        // Validate the request property against the schema
-        const { error, value } = schema.validate(req[property], { 
-            abortEarly: false,  // Collect all errors, not just the first
-            stripUnknown: true  // Remove unknown fields
+        const { error, value } = schema.validate(req[property], {
+            abortEarly: false,
+            stripUnknown: true
         });
-        
+
         if (error) {
-            // Extract and format error messages
-            const errorMessage = error.details
-                .map(detail => detail.message)
-                .join(', ');
-            
-            // Throw BadRequestError which should have statusCode 400
+            const errorMessage = error.details.map(d => d.message).join(', ');
             throw new ValidationError(errorMessage);
         }
-        
-        // Replace the property with the validated value (sanitized)
+
         req[property] = value;
-        
         next();
     };
 };

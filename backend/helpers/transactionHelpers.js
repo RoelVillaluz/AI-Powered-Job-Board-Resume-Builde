@@ -50,13 +50,13 @@ export const withTransaction = async (callback) => {
 };
 
 export const hasSignificantChange = (updateData) => {
-    const embeddingFields = ['skills', 'workExperience', 'certifications'];
+    const embeddingFields = ['jobTitle', 'skills', 'workExperience', 'certifications'];
     return embeddingFields.some(field => field in updateData);
 }
 
 export const hasScoreableChange = (updateData) => {
     const scoreableFields = [
-        'firstName', 'lastName', 'address', 'phone', 
+        'firstName', 'lastName', 'jobTitle', 'address', 'phone', 
         'summary', 'skills', 'workExperience', 
         'certifications', 'socialMedia'
     ];

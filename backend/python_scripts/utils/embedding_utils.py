@@ -26,6 +26,27 @@ def extract_skills_embeddings(skills: list[dict]) -> Optional[torch.Tensor]:
     embeddings = embedding_model.encode_batch(skill_names)
     return safe_mean_embedding(embeddings)
 
+def extract_job_title_embedding(job_title: str) -> Optional[torch.Tensor]:
+    """
+    Extract embedding for a single job title string.
+    Used as fallback when job title ObjectId ref is unavailable.
+    No mean needed — single text input produces single tensor.
+
+    Args:
+        job_title: Job title string
+
+    Returns:
+        Embedding tensor or None
+    """
+    if not job_title:
+        return None
+    
+    embedding = embedding_model.encode(job_title)
+    if embedding is None:
+        return None
+    
+    return embedding.detach().cpu()
+
 def extract_work_experience_embeddings(work_experiences: list[dict]) -> Optional[torch.Tensor]:
     """
         Extract and compute mean embedding for work experiences.
@@ -84,18 +105,42 @@ def extract_certification_embeddings(certifications: list[dict]) -> Optional[tor
     embeddings = embedding_model.encode_batch(certification_names)
     return safe_mean_embedding(embeddings)
 
-def extract_requirement_embeddings(requirements: list[str]) -> Optional[torch.Tensor]:
+def extract_requirement_embeddings(requirements) -> Optional[torch.Tensor]:
     """
     Extract and compute mean embedding for job requirements.
-    
+
     Args:
-        requirements: List of requirement strings
+        requirements: Job requirements in a dictionary (new schema) or a list of strings (old schema).
         
     Returns:
         Mean requirements embedding or None
     """
-    if not requirements:
-        return None
+    # Case 1: If the requirements are in the new schema (dict)
+    if isinstance(requirements, dict):
+        extracted_requirements = []
 
-    embeddings = embedding_model.encode_batch(requirements)
-    return safe_mean_embedding(embeddings)
+        # Extract description, education, yearsOfExperience, and certifications
+        if 'description' in requirements and isinstance(requirements['description'], str):
+            extracted_requirements.append(requirements['description'])
+        if 'education' in requirements and isinstance(requirements['education'], str):
+            extracted_requirements.append(requirements['education'])
+        if 'yearsOfExperience' in requirements and isinstance(requirements['yearsOfExperience'], (int, float)):
+            extracted_requirements.append(f"Years of Experience: {requirements['yearsOfExperience']}")
+        if 'certifications' in requirements and isinstance(requirements['certifications'], list):
+            for cert in requirements['certifications']:
+                if isinstance(cert, str):
+                    extracted_requirements.append(cert)
+
+        # If we have any extracted requirements, compute the embeddings
+        if extracted_requirements:
+            embeddings = embedding_model.encode_batch(extracted_requirements)
+            return safe_mean_embedding(embeddings)
+
+    # Case 2: If the requirements are already a list of strings (old schema)
+    elif isinstance(requirements, list) and all(isinstance(req, str) for req in requirements):
+        # Compute embeddings directly from the list of strings
+        embeddings = embedding_model.encode_batch(requirements)
+        return safe_mean_embedding(embeddings)
+
+    # If the requirements format is invalid, return None
+    return None

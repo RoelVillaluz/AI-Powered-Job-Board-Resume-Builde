@@ -1,59 +1,117 @@
 import { useState, useEffect } from "react";
 
-function Gauge({ progress, messages, loading, objectName = null }) {
-    const [animatedProgress, setAnimatedProgress] = useState(0); // Start at 0 for animation
+function Gauge({
+    value,
+    jobProgress = 0,
+    messages = {},
+    loading = false,
+    isAnalyzing = false,
+    secondsRemaining = null,
+    objectName = null
+}) {
+    const [animatedValue, setAnimatedValue] = useState(0);
+    const [animatedJobProgress, setAnimatedJobProgress] = useState(0);
 
+    // Animate the final score into the gauge when it arrives
     useEffect(() => {
-        const timeout = setTimeout(() => setAnimatedProgress(progress), 300);
-        return () => clearTimeout(timeout); // Cleanup function
-    }, [progress]); // Runs when `progress` changes
+        if (value === null) return;
+        const timeout = setTimeout(() => setAnimatedValue(value), 300);
+        return () => clearTimeout(timeout);
+    }, [value]);
 
-    const rotation = `rotate(${animatedProgress / 2}turn)`;
+    // Animate job progress bar while pipeline is running
+    useEffect(() => {
+        const timeout = setTimeout(() => setAnimatedJobProgress(jobProgress), 100);
+        return () => clearTimeout(timeout);
+    }, [jobProgress]);
 
-    const showMessage = (value) => {
-        const result = Object.entries(messages)
-            .sort(([a], [b]) => parseFloat(a) - parseFloat(b)) // Sort numerically
-            .find(([key]) => value <= parseFloat(key))?.[1] || messages[1];
+    // While analyzing: gauge fills to job progress; when done: fills to actual score
+    const displayValue = isAnalyzing ? animatedJobProgress : animatedValue;
+    const normalized = Math.min(displayValue / 100, 1);
+    const rotation = `rotate(${normalized / 2}turn)`;
 
-        return (
-            <>
-                <h4>{result.rating}</h4>
-                <p>{result.message}</p>
-            </>
-        );
+    /**
+     * Format `secondsRemaining` into a human-readable estimate string.
+     *
+     * Returns null if the value is null or too small to be worth showing
+     * (< 4 seconds avoids the distracting flicker at the very end).
+     *
+     * @param {number|null} seconds
+     * @returns {string|null}
+     */
+    const formatTimeRemaining = (seconds) => {
+        if (seconds === null || seconds <= 3) return null;
+        if (seconds < 60) return `~${seconds}s remaining`;
+        return `~${Math.round(seconds / 60)}m remaining`;
     };
-    
+
+    const timeRemainingLabel = isAnalyzing ? formatTimeRemaining(secondsRemaining) : null;
+
     return (
-        <div className="gauge">
+        <div className={`gauge ${isAnalyzing ? "gauge--analyzing" : "gauge--complete"}`}>
             <div className="gauge-body">
                 <div
                     className="gauge-fill"
-                    style={{ 
-                        transform: rotation, 
-                        backgroundColor: 'black', 
-                        transition: "transform 1.5s ease-in-out"
+                    style={{
+                        transform: rotation,
+                        backgroundColor: "black",
+                        transition: isAnalyzing
+                            ? "transform 0.8s ease-out, background-color 0.3s"
+                            : "transform 1.5s ease-in-out, background-color 0.5s"
                     }}
-                >
-                </div>
-                <div className={`gauge-cover`}>
-                    {!loading ? (
+                />
+
+                <div className="gauge-cover">
+                    {isAnalyzing ? (
+                        // ── Analyzing state ──────────────────────────────────────────────
                         <>
-                            <h2>{Math.round(progress * 100)}<span>%</span></h2>
+                            <i className="fa-solid fa-brain gauge-brain-icon" />
+                            <p className="gauge-progress-text">
+                                {Math.round(animatedJobProgress)}%
+                            </p>
+                            <p className="gauge-status-text">
+                                {messages?.overallMessage ?? "Analyzing..."}
+                            </p>
+                            {timeRemainingLabel && (
+                                <p className="gauge-time-remaining">
+                                    {timeRemainingLabel}
+                                </p>
+                            )}
+                        </>
+                    ) : loading ? (
+                        // ── Initial loading state ────────────────────────────────────────
+                        <>
+                            <i className="fa-solid fa-circle-notch fa-spin" />
+                            <p>Loading...</p>
+                        </>
+                    ) : value !== null ? (
+                        // ── Final score state ────────────────────────────────────────────
+                        <>
+                            <h2>
+                                {Math.round(animatedValue)}
+                                <span>%</span>
+                            </h2>
                             <p>Effectiveness</p>
                         </>
                     ) : (
+                        // ── No score yet ─────────────────────────────────────────────────
                         <>
-                            <i className="fa-solid fa-brain"></i>
-                            <p>Analyzing Data...</p>
+                            <i className="fa-solid fa-chart-simple" />
+                            <p>No score yet</p>
                         </>
                     )}
                 </div>
             </div>
-            {!loading && (
-                showMessage(progress)
+
+            {/* Grade and overall message — only shown when fully complete */}
+            {!isAnalyzing && !loading && value !== null && messages && (
+                <div className="gauge-message">
+                    <h4>Grade: {messages.grade}</h4>
+                    <p>{messages.overallMessage}</p>
+                </div>
             )}
         </div>
-    )
+    );
 }
 
-export default Gauge
+export default Gauge;

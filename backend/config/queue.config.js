@@ -10,6 +10,9 @@
  * - NODE_ENV: Environment (development/production)
  */
 import { config } from "dotenv";
+import { skillEmbeddingQueue } from "../queues";
+import logger from "../utils/logger";
+
 config();
 
 
@@ -21,8 +24,14 @@ export const redisConnection = {
     host: process.env.REDIS_HOST || 'localhost',
     port: parseInt(process.env.REDIS_PORT || '6379'),
     password: process.env.REDIS_PASSWORD || undefined,
-    maxRetriesPerRequest: null, // BullMQ requirement
-    enableReadyCheck: false,     // BullMQ requirement
+    maxRetriesPerRequest: null,
+    enableReadyCheck: false,
+    // Add these two:
+    lazyConnect: true,
+    retryStrategy: (times) => {
+        if (times >= 3) return null; // stop retrying — prevents infinite spam
+        return Math.min(times * 500, 2000);
+    },
 };
 
 /**
@@ -69,6 +78,34 @@ export const queueConfig = {
             priority: 2,
         },
     },
+    jobEmbedding: {
+        name: 'job-embedding',
+        options: {
+            ...defaultOptions,
+            priority: 4
+        }
+    },
+    skillEmbedding: {
+        name: 'skill-embedding',
+        options: {
+            ...defaultOptions,
+            priority: 5
+        }
+    },
+    jobTitleEmbedding: {
+        name: 'job-title-embedding',
+        options: {
+            ...defaultOptions,
+            priority: 6
+        }
+    },
+    locationEmbedding: {
+        name: 'location-embedding',
+        options: {
+            ...defaultOptions,
+            priority: 7
+        }
+    }
 }
 
 /**
@@ -79,4 +116,8 @@ export const workerConcurrency = {
     resumeEmbedding: process.env.NODE_ENV === 'production' ? 5 : 2,
     resumeScoring: process.env.NODE_ENV === 'production' ? 3 : 1,
     resumeComparison: process.env.NODE_ENV === 'production' ? 4 : 2,
+    jobEmbedding: process.env.NODE_ENV === 'production' ? 2 : 1,
+    skillEmbedding: process.env.NODE_ENV === 'production' ? 5 : 3,
+    jobTitleEmbedding: process.env.NODE_ENV === 'production' ? 5 : 3,
+    locationEmbedding: process.env.NODE_ENV === 'production' ? 4 : 2,
 };

@@ -5,10 +5,11 @@
   "scripts": {
     "test": "cross-env NODE_ENV=test NODE_OPTIONS=--experimental-vm-modules jest --config ./jest.config.mjs --runInBand",
     "test:watch": "cross-env NODE_ENV=test NODE_OPTIONS=--experimental-vm-modules jest --config ./jest.config.mjs --watch --runInBand",
-    "server": "nodemon backend/server.js",
+    "server": "nodemon --exec tsx --tsconfig backend/tsconfig.json backend/server.js",
     "client": "cd frontend && npm run dev",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
-    "convert:images": "node convert-images.js"
+    "convert:images": "node convert-images.js",
+    "seed:market": "tsx --tsconfig backend/tsconfig.json backend/scripts/seedMarketData.ts"
   },
   "type": "module",
   "keywords": [],
@@ -61,9 +62,17 @@
   "devDependencies": {
     "@babel/core": "^7.28.5",
     "@babel/preset-env": "^7.28.5",
+    "@types/bcrypt": "^6.0.0",
+    "@types/express": "^5.0.6",
+    "@types/morgan": "^1.9.10",
+    "@types/multer": "^2.0.0",
+    "@types/node": "^25.3.0",
+    "@types/nodemailer": "^7.0.11",
     "@types/react": "^19.2.8",
+    "@types/react-beautiful-dnd": "^13.1.8",
     "@types/react-dom": "^19.2.3",
     "@types/react-router-dom": "^5.3.3",
+    "@types/supertest": "^6.0.3",
     "babel-jest": "^30.2.0",
     "concurrently": "^9.1.2",
     "cross-env": "^10.1.0",
@@ -72,6 +81,7 @@
     "mongodb-memory-server": "^10.4.1",
     "nodemon": "^3.1.9",
     "supertest": "^7.1.4",
+    "tsx": "^4.21.0",
     "typescript": "^5.9.3"
   }
 }

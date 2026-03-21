@@ -14,17 +14,25 @@ export const getPredictedSalaryRepo = async (resumeId) => {
     .select('resume predictedSalary')
 }
 
-export const createResumeScoreRepo = async (scoreData) => {
-    const newScore = new ResumeScore(scoreData);
-    return await newScore.save();
-}
+export const createResumeScoreRepo = async (data, { session } = {}) => {
+    const score = new ResumeScore(data);
+    return await score.save({ session });
+};
 
-export const updateResumeScoreRepo = async (resumeId, updateData) => {
-    const updatedScore = ResumeScore.findByIdAndUpdate(
-        resumeId,
-        updateData,
-        { new: true }
-    )
+export const upsertResumeScoreRepo = async (resumeId, updateData) => {
+    // Make a shallow copy and remove 'resume' if present
+    const { resume, ...dataToSet } = updateData;
 
-    return updatedScore
-}
+    return await ResumeScore.findOneAndUpdate(
+        { resume: resumeId },
+        {
+            $set: dataToSet,
+            $setOnInsert: { resume: resumeId }
+        },
+        {
+            new: true,
+            upsert: true
+        }
+    );
+};
+

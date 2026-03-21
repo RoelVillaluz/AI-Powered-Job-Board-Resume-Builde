@@ -40,7 +40,7 @@ function Register() {
 
         try {
             const { data } = await axios.post(
-                `${BASE_API_URL}/auth`,
+                `${BASE_API_URL}/users`,
                 formData
             );
 

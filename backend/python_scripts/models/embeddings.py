@@ -39,8 +39,14 @@ class EmbeddingModel:
             return None
         
         try:
-            embeddings = [emb for emb in (self.encode(t) for t in texts) if emb is not None]
-            return torch.stack(embeddings) if embeddings else None
+            embeddings = self._model.encode(
+                texts,
+                batch_size=32,         # true batch — one forward pass
+                convert_to_tensor=True,
+                show_progress_bar=False,
+                normalize_embeddings=True  # cosine similarity becomes dot product — faster at match time
+            )
+            return embeddings.cpu()
         except Exception as e:
             logger.error(f"Error generating batch embeddings: {e}")
             return None

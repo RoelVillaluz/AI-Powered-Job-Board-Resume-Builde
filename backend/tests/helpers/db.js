@@ -1,8 +1,8 @@
 import mongoose from 'mongoose';
 import User from '../../models/userModel.js';
 import Company from '../../models/companyModel.js';
-import JobPosting from '../../models/jobPostingModel.js';
-import Resume from '../../models/resumeModel.js';
+import JobPosting from '../../models/jobPostings/jobPostingModel.js';
+import Resume from '../../models/resumes/resumeModel.js';
 
 export const connectTestDB = async () => {
   if (process.env.NODE_ENV !== 'test') {

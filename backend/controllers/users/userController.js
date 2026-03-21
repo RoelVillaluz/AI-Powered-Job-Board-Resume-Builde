@@ -4,6 +4,7 @@ import * as UserSetRepo from '../../repositories/users/userSetRepos.js';
 import * as TempUserRepository from "../../repositories/tempUsers/tempUserRepositories.js";
 import { sendResponse, STATUS_MESSAGES } from "../../constants.js";
 import * as UserService from '../../services/users/userServices.js';
+import logger from '../../utils/logger.js'
 
 export const getUsers = catchAsync(async (req, res) => {
     const users = await UserGetRepo.findUsers()
@@ -32,17 +33,35 @@ export const registerUser = catchAsync(async (req, res) => {
 
     const newTempUser = await TempUserRepository.createTempUser(data) // create temporary user instance first for verification
 
-    return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.CREATE, message: "Verification code sent to email." }, 'User');
+    logger.info('New temporary user created: ', newTempUser)
+
+    return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.CREATE, data: newTempUser, message: "Verification code sent to email." }, 'User');
 })
 
 export const updateUser = catchAsync(async (req, res) => {
     const { id } = req.params;
     const updateData = req.body;
 
-    const updatedUser = await UserGetRepo.updateUser(id, updateData)
+    const updatedUser = await UserSetRepo.updateUser(id, updateData)
 
     return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.UPDATE, data: updatedUser }, 'User');
 })
+
+export const completeOnboardingUser = catchAsync(async (req, res) => {
+    const { id } = req.params;
+    const { role, data } = req.body;
+
+    const updatedUser = await UserService.completeUserOnboardingService({
+        userId: id,           
+        userRole: role,       
+        onboardingData: data.data
+    });
+
+    return sendResponse(res, { 
+        ...STATUS_MESSAGES.SUCCESS.UPDATE, 
+        data: updatedUser 
+    }, 'User');
+});
 
 export const deleteUser = catchAsync(async (req, res) => {
     const { id } = req.params;

@@ -93,6 +93,12 @@ const resumeScoreSchema = new mongoose.Schema({
         default: 'F',  // Default to 'F' if no grade is provided
         index: true  // For filtering by grade tier
     },
+
+    overallMessage: {
+        type: String,
+        required: true,
+        default: 'No message yet',
+    },
     
     // Predicted metrics (optional, for future features)
     predictedSalary: {
@@ -116,6 +122,27 @@ const resumeScoreSchema = new mongoose.Schema({
     recommendations: {
         type: [String],
         default: []
+    },
+    
+    predictedSalary: {
+        type: Number,
+        default: null
+    },
+    predictedSalaryRange: {
+        min: { type: Number, default: null },
+        max: { type: Number, default: null }
+    },
+    salaryConfidence: {
+        type: Number,
+        min: 0,
+        max: 100,
+        default: null
+    },
+    salaryPercentile: {
+        type: Number,
+        min: 0,
+        max: 100,
+        default: null
     },
     
     // Metadata
@@ -163,8 +190,8 @@ resumeScoreSchema.statics.calculateGrade = function(totalScore) {
     if (totalScore >= 85) return 'B+';
     if (totalScore >= 80) return 'B';
     if (totalScore >= 75) return 'C+';
-    if (totalScore >= 70) return 'C';
-    if (totalScore >= 60) return 'D';
+    if (totalScore >= 65) return 'C';
+    if (totalScore >= 50) return 'D';
     return 'F';
 };
 

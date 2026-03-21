@@ -59,9 +59,9 @@ export const findCompanyById = async (id) => {
  * @param {Object} companyData 
  * @returns {Promise<Object>}
  */
-export const createCompany = async (companyData) => {
+export const createCompany = async (companyData, { session } = {}) => {
     const newCompany = new Company(companyData)
-    return await newCompany.save()
+    return await newCompany.save({ session })
 }
 
 /**

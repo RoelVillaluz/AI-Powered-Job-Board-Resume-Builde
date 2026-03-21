@@ -1,5 +1,9 @@
 import { hasScoreableChange, hasSignificantChange, withTransaction } from "../../helpers/transactionHelpers.js";
 import * as ResumeRepo from "../../repositories/resumes/resumeRepository.js";
+import * as ResumeEmbeddingRepo from "../../repositories/resumes/resumeEmbeddingRepository.js"
+import * as ResumeScoreRepo from "../../repositories/resumes/resumeScoreRepository.js"
+import * as ResumeEmbeddingService from "../../services/resumes/resumeEmbeddingService.js"
+import Resume from "../../models/resumes/resumeModel.js";
 
 /**
  * Find resumes based on query parameters.
@@ -55,8 +59,7 @@ export const findResumesService = async (query) => {
 };
 
 /**
- * Creates resume and initializes empty embeddings/scores within a transaction.
- * Background jobs will populate these later.
+ * Creates resume 
  * 
  * @async
  * @function createResumeService
@@ -67,30 +70,13 @@ export const findResumesService = async (query) => {
  * Flow:
  * 1. Start transaction
  * 2. Create resume in DB
- * 3. Create empty embedding record (queued for background processing)
- * 4. Create empty score record (queued for background processing)
- * 5. Commit transaction
- * 6. Queue background jobs (outside transaction)
- * 7. Return resume immediately
+ * 3. Return resume 
  */
-export const createResumeService = async (resumeData) => {
-    return await withTransaction(async (session) => {
-        // Step 1: Create the resume document
-        const newResume = await ResumeRepo.createResumeRepo([resumeData], { session });
+export const createResumeService = async (resumeData, { session } = {}) => {
+    const resume = await ResumeRepo.createResumeRepo(resumeData, { session });
 
-        // Step 2: Create empty embedding record (will be populated by background job)
-        const newEmbedding = await ResumeRepo.createResumeEmbeddingRepo({ resume: newResume._id }, session)
-
-        // Step 3: Create empty resume score document (will be populated later by background job)
-        const newScore = await ResumeRepo.createResumeScoreRepo({ resume: newResume._id }, session)
-
-        return {
-            resume: newResume,
-            embedding: newEmbedding,
-            score: newScore
-        }
-    })
-}
+    return { resume };
+};
 
 /**
  * Updates resume and invalidates related embeddings/scores within a transaction.

@@ -21,8 +21,6 @@ if (existsSync(envFile)) {
   dotenv.config({ path: envFile });
 }
 
-dotenv.config({ path: envFile });
-
 const server = createServer(app);
 
 // Initialize sockets

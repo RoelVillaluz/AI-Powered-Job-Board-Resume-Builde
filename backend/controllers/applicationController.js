@@ -1,4 +1,4 @@
-import Application from "../models/applicationModel.js";
+import Application from '../models/applicationModel.js';
 import { STATUS_MESSAGES, sendResponse } from '../constants.js';
 import { formatApplicationData } from "../utils.js";
 import mongoose from "mongoose";

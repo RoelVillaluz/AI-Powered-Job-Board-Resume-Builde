@@ -1,4 +1,4 @@
-import User from "../../models/userModel.js";
+import User from "../../models/UserModel.js";
 
 /**
  * Finds a single user by their ID.

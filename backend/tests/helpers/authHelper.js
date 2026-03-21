@@ -1,5 +1,5 @@
 import request from 'supertest';
-import User from '../../models/userModel.js';
+import User from '../../models/UserModel.js';
 import { createTestUser, createTestEmployer, hashPassword } from './testData.js';
 
 /**

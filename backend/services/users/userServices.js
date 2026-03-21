@@ -3,7 +3,7 @@ import { createCompany } from "../../repositories/company/companyRepositories.js
 import { findConnectionRecommendations } from "../../repositories/users/userGetRepos.js"
 import { createResumeService } from "../resumes/resumeServices.js"
 import { transformProfilePictureUrl } from "../transformers/urlTransformers.js"
-import User from "../../models/userModel.js"
+import User from "../../models/UserModel.js"
 import { NotFoundError } from "../../middleware/errorHandler.js"
 import { getOrGenerateResumeEmbeddingService } from "../resumes/resumeEmbeddingService.js"
 

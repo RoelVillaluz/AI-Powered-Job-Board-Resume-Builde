@@ -2,7 +2,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { BadRequestError, NotFoundError, UnauthorizedError } from "../../middleware/errorHandler.js";
 import { generateVerificationCode } from "../../helpers/userHelpers.js";
-import User from "../../models/userModel.js";
+import User from "../../models/UserModel.js";
 import { TempUser } from "../../models/tempUserModel.js";
 import { deleteTempUserByEmail } from "../../repositories/tempUsers/tempUserRepositories.js";
 import { findUserByEmail } from "../../repositories/users/userGetRepos.js";

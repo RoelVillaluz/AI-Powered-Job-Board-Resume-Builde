@@ -3,7 +3,7 @@ import * as JobPostingService from "../../services/jobPostings/jobPostingService
 import { checkMissingFields } from '../../utils.js'
 import { STATUS_MESSAGES, sendResponse } from '../../constants.js';
 import { catchAsync } from "../../utils/errorUtils.js";
-import User from "../../models/userModel.js";
+import User from "../../models/UserModel.js";
 
 /**
  * Get filtered, sorted, and paginated list of job postings

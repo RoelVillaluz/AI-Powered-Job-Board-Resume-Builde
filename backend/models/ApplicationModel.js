@@ -1,5 +1,5 @@
 import mongoose, { mongo } from "mongoose";
-import User from "./userModel.js";
+import User from "./UserModel.js";
 
 const applicationSchema = new mongoose.Schema({
     jobPosting: {

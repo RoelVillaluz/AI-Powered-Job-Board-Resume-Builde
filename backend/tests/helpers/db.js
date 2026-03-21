@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import User from '../../models/userModel.js';
+import User from '../../models/UserModel.js';
 import Company from '../../models/companyModel.js';
 import JobPosting from '../../models/jobPostings/jobPostingModel.js';
 import Resume from '../../models/resumes/resumeModel.js';

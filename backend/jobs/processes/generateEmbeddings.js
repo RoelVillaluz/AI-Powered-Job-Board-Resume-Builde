@@ -371,43 +371,62 @@ export const generateJobTitleEmbeddingsProcessor = async (job) => {
  */
 export const generateLocationEmbeddingsProcessor = async (job) => {
     const { locationId } = job.data;
-
+ 
     logger.info('📊 [Queue] Starting location embedding generation job', {
         jobId: job.id,
         locationId,
     });
-
+ 
     await job.updateProgress(5);
-
+ 
     try {
+        // ── Idempotency guard ────────────────────────────────────────────────
+        // If a previous attempt partially succeeded (Python ran, DB write failed),
+        // BullMQ will retry the whole job. Without this check we'd call Python
+        // again unnecessarily. A fresh embedding means we can return early.
+        const cached = await getLocationEmbeddingService(new Types.ObjectId(locationId));
+ 
+        if (cached.cached) {
+            logger.info('✅ [Queue] Fresh embedding already exists — skipping Python pipeline', {
+                jobId: job.id,
+                locationId,
+            });
+            await job.updateProgress(100);
+            return {
+                locationId,
+                embeddingLength: cached.data?.embedding?.length,
+                cached: true,
+            };
+        }
+        // ────────────────────────────────────────────────────────────────────
+ 
         const result = await upsertLocationEmbeddingService(
             new Types.ObjectId(locationId),
             false,  // not a fallback — running inside a real BullMQ worker
             job,    // safe to pass — worker context guarantees updateProgress works
             () => {}
         );
-
+ 
         logger.info('✅ [Queue] Location embedding generation complete', {
             jobId: job.id,
             locationId,
-            embeddingLength: result.data?.embedding?.length
+            embeddingLength: result.data?.embedding?.length,
         });
-
+ 
         return {
             locationId,
             embeddingLength: result.data?.embedding?.length,
-            cached: false
+            cached: false,
         };
-
+ 
     } catch (error) {
         logger.error('💥 [Queue] Location embedding generation failed', {
             jobId: job.id,
             locationId,
             error: error.message,
-            stack: error.stack
+            stack: error.stack,
         });
-
-        // Re-throw so BullMQ marks the job as failed and triggers retry
+ 
         throw error;
     }
-}
+};

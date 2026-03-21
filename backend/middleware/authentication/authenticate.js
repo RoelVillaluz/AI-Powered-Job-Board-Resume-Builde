@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import { NotFoundError, UnauthorizedError } from '../errorHandler.js';
 import { catchAsync } from '../../utils/errorUtils.js';
-import User from '../../models/UserModel.js';
+import User from '../../models/userModel.js';
 
 export const authenticate = catchAsync(async (req, res, next) => {
   const token = req.headers.authorization?.replace('Bearer ', '');

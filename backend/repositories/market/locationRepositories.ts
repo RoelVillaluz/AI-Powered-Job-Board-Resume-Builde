@@ -115,7 +115,7 @@ export const updateLocationMetricsRepository = (id: Types.ObjectId, metrics: Par
 export const updateLocationEmbeddingRepository = (id: Types.ObjectId, embedding: number[]) => {
     return Location.findByIdAndUpdate(
         id,
-        { $set: { embedding } },
+        { $set: { embedding, embeddingGeneratedAt: new Date() } },
         { new: true }
     )
 }

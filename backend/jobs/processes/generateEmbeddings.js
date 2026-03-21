@@ -25,6 +25,7 @@ import { upsertSkillEmbeddingService } from "../../services/market/skillService.
 import { upsertLocationEmbeddingService } from "../../services/market/locationService.js";
 import { getSocketId } from "../../sockets/presence.js";
 import { getIO } from "../../sockets/index.js";
+import { Types } from "mongoose";
 
 /**
  * BullMQ processor for resume embedding generation jobs.
@@ -348,6 +349,26 @@ export const generateJobTitleEmbeddingsProcessor = async (job) => {
     }
 }
 
+/**
+ * BullMQ processor for location embedding generation jobs.
+ *
+ * Validates the location exists, then generates embeddings via the Python
+ * pipeline. Progress is tracked via job.updateProgress() — safe to call here
+ * because this processor only runs inside an active BullMQ worker context
+ * where Redis is confirmed healthy (unlike the safeQueueOperation fallback
+ * path, which calls upsertLocationEmbeddingService inline without a worker).
+ *
+ * @param {import('bullmq').Job} job
+ *   BullMQ job with payload: `{ locationId: string }`
+ *
+ * @returns {Promise<{
+ *   locationId: string,
+ *   embeddingLength: number,
+ *   cached: boolean
+ * }>}
+ *
+ * @throws {Error} If the Python pipeline or DB operations fail.
+ */
 export const generateLocationEmbeddingsProcessor = async (job) => {
     const { locationId } = job.data;
 
@@ -361,7 +382,8 @@ export const generateLocationEmbeddingsProcessor = async (job) => {
     try {
         const result = await upsertLocationEmbeddingService(
             new Types.ObjectId(locationId),
-            job,
+            false,  // not a fallback — running inside a real BullMQ worker
+            job,    // safe to pass — worker context guarantees updateProgress works
             () => {}
         );
 
@@ -371,7 +393,11 @@ export const generateLocationEmbeddingsProcessor = async (job) => {
             embeddingLength: result.data?.embedding?.length
         });
 
-        return result;
+        return {
+            locationId,
+            embeddingLength: result.data?.embedding?.length,
+            cached: false
+        };
 
     } catch (error) {
         logger.error('💥 [Queue] Location embedding generation failed', {
@@ -381,6 +407,7 @@ export const generateLocationEmbeddingsProcessor = async (job) => {
             stack: error.stack
         });
 
+        // Re-throw so BullMQ marks the job as failed and triggers retry
         throw error;
     }
 }

@@ -107,7 +107,7 @@ export const updateSkillRepository = (id: Types.ObjectId, updateData: UpdateSkil
 export const updateSkillEmbeddingRepository = (id: Types.ObjectId, embedding: number[]) => {
     return Skill.findByIdAndUpdate(
         id,
-        { $set: { embedding, embeddingGeneratedAt: new Date, lastUpdated: new Date() } },
+        { $set: { embedding, embeddingGeneratedAt: new Date(), lastUpdated: new Date() } },
         { new: true }
     )
 }

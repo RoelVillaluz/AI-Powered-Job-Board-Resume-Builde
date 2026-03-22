@@ -62,7 +62,7 @@ export const getLocationEmbeddingsById = catchAsync(async (req: Request, res: Re
 export const createLocation = catchAsync(async (req: Request, res: Response) => {
     const { data } = req.body as { data: CreateLocationPayload };
 
-    const newLocation = LocationService.createLocationService(data);
+    const newLocation = await LocationService.createLocationService(data);
 
     return sendTypedResponse(res, { ...STATUS_MESSAGES.SUCCESS.CREATE, data: newLocation }, 'Location')
 })
@@ -71,7 +71,7 @@ export const updateLocation = catchAsync(async (req: Request, res: Response) => 
     const { id } = req.params as { id: string };
     const { data } = req.body as { data: UpdateLocationPayload };
 
-    const newLocation = LocationService.updateLocationservice(new Types.ObjectId(id), data);
+    const newLocation = await LocationService.updateLocationservice(new Types.ObjectId(id), data);
 
     return sendTypedResponse(res, { ...STATUS_MESSAGES.SUCCESS.UPDATE, data: newLocation }, 'Location')
 })

@@ -1,6 +1,5 @@
-// repositories/industryRepository.ts
 import Industry from "../../models/market/industryModel";
-import { IndustryInterface, UpdateIndustryPayload } from "../../types/industry.types";
+import { IndustryInterface, CreateIndustryPayload, UpdateIndustryPayload } from "../../types/industry.types";
 import { Types } from "mongoose";
 
 /**
@@ -8,7 +7,7 @@ import { Types } from "mongoose";
  */
 export const getIndustryByIdRepository = (id: Types.ObjectId) => {
     return Industry.findById(id)
-        .select('_id name marketMetrics salaryBenchmarks topSkills topJobTitles emergingSkills decliningSkills')
+        .select('_id name marketMetrics salaryBenchmarks topSkills topJobTitles emergingSkills decliningSkills');
 }
 
 /**
@@ -19,7 +18,7 @@ export const getIndustryByIdRepository = (id: Types.ObjectId) => {
  */
 export const getIndustryByNameRepository = (name: string) => {
     return Industry.findOne({ name })
-        .select('_id name marketMetrics salaryBenchmarks topSkills topJobTitles emergingSkills decliningSkills')
+        .select('_id name marketMetrics salaryBenchmarks topSkills topJobTitles emergingSkills decliningSkills');
 }
 
 /**
@@ -28,7 +27,7 @@ export const getIndustryByNameRepository = (name: string) => {
  */
 export const getIndustryEmbeddingByIdRepository = (id: Types.ObjectId) => {
     return Industry.findById(id)
-        .select('_id name embedding marketMetrics salaryBenchmarks')
+        .select('_id name embedding marketMetrics salaryBenchmarks embeddingGeneratedAt');
 }
 
 /**
@@ -37,7 +36,7 @@ export const getIndustryEmbeddingByIdRepository = (id: Types.ObjectId) => {
  */
 export const getIndustryEmbeddingByNameRepository = (name: string) => {
     return Industry.findOne({ name })
-        .select('_id name embedding marketMetrics salaryBenchmarks')
+        .select('_id name embedding marketMetrics salaryBenchmarks embeddingGeneratedAt');
 }
 
 /**
@@ -46,7 +45,16 @@ export const getIndustryEmbeddingByNameRepository = (name: string) => {
  */
 export const getAllIndustriesRepository = () => {
     return Industry.find()
-        .select('_id name')
+        .select('_id name');
+}
+
+/**
+ * Persist a new industry document.
+ * Called by createIndustryService — embedding generation is queued separately
+ * after the document is saved.
+ */
+export const createIndustryRepository = (data: CreateIndustryPayload) => {
+    return Industry.create(data);
 }
 
 /**
@@ -55,7 +63,7 @@ export const getAllIndustriesRepository = () => {
  * are editable by admins. Metrics are written by the aggregation worker.
  */
 export const updateIndustryRepository = (id: Types.ObjectId, updateData: UpdateIndustryPayload) => {
-    return Industry.findByIdAndUpdate(id, { $set: updateData }, { new: true })
+    return Industry.findByIdAndUpdate(id, { $set: updateData }, { new: true });
 }
 
 /**
@@ -67,7 +75,7 @@ export const updateIndustryMetricsRepository = (id: Types.ObjectId, metrics: Par
         id,
         { $set: metrics },
         { new: true }
-    )
+    );
 }
 
 /**
@@ -77,7 +85,16 @@ export const updateIndustryMetricsRepository = (id: Types.ObjectId, metrics: Par
 export const updateIndustryEmbeddingRepository = (id: Types.ObjectId, embedding: number[]) => {
     return Industry.findByIdAndUpdate(
         id,
-        { $set: { embedding, lastAnalyzed: new Date() } },
+        { $set: { embedding, embeddingGeneratedAt: new Date(), astAnalyzed: new Date() } },
         { new: true }
-    )
+    );
+}
+
+/**
+ * Permanently delete an industry document by ObjectId.
+ * Hard delete — no soft delete or recovery. Use with caution in production
+ * since industries may be referenced by job postings and resumes.
+ */
+export const deleteIndustryRepository = (id: Types.ObjectId) => {
+    return Industry.findByIdAndDelete(id);
 }

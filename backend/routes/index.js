@@ -8,6 +8,7 @@ import authRoutes from "./authRoutes.js"
 import skillRoutes from './market/skillRoutes.ts'
 import jobTitleRoutes from './market/jobTitleRoutes.ts'
 import locationRoutes from './market/locationRoutes.ts'
+import industryRoutes from './market/industryRoutes.ts'
 
 import {
   conversationRoutes,
@@ -31,7 +32,7 @@ export const registerRoutes = (app) => {
   app.use('/api/job-titles', jobTitleRoutes);
   app.use('/api/skills', skillRoutes);
   app.use('/api/locations', locationRoutes);
-  // app.use('/api/industries');
+  app.use('/api/industries', industryRoutes);
 
   // Chat
   app.use("/api/messages", messageRoutes);

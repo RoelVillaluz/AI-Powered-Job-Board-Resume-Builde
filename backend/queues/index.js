@@ -85,6 +85,18 @@ export const locationEmbeddingQueue = new Queue(
     }
 );
 
+/**
+ * Industry Embedding Queue
+ */
+export const industryEmbeddingQueue = new Queue(
+    queueConfig.industryEmbedding.name,
+    {
+        connection: redisConnection,
+        defaultJobOptions: queueConfig.industryEmbedding.options,
+    }
+)
+
+
 // ─── Dead Letter Queues ───────────────────────────────────────────────────────
 //
 // These queues receive jobs that have exhausted all retries on the main queue.
@@ -111,6 +123,11 @@ export const jobEmbeddingDLQ = new Queue(
     { connection: redisConnection }
 );
 
+export const industryEmbeddingDLQ = new Queue(
+    queueConfig.industryEmbeddingDLQ.name,
+    { connection: redisConnection }
+);
+
 // ─── Graceful Shutdown ────────────────────────────────────────────────────────
 
 export const closeQueues = async () => {
@@ -122,10 +139,13 @@ export const closeQueues = async () => {
         skillEmbeddingQueue.close(),
         jobTitleEmbeddingQueue.close(),
         locationEmbeddingQueue.close(),
+        industryEmbeddingQueue.close(),
+
         locationEmbeddingDLQ.close(),
         skillEmbeddingDLQ.close(),
         jobTitleEmbeddingDLQ.close(),
         jobEmbeddingDLQ.close(),
+        industryEmbeddingDLQ.close(),
     ]);
     console.log('All queues closed');
 };

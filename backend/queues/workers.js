@@ -15,6 +15,7 @@ import {
     jobTitleEmbeddingDLQ,
     jobEmbeddingDLQ,
 } from "../queues/index.js";
+import { industryEmbeddingWorker } from "./workers/industryQueueWorker.js";
 
 // Tracks which workers have already emitted their first error log,
 // preventing log spam on repeated Redis connection errors.
@@ -359,6 +360,7 @@ export const closeWorkers = async () => {
         skillEmbeddingWorker.close(),
         jobTitleEmbeddingWorker.close(),
         locationEmbeddingWorker.close(),
+        industryEmbeddingWorker.close(),
     ]);
     logger.info('All workers closed');
 };

@@ -135,6 +135,10 @@ const industrySchema = new mongoose.Schema(
         default: null,
         select: false     // exclude from normal queries, only fetch when needed
     },
+    embeddingGeneratedAt: {
+      type: Date,
+      default: null
+    }
   },
   { timestamps: true }
 );

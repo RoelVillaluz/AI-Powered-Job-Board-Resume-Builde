@@ -1,14 +1,13 @@
-// services/market/jobTitleEmbeddingService.ts
 import * as JobTitleRepo from '../../repositories/market/jobTitleRepositories';
 import { Types } from 'mongoose';
 import { isEmbeddingStale, isValidEmbedding } from '../../utils/embeddingValidationUtils';
 import logger from '../../utils/logger';
 import { PythonResponse, runPythonTyped } from '../../types/python.types';
-import { runPython } from '../../utils/pythonRunner';
 import { QueueJob } from '../../types/queues.types';
 import { jobTitleEmbeddingQueue } from '../../queues';
 import JobTitle, { JobTitleDocument } from '../../models/market/jobTitleModel';
 import { CreateJobTitlePayload, UpdateJobTitlePayload, JobTitleEmbeddingData } from '../../types/jobTitle.types';
+import { safeQueueOperation } from '../../utils/queueUtils';
 
 // ============================================
 // RETURN TYPES
@@ -20,32 +19,33 @@ type JobTitleEmbeddingCacheResult =
 
 type JobTitleEmbeddingOrchestrationResult =
     | { cached: true;  data: JobTitleEmbeddingData; jobId?: never }
-    | { cached: false; data?: never; jobId: string | undefined }
+    | { cached: false; jobId: string; data?: never }
+    | { cached: false; data: JobTitleEmbeddingData; jobId?: never }
 
 // ============================================
 // SERVICES
 // ============================================
 
 /**
- * Orchestrator — decides whether to return cached embedding or queue generation.
+ * Orchestrator — decides whether to return a cached embedding or queue generation.
  *
  * Flow:
- * 1. If invalidateCache is false, check for existing embedding via getJobTitleEmbeddingService
- *    which handles existence and staleness checks
+ * 1. If invalidateCache is false, fetch existing embedding via getJobTitleEmbeddingService
+ *    which checks existence and staleness
  * 2. If cached data exists, validate embedding shape and zero-vector integrity
- *    via isValidEmbedding — separate concern from staleness
- * 3. If valid → return cached data immediately
- * 4. If missing, stale, or invalid shape → queue background generation
+ *    via isValidEmbedding — a separate concern from staleness
+ * 3. If valid → return cached data immediately, no Python call
+ * 4. If missing, stale, or invalid shape → attempt to queue background generation
+ *    via safeQueueOperation; falls back to inline generation if Redis is unavailable
  *
  * @param titleId - JobTitle ObjectId
- * @param invalidateCache - Force regeneration even if valid embedding exists
- * @returns Cached embedding data or jobId of the queued generation job
+ * @param invalidateCache - Force regeneration even if a valid embedding exists
+ * @returns Cached embedding data, jobId of the queued generation job, or inline fallback data
  */
 export const getOrGenerateJobTitleEmbeddingService = async (
     titleId: Types.ObjectId,
     invalidateCache: boolean = false,
 ): Promise<JobTitleEmbeddingOrchestrationResult> => {
-
     if (!invalidateCache) {
         const cacheResult = await getJobTitleEmbeddingService(titleId);
 
@@ -66,17 +66,37 @@ export const getOrGenerateJobTitleEmbeddingService = async (
         reason: invalidateCache ? 'forced_regeneration' : 'cache_miss'
     });
 
-    const job = await jobTitleEmbeddingQueue.add(
-        'generate-embeddings',
-        { titleId: titleId.toString() },
-        {
-            attempts: 3,
-            backoff: { type: 'exponential', delay: 2000 },
-            timeout: 120000
-        } as any
+    const result = await safeQueueOperation(
+        async () => {
+            const job = await jobTitleEmbeddingQueue.add(
+                'generate-embeddings',
+                { titleId: titleId.toString() },
+                {
+                    attempts: 3,
+                    backoff: { type: 'exponential', delay: 2000 },
+                    timeout: 120000,
+                    jobId: `job-title-embedding-${titleId.toString()}`
+                } as any
+            );
+
+            return { jobId: job.id!.toString() };
+        },
+        async () => {
+            const res = await upsertJobTitleEmbeddingService(titleId, true);
+
+            if (!res.data) {
+                throw new Error("Embedding generation failed: no data returned");
+            }
+
+            return res.data;
+        }
     );
 
-    return { cached: false, jobId: job.id };
+    if (result.type === 'queued') {
+        return { cached: false, jobId: result.jobId };
+    }
+
+    return { cached: false, data: result.data };
 }
 
 /**
@@ -87,7 +107,8 @@ export const getOrGenerateJobTitleEmbeddingService = async (
  * 2. embeddingGeneratedAt is within maxAgeDays (default 90)
  *
  * Note: Does NOT validate embedding shape — that is the orchestrator's
- * responsibility via isValidEmbedding.
+ * responsibility via isValidEmbedding. Separation keeps each function
+ * focused on one concern.
  *
  * @param titleId - JobTitle ObjectId
  * @returns Discriminated union — cached:true with data, or cached:false with null
@@ -95,7 +116,6 @@ export const getOrGenerateJobTitleEmbeddingService = async (
 export const getJobTitleEmbeddingService = async (
     titleId: Types.ObjectId
 ): Promise<JobTitleEmbeddingCacheResult> => {
-
     const titleDoc = await JobTitleRepo.getJobTitleEmbeddingsByIdRepository(titleId);
 
     if (!titleDoc?.embedding?.length) {
@@ -114,23 +134,50 @@ export const getJobTitleEmbeddingService = async (
 
 /**
  * Generates and persists a job title embedding by calling the Python encoder.
- * Encodes normalizedTitle — more semantically consistent than full title
- * since aliases like "Sr. Engineer" and "Senior Engineer" map to same normalizedTitle.
+ * Encodes normalizedTitle — more semantically consistent than the raw title
+ * since aliases like "Sr. Engineer" and "Senior Engineer" map to the same normalizedTitle.
  *
- * Called exclusively by the jobTitleEmbeddingQueue worker.
+ * Called by the jobTitleEmbeddingQueue worker, or inline via safeQueueOperation
+ * fallback when Redis is unavailable. The isFallback flag distinguishes these
+ * paths for observability.
+ *
+ * Safe progress helper — job.updateProgress() throws when called outside
+ * an active BullMQ worker context (e.g. safeQueueOperation fallback path).
+ * The method exists on the Job prototype so typeof checks pass, but the
+ * runtime call fails without a live Redis connection. Wrapping in try/catch
+ * degrades gracefully in both the queue and inline fallback paths.
+ *
+ * Flow:
+ * 1. Call Python generate_job_title_embeddings script with titleId
+ * 2. Validate Python response is non-empty before writing
+ * 3. Persist embedding + embeddingGeneratedAt via updateJobTitleEmbeddingRepository
  *
  * @param titleId - JobTitle ObjectId
- * @param job - BullMQ job instance for progress tracking
- * @param emit - Progress callback for streaming updates
+ * @param isFallback - True when called inline (Redis unavailable), false when called by queue worker
+ * @param job - BullMQ job instance for progress tracking, null if called outside queue
+ * @param emit - Progress callback for streaming updates to client
  * @returns { cached: false, data: updated JobTitle document }
  */
 export const upsertJobTitleEmbeddingService = async (
     titleId: Types.ObjectId,
+    isFallback: boolean,
     job: QueueJob | null = null,
     emit: (progress: number) => void = () => {}
 ) => {
+    const progress = async (pct: number) => {
+        try {
+            await (job as any)?.updateProgress(pct);
+        } catch {
+            // Safe to ignore — progress tracking is best-effort
+        }
+    };
+
     try {
-        await job?.updateProgress(10);
+        await progress(10);
+
+        if (isFallback) {
+            logger.warn(`Embedding generated inline (Redis fallback)`);
+        }
 
         logger.info(`Generating embedding for job title: ${titleId}`);
 
@@ -140,7 +187,7 @@ export const upsertJobTitleEmbeddingService = async (
             emit
         ) as PythonResponse;
 
-        await job?.updateProgress(80);
+        await progress(80);
 
         if (pythonResponse.error) throw new Error(pythonResponse.error);
 
@@ -153,7 +200,7 @@ export const upsertJobTitleEmbeddingService = async (
             pythonResponse.embedding
         );
 
-        await job?.updateProgress(100);
+        await progress(100);
 
         logger.info(`Embedding saved for job title: ${titleId}`, {
             embeddingLength: pythonResponse.embedding.length
@@ -168,23 +215,44 @@ export const upsertJobTitleEmbeddingService = async (
 }
 
 /**
- * Create a new job title and queue embedding generation as a background job.
- * Only accepts admin-enterable fields — computed metrics populated by worker.
- * Embedding is queued immediately after creation — never blocks response.
+ * Creates a new job title and queues embedding generation.
+ * Only accepts admin-enterable fields — computed metrics are populated by the worker.
  *
- * @param data - CreateJobTitlePayload
+ * Flow:
+ * 1. Persist the job title via the repository
+ * 2. Queue embedding generation via safeQueueOperation — does not block the HTTP response.
+ *    Falls back to inline generation if Redis is unavailable.
+ *
+ * @param data - Payload for creating a new job title
+ * @returns The newly created JobTitle document
  */
 export const createJobTitleService = async (data: CreateJobTitlePayload) => {
     const newTitle = await JobTitleRepo.createJobTitleRepository(data);
 
-    await jobTitleEmbeddingQueue.add(
-        'generate-embeddings',
-        { titleId: newTitle._id.toString() },
-        {
-            attempts: 3,
-            backoff: { type: 'exponential', delay: 2000 },
-            timeout: 120000
-        } as any
+    await safeQueueOperation(
+        async () => {
+            const job = await jobTitleEmbeddingQueue.add(
+                'generate-embeddings',
+                { titleId: newTitle._id.toString() },
+                {
+                    attempts: 3,
+                    backoff: { type: 'exponential', delay: 2000 },
+                    timeout: 120000,
+                    jobId: `job-title-embedding-${newTitle._id.toString()}`
+                } as any
+            );
+
+            return { jobId: job.id!.toString() };
+        },
+        async () => {
+            const res = await upsertJobTitleEmbeddingService(newTitle._id, true);
+
+            if (!res.data) {
+                throw new Error("Embedding generation failed after create");
+            }
+
+            return res.data;
+        }
     );
 
     logger.info(`Job title created and embedding queued: ${newTitle._id}`);
@@ -192,12 +260,21 @@ export const createJobTitleService = async (data: CreateJobTitlePayload) => {
 }
 
 /**
- * Update a job title and conditionally invalidate its embedding.
- * Re-queues embedding generation only if title or normalizedTitle changed
- * since those are what gets encoded — other field changes don't affect semantics.
+ * Updates an existing job title and conditionally re-queues embedding generation.
+ * Re-queues only if title or normalizedTitle changed — these are what gets encoded,
+ * so other field changes don't affect the semantic embedding.
+ *
+ * Flow:
+ * 1. Update job title fields via the repository
+ * 2. If title or normalizedTitle changed (affects semantic embedding):
+ *    - Invalidate existing embedding
+ *    - Queue a new embedding generation job via safeQueueOperation,
+ *      falling back to inline generation if Redis is unavailable
+ * 3. Updating other fields does not trigger re-generation
  *
  * @param id - JobTitle ObjectId
- * @param updateData - Partial admin-editable fields
+ * @param updateData - Partial admin-editable fields to update
+ * @returns The updated JobTitle document
  */
 export const updateJobTitleService = async (
     id: Types.ObjectId,
@@ -210,14 +287,30 @@ export const updateJobTitleService = async (
             $set: { embedding: null, embeddingGeneratedAt: null }
         });
 
-        await jobTitleEmbeddingQueue.add(
-            'generate-embeddings',
-            { titleId: id.toString() },
-            {
-                attempts: 3,
-                backoff: { type: 'exponential', delay: 2000 },
-                timeout: 120000
-            } as any
+        await safeQueueOperation(
+            async () => {
+                const job = await jobTitleEmbeddingQueue.add(
+                    'generate-embeddings',
+                    { titleId: id.toString() },
+                    {
+                        attempts: 3,
+                        backoff: { type: 'exponential', delay: 2000 },
+                        timeout: 120000,
+                        jobId: `job-title-embedding-${id.toString()}`
+                    } as any
+                );
+
+                return { jobId: job.id!.toString() };
+            },
+            async () => {
+                const res = await upsertJobTitleEmbeddingService(id, true);
+
+                if (!res.data) {
+                    throw new Error("Embedding generation failed after update");
+                }
+
+                return res.data;
+            }
         );
 
         logger.info(`Job title updated — embedding invalidated and re-queued: ${id}`);

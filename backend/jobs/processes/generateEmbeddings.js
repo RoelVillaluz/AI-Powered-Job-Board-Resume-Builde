@@ -20,12 +20,13 @@ import {
     getJobPostingEmbeddingService,
     generateJobPostingEmbeddingService
 } from "../../services/jobPostings/jobPostingEmbeddingService.js";
-import { upsertJobTitleEmbeddingService } from "../../services/market/jobTitleService.js";
-import { upsertSkillEmbeddingService } from "../../services/market/skillService.js";
-import { upsertLocationEmbeddingService } from "../../services/market/locationService.js";
+import { getJobTitleEmbeddingService, upsertJobTitleEmbeddingService } from "../../services/market/jobTitleService.js";
+import { getSkillEmbeddingService, upsertSkillEmbeddingService } from "../../services/market/skillService.js";
+import { getLocationEmbeddingService, upsertLocationEmbeddingService } from "../../services/market/locationService.js";
 import { getSocketId } from "../../sockets/presence.js";
 import { getIO } from "../../sockets/index.js";
 import { Types } from "mongoose";
+import { getIndustryEmbeddingService, upsertIndustryEmbeddingService } from "../../services/market/industryService.js";
 
 /**
  * BullMQ processor for resume embedding generation jobs.
@@ -254,24 +255,25 @@ export const generateJobPostingEmbeddingsProcessor = async (job) => {
 /**
  * BullMQ processor for skill embedding generation jobs.
  *
- * Validates the skill if it exists, checks the embedding cache, and generates
- * new embeddings via Python if the cache is missing or invalidated.
+ * Validates the skill embedding cache and generates new embeddings via Python
+ * if the cache is missing or stale. Includes an idempotency guard so that
+ * BullMQ retries after a partial success (Python ran, DB write failed) skip
+ * the Python pipeline and return early instead of re-encoding unnecessarily.
  *
- * Progress events from Python are streamed via `runPython` inside
- * `generateSkillEmbeddingService` — this processor does not emit
- * socket events (job postings are a server-side background operation).
+ * Progress is tracked via job.updateProgress() — safe to call here because
+ * this processor only runs inside an active BullMQ worker context where Redis
+ * is confirmed healthy (unlike the safeQueueOperation fallback path, which
+ * calls upsertSkillEmbeddingService inline without a worker).
  *
  * @param {import('bullmq').Job} job
- *   BullMQ job with payload: `{ skillId: string, invalidateCache: boolean }`
+ *   BullMQ job with payload: `{ skillId: string }`
  *
  * @returns {Promise<{
  *   skillId: string,
- *   embeddingId: string,
- *   generatedAt: Date,
+ *   embeddingLength: number,
  *   cached: boolean
  * }>}
  *
- * @throws {NotFoundError} If the job posting document is not found.
  * @throws {Error} If the Python pipeline or DB operations fail.
  */
 export const generateSkillEmbeddingsProcessor = async (job) => {
@@ -285,33 +287,82 @@ export const generateSkillEmbeddingsProcessor = async (job) => {
     await job.updateProgress(5);
 
     try {
+        // ── Idempotency guard ────────────────────────────────────────────────
+        // If a previous attempt partially succeeded (Python ran, DB write failed),
+        // BullMQ will retry the whole job. Without this check we'd call Python
+        // again unnecessarily. A fresh embedding means we can return early.
+        const cached = await getSkillEmbeddingService(new Types.ObjectId(skillId));
+
+        if (cached.cached) {
+            logger.info('✅ [Queue] Fresh embedding already exists — skipping Python pipeline', {
+                jobId: job.id,
+                skillId,
+            });
+            await job.updateProgress(100);
+            return {
+                skillId,
+                embeddingLength: cached.data?.embedding?.length,
+                cached: true,
+            };
+        }
+        // ────────────────────────────────────────────────────────────────────
+
         const result = await upsertSkillEmbeddingService(
-            skillId,
-            job,        // pass job for progress tracking inside the service
-            () => {}    // no emit needed in queue context — no socket to stream to
+            new Types.ObjectId(skillId),
+            false,  // not a fallback — running inside a real BullMQ worker
+            job,    // safe to pass — worker context guarantees updateProgress works
+            () => {}
         );
 
         logger.info('✅ [Queue] Skill embedding generation complete', {
             jobId: job.id,
             skillId,
-            embeddingLength: result.data?.embedding?.length
+            embeddingLength: result.data?.embedding?.length,
         });
 
-        return result;
+        return {
+            skillId,
+            embeddingLength: result.data?.embedding?.length,
+            cached: false,
+        };
 
     } catch (error) {
         logger.error('💥 [Queue] Skill embedding generation failed', {
             jobId: job.id,
             skillId,
             error: error.message,
-            stack: error.stack
+            stack: error.stack,
         });
 
         // Re-throw so BullMQ marks the job as failed and triggers retry
         throw error;
     }
-}
+};
 
+/**
+ * BullMQ processor for job title embedding generation jobs.
+ *
+ * Validates the job title embedding cache and generates new embeddings via
+ * Python if the cache is missing or stale. Includes an idempotency guard so
+ * that BullMQ retries after a partial success (Python ran, DB write failed)
+ * skip the Python pipeline and return early instead of re-encoding unnecessarily.
+ *
+ * Progress is tracked via job.updateProgress() — safe to call here because
+ * this processor only runs inside an active BullMQ worker context where Redis
+ * is confirmed healthy (unlike the safeQueueOperation fallback path, which
+ * calls upsertJobTitleEmbeddingService inline without a worker).
+ *
+ * @param {import('bullmq').Job} job
+ *   BullMQ job with payload: `{ titleId: string }`
+ *
+ * @returns {Promise<{
+ *   titleId: string,
+ *   embeddingLength: number,
+ *   cached: boolean
+ * }>}
+ *
+ * @throws {Error} If the Python pipeline or DB operations fail.
+ */
 export const generateJobTitleEmbeddingsProcessor = async (job) => {
     const { titleId } = job.data;
 
@@ -323,40 +374,69 @@ export const generateJobTitleEmbeddingsProcessor = async (job) => {
     await job.updateProgress(5);
 
     try {
+        // ── Idempotency guard ────────────────────────────────────────────────
+        // If a previous attempt partially succeeded (Python ran, DB write failed),
+        // BullMQ will retry the whole job. Without this check we'd call Python
+        // again unnecessarily. A fresh embedding means we can return early.
+        const cached = await getJobTitleEmbeddingService(new Types.ObjectId(titleId));
+
+        if (cached.cached) {
+            logger.info('✅ [Queue] Fresh embedding already exists — skipping Python pipeline', {
+                jobId: job.id,
+                titleId,
+            });
+            await job.updateProgress(100);
+            return {
+                titleId,
+                embeddingLength: cached.data?.embedding?.length,
+                cached: true,
+            };
+        }
+        // ────────────────────────────────────────────────────────────────────
+
         const result = await upsertJobTitleEmbeddingService(
-            titleId,
-            job,
+            new Types.ObjectId(titleId),
+            false,  // not a fallback — running inside a real BullMQ worker
+            job,    // safe to pass — worker context guarantees updateProgress works
             () => {}
         );
 
         logger.info('✅ [Queue] Job title embedding generation complete', {
             jobId: job.id,
             titleId,
-            embeddingLength: result.data?.embedding?.length
+            embeddingLength: result.data?.embedding?.length,
         });
 
-        return result;
+        return {
+            titleId,
+            embeddingLength: result.data?.embedding?.length,
+            cached: false,
+        };
 
     } catch (error) {
         logger.error('💥 [Queue] Job title embedding generation failed', {
             jobId: job.id,
             titleId,
             error: error.message,
-            stack: error.stack
+            stack: error.stack,
         });
 
         throw error;
     }
-}
+};
 
 /**
  * BullMQ processor for location embedding generation jobs.
  *
- * Validates the location exists, then generates embeddings via the Python
- * pipeline. Progress is tracked via job.updateProgress() — safe to call here
- * because this processor only runs inside an active BullMQ worker context
- * where Redis is confirmed healthy (unlike the safeQueueOperation fallback
- * path, which calls upsertLocationEmbeddingService inline without a worker).
+ * Validates the location embedding cache and generates new embeddings via
+ * Python if the cache is missing or stale. Includes an idempotency guard so
+ * that BullMQ retries after a partial success (Python ran, DB write failed)
+ * skip the Python pipeline and return early instead of re-encoding unnecessarily.
+ *
+ * Progress is tracked via job.updateProgress() — safe to call here because
+ * this processor only runs inside an active BullMQ worker context where Redis
+ * is confirmed healthy (unlike the safeQueueOperation fallback path, which
+ * calls upsertLocationEmbeddingService inline without a worker).
  *
  * @param {import('bullmq').Job} job
  *   BullMQ job with payload: `{ locationId: string }`
@@ -371,21 +451,21 @@ export const generateJobTitleEmbeddingsProcessor = async (job) => {
  */
 export const generateLocationEmbeddingsProcessor = async (job) => {
     const { locationId } = job.data;
- 
+
     logger.info('📊 [Queue] Starting location embedding generation job', {
         jobId: job.id,
         locationId,
     });
- 
+
     await job.updateProgress(5);
- 
+
     try {
         // ── Idempotency guard ────────────────────────────────────────────────
         // If a previous attempt partially succeeded (Python ran, DB write failed),
         // BullMQ will retry the whole job. Without this check we'd call Python
         // again unnecessarily. A fresh embedding means we can return early.
         const cached = await getLocationEmbeddingService(new Types.ObjectId(locationId));
- 
+
         if (cached.cached) {
             logger.info('✅ [Queue] Fresh embedding already exists — skipping Python pipeline', {
                 jobId: job.id,
@@ -399,26 +479,26 @@ export const generateLocationEmbeddingsProcessor = async (job) => {
             };
         }
         // ────────────────────────────────────────────────────────────────────
- 
+
         const result = await upsertLocationEmbeddingService(
             new Types.ObjectId(locationId),
             false,  // not a fallback — running inside a real BullMQ worker
             job,    // safe to pass — worker context guarantees updateProgress works
             () => {}
         );
- 
+
         logger.info('✅ [Queue] Location embedding generation complete', {
             jobId: job.id,
             locationId,
             embeddingLength: result.data?.embedding?.length,
         });
- 
+
         return {
             locationId,
             embeddingLength: result.data?.embedding?.length,
             cached: false,
         };
- 
+
     } catch (error) {
         logger.error('💥 [Queue] Location embedding generation failed', {
             jobId: job.id,
@@ -426,7 +506,93 @@ export const generateLocationEmbeddingsProcessor = async (job) => {
             error: error.message,
             stack: error.stack,
         });
- 
+
+        throw error;
+    }
+};
+
+/**
+ * BullMQ processor for industry embedding generation jobs.
+ *
+ * Validates the industry embedding cache and generates new embeddings via
+ * Python if the cache is missing or stale. Includes an idempotency guard so
+ * that BullMQ retries after a partial success (Python ran, DB write failed)
+ * skip the Python pipeline and return early instead of re-encoding unnecessarily.
+ *
+ * Progress is tracked via job.updateProgress() — safe to call here because
+ * this processor only runs inside an active BullMQ worker context where Redis
+ * is confirmed healthy (unlike the safeQueueOperation fallback path, which
+ * calls upsertIndustryEmbeddingService inline without a worker).
+ *
+ * @param {import('bullmq').Job} job
+ *   BullMQ job with payload: `{ industryId: string }`
+ *
+ * @returns {Promise<{
+ *   industryId: string,
+ *   embeddingLength: number,
+ *   cached: boolean
+ * }>}
+ *
+ * @throws {Error} If the Python pipeline or DB operations fail.
+ */
+export const generateIndustryEmbeddingsProcessor = async (job) => {
+    const { industryId } = job.data;
+
+    logger.info('📊 [Queue] Starting industry embedding generation job', {
+        jobId: job.id,
+        industryId,
+    });
+
+    await job.updateProgress(5);
+
+    try {
+        // ── Idempotency guard ────────────────────────────────────────────────
+        // If a previous attempt partially succeeded (Python ran, DB write failed),
+        // BullMQ will retry the whole job. Without this check we'd call Python
+        // again unnecessarily. A fresh embedding means we can return early.
+        const cached = await getIndustryEmbeddingService(new Types.ObjectId(industryId));
+
+        if (cached.cached) {
+            logger.info('✅ [Queue] Fresh embedding already exists — skipping Python pipeline', {
+                jobId: job.id,
+                industryId,
+            });
+            await job.updateProgress(100);
+            return {
+                industryId,
+                embeddingLength: cached.data?.embedding?.length,
+                cached: true,
+            };
+        }
+        // ────────────────────────────────────────────────────────────────────
+
+        const result = await upsertIndustryEmbeddingService(
+            new Types.ObjectId(industryId),
+            false,  // not a fallback — running inside a real BullMQ worker
+            job,    // safe to pass — worker context guarantees updateProgress works
+            () => {}
+        );
+
+        logger.info('✅ [Queue] Industry embedding generation complete', {
+            jobId: job.id,
+            industryId,
+            embeddingLength: result.data?.embedding?.length,
+        });
+
+        return {
+            industryId,
+            embeddingLength: result.data?.embedding?.length,
+            cached: false,
+        };
+
+    } catch (error) {
+        logger.error('💥 [Queue] Industry embedding generation failed', {
+            jobId: job.id,
+            industryId,
+            error: error.message,
+            stack: error.stack,
+        });
+
         throw error;
     }
 };

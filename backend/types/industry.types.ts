@@ -75,9 +75,24 @@ export interface IndustryInterface {
     lastAnalyzed: Date;
     createdAt?: Date;
     updatedAt?: Date;
+    embeddingGeneratedAt?: Date;
+}
+
+export interface CreateIndustryPayload {
+    name: string
+    description?: string;
+    aliases?: string[];
 }
 
 export interface UpdateIndustryPayload {
+    name: string
     description?: string;
     aliases?: string[];
+}
+
+export interface IndustryEmbeddingData {
+    _id: Types.ObjectId;
+    name: string;
+    embedding: Embedding | null;
+    embeddingGeneratedAt?: Date | null;
 }

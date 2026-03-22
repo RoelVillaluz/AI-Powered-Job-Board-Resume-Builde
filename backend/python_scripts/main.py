@@ -277,6 +277,33 @@ def generate_location_embeddings(location_id: str) -> dict:
         logger.error(f"Error generating embedding for location {location_id}: {e}")
         return {"error": str(e)}
 
+def generate_industry_embeddings(industry_id: str) -> dict:
+    try:
+        industry_doc = db.industries.find_one(
+            {'_id': ObjectId(industry_id)},
+            {'name': 1}
+        )
+
+        if not industry_doc:
+            return {'error': f'Industry not found: {industry_id}'}
+        
+        name = industry_doc.get('name', '')
+        if not name:
+            return {'error': f'Industry has no name to encode: {industry_id}'}
+        
+        embedding = embedding_model.encode(name)
+
+        if embedding is None:
+            return {'error': f'Embedding model returned None for industry: {industry_id}'}
+        
+        return {
+            'industry_id': industry_id,
+            'embedding': embedding.detach().cpu().tolist()
+        }
+    except Exception as e:
+        logger.error(f'Error generating embedding for industry: {industry_id}: {e}')
+        return {'error': str(e)}
+
 def score_resume(resume_id: str) -> dict:
     """
     Calculate a comprehensive effectiveness score for a resume.
@@ -421,6 +448,12 @@ def main():
                 print(json.dumps({'error': 'Location ID required'}))
                 sys.exit(1)
             result = generate_location_embeddings(sys.argv[2])
+
+        elif command == 'generate_industry_embeddings':
+            if len(sys.argv) < 3:
+                print(json.dumps({'error': 'Industry ID required'}))
+                sys.exit(1)
+            result = generate_industry_embeddings(sys.argv[2])
 
         elif command == 'score_resume':
             if len(sys.argv) < 3:

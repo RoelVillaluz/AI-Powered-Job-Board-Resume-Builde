@@ -72,3 +72,32 @@ export const EMPLOYER_STEPS: StepConfig[] = [
         description: "You're ready! Start your journey.",
     },
 ];
+
+type CreateJobSteps = {
+    key: "details" | "skillsAndRequirements" | "questions" | "finished";
+    icon: string;
+    title: string;
+}
+
+export const CREATE_JOB_STEPS: CreateJobSteps[] = [
+    {
+        key: "details",
+        icon: "fa-solid fa-address-book",
+        title: "Add details.",
+    },
+    {
+        key: "skillsAndRequirements",
+        icon: "fa-solid fa-list-check",
+        title: "Skills and Requirements",
+    },
+    {
+        key: "questions",
+        icon: "fa-solid fa-clipboard-question",
+        title: "Pre-screening Questions"
+    },
+    {
+        key: "finished",
+        icon: "fa-solid fa-check",
+        title: "Finished!"
+    }
+]

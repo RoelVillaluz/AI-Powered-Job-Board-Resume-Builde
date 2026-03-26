@@ -640,6 +640,142 @@ textarea
     padding-left: 2rem;
 }
 
+/* Dropdown container */
+.searchable-select {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.searchable-select label {
+  font-size: clamp(0.5rem, 1vw, 2rem);
+  font-weight: 600;
+  margin-bottom: -0.5rem;
+}
+
+.searchable-select input {
+  width: 100%;
+  padding: 5px 10px;
+  font-size: clamp(0.5rem, 1vw, 1.5rem);
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+/* Base dropdown (hidden) */
+.searchable-select .dropdown {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  gap: 0.5rem;  
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 0.25rem;
+  z-index: 10;
+  width: 100%;
+  list-style-type: none;
+
+  /* Start hidden */
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Visible dropdown */
+.searchable-select .dropdown.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Base li animation */
+.searchable-select .dropdown li {
+  padding: 8px 12px;
+  font-size: clamp(0.5rem, 1vw, 1rem);
+  font-weight: 500;
+  border-radius: 4px;
+  width: 100%;
+  text-align: left; 
+  cursor: pointer;
+  margin-left: 0;
+
+  /* Start invisible and shifted up */
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* Cascade animation for show */
+.searchable-select .dropdown.show li {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.searchable-select .dropdown li.no-results {
+  color: #888;
+  font-style: italic;
+  cursor: default;
+  background-color: transparent;
+}
+
+/* Use nth-child to stagger the animation */
+.searchable-select .dropdown.show li:nth-child(1) {
+  transition-delay: 0.05s;
+}
+.searchable-select .dropdown.show li:nth-child(2) {
+  transition-delay: 0.10s;
+}
+.searchable-select .dropdown.show li:nth-child(3) {
+  transition-delay: 0.15s;
+}
+.searchable-select .dropdown.show li:nth-child(4) {
+  transition-delay: 0.20s;
+}
+.searchable-select .dropdown.show li:nth-child(5) {
+  transition-delay: 0.25s;
+}
+.searchable-select .dropdown.show li:nth-child(n+6) {
+  transition-delay: 0.3s;
+}
+
+/* Only apply hover if not loading */
+.searchable-select .dropdown:not(.loading) li:hover {
+  background-color: var(--tertiary);
+}
+
+/* Skeleton for search dropdown */
+.search-dropdown-skeleton {
+  position: relative;
+  overflow: hidden;
+  height: 1.5rem;
+  margin-bottom: 0.5rem;
+  border-radius: 5px;
+  background-color: #e6e4e3;
+}
+
+.search-dropdown-skeleton::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -150px;
+  height: 100%;
+  width: 150px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.4),
+    transparent
+  );
+  animation: skeleton-shimmer 2.5s ease-in-out infinite;
+}
+
 .user-skills {
     max-width: 75%;
 }

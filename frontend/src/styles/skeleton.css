@@ -58,6 +58,33 @@
     border-radius: 20px;
 }
 
+/* Skeleton for search dropdown */
+.shimmer-bar {
+  position: relative;
+  overflow: hidden;
+  height: 1.5rem;
+  margin-bottom: 0.5rem;
+  border-radius: 5px;
+  background-color: #e6e4e3;
+  pointer-events: none;
+}
+
+.shimmer-bar::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -150px;
+  height: 100%;
+  width: 150px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.4),
+    transparent
+  );
+  animation: skeleton-shimmer 2.5s ease-in-out infinite;
+}
+
 #job-details .company-logo.skeleton {
     background-color: var(--light-gray);
 }

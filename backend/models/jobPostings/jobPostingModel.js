@@ -3,9 +3,15 @@ import mongoose from "mongoose";
 
 const jobPostingSchema = new mongoose.Schema({
     title: {
-        type: mongoose.Schema.Types.Mixed,
-        required: true,
-        ref: 'JobTitle'
+        _id: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'JobTitle',
+            required: true,
+        },
+        name: {
+            type: String,
+            required: true,
+        },
     },
     company: {
         type: mongoose.Schema.Types.ObjectId,
@@ -19,8 +25,15 @@ const jobPostingSchema = new mongoose.Schema({
         default: 'Active',
     },
     location: {
-        type: String,
-        required: true
+        _id: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Location',
+            required: true
+        },
+        name: {
+            type: String,
+            required: true
+        }
     },
     jobType: {
         type: String,
@@ -89,6 +102,11 @@ const jobPostingSchema = new mongoose.Schema({
         }],
     },
     skills: [{
+        _id: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Skill',
+            required: true
+        },
         name: { 
             type: String, 
             required: true 

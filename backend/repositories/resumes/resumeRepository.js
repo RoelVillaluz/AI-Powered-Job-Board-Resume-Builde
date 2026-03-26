@@ -29,6 +29,7 @@ export const findResumesRepo = async ({ filters = {}, sortBy = {}, page = 1, lim
     const [resumes, total] = await Promise.all([
         Resume.find(filters)
             .populate('user', '_id')
+            .populate('jobTitle', '_id title')
             .sort(sortBy)
             .skip(skip)
             .limit(limit)
@@ -61,6 +62,7 @@ export const findResumesRepo = async ({ filters = {}, sortBy = {}, page = 1, lim
 export const findResumeByIdRepo = async (id) => {
     return await Resume.findById(id)
         .populate('user', '_id')
+        .populate('jobTitle', '_id title')
         .lean();
 };
 
@@ -79,6 +81,7 @@ export const findResumeByIdRepo = async (id) => {
 export const findResumesByUserRepo = async (userId) => {
     return await Resume.find({ user: userId })
         .populate('user', '_id')
+        .populate('jobTitle', '_id title')
         .lean()
 }
 

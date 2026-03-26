@@ -124,7 +124,7 @@ function JobDetailHeader({ jobId, showModal }) {
                         <div className="row">
                             <div>
                                 <h3>{company?.name}</h3>
-                                <h4>{job.location}</h4>
+                                <h4>{typeof job.location === 'string' ? job.location : job.location.name || ""}</h4>
                             </div>
                             <JobActions 
                                 job={job} 

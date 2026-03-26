@@ -45,7 +45,7 @@ const JobPostingCard = ({ job, user, resume, onShowModal }) => {
                         <i className="fa-solid fa-building"></i>
                     )}
                     <div>
-                        <h2>{job.title}</h2>
+                        <h2>{typeof job.title === 'string' ? job.title : job.title.name || ""}</h2>
                         <h3>{job.company.name}</h3>
                     </div>
                 </div>
@@ -56,7 +56,7 @@ const JobPostingCard = ({ job, user, resume, onShowModal }) => {
                     <div className="tags-list">
                         <div className="tag-item">
                             <i className="fa-solid fa-location-dot" aria-hidden="true"></i>
-                            <span>{job.location}</span>
+                            <span><h4>{typeof job.location === 'string' ? job.location : job.location.name || ""}</h4></span>
                         </div>
                         <div className="tag-item">
                             <i className="fa-solid fa-briefcase" aria-hidden="true"></i>

@@ -39,6 +39,11 @@ export interface SkillInterface {
   updatedAt?: Date;
 }
 
+export type SkillSearchResult = {
+  _id: Types.ObjectId;
+  name: string;
+}
+
 // What the client sends when creating a skill
 export interface CreateSkillPayload {
     name: string;

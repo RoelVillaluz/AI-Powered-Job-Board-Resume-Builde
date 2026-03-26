@@ -653,7 +653,7 @@ textarea
 .searchable-select label {
   font-size: clamp(0.5rem, 1vw, 2rem);
   font-weight: 600;
-  margin-bottom: -0.5rem;
+  margin-bottom: -0.25rem;
 }
 
 .searchable-select input {

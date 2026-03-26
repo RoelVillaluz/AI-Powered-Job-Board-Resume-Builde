@@ -8,7 +8,6 @@ import Register from "./pages/Register";
 import SignIn from "./pages/SignIn";
 import GetStartedForm from "./pages/GetStartedForm";
 import Dashboard from "./pages/Dashboard";
-import CreateJobForm from "./pages/CreateJobForm";
 import JobPostingsList from "./pages/JobPostingsList";
 import JobDetailPage from "./pages/JobDetailPage.jsx";
 import { useEffect } from "react";
@@ -17,6 +16,7 @@ import ChatsPage from "./pages/ChatsPage";
 import JobApplicantsPage from "./pages/JobApplicantsPage.jsx";
 import JobCandidatesPage from "./pages/JobCandidatesPage.jsx";
 import { Navigate } from "react-router-dom";
+import CreateJobForm from "./pages/CreateJobForm";
 
 function ScrollToTop() {
   const { pathname } = useLocation();

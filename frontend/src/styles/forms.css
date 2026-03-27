@@ -751,6 +751,10 @@ textarea
   background-color: var(--tertiary);
 }
 
+.searchable-select .dropdown:not(.loading) li.active {
+    background-color: var(--tertiary);
+}
+
 /* Skeleton for search dropdown */
 .search-dropdown-skeleton {
   position: relative;

@@ -30,8 +30,14 @@ export const COMPANY_INITIAL_FORM_DATA: Omit<EmployerFormData, 'user'> = {
 };
 
 export const CREATE_JOB_INITIAL_FORM_DATA: CreateJobFormData = {
-    title: "",
-    location: "",
+    title: {
+        _id: '',
+        name: ''
+    },
+    location: {
+        _id: '',
+        name: ''
+    },
     jobType: "Full-Time",
     company: '',
     experienceLevel: undefined,
@@ -49,6 +55,10 @@ export const CREATE_JOB_INITIAL_FORM_DATA: CreateJobFormData = {
         yearsOfExperience: undefined,
         certifications: [],
     },
-    skills: [],
+    skills: [{
+        _id: '',
+        name: '',
+        requirementLevel: undefined
+    }],
     preScreeningQuestions: [],
 };

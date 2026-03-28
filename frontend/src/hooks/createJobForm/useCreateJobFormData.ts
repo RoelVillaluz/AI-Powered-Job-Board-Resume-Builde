@@ -7,62 +7,38 @@ export type SelectOption = {
   name: string;
 };
 
-/**
- * Sets a deeply nested value on an object given a dot-separated key path,
- * returning a new object (immutable update). Supports paths like "salary.min".
- *
- * @param obj   - The source object to update
- * @param path  - Dot-separated key path, e.g. "salary.min" or "title"
- * @param value - The new value to set at that path
- * @returns A new object with the value set at the given path
- */
 function setDeep<T extends Record<string, any>>(obj: T, path: string, value: any): T {
   const keys = path.split(".");
-  if (keys.length === 1) {
-    return { ...obj, [path]: value };
-  }
+  if (keys.length === 1) return { ...obj, [path]: value };
   const [head, ...rest] = keys;
-  return {
-    ...obj,
-    [head]: setDeep(obj[head] ?? {}, rest.join("."), value),
-  };
+  return { ...obj, [head]: setDeep(obj[head] ?? {}, rest.join("."), value) };
 }
 
 /**
  * useCreateJobFormData
  * ---------------------
- * Manages all state and update logic for the Create Job multi-step form.
+ * Manages all state for the Create Job multi-step form.
+ * The return value is spread directly into `JobFormProvider` as its value.
  *
- * Exposes:
- * - `formData`     — the current form state
- * - `setFormData`  — direct setter for bulk updates (e.g. loading a draft)
- * - `handleChange` — generic change handler for text inputs and textareas;
- *                    supports dot-notation `name` attributes for nested fields
- *                    (e.g. name="salary.min")
- * - `handleSelect` — handler for SearchableSelect; stores the full `{_id, name}`
- *                    object on a top-level field (e.g. "title", "location")
- * - `handleKeyDown`— prevents Enter from accidentally submitting the form
- *
- * @example
- * const { formData, handleChange, handleSelect } = useCreateJobFormData();
- *
- * // Text input
- * <input name="experienceLevel" onChange={handleChange} />
- *
- * // Nested field (maps to formData.salary.min)
- * <input name="salary.min" onChange={handleChange} />
- *
- * // SearchableSelect
- * <SearchableSelect onSelect={(opt) => handleSelect("title", opt)} />
+ * - `formData` / `setFormData`   — current form state
+ * - `handleChange`               — dot-notation aware change handler
+ * - `handleSelect`               — commits a SearchableSelect selection
+ * - `handleClearSelection`       — resets a SearchableSelect field to empty
+ * - `handleKeyDown`              — prevents accidental Enter submission
+ * - `touched` / `setTouched`     — tracks which fields have been interacted
+ *                                  with; consumed by `useFormValidation` to
+ *                                  gate error visibility per field
  */
 export const useCreateJobFormData = () => {
   const [formData, setFormData] = useState<CreateJobFormData>(CREATE_JOB_INITIAL_FORM_DATA);
 
   /**
-   * Generic change handler for `<input>` and `<textarea>` elements.
-   * Reads `e.target.name` as a dot-separated path so nested fields
-   * like "salary.min" are updated without custom branching logic.
+   * Tracks which field names the user has interacted with.
+   * Only fields in this set will have their errors surfaced in the UI.
+   * Reset to an empty Set on each step advance via `useStepNavigation`.
    */
+  const [touched, setTouched] = useState<Set<string>>(new Set());
+
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
@@ -88,5 +64,14 @@ export const useCreateJobFormData = () => {
     if (e.key === "Enter") e.preventDefault();
   };
 
-  return { formData, setFormData, handleChange, handleKeyDown, handleSelect, handleClearSelection };
+  return {
+    formData,
+    setFormData,
+    handleChange,
+    handleKeyDown,
+    handleSelect,
+    handleClearSelection,
+    touched,
+    setTouched,
+  };
 };

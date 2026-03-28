@@ -18,7 +18,7 @@ export const useCreateJobFormSubmission = () => {
   const token = useAuthStore((state) => state.token);
 
   const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,7 +28,7 @@ export const useCreateJobFormSubmission = () => {
       return;
     }
 
-    setIsLoading(true);
+    setIsSubmitting(true);
     setError(null);
 
     try {
@@ -42,9 +42,9 @@ export const useCreateJobFormSubmission = () => {
       const message = err.response?.data?.message;
       setError(message ?? "Network error. Please try again.");
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   };
 
-  return { error, isLoading, handleFormSubmit };
+  return { error, isSubmitting, handleFormSubmit };
 };

@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import type { SelectOption } from "../../hooks/createJobForm/useCreateJobFormData";
 
 interface SearchableSelectProps {
-  label: string;
+  label?: string;
   name: string;
   value: string;
   options?: SelectOption[];

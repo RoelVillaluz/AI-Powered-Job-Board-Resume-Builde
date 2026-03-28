@@ -43,10 +43,8 @@ export const CREATE_JOB_INITIAL_FORM_DATA: CreateJobFormData = {
     experienceLevel: undefined,
     salary: {
         currency: "$",
-        salary: {
-            min: null,
-            max: null,
-        },
+        min: null,
+        max: null,
         frequency: "year",
     },
     requirements: {

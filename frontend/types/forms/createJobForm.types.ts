@@ -22,10 +22,8 @@ export type CreateJobFormData = {
     experienceLevel?: 'Intern' | 'Entry' | 'Mid-Level' | 'Senior';
     salary: {
         currency: '$' | '₱' | '€' | '¥' | '£';
-        salary: {
         min: number | null;
         max: number | null;
-        };
         frequency: 'hour' | 'day' | 'week' | 'month' | 'year';
     };
     requirements: {

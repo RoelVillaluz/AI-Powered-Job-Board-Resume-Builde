@@ -6,12 +6,13 @@ import { useSearchJobTitleQuery } from "../../../hooks/market/jobTitle/useJobTit
 import { useSearchLocationQuery } from "../../../hooks/market/locations/useLocationQueries";
 import { useDebounce } from "../../../hooks/useDebounce";
 import { InputField } from "../../FormComponents/InputField";
+import { SalaryInputField } from "./SalaryInputField";
 
 type JobDetailsSectionProps = {
   formData: CreateJobFormData;
   handleChange: (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => void;
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+    ) => void;
   handleSelect: (field: "title" | "location", option: SelectOption) => void;
 };
 
@@ -112,6 +113,10 @@ function JobDetailsSection({
           name="jobType"
           value={formData.jobType}
           onChange={handleChange}
+        />
+        <SalaryInputField
+            formData={formData}
+            onChange={handleChange}
         />
       </div>
     </section>

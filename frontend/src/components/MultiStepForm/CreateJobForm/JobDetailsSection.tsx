@@ -1,45 +1,35 @@
 import { useState } from "react";
-import type { CreateJobFormData } from "../../../../types/forms/createJobForm.types";
 import { SearchableSelect } from "../../FormComponents/SearchableSelect";
-import type { SelectOption } from "../../../hooks/createJobForm/useCreateJobFormData";
 import { useSearchJobTitleQuery } from "../../../hooks/market/jobTitle/useJobTitleQueries";
 import { useSearchLocationQuery } from "../../../hooks/market/locations/useLocationQueries";
 import { useDebounce } from "../../../hooks/useDebounce";
-import { InputField } from "../../FormComponents/InputField";
+import { useJobForm } from "../../../contexts/JobPostingFormContext";
 import { SalaryInputField } from "./SalaryInputField";
-
-type JobDetailsSectionProps = {
-  formData: CreateJobFormData;
-  handleChange: (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
-    ) => void;
-  handleSelect: (field: "title" | "location", option: SelectOption) => void;
-};
+import { JobTypeField } from "./JobTypeField";
+import { ExperienceLevelField } from "./ExperienceLevelField";
 
 /**
  * JobDetailsSection
  * ------------------
  * Step 1 of the Create Job multi-step form. Collects the core job metadata:
- * title, location, experience level, and job type.
+ * title, location, experience level, job type, and salary.
  *
- * Title and location use SearchableSelect with debounced API queries.
- * The search inputs are kept as local state so the user can type freely
- * without every keystroke writing to the global form state; `onSelect`
- * commits the final confirmed value to `formData` via `handleSelect`.
+ * Reads `formData` and `handleSelect` from `JobFormContext` — no props needed.
+ * Field components (`SalaryInputField`, `JobTypeField`, `ExperienceLevelField`)
+ * also read from context directly, so this component only manages the
+ * SearchableSelect local search state that sits between the user's keystrokes
+ * and the committed formData values.
  *
- * @param formData     - Current form state from useCreateJobFormData
- * @param handleChange - Generic change handler for flat text inputs
- * @param handleSelect - Commit handler for SearchableSelect confirmations
+ * ## Local vs committed state
+ * `jobTitleSearch` and `locationSearch` are intentionally separate from
+ * `formData` — they represent the in-progress query string, not the
+ * confirmed selection. On select, `handleSelect` commits `{ _id, name }`
+ * to `formData`; the local string is seeded from `formData` on mount so
+ * the field is never blank after a page re-render.
  */
-function JobDetailsSection({
-  formData,
-  handleChange,
-  handleSelect,
-}: JobDetailsSectionProps) {
-  // Local search strings are intentionally separate from formData — they
-  // represent the *in-progress* typed query, not the committed selection.
-  // On select, formData is updated via handleSelect; on a fresh load or
-  // form reset, we seed from formData so the field is never blank.
+function JobDetailsSection() {
+  const { formData, handleSelect } = useJobForm();
+
   const [jobTitleSearch, setJobTitleSearch] = useState(
     formData.title.name ?? ""
   );
@@ -73,7 +63,6 @@ function JobDetailsSection({
             onChange={setJobTitleSearch}
             onSelect={(opt) => {
               handleSelect("title", opt);
-              // Keep the search input in sync with the confirmed selection
               setJobTitleSearch(opt.name);
             }}
             options={jobTitleOptions.map((job) => ({
@@ -102,22 +91,9 @@ function JobDetailsSection({
           />
         </div>
 
-        <InputField
-          label="Experience Level"
-          name="experienceLevel"
-          value={formData.experienceLevel ?? ""}
-          onChange={handleChange}
-        />
-        <InputField
-          label="Job Type"
-          name="jobType"
-          value={formData.jobType}
-          onChange={handleChange}
-        />
-        <SalaryInputField
-            formData={formData}
-            onChange={handleChange}
-        />
+        <ExperienceLevelField />
+        <JobTypeField />
+        <SalaryInputField />
       </div>
     </section>
   );

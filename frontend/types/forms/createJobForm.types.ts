@@ -1,7 +1,23 @@
+export type FormJobTitle = {
+    _id?: string;
+    name: string;
+}
+
+export type FormLocation = {
+    _id?: string;
+    name: string;
+}
+
+export type FormSkill = {
+    _id?: string; // Skill ID
+    name: string;
+    requirementLevel?: 'required' | 'preferred' | 'nice-to-have' | undefined;
+}
+
 export type CreateJobFormData = {
-    title: string; // Job title name (flattened for form)
+    title: FormJobTitle;
     company: string; // Company ID
-    location: string; // Location ID as string
+    location: FormLocation
     jobType: 'Full-Time' | 'Part-Time' | 'Contract' | 'Internship';
     experienceLevel?: 'Intern' | 'Entry' | 'Mid-Level' | 'Senior';
     salary: {
@@ -18,11 +34,7 @@ export type CreateJobFormData = {
         yearsOfExperience?: number;
         certifications?: string[];
     };
-    skills: {
-        _id: string; // Skill ID
-        name: string;
-        requirementLevel?: 'required' | 'preferred' | 'nice-to-have';
-    }[];
+    skills: FormSkill[];
     preScreeningQuestions?: {
         question: string;
         required?: boolean;

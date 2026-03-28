@@ -8,6 +8,7 @@ interface SearchableSelectProps {
   options?: SelectOption[];
   onChange: (value: string) => void;
   onSelect?: (option: SelectOption) => void;
+  onClear?: () => void;
   isLoading?: boolean;
   placeholder: string;
 }
@@ -59,6 +60,7 @@ export function SearchableSelect({
   options = [],
   onChange,
   onSelect,
+  onClear,
   isLoading,
   placeholder,
 }: SearchableSelectProps) {
@@ -149,29 +151,49 @@ export function SearchableSelect({
     }
   };
 
+  // ─── Clear Button Handler ─────────────────────────────────────────────────────
+  const handleClearValue = () => {
+    onClear?.()
+    setIsOpen(false);
+  }
+
+
   // ─── Render ──────────────────────────────────────────────────────────────────
 
   return (
     <div className="searchable-select" ref={containerRef}>
       <label htmlFor={inputId}>{label}</label>
 
-      <input
-        id={inputId}
-        type="text"
-        name={name}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        onKeyDown={handleKeyDown}
-        placeholder={placeholder}
-        autoComplete="off"
-        role="combobox"
-        aria-autocomplete="list"
-        aria-expanded={isOpen}
-        aria-controls={listboxId}
-        aria-activedescendant={
-          activeIndex >= 0 ? getOptionId(activeIndex) : undefined
-        }
-      />
+      <div className="input-wrapper">
+        <input
+          id={inputId}
+          type="text"
+          name={name}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder={placeholder}
+          autoComplete="off"
+          role="combobox"
+          aria-autocomplete="list"
+          aria-expanded={isOpen}
+          aria-controls={listboxId}
+          aria-activedescendant={
+            activeIndex >= 0 ? getOptionId(activeIndex) : undefined
+          }
+        />
+
+        {value && (
+          <button
+            type="button"
+            className="clear-btn"
+            onClick={handleClearValue}
+            aria-label="Clear input"
+          >
+            <i className="fa-solid fa-xmark"></i>
+          </button>
+        )}
+      </div>
 
       {hasContent && (
         <ul
@@ -180,38 +202,36 @@ export function SearchableSelect({
           aria-label={label}
           className={`dropdown ${isOpen ? "show" : ""} ${isLoading ? "loading" : ""}`}
         >
-          {isLoading ? (
-            [...Array(5)].map((_, i) => (
-              <li key={i} aria-hidden="true">
-                <div
-                  className="shimmer-bar"
-                  style={{ width: `${55 + (i % 3) * 15}%` }}
-                />
-              </li>
-            ))
-          ) : filteredOptions.length > 0 ? (
-            filteredOptions.map((opt, index) => (
-              <li
-                key={opt._id ?? opt.name}
-                id={getOptionId(index)}
-                role="option"
-                aria-selected={index === activeIndex}
-                className={index === activeIndex ? "active" : ""}
-                // onMouseDown fires before the input's blur event, so the
-                // outside-click handler doesn't swallow the selection first
-                onMouseDown={(e) => {
-                  e.preventDefault();
-                  handleSelectOption(opt);
-                }}
-              >
-                {opt.name}
-              </li>
-            ))
-          ) : (
-            <li className="no-results" role="option" aria-selected={false}>
-              No items found for &ldquo;{value}&rdquo;
-            </li>
-          )}
+          {isLoading
+            ? [...Array(5)].map((_, i) => (
+                <li key={i} aria-hidden="true">
+                  <div
+                    className="shimmer-bar"
+                    style={{ width: `${55 + (i % 3) * 15}%` }}
+                  />
+                </li>
+              ))
+            : filteredOptions.length > 0
+            ? filteredOptions.map((opt, index) => (
+                <li
+                  key={opt._id ?? opt.name}
+                  id={getOptionId(index)}
+                  role="option"
+                  aria-selected={index === activeIndex}
+                  className={index === activeIndex ? "active" : ""}
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    handleSelectOption(opt);
+                  }}
+                >
+                  {opt.name}
+                </li>
+              ))
+            : (
+                <li className="no-results" role="option" aria-selected={false}>
+                  No items found for &ldquo;{value}&rdquo;
+                </li>
+              )}
         </ul>
       )}
     </div>

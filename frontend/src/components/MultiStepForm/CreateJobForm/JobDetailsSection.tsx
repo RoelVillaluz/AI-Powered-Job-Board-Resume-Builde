@@ -28,7 +28,7 @@ import { ExperienceLevelField } from "./ExperienceLevelField";
  * the field is never blank after a page re-render.
  */
 function JobDetailsSection() {
-  const { formData, handleSelect } = useJobForm();
+  const { formData, handleSelect, handleClearSelection } = useJobForm();
 
   const [jobTitleSearch, setJobTitleSearch] = useState(
     formData.title.name ?? ""
@@ -69,6 +69,10 @@ function JobDetailsSection() {
               _id: job._id.toString(),
               name: job.title,
             }))}
+            onClear={() => {
+              handleClearSelection("title");
+              setJobTitleSearch("");
+            }}
             isLoading={isJobTitleLoading}
             placeholder="Search job titles..."
           />
@@ -86,6 +90,10 @@ function JobDetailsSection() {
               _id: loc._id.toString(),
               name: loc.name,
             }))}
+            onClear={() => {
+              handleClearSelection("location");
+              setLocationSearch("");
+            }}
             isLoading={isLocationLoading}
             placeholder="Search locations..."
           />

@@ -9,6 +9,7 @@ type JobFormContextValue = {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => void;
   handleSelect: (field: "title" | "location" | "skill", option: SelectOption) => void;
+  handleClearSelection: (field: "title" | "location" | "skill") => void; 
 };
 
 const JobFormContext = createContext<JobFormContextValue | null>(null);

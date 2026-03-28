@@ -91,10 +91,22 @@ export const useCreateJobFormData = () => {
     }));
   };
 
+  const handleClearSelection = (
+    field: "title" | "location" | "skill",
+  ) => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: {
+        _id: '',
+        name: '',
+      }
+    }))
+  }
+
   /** Prevents accidental form submission when the user presses Enter in an input. */
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") e.preventDefault();
   };
 
-  return { formData, setFormData, handleChange, handleKeyDown, handleSelect };
+  return { formData, setFormData, handleChange, handleKeyDown, handleSelect, handleClearSelection };
 };

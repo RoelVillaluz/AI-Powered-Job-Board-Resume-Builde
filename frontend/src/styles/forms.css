@@ -656,6 +656,33 @@ textarea
   margin-bottom: -0.25rem;
 }
 
+/* Wrap input and button relative for absolute positioning */
+.searchable-select .input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+/* Clear button inside input */
+.searchable-select .clear-btn {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  transform: translateY(-50%);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  color: #888;
+}
+
+.searchable-select .clear-btn:hover {
+  color: #333;
+}
+
 .searchable-select input {
   width: 100%;
   padding: 5px 10px;

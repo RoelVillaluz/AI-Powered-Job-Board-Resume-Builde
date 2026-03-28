@@ -1,95 +1,85 @@
 import { useEffect, useState } from "react";
+import { useJobForm } from "../../contexts/JobPostingFormContext";
 import { CREATE_JOB_STEPS } from "../../../constants/steps";
-import type { CreateJobFormData } from "../../../types/forms/createJobForm.types";
 
-export const useStepNavigation = (
-    formData: CreateJobFormData
-) => {
-    const [currentStepIndex, setCurrentStepIndex] = useState<number>(0);
-    const [isNextAllowed, setIsNextAllowed] = useState<boolean>(false);
+/**
+ * useStepNavigation
+ * ------------------
+ * Manages the current step index and computes whether the user
+ * is allowed to advance, based on `formData` from `JobFormContext`.
+ *
+ * Validation rules per step:
+ * - `details`               — title, location, jobType, and a valid salary range
+ * - `skillsAndRequirements` — ≥3 skills and ≥3 requirement entries
+ * - `questions`             — optional; always allowed
+ * - `finished`              — always allowed
+ */
+export const useStepNavigation = () => {
+  const { formData } = useJobForm();
+  const [currentStepIndex, setCurrentStepIndex] = useState(0);
+  const [isNextAllowed, setIsNextAllowed] = useState(false);
 
-    const steps = CREATE_JOB_STEPS
-    const currentStep = steps[currentStepIndex];
+  const steps = CREATE_JOB_STEPS;
+  const currentStep = steps[currentStepIndex];
 
-    useEffect(() => {
-        if (!currentStep) {
+  useEffect(() => {
+    if (!currentStep) {
+      setIsNextAllowed(false);
+      return;
+    }
+
+    switch (currentStep.key) {
+      case "details": {
+        const { title, location, jobType, salary } = formData;
+        const isValid =
+          title?.toString().trim() !== "" &&
+          location?.toString().trim() !== "" &&
+          jobType?.toString().trim() !== "" &&
+          salary.min !== null &&
+          salary.max !== null &&
+          salary.min < salary.max &&
+          salary.frequency.trim() !== "";
+
+        setIsNextAllowed(isValid);
+        break;
+      }
+
+      case "skillsAndRequirements": {
+        const hasSkills = formData.skills.length >= 3;
+        const requirementsCount =
+          (formData.requirements.description ? 1 : 0) +
+          (formData.requirements.certifications?.length ?? 0);
+
+        setIsNextAllowed(hasSkills && requirementsCount >= 3);
+        break;
+      }
+
+      case "questions":
+        // Pre-screening questions are optional
+        setIsNextAllowed(true);
+        break; // ← was missing; previously fell through to "finished"
+
+      case "finished":
+        setIsNextAllowed(true);
+        break;
+
+      default:
         setIsNextAllowed(false);
-        return;
-        }
+        break;
+    }
+  }, [currentStepIndex, formData, currentStep]);
 
-        switch (currentStep.key) {
-        case "details": {
-            const requiredFields: (keyof CreateJobFormData)[] = [
-                "title",
-                "location",
-                "jobType",
-                "salary",
-            ];
+  const nextStep = () => {
+    if (currentStepIndex < steps.length - 1) {
+      setCurrentStepIndex((prev) => prev + 1);
+    }
+  };
 
-            const isValid = requiredFields.every((field) => {
-                const value = formData[field];
+  const prevStep = () => {
+    if (currentStepIndex > 0) {
+      setCurrentStepIndex((prev) => prev - 1);
+    }
+  };
 
-                if (field === "salary") {
-                    // TypeScript now knows value is formData.salary
-                    const salaryValue = formData.salary; // safe
-                    return (
-                    salaryValue.salary.min !== null &&
-                    salaryValue.salary.max !== null &&
-                    salaryValue.frequency.trim() !== ""
-                    );
-                }
-
-                return value?.toString().trim() !== "";
-            });
-
-            setIsNextAllowed(isValid);
-            break;
-        }
-
-        case "skillsAndRequirements": {
-            // Minimum 3 skills
-            const hasSkills = formData.skills.length >= 3;
-
-            // Minimum 3 requirements (using description + optional array items)
-            const requirementsCount =
-            (formData.requirements.description ? 1 : 0) +
-            (formData.requirements.certifications?.length ?? 0);
-            const hasRequirements = requirementsCount >= 3;
-
-            setIsNextAllowed(hasSkills && hasRequirements);
-            break;
-        }
-
-        case "questions": {
-            // Pre-screening questions are only optional
-            const hasQuestions = (formData.preScreeningQuestions?.length ?? 0) > 0;
-            setIsNextAllowed(true);
-        }
-
-        case "finished": {
-            // Final step is always allowed
-            setIsNextAllowed(true);
-            break;
-        }
-
-        default:
-            setIsNextAllowed(false);
-            break;
-        }
-    }, [currentStepIndex, formData, currentStep]);
-
-    const nextStep = async () => {
-        if (currentStepIndex < CREATE_JOB_STEPS.length - 1) {
-            setCurrentStepIndex((prev) => prev + 1);
-        }
-    };
-
-    const prevStep = () => {
-        if (currentStepIndex > 0) {
-            setCurrentStepIndex((prev) => prev - 1);
-        }
-    };
-
- 
-    return { currentStepIndex, isNextAllowed, nextStep, prevStep, steps };
-}
+  return { currentStepIndex, isNextAllowed, nextStep, prevStep, steps };
+};

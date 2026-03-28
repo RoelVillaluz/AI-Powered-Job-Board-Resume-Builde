@@ -1,54 +1,50 @@
 import { useState } from "react";
-import type { CreateJobFormData } from "../../../types/forms/createJobForm.types";
-import { useAuthStore } from "../../stores/authStore";
 import axios from "axios";
+import { useAuthStore } from "../../stores/authStore";
+import { useJobForm } from "../../contexts/JobPostingFormContext";
 import { BASE_API_URL } from "../../config/api";
 
-export const useCreateJobFormSubmission = (
-    formData: CreateJobFormData
-) => {
-    const user = useAuthStore((state) => state.user);
-    const token = useAuthStore((state) => state.token);
-    const [error, setError] = useState<string | null>(null);
-    const [isLoading, setIsLoading] = useState<boolean>(false);
+/**
+ * useCreateJobFormSubmission
+ * ---------------------------
+ * Handles POST submission of the create-job form.
+ * Reads `formData` from `JobFormContext` — no prop needed.
+ *
+ * Returns `error` for the parent to render, since the submission hook
+ * doesn't own any UI.
+ */
+export const useCreateJobFormSubmission = () => {
+  const { formData } = useJobForm();
+  const token = useAuthStore((state) => state.token);
 
-    const handleFormSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-        try {
-            if (!formData || !user?.company) {
-                setError("User company information is missing.");
-                return;
-            }
+  const handleFormSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-            setIsLoading(true);
-            setError(null);
+    if (!token) {
+      setError("You must be logged in to post a job.");
+      return;
+    }
 
-            const payload = {
-                ...formData
-            };
+    setIsLoading(true);
+    setError(null);
 
-            const response = await axios.post(
-                `${BASE_API_URL}/job-postings`,
-                payload,
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                }
-            );
+    try {
+      const response = await axios.post(
+        `${BASE_API_URL}/job-postings`,
+        formData,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      return response.data.data;
+    } catch (err: any) {
+      const message = err.response?.data?.message;
+      setError(message ?? "Network error. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-            return response.data.data;
-        } catch (error: any) {
-            if (error.response) {
-                setError(error.response.data?.message || 'Job posting creation failed');
-            } else {
-                setError("Network error. Please try again.");
-            }
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    return { error, isLoading, handleFormSubmit };
+  return { error, isLoading, handleFormSubmit };
 };

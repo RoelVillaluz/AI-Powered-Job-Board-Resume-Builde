@@ -1,4 +1,5 @@
 import type { CreateJobFormData } from "../../../../types/forms/createJobForm.types";
+import { useJobForm } from "../../../contexts/JobPostingFormContext";
 import { DropdownField } from "../../FormComponents/DropdownField";
 
 // ─── Option constants ─────────────────────────────────────────────────────────
@@ -19,15 +20,6 @@ export const FREQUENCY_OPTIONS = [
   { value: "year",  label: "per year"  },
 ] as const satisfies { value: CreateJobFormData["salary"]["frequency"]; label: string }[];
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
-type SalaryInputFieldProps = {
-  formData: CreateJobFormData;
-  onChange: (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => void;
-};
-
 /**
  * SalaryInputField
  * -----------------
@@ -43,7 +35,9 @@ type SalaryInputFieldProps = {
  * @param formData  - Current form state from useCreateJobFormData
  * @param onChange  - handleChange from useCreateJobFormData
  */
-export const SalaryInputField = ({ formData, onChange }: SalaryInputFieldProps) => {
+export const SalaryInputField = () => {
+  const { formData, handleChange } = useJobForm();
+
   return (
     <div className="form-group">
       <label className="text-sm md:text-base lg:text-xl font-semibold -mb-2">
@@ -56,7 +50,7 @@ export const SalaryInputField = ({ formData, onChange }: SalaryInputFieldProps) 
           name="salary.currency"
           value={formData.salary.currency}
           options={CURRENCY_OPTIONS}
-          onChange={onChange}
+          onChange={handleChange}
         />
 
         <input
@@ -64,7 +58,7 @@ export const SalaryInputField = ({ formData, onChange }: SalaryInputFieldProps) 
           name="salary.min"
           value={formData.salary.min ?? ""}
           placeholder="Min"
-          onChange={onChange}
+          onChange={handleChange}
           min={0}
           aria-label="Minimum salary"
         />
@@ -74,7 +68,7 @@ export const SalaryInputField = ({ formData, onChange }: SalaryInputFieldProps) 
           name="salary.max"
           value={formData.salary.max ?? ""}
           placeholder="Max"
-          onChange={onChange}
+          onChange={handleChange}
           min={0}
           aria-label="Maximum salary"
         />
@@ -84,7 +78,7 @@ export const SalaryInputField = ({ formData, onChange }: SalaryInputFieldProps) 
           name="salary.frequency"
           value={formData.salary.frequency}
           options={FREQUENCY_OPTIONS}
-          onChange={onChange}
+          onChange={handleChange}
         />
       </div>
     </div>

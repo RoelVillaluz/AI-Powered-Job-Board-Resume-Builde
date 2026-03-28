@@ -3,9 +3,10 @@ import { useState, useEffect, useRef, useCallback } from "react";
 interface DropdownFieldProps<T extends string> {
   label: string;
   name: string;
-  value: T;
+  value?: T;
   options: readonly { value: T; label: string }[];
   onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+  allowUndefined?: boolean;
 }
 
 /**
@@ -52,19 +53,26 @@ export function DropdownField<T extends string>({
   value,
   options,
   onChange,
+  allowUndefined = false,
 }: DropdownFieldProps<T>) {
   const [isOpen, setIsOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
   const containerRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
 
-  // Stable IDs for ARIA wiring
   const listboxId = `${name}-listbox`;
   const getOptionId = (index: number) => `${listboxId}-option-${index}`;
 
-  const selectedLabel = options.find((o) => o.value === value)?.label ?? value;
+  // 👇 Add "Clear" option if allowed
+  const finalOptions = allowUndefined
+    ? [...options, { value: "__CLEAR__" as T, label: "Clear selection" }]
+    : options;
 
-  // ─── Open / close ────────────────────────────────────────────────────────────
+  const selectedLabel =
+    options.find((o) => o.value === value)?.label ??
+    (allowUndefined ? "Select an option" : value ?? "");
+
+  // ─── Open / close ─────────────────────────────────────────
 
   const closeDropdown = useCallback(() => {
     setIsOpen(false);
@@ -72,13 +80,11 @@ export function DropdownField<T extends string>({
   }, []);
 
   const openDropdown = useCallback(() => {
-    const currentIndex = options.findIndex((o) => o.value === value);
+    const currentIndex = finalOptions.findIndex((o) => o.value === value);
     setActiveIndex(currentIndex >= 0 ? currentIndex : 0);
-    // rAF lets the list mount before the .show class triggers the CSS transition
     requestAnimationFrame(() => setIsOpen(true));
-  }, [options, value]);
+  }, [finalOptions, value]);
 
-  // Close on outside click
   useEffect(() => {
     const handleMouseDown = (e: MouseEvent) => {
       if (!containerRef.current?.contains(e.target as Node)) {
@@ -89,20 +95,24 @@ export function DropdownField<T extends string>({
     return () => document.removeEventListener("mousedown", handleMouseDown);
   }, [closeDropdown]);
 
-  // ─── Selection ───────────────────────────────────────────────────────────────
+  // ─── Selection ────────────────────────────────────────────
 
   const handleSelectOption = useCallback(
-    (option: { value: T; label: string }) => {
+    (option?: { value: T; label: string }) => {
       onChange({
-        target: { name, value: option.value },
+        target: {
+          name,
+          value: option?.value ?? undefined,
+        },
       } as unknown as React.ChangeEvent<HTMLSelectElement>);
+
       closeDropdown();
       triggerRef.current?.focus();
     },
     [name, onChange, closeDropdown]
   );
 
-  // ─── Keyboard navigation ─────────────────────────────────────────────────────
+  // ─── Keyboard navigation ─────────────────────────────────
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {
     switch (e.key) {
@@ -111,8 +121,13 @@ export function DropdownField<T extends string>({
         e.preventDefault();
         if (!isOpen) {
           openDropdown();
-        } else if (activeIndex >= 0 && options[activeIndex]) {
-          handleSelectOption(options[activeIndex]);
+        } else if (activeIndex >= 0 && finalOptions[activeIndex]) {
+          const opt = finalOptions[activeIndex];
+          if (allowUndefined && opt.value === "__CLEAR__") {
+            handleSelectOption(undefined);
+          } else {
+            handleSelectOption(opt);
+          }
         }
         break;
 
@@ -122,7 +137,7 @@ export function DropdownField<T extends string>({
           openDropdown();
         } else {
           setActiveIndex((prev) =>
-            prev < options.length - 1 ? prev + 1 : 0
+            prev < finalOptions.length - 1 ? prev + 1 : 0
           );
         }
         break;
@@ -133,7 +148,7 @@ export function DropdownField<T extends string>({
           openDropdown();
         } else {
           setActiveIndex((prev) =>
-            prev > 0 ? prev - 1 : options.length - 1
+            prev > 0 ? prev - 1 : finalOptions.length - 1
           );
         }
         break;
@@ -145,7 +160,7 @@ export function DropdownField<T extends string>({
     }
   };
 
-  // ─── Render ──────────────────────────────────────────────────────────────────
+  // ─── Render ──────────────────────────────────────────────
 
   return (
     <div className="searchable-select" ref={containerRef}>
@@ -154,7 +169,6 @@ export function DropdownField<T extends string>({
         type="button"
         className="dropdown-trigger"
         onMouseDown={(e) => {
-          // Prevent the outside-click handler from firing first
           e.preventDefault();
           isOpen ? closeDropdown() : openDropdown();
           triggerRef.current?.focus();
@@ -169,7 +183,10 @@ export function DropdownField<T extends string>({
           activeIndex >= 0 ? getOptionId(activeIndex) : undefined
         }
       >
-        <span>{selectedLabel}</span>
+        <span style={{ color: value ? "#000" : "#999" }}>
+          {selectedLabel}
+        </span>
+
         <svg
           className={`dropdown-chevron ${isOpen ? "open" : ""}`}
           width="12"
@@ -195,26 +212,35 @@ export function DropdownField<T extends string>({
           aria-label={label}
           className={`dropdown ${isOpen ? "show" : ""}`}
         >
-          {options.map((opt, index) => (
-            <li
-              key={opt.value}
-              id={getOptionId(index)}
-              role="option"
-              aria-selected={opt.value === value}
-              className={[
-                index === activeIndex ? "active" : "",
-                opt.value === value ? "selected" : "",
-              ]
-                .filter(Boolean)
-                .join(" ")}
-              onMouseDown={(e) => {
-                e.preventDefault();
-                handleSelectOption(opt);
-              }}
-            >
-              {opt.label}
-            </li>
-          ))}
+          {finalOptions.map((opt, index) => {
+            const isClear = allowUndefined && opt.value === "__CLEAR__";
+
+            return (
+              <li
+                key={opt.value}
+                id={getOptionId(index)}
+                role="option"
+                aria-selected={opt.value === value}
+                className={[
+                  index === activeIndex ? "active" : "",
+                  opt.value === value ? "selected" : "",
+                  isClear ? "clear-option" : "",
+                ]
+                  .filter(Boolean)
+                  .join(" ")}
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  if (isClear) {
+                    handleSelectOption(undefined);
+                  } else {
+                    handleSelectOption(opt);
+                  }
+                }}
+              >
+                {opt.label}
+              </li>
+            );
+          })}
         </ul>
       )}
     </div>

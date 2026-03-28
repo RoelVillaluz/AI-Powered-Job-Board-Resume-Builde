@@ -4,6 +4,7 @@ interface InputFieldProps {
     value: string;
     onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     type?: string;
+    readOnly?: boolean;
 }
 
 export function InputField({
@@ -11,7 +12,8 @@ export function InputField({
     name,
     value,
     onChange,
-    type = "text"
+    type = "text",
+    readOnly = false,
 }: InputFieldProps) {
     return (
         <div className="form-group">

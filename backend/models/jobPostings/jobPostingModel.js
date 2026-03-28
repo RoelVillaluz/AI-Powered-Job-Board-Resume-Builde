@@ -51,27 +51,15 @@ const jobPostingSchema = new mongoose.Schema({
             enum: ['$', '₱', '€', '¥', '£'], 
             default: '$'
         },
-        salary: {
-            currency: {
-                type: String,
-                enum: ['$', '₱', '€', '¥', '£'], 
-                default: '$'
-            },
-            min: {
-                type: Number,
-                min: 0,
-                default: null
-            },
-            max: {
-                type: Number,
-                min: 0,
-                default: null
-            },
-            frequency: {
-                type: String,
-                enum: ['hour', 'day', 'week', 'month', 'year'],
-                default: 'year'
-            }
+        min: {
+            type: Number,
+            min: 0,
+            default: null
+        },
+        max: {
+            type: Number,
+            min: 0,
+            default: null
         },
         frequency: {
             type: String,

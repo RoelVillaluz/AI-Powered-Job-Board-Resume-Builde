@@ -11,7 +11,7 @@ export type FormLocation = {
 export type FormSkill = {
     _id?: string; // Skill ID
     name: string;
-    requirementLevel?: 'required' | 'preferred' | 'nice-to-have' | undefined;
+    requirementLevel?: 'Required' | 'Preferred' | 'Nice-to-Have' | undefined;
 }
 
 export type CreateJobFormData = {

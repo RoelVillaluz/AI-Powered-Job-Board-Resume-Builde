@@ -70,40 +70,20 @@ export const useCreateJobFormData = () => {
     setFormData((prev) => setDeep(prev, name, value));
   };
 
-  /**
-   * Stores the selected `{_id, name}` option from a SearchableSelect on
-   * a top-level field. For example, selecting a job title writes to
-   * `formData.title` and selecting a location writes to `formData.location`.
-   *
-   * @param field  - The top-level formData key to update
-   * @param option - The selected option from SearchableSelect
-   */
-  const handleSelect = (
-    field: "title" | "location" | "skill",
-    option: SelectOption
-  ) => {
+  const handleSelect = (field: "title" | "location", option: SelectOption) => {
     setFormData((prev) => ({
       ...prev,
-      [field]: {
-        _id: option._id,
-        name: option.name,
-      },
+      [field]: { _id: option._id, name: option.name },
     }));
   };
 
-  const handleClearSelection = (
-    field: "title" | "location" | "skill",
-  ) => {
+  const handleClearSelection = (field: "title" | "location") => {
     setFormData((prev) => ({
       ...prev,
-      [field]: {
-        _id: '',
-        name: '',
-      }
-    }))
-  }
+      [field]: { _id: "", name: "" },
+    }));
+  };
 
-  /** Prevents accidental form submission when the user presses Enter in an input. */
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") e.preventDefault();
   };

@@ -1,6 +1,6 @@
-import type { CreateJobFormData } from "../../../../types/forms/createJobForm.types";
-import { useJobForm } from "../../../contexts/JobPostingFormContext";
-import { DropdownField } from "../../FormComponents/DropdownField";
+import type { CreateJobFormData } from "../../../../../types/forms/createJobForm.types";
+import { useJobForm } from "../../../../contexts/JobPostingFormContext";
+import { DropdownField } from "../../../FormComponents/DropdownField";
 
 // ─── Option constants ─────────────────────────────────────────────────────────
 

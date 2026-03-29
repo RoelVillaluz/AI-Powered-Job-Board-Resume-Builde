@@ -1,5 +1,5 @@
 interface InputFieldProps {
-    label: string;
+    label?: string;
     name: string;
     value: string;
     onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -17,7 +17,9 @@ export function InputField({
 }: InputFieldProps) {
     return (
         <div className="form-group">
-            <label className="text-sm md:text-base lg:text-xl font-semibold -mb-2">{label}</label>
+            {label && (
+                <label className="text-sm md:text-base lg:text-xl font-semibold -mb-2">{label}</label>
+            )}
             <input
                 type={type}
                 name={name}

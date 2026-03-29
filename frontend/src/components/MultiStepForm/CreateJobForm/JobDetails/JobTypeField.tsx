@@ -1,6 +1,6 @@
-import { useJobForm } from "../../../contexts/JobPostingFormContext";
-import { DropdownField } from "../../FormComponents/DropdownField";
-import type { CreateJobFormData } from "../../../../types/forms/createJobForm.types";
+import { useJobForm } from "../../../../contexts/JobPostingFormContext";
+import { DropdownField } from "../../../FormComponents/DropdownField";
+import type { CreateJobFormData } from "../../../../../types/forms/createJobForm.types";
 
 export const JOB_TYPE_OPTIONS = [
   { value: "Full-Time",  label: "Full-Time"  },

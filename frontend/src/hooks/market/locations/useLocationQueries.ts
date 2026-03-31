@@ -7,7 +7,7 @@ export const useSearchLocationQuery = (name: string): UseQueryResult<LocationSea
     return useQuery({
         queryKey: ['locations', name],
         queryFn: () => searchLocations(name),
-        enabled: !!name,
+        enabled: name.trim().length >= 2,
         staleTime: 1000 * 60 * 5
     })
 }

@@ -13,6 +13,8 @@ interface SearchableSelectProps {
   placeholder: string;
 }
 
+const MIN_SEARCH_LENGTH = 2;
+
 /**
  * SearchableSelect
  * -----------------
@@ -77,7 +79,7 @@ export function SearchableSelect({
     opt.name.toLowerCase().includes(value.toLowerCase())
   );
 
-  const hasContent = isLoading || filteredOptions.length > 0 || value.length > 0;
+  const hasContent = isLoading || filteredOptions.length > 0 || value.length >= MIN_SEARCH_LENGTH;
 
   // ─── Open / close ────────────────────────────────────────────────────────────
 

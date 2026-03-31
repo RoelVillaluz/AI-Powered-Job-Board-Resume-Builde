@@ -7,7 +7,7 @@ export const useSearchJobTitleQuery = (name: string): UseQueryResult<JobTitleSea
     return useQuery({
         queryKey: ['job-titles', name],
         queryFn: () => searchJobTitle(name),
-        enabled: !!name,
+        enabled: name.trim().length >= 2,
         staleTime: 1000 * 60 * 5
     })
 }

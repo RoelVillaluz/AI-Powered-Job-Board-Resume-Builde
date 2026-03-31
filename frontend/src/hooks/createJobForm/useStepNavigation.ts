@@ -1,85 +1,55 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useJobForm } from "../../contexts/JobPostingFormContext";
+import { useFormValidation } from "./useFormValidation";
 import { CREATE_JOB_STEPS } from "../../../constants/steps";
 
 /**
  * useStepNavigation
  * ------------------
- * Manages the current step index and computes whether the user
- * is allowed to advance, based on `formData` from `JobFormContext`.
+ * Manages the current step index and exposes navigation controls.
  *
- * Validation rules per step:
- * - `details`               — title, location, jobType, and a valid salary range
- * - `skillsAndRequirements` — ≥3 skills and ≥3 requirement entries
- * - `questions`             — optional; always allowed
- * - `finished`              — always allowed
+ * Validation logic is intentionally absent — it lives entirely in
+ * `useFormValidation`. This hook only asks "is the current step valid?"
+ * via `isValid`, which is always in sync with `formData` without needing
+ * a `useEffect` to recompute it.
+ *
+ * ## nextStep behaviour
+ * - If the step is valid: advances the index and resets `touched` so the
+ *   next step opens without inherited error state.
+ * - If the step is invalid: calls `touchAll()` to surface every unvisited
+ *   error, then blocks — does not advance.
+ *
+ * ## Adding validation for a new step
+ * Add a validator to `STEP_VALIDATORS` in `useFormValidation` — no changes
+ * needed here.
  */
 export const useStepNavigation = () => {
-  const { formData } = useJobForm();
+  const { formData, touched, setTouched } = useJobForm();
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
-  const [isNextAllowed, setIsNextAllowed] = useState(false);
-
   const steps = CREATE_JOB_STEPS;
   const currentStep = steps[currentStepIndex];
 
-  useEffect(() => {
-    if (!currentStep) {
-      setIsNextAllowed(false);
-      return;
-    }
+  const { isValid, touchAll } = useFormValidation(currentStep.key); // pass step key explicitly
 
-    switch (currentStep.key) {
-      case "details": {
-        const { title, location, jobType, salary } = formData;
-        const isValid =
-          title?.toString().trim() !== "" &&
-          location?.toString().trim() !== "" &&
-          jobType?.toString().trim() !== "" &&
-          salary.min !== null &&
-          salary.max !== null &&
-          salary.min < salary.max &&
-          salary.frequency.trim() !== "";
-
-        setIsNextAllowed(isValid);
-        break;
-      }
-
-      case "skillsAndRequirements": {
-        const hasSkills = formData.skills.length >= 3;
-        const requirementsCount =
-          (formData.requirements.description ? 1 : 0) +
-          (formData.requirements.certifications?.length ?? 0);
-
-        setIsNextAllowed(hasSkills && requirementsCount >= 3);
-        break;
-      }
-
-      case "questions":
-        // Pre-screening questions are optional
-        setIsNextAllowed(true);
-        break; // ← was missing; previously fell through to "finished"
-
-      case "finished":
-        setIsNextAllowed(true);
-        break;
-
-      default:
-        setIsNextAllowed(false);
-        break;
-    }
-  }, [currentStepIndex, formData, currentStep]);
+  // Steps with no registered validator (questions, finished) return isValid=true
+  // from useFormValidation, so they always allow advancing — no special casing needed.
+  const isNextAllowed = isValid;
 
   const nextStep = () => {
-    if (currentStepIndex < steps.length - 1) {
-      setCurrentStepIndex((prev) => prev + 1);
+    if (!isValid) {
+      touchAll(); // surface all errors before blocking
+      return;
     }
+    setTouched(new Set()); // reset so next step opens clean
+    setCurrentStepIndex((prev) =>
+      prev < steps.length - 1 ? prev + 1 : prev
+    );
   };
 
   const prevStep = () => {
-    if (currentStepIndex > 0) {
-      setCurrentStepIndex((prev) => prev - 1);
-    }
+    setTouched(new Set()); // reset so previous step also opens clean
+    setCurrentStepIndex((prev) => (prev > 0 ? prev - 1 : prev));
   };
 
-  return { currentStepIndex, isNextAllowed, nextStep, prevStep, steps };
+  return { currentStepIndex, isNextAllowed, nextStep, prevStep, steps, currentStep };
 };

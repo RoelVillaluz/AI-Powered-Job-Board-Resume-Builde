@@ -19,6 +19,8 @@ const EMPTY_SKILL: FormSkill = { _id: "", name: "", requirementLevel: undefined 
 export const SkillsFormGroup = () => {
     const { formData, setFormData } = useJobForm();
 
+    console.log('Form skills: ', formData.skills)
+
     const [skillsSearch, setSkillsSearch] = useState("");
     const [skillToAdd, setSkillToAdd] = useState<FormSkill>(EMPTY_SKILL);
     

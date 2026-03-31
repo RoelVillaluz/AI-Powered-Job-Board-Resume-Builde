@@ -38,12 +38,18 @@ const validateJobDetailsSection = (formData: CreateJobFormData): FormErrors => {
   return errors;
 };
 
-const validateSkillsAndRequirements = (formData: CreateJobFormData): FormErrors => {
+const validateSkills = (formData: CreateJobFormData): FormErrors => {
   const errors: FormErrors = {};
 
   if (formData.skills.length < 3) {
     errors.skills = "Add at least 3 skills.";
   }
+
+  return errors;
+};
+
+const validateRequirements = (formData: CreateJobFormData): FormErrors => {
+  const errors: FormErrors = {};
 
   const requirementsCount =
     (formData.requirements.description ? 1 : 0) +
@@ -62,7 +68,8 @@ const validateSkillsAndRequirements = (formData: CreateJobFormData): FormErrors 
 
 const STEP_VALIDATORS: Record<string, (data: CreateJobFormData) => FormErrors> = {
   details: validateJobDetailsSection,
-  skillsAndRequirements: validateSkillsAndRequirements,
+  skills: validateSkills,
+  requirements: validateRequirements,
 };
 
 // ─────────────────────────────────────────────────────────────────────────────

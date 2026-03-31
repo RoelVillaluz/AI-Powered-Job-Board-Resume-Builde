@@ -89,7 +89,7 @@ export const RequirementsFormGroup = () => {
                     <InputField
                         name="requirements.certifications"
                         value={certificationToAdd}
-                        onChange={handleChange}
+                        onChange={(e) => setCertificationToAdd(e.target.value)}
                     />
                     <button
                         type="button"

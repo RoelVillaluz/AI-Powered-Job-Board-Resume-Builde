@@ -1,3 +1,5 @@
+import JobDetailsSection from "../src/components/MultiStepForm/CreateJobForm/JobDetails/JobDetailsSection";
+import { SkillsSection } from "../src/components/MultiStepForm/CreateJobForm/Skills/SkillsSection";
 import type { StepConfig } from "../types/forms/getStartedForm.types";
 
 // Shared role selection step
@@ -74,30 +76,38 @@ export const EMPLOYER_STEPS: StepConfig[] = [
 ];
 
 type CreateJobSteps = {
-    key: "details" | "skillsAndRequirements" | "questions" | "finished";
-    icon: string;
-    title: string;
-}
+  key: "details" | "skills" | "requirements" | "questions" | "finished";
+  icon: string;
+  title: string;
+  component?: React.FC<any>; // optional, React component for the step
+};
 
 export const CREATE_JOB_STEPS: CreateJobSteps[] = [
-    {
-        key: "details",
-        icon: "fa-solid fa-address-book",
-        title: "Add details.",
-    },
-    {
-        key: "skillsAndRequirements",
-        icon: "fa-solid fa-list-check",
-        title: "Skills and Requirements",
-    },
-    {
-        key: "questions",
-        icon: "fa-solid fa-clipboard-question",
-        title: "Pre-screening Questions"
-    },
-    {
-        key: "finished",
-        icon: "fa-solid fa-check",
-        title: "Finished!"
-    }
-]
+  {
+    key: "details",
+    icon: "fa-solid fa-address-book",
+    title: "Add details",
+    component: JobDetailsSection,
+  },
+  {
+    key: "skills",
+    icon: "fa-solid fa-wrench",
+    title: "Skills",
+    component: SkillsSection,
+  },
+  {
+    key: "requirements",
+    icon: "fa-solid fa-clipboard-list",
+    title: "Requirements",
+  },
+  {
+    key: "questions",
+    icon: "fa-solid fa-clipboard-question",
+    title: "Pre-screening Questions",
+  },
+  {
+    key: "finished",
+    icon: "fa-solid fa-check",
+    title: "Finished!",
+  },
+];

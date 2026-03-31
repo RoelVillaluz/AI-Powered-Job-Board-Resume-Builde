@@ -1,9 +1,9 @@
 import { SkillsFormGroup } from "./SkillsFormGroup";
-import { RequirementsFormGroup } from "./RequirementsFormGroup";
+import { RequirementsFormGroup } from "../Requirements/RequirementsFormGroup";
 
 
 /**
- * SkillsAndRequirementsSection
+ * SkillsSection
  * -----------------------------
  * Step 2 of the Create Job multi-step form.
  *
@@ -17,7 +17,7 @@ import { RequirementsFormGroup } from "./RequirementsFormGroup";
  *
  * `formData` is only written to on step 3, not on search or select.
  */
-export const SkillsAndRequirementsSection = () => {
+export const SkillsSection = () => {
   
 
   // ─── Render ────────────────────────────────────────────────────────────────
@@ -25,12 +25,11 @@ export const SkillsAndRequirementsSection = () => {
   return (
     <section>
         <header className="w-full border-b border-gray-200 pb-6 mb-6">
-            <h3 className="text-xl md:text-2xl font-semibold">Skills and Requirements</h3>
+            <h3 className="text-xl md:text-2xl font-semibold">Skills</h3>
+            <p>Add the key skills required for this role and specify the expected proficiency level for each.</p>
         </header>
 
         <SkillsFormGroup/>
-
-        <RequirementsFormGroup/>
 
     </section>
   );

@@ -5,9 +5,6 @@ import { JobFormProvider } from "../contexts/JobPostingFormContext.js";
 import { useCreateJobFormData } from "../hooks/createJobForm/useCreateJobFormData.js";
 import { useStepNavigation } from "../hooks/createJobForm/useStepNavigation.js";
 import { useCreateJobFormSubmission } from "../hooks/createJobForm/useCreateFormSubmission.js";
-import JobDetailsSection from "../components/MultiStepForm/CreateJobForm/JobDetails/JobDetailsSection.js";
-import { useFormValidation } from "../hooks/createJobForm/useFormValidation.js";
-import { SkillsAndRequirementsSection } from "../components/MultiStepForm/CreateJobForm/SkillsAndRequirements/SkillsAndRequirementsSection.js";
 
 /**
  * CreateJobForm
@@ -47,15 +44,13 @@ function CreateJobForm() {
  * Inner shell rendered inside JobFormProvider so that useStepNavigation
  * and useCreateJobFormSubmission can both call useJobForm().
  */
-function FormContent({
-  handleKeyDown,
-}: {
-  handleKeyDown: (e: React.KeyboardEvent) => void;
-}) {
-  const { handleFormSubmit, isSubmitting, error } = useCreateJobFormSubmission();
+function FormContent({ handleKeyDown }: { handleKeyDown: (e: React.KeyboardEvent) => void }) {
+  const { handleFormSubmit, isSubmitting } = useCreateJobFormSubmission();
   const { currentStepIndex, steps, isNextAllowed, nextStep, prevStep } = useStepNavigation();
   
   const currentStep = steps[currentStepIndex];
+
+  const StepComponent = currentStep.component;
 
   return (
     <div className="form-container" id="multi-step-form">
@@ -67,16 +62,11 @@ function FormContent({
         onKeyDown={handleKeyDown}
         style={{ flex: "3", marginRight: "4.5rem" }}
       >
-
-        {currentStep.key === "details" && <JobDetailsSection />}
-
-        {currentStep.key === "skillsAndRequirements" && <SkillsAndRequirementsSection />}
+        {StepComponent && <StepComponent />}
 
         <div
           className="buttons"
-          style={{
-            justifyContent: currentStepIndex > 0 ? "space-between" : "flex-end",
-          }}
+          style={{ justifyContent: currentStepIndex > 0 ? "space-between" : "flex-end" }}
         >
           {currentStepIndex > 0 && (
             <button onClick={prevStep} id="prev-step-btn" type="button">

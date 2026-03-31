@@ -8,8 +8,26 @@ type JobFormContextValue = {
   handleChange: (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => void;
-  handleSelect: (field: "title" | "location" | "skill", option: SelectOption) => void;
-  handleClearSelection: (field: "title" | "location" | "skill") => void; 
+  handleSelect: (field: "title" | "location", option: SelectOption) => void;
+  handleClearSelection: (field: "title" | "location") => void;
+  handleKeyDown: (e: React.KeyboardEvent) => void;
+  /**
+   * The set of field names the user has interacted with.
+   *
+   * Errors are always computed from the full formData, but they are only
+   * *shown* for fields present in this set. This prevents the form from
+   * opening in a wall-of-red state before the user has done anything.
+   *
+   * A field enters `touched` in one of two ways:
+   * - The user blurs the field → the component calls `touch("fieldName")`
+   * - The user clicks Next while the step is invalid → `touchAll()` adds
+   *   every currently-invalid field at once so nothing is silently hidden
+   *
+   * Reset to an empty Set on every successful step advance so each step
+   * opens clean with no inherited error state from the previous step.
+   */
+  touched: Set<string>;
+  setTouched: React.Dispatch<React.SetStateAction<Set<string>>>;
 };
 
 const JobFormContext = createContext<JobFormContextValue | null>(null);

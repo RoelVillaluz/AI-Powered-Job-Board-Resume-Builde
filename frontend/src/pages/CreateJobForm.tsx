@@ -5,7 +5,9 @@ import { JobFormProvider } from "../contexts/JobPostingFormContext.js";
 import { useCreateJobFormData } from "../hooks/createJobForm/useCreateJobFormData.js";
 import { useStepNavigation } from "../hooks/createJobForm/useStepNavigation.js";
 import { useCreateJobFormSubmission } from "../hooks/createJobForm/useCreateFormSubmission.js";
-import JobDetailsSection from "../components/MultiStepForm/CreateJobForm/JobDetailsSection.js";
+import JobDetailsSection from "../components/MultiStepForm/CreateJobForm/JobDetails/JobDetailsSection.js";
+import { useFormValidation } from "../hooks/createJobForm/useFormValidation.js";
+import { SkillsAndRequirementsSection } from "../components/MultiStepForm/CreateJobForm/SkillsAndRequirements/SkillsAndRequirementsSection.js";
 
 /**
  * CreateJobForm
@@ -50,9 +52,9 @@ function FormContent({
 }: {
   handleKeyDown: (e: React.KeyboardEvent) => void;
 }) {
-  const { handleFormSubmit, isLoading, error } = useCreateJobFormSubmission();
+  const { handleFormSubmit, isSubmitting, error } = useCreateJobFormSubmission();
   const { currentStepIndex, steps, isNextAllowed, nextStep, prevStep } = useStepNavigation();
-
+  
   const currentStep = steps[currentStepIndex];
 
   return (
@@ -65,13 +67,10 @@ function FormContent({
         onKeyDown={handleKeyDown}
         style={{ flex: "3", marginRight: "4.5rem" }}
       >
-        {error && (
-          <p role="alert" className="form-error">
-            {error}
-          </p>
-        )}
 
         {currentStep.key === "details" && <JobDetailsSection />}
+
+        {currentStep.key === "skillsAndRequirements" && <SkillsAndRequirementsSection />}
 
         <div
           className="buttons"
@@ -86,8 +85,8 @@ function FormContent({
           )}
 
           {currentStep.key === "finished" ? (
-            <button id="submit-btn" type="submit" disabled={isLoading}>
-              {isLoading ? "Submitting..." : "Submit"}
+            <button id="submit-btn" type="submit" disabled={isSubmitting}>
+              {isSubmitting ? "Submitting..." : "Submit"}
             </button>
           ) : (
             isNextAllowed && (

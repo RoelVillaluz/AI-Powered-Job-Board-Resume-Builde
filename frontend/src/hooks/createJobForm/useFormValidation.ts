@@ -51,12 +51,10 @@ const validateSkills = (formData: CreateJobFormData): FormErrors => {
 const validateRequirements = (formData: CreateJobFormData): FormErrors => {
   const errors: FormErrors = {};
 
-  const requirementsCount =
-    (formData.requirements.description ? 1 : 0) +
-    (formData.requirements.certifications?.length ?? 0);
+  const hasDescription = formData.requirements.description.trim().length >= 10;
 
-  if (requirementsCount < 3) {
-    errors.requirements = "Add at least 3 requirements or certifications.";
+  if (!hasDescription) {
+    errors.requirements = "Must have at least a requirements description"
   }
 
   return errors;

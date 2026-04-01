@@ -14,6 +14,12 @@ export type FormSkill = {
     requirementLevel?: 'Required' | 'Preferred' | 'Nice-to-Have' | undefined;
 }
 
+export type FormQuestion = {
+    question: string;
+    required?: boolean;
+    default?: Record<string, any>;
+}
+
 export type CreateJobFormData = {
     title: FormJobTitle;
     company: string; // Company ID
@@ -33,9 +39,5 @@ export type CreateJobFormData = {
         certifications?: string[];
     };
     skills: FormSkill[];
-    preScreeningQuestions?: {
-        question: string;
-        required?: boolean;
-        default?: Record<string, any>;
-    }[];
+    preScreeningQuestions: FormQuestion[];
 };

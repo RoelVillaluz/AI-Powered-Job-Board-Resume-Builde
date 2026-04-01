@@ -5,6 +5,7 @@ interface InputFieldProps {
     onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     type?: string;
     readOnly?: boolean;
+    placeholder?: string;
 }
 
 export function InputField({
@@ -14,6 +15,7 @@ export function InputField({
     onChange,
     type = "text",
     readOnly = false,
+    placeholder,
 }: InputFieldProps) {
     return (
         <div className="form-group">
@@ -25,6 +27,7 @@ export function InputField({
                 name={name}
                 value={value}
                 onChange={onChange}
+                placeholder={placeholder}
             />
         </div>
     );

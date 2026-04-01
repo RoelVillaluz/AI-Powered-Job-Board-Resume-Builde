@@ -1,12 +1,15 @@
 import { useState } from "react";
 import type { CreateJobFormData } from "../../../types/forms/createJobForm.types";
 import { CREATE_JOB_INITIAL_FORM_DATA } from "../../../constants/formSchemas";
+import { useDraftPersistence } from "../useDraftPersistence";
 
 export type SelectOption = {
   _id?: string;
   name: string;
 };
 
+const DRAFT_KEY = "create-job-form";
+ 
 function setDeep<T extends Record<string, any>>(obj: T, path: string, value: any): T {
   const keys = path.split(".");
   if (keys.length === 1) return { ...obj, [path]: value };
@@ -31,39 +34,40 @@ function setDeep<T extends Record<string, any>>(obj: T, path: string, value: any
  */
 export const useCreateJobFormData = () => {
   const [formData, setFormData] = useState<CreateJobFormData>(CREATE_JOB_INITIAL_FORM_DATA);
-
-  /**
-   * Tracks which field names the user has interacted with.
-   * Only fields in this set will have their errors surfaced in the UI.
-   * Reset to an empty Set on each step advance via `useStepNavigation`.
-   */
   const [touched, setTouched] = useState<Set<string>>(new Set());
-
+ 
+  const { clearDraft, hasDraft } = useDraftPersistence<CreateJobFormData>({
+    key: DRAFT_KEY,
+    data: formData,
+    onRestore: setFormData,
+    debounceMs: 1000,
+  });
+ 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => setDeep(prev, name, value));
   };
-
+ 
   const handleSelect = (field: "title" | "location", option: SelectOption) => {
     setFormData((prev) => ({
       ...prev,
       [field]: { _id: option._id, name: option.name },
     }));
   };
-
+ 
   const handleClearSelection = (field: "title" | "location") => {
     setFormData((prev) => ({
       ...prev,
       [field]: { _id: "", name: "" },
     }));
   };
-
+ 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") e.preventDefault();
   };
-
+ 
   return {
     formData,
     setFormData,
@@ -73,5 +77,7 @@ export const useCreateJobFormData = () => {
     handleClearSelection,
     touched,
     setTouched,
+    clearDraft,
+    hasDraft,
   };
 };

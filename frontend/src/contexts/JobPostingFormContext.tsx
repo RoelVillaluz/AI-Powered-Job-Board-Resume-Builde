@@ -28,6 +28,9 @@ type JobFormContextValue = {
    */
   touched: Set<string>;
   setTouched: React.Dispatch<React.SetStateAction<Set<string>>>;
+  clearDraft: () => void;
+  /** True if a draft was found in the store on mount. */
+  hasDraft: boolean;
 };
 
 const JobFormContext = createContext<JobFormContextValue | null>(null);

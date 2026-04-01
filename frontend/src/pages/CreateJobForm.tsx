@@ -5,25 +5,11 @@ import { JobFormProvider } from "../contexts/JobPostingFormContext.js";
 import { useCreateJobFormData } from "../hooks/createJobForm/useCreateJobFormData.js";
 import { useStepNavigation } from "../hooks/createJobForm/useStepNavigation.js";
 import { useCreateJobFormSubmission } from "../hooks/createJobForm/useCreateFormSubmission.js";
+import { useJobForm } from "../contexts/JobPostingFormContext.js";
+import { CREATE_JOB_INITIAL_FORM_DATA } from "../../constants/formSchemas";
 
-/**
- * CreateJobForm
- * -------------
- * Page-level component for the multi-step job posting form.
- *
- * Owns:
- * - Form state (via useCreateJobFormData) — exposed to the tree via JobFormProvider
- * - Step navigation (via useStepNavigation)
- * - Form submission (via useCreateJobFormSubmission)
- *
- * Field components read formData and handleChange directly from
- * JobFormContext via useJobForm(), so no props are drilled through
- * intermediate layout components.
- */
 function CreateJobForm() {
-  // Form state — provided to the whole tree via context
   const formState = useCreateJobFormData();
-  const { handleKeyDown } = formState;
 
   useEffect(() => {
     document.title = "Create Job Posting";
@@ -32,25 +18,29 @@ function CreateJobForm() {
   return (
     <Layout>
       <JobFormProvider value={formState}>
-        <FormContent handleKeyDown={handleKeyDown} />
+        <FormContent />
       </JobFormProvider>
     </Layout>
   );
 }
 
-/**
- * FormContent
- * -----------
- * Inner shell rendered inside JobFormProvider so that useStepNavigation
- * and useCreateJobFormSubmission can both call useJobForm().
- */
-function FormContent({ handleKeyDown }: { handleKeyDown: (e: React.KeyboardEvent) => void }) {
+function FormContent() {
+  const { handleKeyDown, hasDraft, clearDraft, setFormData } = useJobForm();
   const { handleFormSubmit, isSubmitting } = useCreateJobFormSubmission();
   const { currentStepIndex, steps, isNextAllowed, nextStep, prevStep } = useStepNavigation();
-  
-  const currentStep = steps[currentStepIndex];
 
+  const currentStep = steps[currentStepIndex];
   const StepComponent = currentStep.component;
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    await handleFormSubmit(e);
+    clearDraft();
+  };
+
+  const handleDiscardDraft = () => {
+    setFormData(CREATE_JOB_INITIAL_FORM_DATA);
+    clearDraft();
+  };
 
   return (
     <div className="form-container" id="multi-step-form">
@@ -58,7 +48,7 @@ function FormContent({ handleKeyDown }: { handleKeyDown: (e: React.KeyboardEvent
 
       <form
         className="form-panel"
-        onSubmit={handleFormSubmit}
+        onSubmit={handleSubmit}
         onKeyDown={handleKeyDown}
         style={{ flex: "3", marginRight: "4.5rem" }}
       >

@@ -3,6 +3,7 @@ import type { CreateJobFormData } from "../../../../../types/forms/createJobForm
 import { DropdownField } from "../../../FormComponents/DropdownField";
 import { InputField } from "../../../FormComponents/InputField";
 import { useJobForm } from "../../../../contexts/JobPostingFormContext";
+import { CertificationList } from "./CertificationList";
 
 export const EDUCATION_LEVEL_OPTIONS = [
   { value: '', label: 'Select education level' },
@@ -101,6 +102,7 @@ export const RequirementsFormGroup = () => {
                         <i className="fa fa-plus"></i>
                     </button>
                 </div>
+                <CertificationList/>
             </div>
 
         </div>

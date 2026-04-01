@@ -917,7 +917,7 @@ textarea
   border-radius: 4px;
   font-size: 12px;
   font-weight: 500;
-  border: 1px solid transparent;
+  border: 1px solid #9ca3af;;
   line-height: 1;
 }
 
@@ -942,7 +942,7 @@ textarea
   border: none;
   border-radius: 3px;
   cursor: pointer;
-  font-size: 8px;
+  font-size: 14px;
   opacity: 0.5;
   transition: opacity 0.1s ease;
   line-height: 1;

@@ -44,7 +44,10 @@ export const useStepNavigation = () => {
     setCurrentStepIndex((prev) =>
       prev < steps.length - 1 ? prev + 1 : prev
     );
+    currentStep.isCompleted = true;
   };
+
+  console.log('Steps: ', steps)
 
   const prevStep = () => {
     setTouched(new Set()); // reset so previous step also opens clean

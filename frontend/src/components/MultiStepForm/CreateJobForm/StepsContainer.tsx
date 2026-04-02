@@ -38,7 +38,6 @@ export const StepsContainer = () => {
               ]
                 .filter(Boolean)
                 .join(" ")}
-              onClick={() => isClickable && goToStep(step.key)}
               aria-current={isActive ? "step" : undefined}
               role={isClickable ? "button" : undefined}
               tabIndex={isClickable ? 0 : undefined}
@@ -52,6 +51,7 @@ export const StepsContainer = () => {
               <i
                 className={isCompleted && !isActive ? "fa-solid fa-check" : step.icon}
                 aria-hidden="true"
+                onClick={() => isClickable && goToStep(step.key)}
               />
               <span>{step.title}</span>
             </li>

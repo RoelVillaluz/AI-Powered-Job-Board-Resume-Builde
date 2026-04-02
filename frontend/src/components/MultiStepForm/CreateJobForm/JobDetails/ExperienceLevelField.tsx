@@ -1,5 +1,5 @@
 import type { CreateJobFormData } from "../../../../../types/forms/createJobForm.types";
-import { useJobForm } from "../../../../contexts/JobPostingFormContext";
+import { useJobForm } from "../../../../contexts/JobFormContexts/JobPostingFormContext";
 import { DropdownField } from "../../../FormComponents/DropdownField";
 
 export const EXPERIENCE_LEVEL_OPTIONS = [

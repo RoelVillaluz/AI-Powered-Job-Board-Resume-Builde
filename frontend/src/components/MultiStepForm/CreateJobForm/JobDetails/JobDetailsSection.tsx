@@ -3,7 +3,7 @@ import { SearchableSelect } from "../../../FormComponents/SearchableSelect";
 import { useSearchJobTitleQuery } from "../../../../hooks/market/jobTitle/useJobTitleQueries";
 import { useSearchLocationQuery } from "../../../../hooks/market/locations/useLocationQueries";
 import { useDebounce } from "../../../../hooks/useDebounce";
-import { useJobForm } from "../../../../contexts/JobPostingFormContext";
+import { useJobForm } from "../../../../contexts/JobFormContexts/JobPostingFormContext";
 import { SalaryInputField } from "./SalaryInputField";
 import { JobTypeField } from "./JobTypeField";
 import { ExperienceLevelField } from "./ExperienceLevelField";

@@ -2,7 +2,7 @@ import { useState } from "react";
 import type { CreateJobFormData } from "../../../../../types/forms/createJobForm.types";
 import { DropdownField } from "../../../FormComponents/DropdownField";
 import { InputField } from "../../../FormComponents/InputField";
-import { useJobForm } from "../../../../contexts/JobPostingFormContext";
+import { useJobForm } from "../../../../contexts/JobFormContexts/JobPostingFormContext";
 import { CertificationList } from "./CertificationList";
 
 export const EDUCATION_LEVEL_OPTIONS = [

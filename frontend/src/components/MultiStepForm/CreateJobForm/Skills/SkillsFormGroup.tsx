@@ -4,7 +4,7 @@ import { useDebounce } from "../../../../hooks/useDebounce";
 import { DropdownField } from "../../../FormComponents/DropdownField";
 import { SearchableSelect } from "../../../FormComponents/SearchableSelect";
 import type { FormSkill } from "../../../../../types/forms/createJobForm.types";
-import { useJobForm } from "../../../../contexts/JobPostingFormContext";
+import { useJobForm } from "../../../../contexts/JobFormContexts/JobPostingFormContext";
 import type { SelectOption } from "../../../../hooks/createJobForm/useCreateJobFormData";
 import { SkillsList } from "./SkillsList";
 

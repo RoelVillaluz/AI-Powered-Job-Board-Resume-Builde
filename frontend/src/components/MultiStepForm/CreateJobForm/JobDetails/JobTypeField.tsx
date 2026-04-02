@@ -1,4 +1,4 @@
-import { useJobForm } from "../../../../contexts/JobPostingFormContext";
+import { useJobForm } from "../../../../contexts/JobFormContexts/JobPostingFormContext";
 import { DropdownField } from "../../../FormComponents/DropdownField";
 import type { CreateJobFormData } from "../../../../../types/forms/createJobForm.types";
 

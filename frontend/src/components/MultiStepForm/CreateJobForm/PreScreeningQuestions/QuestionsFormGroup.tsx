@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useJobForm } from "../../../../contexts/JobPostingFormContext";
+import { useJobForm } from "../../../../contexts/JobFormContexts/JobPostingFormContext";
 import type { FormQuestion } from "../../../../../types/forms/createJobForm.types";
 import { InputField } from "../../../FormComponents/InputField";
 import { DropdownField } from "../../../FormComponents/DropdownField";

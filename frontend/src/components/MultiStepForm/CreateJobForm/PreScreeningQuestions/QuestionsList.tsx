@@ -1,4 +1,4 @@
-import { useJobForm } from "../../../../contexts/JobPostingFormContext"
+import { useJobForm } from "../../../../contexts/JobFormContexts/JobPostingFormContext"
 import { TagList } from "../../../FormComponents/TagList"
 
 export const QuestionsList = () => {

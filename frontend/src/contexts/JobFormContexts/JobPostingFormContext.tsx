@@ -1,6 +1,6 @@
 import { createContext, useContext } from "react";
-import type { SelectOption } from "../hooks/createJobForm/useCreateJobFormData";
-import type { CreateJobFormData } from "../../types/forms/createJobForm.types";
+import type { SelectOption } from "../../hooks/createJobForm/useCreateJobFormData";
+import type { CreateJobFormData } from "../../../types/forms/createJobForm.types";
 
 type JobFormContextValue = {
   formData: CreateJobFormData;

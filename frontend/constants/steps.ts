@@ -82,7 +82,6 @@ export type CreateJobSteps = {
   icon: string;
   title: string;
   component?: React.FC<any>; // optional, React component for the step
-  isCompleted: boolean;
 };
 
 export const CREATE_JOB_STEPS: CreateJobSteps[] = [
@@ -91,28 +90,24 @@ export const CREATE_JOB_STEPS: CreateJobSteps[] = [
     icon: "fa-solid fa-address-book",
     title: "Add details",
     component: JobDetailsSection,
-    isCompleted: false,
   },
   {
     key: "skills",
     icon: "fa-solid fa-wrench",
     title: "Skills",
     component: SkillsSection,
-    isCompleted: false,
   },
   {
     key: "requirements",
     icon: "fa-solid fa-clipboard-list",
     title: "Requirements",
     component: RequirementsSection,
-    isCompleted: false,
   },
   {
     key: "questions",
     icon: "fa-solid fa-clipboard-question",
     title: "Pre-screening Questions",
     component: QuestionsSection,
-    isCompleted: false,
   },
   {
     key: "finished",

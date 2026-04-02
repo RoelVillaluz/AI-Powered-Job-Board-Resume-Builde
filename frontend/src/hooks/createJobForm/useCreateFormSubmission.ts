@@ -1,7 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import { useAuthStore } from "../../stores/authStore";
-import { useJobForm } from "../../contexts/JobPostingFormContext";
+import { useJobForm } from "../../contexts/JobFormContexts/JobPostingFormContext";
 import { BASE_API_URL } from "../../config/api";
 
 /**

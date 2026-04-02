@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { useJobForm } from "../../contexts/JobPostingFormContext";
+import { useJobForm } from "../../contexts/JobFormContexts/JobPostingFormContext";
 import { useStepNavigation } from "./useStepNavigation";
 import type { CreateJobFormData } from "../../../types/forms/createJobForm.types";
 

@@ -11,30 +11,25 @@ import { ExperienceLevelField } from "./ExperienceLevelField";
 /**
  * JobDetailsSection
  * ------------------
- * Step 1 of the Create Job multi-step form. Collects the core job metadata:
- * title, location, experience level, job type, and salary.
+ * Step 1 of the Create Job multi-step form.
  *
- * Reads `formData` and `handleSelect` from `JobFormContext` — no props needed.
- * Field components (`SalaryInputField`, `JobTypeField`, `ExperienceLevelField`)
- * also read from context directly, so this component only manages the
- * SearchableSelect local search state that sits between the user's keystrokes
- * and the committed formData values.
- *
- * ## Local vs committed state
- * `jobTitleSearch` and `locationSearch` are intentionally separate from
- * `formData` — they represent the in-progress query string, not the
- * confirmed selection. On select, `handleSelect` commits `{ _id, name }`
- * to `formData`; the local string is seeded from `formData` on mount so
- * the field is never blank after a page re-render.
+ * ## Draft restore
+ * Because `useCreateJobFormData` seeds `formData` synchronously from the
+ * draft store before the first render, `formData.title.name` and
+ * `formData.location.name` are already correct when this component mounts.
+ * The `useState` initialisers below capture the right values immediately —
+ * no `useEffect` re-sync is needed.
  */
 function JobDetailsSection() {
   const { formData, handleSelect, handleClearSelection } = useJobForm();
 
+  // These seed correctly on first render because formData is already
+  // populated from the draft store before this component mounts.
   const [jobTitleSearch, setJobTitleSearch] = useState(
-    formData.title.name ?? ""
+    formData.title?.name ?? ""
   );
   const [locationSearch, setLocationSearch] = useState(
-    formData.location.name ?? ""
+    formData.location?.name ?? ""
   );
 
   const debouncedJobTitle = useDebounce(jobTitleSearch, 300);

@@ -1,3 +1,4 @@
+import { FinishedSection } from "../src/components/MultiStepForm/CreateJobForm/Finished/FinishedSection";
 import JobDetailsSection from "../src/components/MultiStepForm/CreateJobForm/JobDetails/JobDetailsSection";
 import { QuestionsSection } from "../src/components/MultiStepForm/CreateJobForm/PreScreeningQuestions/QuestionsSection";
 import { RequirementsSection } from "../src/components/MultiStepForm/CreateJobForm/Requirements/RequirementsSection";
@@ -84,6 +85,8 @@ export type CreateJobSteps = {
   component?: React.FC<any>; // optional, React component for the step
 };
 
+export type StepKey = CreateJobSteps["key"];
+
 export const CREATE_JOB_STEPS: CreateJobSteps[] = [
   {
     key: "details",
@@ -113,6 +116,6 @@ export const CREATE_JOB_STEPS: CreateJobSteps[] = [
     key: "finished",
     icon: "fa-solid fa-check",
     title: "Finished!",
-    isCompleted: false,
+    component: FinishedSection,
   },
 ];

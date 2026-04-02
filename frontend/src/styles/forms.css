@@ -374,6 +374,8 @@ textarea
     background-color: var(--disabled);
     color: gray;
     border-radius: 4px;
+    cursor: pointer;
+    transition: 0.3s ease-in-out;
 }
 
 #multi-step-form .steps li i::after {
@@ -404,7 +406,6 @@ textarea
 
 #multi-step-form .steps li.active i {
     background-color: var(--tertiary);
-    border: solid 1px  #3b2b220a;
     color: black;
 }
 
@@ -412,6 +413,11 @@ textarea
 #multi-step-form .steps li.active .supporting-text
 {
     color: black;
+}
+
+#multi-step-form .steps li.completed i {
+    background-color: rgb(214, 255, 214);
+    color: green;
 }
 
 .form-panel {

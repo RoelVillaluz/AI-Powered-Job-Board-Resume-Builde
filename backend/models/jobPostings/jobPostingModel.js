@@ -6,7 +6,6 @@ const jobPostingSchema = new mongoose.Schema({
         _id: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'JobTitle',
-            required: true,
         },
         name: {
             type: String,
@@ -28,7 +27,6 @@ const jobPostingSchema = new mongoose.Schema({
         _id: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Location',
-            required: true
         },
         name: {
             type: String,
@@ -93,7 +91,6 @@ const jobPostingSchema = new mongoose.Schema({
         _id: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Skill',
-            required: true
         },
         name: { 
             type: String, 

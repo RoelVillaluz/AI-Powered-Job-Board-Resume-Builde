@@ -58,7 +58,7 @@ function StepShell() {
  * Reads from both contexts independently — only what it actually needs.
  */
 function FormContent() {
-  const { handleKeyDown, hasDraft, clearDraft, setFormData } = useJobForm();
+  const { handleKeyDown, hasDraft, clearDraft, formData, setFormData } = useJobForm();
   const { currentStepIndex, isNextAllowed, nextStep, prevStep, currentStep } = useStepContext();
   const { handleFormSubmit, isSubmitting } = useCreateJobFormSubmission();
 

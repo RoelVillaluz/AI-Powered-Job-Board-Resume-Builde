@@ -4,6 +4,7 @@ import { formattedSalary } from "../../../../backend/constants";
 import { useMemo } from "react";
 import { useJobActions } from "../../hooks/jobs/useJobActions";
 import React from "react";
+import { formatSalary } from "../utils/chats/salaryUtils";
 
 export const JobPostingCardSkeleton = () => {
     return (
@@ -49,7 +50,13 @@ const JobPostingCard = ({ job, user, resume, onShowModal }) => {
                         <h3>{job.company.name}</h3>
                     </div>
                 </div>
-                <h4><i className="fa-regular fa-money-bill-1"></i> {formattedSalary(job)}</h4>
+                <h4>
+                    <i className="fa-regular fa-money-bill-1"></i>
+                    {job.salary.min && job.salary.max
+                        ? formatSalary(job.salary)  // Use the new schema format with min and max
+                        : formattedSalary(job)      // Use the old schema format with amount only
+                    }
+                </h4>
                 <p>{job.summary}</p>
 
                 <div className="details">

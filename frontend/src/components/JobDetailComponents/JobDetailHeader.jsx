@@ -117,9 +117,14 @@ function JobDetailHeader({ jobId, showModal }) {
                 {!isLoading ? (
                     <>
                         <div className="row">
-                            <h1>{job?.title}</h1>
+                            <h1>{typeof job?.title === 'string' ? job?.title : job?.title.name || ""}</h1>
                             <span className="posted-at">{formatDate(job.postedAt)}</span>
-                            <h2>{job.salary.currency}{job.salary.amount.toLocaleString()}<span>/{job.salary.frequency}</span></h2>
+                            <h2>
+                                {job.salary.min && job.salary.max
+                                    ? `${job.salary.currency}${job.salary.min.toLocaleString()} - ${job.salary.currency}${job.salary.max.toLocaleString()}`
+                                    : `${job.salary.currency}${job.salary.amount.toLocaleString()}`}
+                                <span>/{job.salary.frequency}</span>
+                            </h2>
                         </div>
                         <div className="row">
                             <div>

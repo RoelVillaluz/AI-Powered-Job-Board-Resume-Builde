@@ -848,6 +848,36 @@ textarea
     background-color: var(--tertiary);
 }
 
+/* ── Draft banner ────────────────────────────────────────────────────────────── */
+
+.draft-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  margin-bottom: 12px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #374151;
+}
+
+.draft-banner__discard {
+  font-size: 12px;
+  color: #9ca3af;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+  transition: color 0.1s ease;
+}
+
+.draft-banner__discard:hover {
+  color: #374151;
+}
+
 /* Skeleton for search dropdown */
 .search-dropdown-skeleton {
   position: relative;

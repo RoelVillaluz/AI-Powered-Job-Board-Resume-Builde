@@ -16,7 +16,7 @@ import { BASE_API_URL } from "../../config/api";
 export const useCreateJobFormSubmission = () => {
   const { formData } = useJobForm();
   const token = useAuthStore((state) => state.token);
-  const user = useAuthStore((state) => state.user)
+  const user = useAuthStore((state) => state.user);
 
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -43,6 +43,7 @@ export const useCreateJobFormSubmission = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       return response.data.data;
+      
     } catch (err: any) {
       const message = err.response?.data?.message;
       setError(message ?? "Network error. Please try again.");

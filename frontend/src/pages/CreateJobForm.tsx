@@ -3,12 +3,14 @@ import Layout from "../components/Layout.jsx";
 import { StepsContainer } from "../components/MultiStepForm/CreateJobForm/StepsContainer.js";
 import { JobFormProvider } from "../contexts/JobFormContexts/JobPostingFormContext.js";
 import { StepProvider } from "../contexts/JobFormContexts/StepContext.js";
-import { useCreateJobFormData } from "../hooks/createJobForm/useCreateJobFormData.js";
-import { useStepNavigation } from "../hooks/createJobForm/useStepNavigation.js";
+import { DRAFT_KEY, useCreateJobFormData } from "../hooks/createJobForm/useCreateJobFormData.js";
+import { STEP_DRAFT_KEY, useStepNavigation } from "../hooks/createJobForm/useStepNavigation.js";
 import { useCreateJobFormSubmission } from "../hooks/createJobForm/useCreateFormSubmission.js";
 import { useJobForm } from "../contexts/JobFormContexts/JobPostingFormContext.js";
 import { useStepContext } from "../contexts/JobFormContexts/StepContext.js";
 import { CREATE_JOB_INITIAL_FORM_DATA } from "../../constants/formSchemas.js";
+import { FormButtonControls } from "../components/FormComponents/FormButtonControls.js";
+import { useDraftStore } from "../stores/draftStore.js";
 
 /**
  * CreateJobForm
@@ -58,20 +60,23 @@ function StepShell() {
  * Reads from both contexts independently — only what it actually needs.
  */
 function FormContent() {
-  const { handleKeyDown, hasDraft, clearDraft, formData, setFormData } = useJobForm();
+  const { handleKeyDown, formData, setFormData } = useJobForm();
   const { currentStepIndex, isNextAllowed, nextStep, prevStep, currentStep } = useStepContext();
   const { handleFormSubmit, isSubmitting } = useCreateJobFormSubmission();
+  const hasDraft = useDraftStore((state) => state.hasDraft);
+  const clearDraft = useDraftStore((state) => state.clearDraft);
 
   const StepComponent = currentStep.component;
 
   const handleSubmit = async (e: React.FormEvent) => {
     await handleFormSubmit(e);
-    clearDraft();
+    clearDraft(DRAFT_KEY);
   };
 
   const handleDiscardDraft = () => {
     setFormData(CREATE_JOB_INITIAL_FORM_DATA);
-    clearDraft();
+    clearDraft(DRAFT_KEY);
+    clearDraft(STEP_DRAFT_KEY); 
   };
 
   return (
@@ -84,50 +89,19 @@ function FormContent() {
         onKeyDown={handleKeyDown}
         style={{ flex: "3", marginRight: "4.5rem" }}
       >
-        {hasDraft && currentStepIndex === 0 && (
-          <div className="draft-banner" role="status">
-            <span>Draft restored — pick up where you left off.</span>
-            <button
-              type="button"
-              className="draft-banner__discard"
-              onClick={handleDiscardDraft}
-            >
-              Discard
-            </button>
-          </div>
-        )}
 
         {StepComponent && <StepComponent />}
 
-        <div
-          className="buttons"
-          style={{ justifyContent: currentStepIndex > 0 ? "space-between" : "flex-end" }}
-        >
-          {currentStepIndex > 0 && (
-            <button onClick={prevStep} id="prev-step-btn" type="button">
-              Previous
-            </button>
-          )}
-
-          {currentStep.key === "finished" ? (
-            <button id="submit-btn" type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "Submitting..." : "Submit"}
-            </button>
-          ) : (
-            isNextAllowed && (
-              <button
-                id="next-step-btn"
-                type="button"
-                onClick={(e) => {
-                  e.preventDefault();
-                  nextStep();
-                }}
-              >
-                Next
-              </button>
-            )
-          )}
-        </div>
+        <FormButtonControls
+          currentStepIndex={currentStepIndex}
+          currentStep={currentStep}
+          prevStep={prevStep}
+          nextStep={nextStep}
+          isSubmitting={isSubmitting} 
+          isNextAllowed={isNextAllowed}
+          hasDraft={hasDraft(DRAFT_KEY)}
+          discardDraft={handleDiscardDraft} 
+        />
       </form>
     </div>
   );

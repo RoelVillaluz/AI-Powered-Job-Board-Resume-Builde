@@ -98,7 +98,7 @@ const jobPostingSchema = new mongoose.Schema({
         },
         requirementLevel: {
             type: String,
-            enum: ['required', 'preferred', 'nice-to-have'],
+            enum: ['Required', 'Preferred', 'Nice-to-Have'],
             required: false
         }
     }],  

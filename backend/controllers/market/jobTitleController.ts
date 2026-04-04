@@ -79,6 +79,14 @@ export const getOrGenerateJobTitleEmbedding = catchAsync(async (req: Request, re
     });
 })
 
+export const getJobTitleTopSkills = catchAsync(async (req: Request, res: Response) => {
+    const { id } = req.params as { id: string };
+
+    const result = await JobTitleRepo.getJobTitleTopSkillsRepository(new Types.ObjectId(id));
+
+    return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.FETCH, data: result } as any, 'Job title top skills')
+})
+
 export const createJobTitle = catchAsync(async (req: Request, res: Response) => {
     const newJobTitle = await JobTitleService.createJobTitleService(req.body);
 

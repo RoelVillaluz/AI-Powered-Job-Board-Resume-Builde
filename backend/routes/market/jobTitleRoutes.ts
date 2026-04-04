@@ -15,9 +15,10 @@ router.get('/search/:title', JobTitleController.searchJobTitlesByName);
 router.get('/industry/:industry', JobTitleController.getJobTitlesByIndustry);
 
 // Single job title
-router.get('/:id', checkIfJobTitleExistsById, JobTitleController.getJobTitleById);
 router.get('/:id/metrics', authenticate, checkIfJobTitleExistsById, JobTitleController.getJobTitleMetrics);
 router.get('/:id/embeddings', checkIfJobTitleExistsById, JobTitleController.getOrGenerateJobTitleEmbedding);
+router.get('/:id/top-skills', checkIfJobTitleExistsById, JobTitleController.getJobTitleTopSkills);
+router.get('/:id', checkIfJobTitleExistsById, JobTitleController.getJobTitleById);
 
 // Admin only
 router.post('/', authenticate, requireRole('admin'), validate(createJobTitleSchema), JobTitleController.createJobTitle);

@@ -83,6 +83,11 @@ export const getJobTitleMetricsByIdRepository = (id: Types.ObjectId) => {
         .select('-embedding -embeddingGeneratedAt') // Include all fields except embedding fields
 }
 
+export const getJobTitleTopSkillsRepository = (id: Types.ObjectId) => {
+    return JobTitle.find(id)
+        .select('_id title topSkills')
+}
+
 /**
  * Create a new job title document.
  * Only user/admin-enterable fields — computed metrics populated by worker.

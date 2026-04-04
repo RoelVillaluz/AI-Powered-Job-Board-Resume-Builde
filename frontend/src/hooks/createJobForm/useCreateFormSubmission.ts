@@ -16,6 +16,7 @@ import { BASE_API_URL } from "../../config/api";
 export const useCreateJobFormSubmission = () => {
   const { formData } = useJobForm();
   const token = useAuthStore((state) => state.token);
+  const user = useAuthStore((state) => state.user)
 
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -32,9 +33,13 @@ export const useCreateJobFormSubmission = () => {
     setError(null);
 
     try {
+      const payload = {
+        ...formData,
+        company: user.company._id ?? user.company
+      }
       const response = await axios.post(
         `${BASE_API_URL}/job-postings`,
-        formData,
+        payload,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       return response.data.data;

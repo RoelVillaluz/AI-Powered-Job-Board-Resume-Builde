@@ -1,4 +1,5 @@
 // repositories/jobTitleRepository.ts
+import type { ImportanceLevel } from "../../../shared/constants/jobsAndIndustries/constants";
 import JobTitle from "../../models/market/jobTitleModel";
 import { JobTitleInterface, CreateJobTitlePayload, UpdateJobTitlePayload } from "../../types/jobTitle.types";
 import { Types } from "mongoose";
@@ -79,14 +80,39 @@ export const getJobTitlesByIndustryRepository = (industry: string) => {
 }
 
 export const getJobTitleMetricsByIdRepository = (id: Types.ObjectId) => {
-    return JobTitle.find(id)
+    return JobTitle.findById(id)
         .select('-embedding -embeddingGeneratedAt') // Include all fields except embedding fields
 }
 
-export const getJobTitleTopSkillsRepository = (id: Types.ObjectId) => {
-    return JobTitle.find(id)
-        .select('_id title topSkills')
-}
+export const getJobTitleTopSkillsByImportance = async (
+  id: Types.ObjectId,
+  normalizedImportance: ImportanceLevel | null,
+  excludeIds = []
+) => {
+  // Only filter if importance is provided
+  const matchImportance = normalizedImportance
+    ? { $eq: [{ $toLower: '$$skill.importance' }, normalizedImportance] }
+    : {};
+
+  const result = await JobTitle.aggregate([
+    { $match: { _id: id } },
+    {
+      $project: {
+        _id: 1,
+        title: 1,
+        topSkills: {
+          $filter: {
+            input: '$topSkills',
+            as: 'skill',
+            cond: normalizedImportance ? matchImportance : { $literal: true }
+          }
+        }
+      }
+    }
+  ]);
+
+  return result[0];
+};
 
 /**
  * Create a new job title document.

@@ -8,6 +8,7 @@ import { jobTitleEmbeddingQueue } from '../../queues';
 import JobTitle, { JobTitleDocument } from '../../models/market/jobTitleModel';
 import { CreateJobTitlePayload, UpdateJobTitlePayload, JobTitleEmbeddingData } from '../../types/jobTitle.types';
 import { safeQueueOperation } from '../../utils/queueUtils';
+import { ImportanceLevel } from '../../../shared/constants/jobsAndIndustries/constants';
 
 // ============================================
 // RETURN TYPES
@@ -318,3 +319,19 @@ export const updateJobTitleService = async (
 
     return updatedTitle;
 }
+
+export const getJobTitleTopSkillsService = async (
+  id: Types.ObjectId,
+  importance: string | null
+) => {
+  if (importance) {
+    const lower = importance.toLowerCase() as ImportanceLevel;
+    if (!Object.values(ImportanceLevel).includes(lower)) {
+      throw new Error(`Invalid importance level: ${importance}`);
+    }
+    return JobTitleRepo.getJobTitleTopSkillsByImportance(id, lower);
+  }
+
+  // null importance returns all
+  return JobTitleRepo.getJobTitleTopSkillsByImportance(id, null);
+};

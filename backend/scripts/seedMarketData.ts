@@ -6,7 +6,7 @@ import Location from "../models/market/locationModel";
 import Skill from "../models/market/skillModel";
 import JobTitle from "../models/market/jobTitleModel";
 import { INDUSTRY_CHOICES } from "../../shared/constants/jobsAndIndustries/constants";
-import { IndustryName } from "../types/industry.types";
+import type { IndustryName } from "../types/industry.types";
 import { SeniorityLevel } from "../types/industry.types";
 
 dotenv.config({ path: '.env.dev' });

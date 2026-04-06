@@ -88,6 +88,15 @@ export function SearchableSelect({
     setActiveIndex(-1);
   }, []);
 
+  // rAF ensures the element is mounted before the CSS transition class is added
+  useEffect(() => {
+    if (hasContent) {
+      const raf = requestAnimationFrame(() => setIsOpen(true));
+      return () => cancelAnimationFrame(raf);
+    }
+    closeDropdown();
+  }, [hasContent, closeDropdown]);
+
   // Close when the user clicks outside the component
   useEffect(() => {
     const handleMouseDown = (e: MouseEvent) => {
@@ -164,11 +173,6 @@ export function SearchableSelect({
           name={name}
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          onFocus={() => {
-            if (value.length >= MIN_SEARCH_LENGTH || options.length > 0) {
-              setIsOpen(true); // ✅ open on focus if meaningful
-            }
-          }}
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
           autoComplete="off"

@@ -4,6 +4,7 @@ import * as JobTitleRepo from '../../repositories/market/jobTitleRepositories'
 import * as JobTitleService from '../../services/market/jobTitleService'
 import { catchAsync } from "../../utils/errorUtils"
 import { sendResponse, STATUS_MESSAGES } from "../../constants"
+import type { ImportanceLevel } from "../../../shared/constants/jobsAndIndustries/constants"
 
 export const getJobTitleById = catchAsync(async (req: Request, res: Response) => {
     const { id } = req.params as { id: string };
@@ -81,11 +82,19 @@ export const getOrGenerateJobTitleEmbedding = catchAsync(async (req: Request, re
 
 export const getJobTitleTopSkills = catchAsync(async (req: Request, res: Response) => {
     const { id } = req.params as { id: string };
+    const importance = (req.query.importance as string | undefined) ?? null;
 
-    const result = await JobTitleRepo.getJobTitleTopSkillsRepository(new Types.ObjectId(id));
+    const result = await JobTitleService.getJobTitleTopSkillsService(
+        new Types.ObjectId(id),
+        importance
+    );
 
-    return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.FETCH, data: result } as any, 'Job title top skills')
-})
+    return sendResponse(
+        res,
+        { ...STATUS_MESSAGES.SUCCESS.FETCH, data: result },
+        'Job title top skills'
+    );
+});
 
 export const createJobTitle = catchAsync(async (req: Request, res: Response) => {
     const newJobTitle = await JobTitleService.createJobTitleService(req.body);

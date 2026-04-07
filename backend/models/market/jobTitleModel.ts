@@ -123,7 +123,7 @@ const jobTitleSchema = new Schema(
         },
         importance: {
           type: String,
-          enum: ['required', 'preferred', 'nice-to-have'],
+          enum: ['Required', 'Preferred', 'Nice-to-Have'],
         },
       },
     ],

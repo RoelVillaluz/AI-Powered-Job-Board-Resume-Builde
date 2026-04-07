@@ -25,8 +25,8 @@ export const SkillsFormGroup = () => {
     const debouncedSkill = useDebounce(skillsSearch, 300);
 
     const excludeIds = formData.skills
-        .map(skill => skill._id)
-        .filter((id): id is string => !!id);
+    .map(skill => skill._id)
+    .filter((id): id is string => !!id);
 
     const { data: skills = [], isLoading } = useSkillSearchQuery(debouncedSkill, excludeIds);
 

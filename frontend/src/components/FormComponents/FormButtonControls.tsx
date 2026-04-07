@@ -58,7 +58,11 @@ export const FormButtonControls = ({
 
         {currentStep.key === "finished" ? (
           <button id="submit-btn" type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Submitting..." : "Submit"}
+            {isSubmitting ? (
+              <div className="spinner m-auto"></div>
+            ) : (
+              'Sign In'
+            )}
           </button>
         ) : (
           isNextAllowed && (

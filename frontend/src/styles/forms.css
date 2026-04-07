@@ -1103,6 +1103,229 @@ textarea
 
 /* ── Modal ───────────────────────────────────────────────────────────────────── */
 
+/* ── Modal sizing ────────────────────────────────────────────────────────────── */
+
+.suggested-skills-modal {
+  width: min(480px, 90vw);
+}
+
+/* ── Header ──────────────────────────────────────────────────────────────────── */
+
+.suggested-skills-modal__title {
+  font-size: clamp(0.85rem, 1.25vw, 1.5rem);
+  font-weight: 500;
+  color: #111827;
+  margin: 0;
+  margin-bottom: 0.1rem;
+}
+
+.suggested-skills-modal__subtitle {
+  font-size: 12px;
+  color: #6b7280;
+  margin: 0;
+  margin-bottom: 1rem;
+}
+
+/* ── Body ────────────────────────────────────────────────────────────────────── */
+
+.suggested-skills-modal__body {
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.suggested-skills-modal__error,
+.suggested-skills-modal__empty {
+  font-size: 13px;
+  color: #9ca3af;
+  padding: 12px 0;
+  text-align: center;
+}
+
+/* ── Skill list ──────────────────────────────────────────────────────────────── */
+
+.suggested-skills-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.suggested-skill-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid #f0f0f0;
+  background: #fafafa;
+  transition: background 0.1s ease;
+}
+
+.suggested-skill-item:hover {
+  background: #f3f4f6;
+}
+
+.suggested-skill-item--added {
+  background: #f0fdf4;
+}
+
+/* Shimmer skeleton */
+.suggested-skill-item--shimmer {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  pointer-events: none;
+}
+
+.shimmer-bar--sm {
+  height: 8px;
+  width: 40%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.2s infinite;
+}
+
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ── Skill info (name + badge) ───────────────────────────────────────────────── */
+
+.suggested-skill-item__info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+}
+
+.suggested-skill-item__name {
+  font-size: 13px;
+  font-weight: 500;
+  color: #111827;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Importance badges — same grayscale approach as SkillsList tags */
+.suggested-skill-item__badge {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 3px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.suggested-skill-item__badge--required {
+  background: #111827;
+  color: #f9fafb;
+}
+
+.suggested-skill-item__badge--preferred {
+  background: #374151;
+  color: #f3f4f6;
+}
+
+.suggested-skill-item__badge--nice-to-have {
+  background: #f3f4f6;
+  color: #374151;
+  border: 1px solid #d1d5db;
+}
+
+/* ── Frequency bar ───────────────────────────────────────────────────────────── */
+
+.suggested-skill-item__freq {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 80px;
+  flex-shrink: 0;
+}
+
+.suggested-skill-item__freq-bar {
+  height: 4px;
+  border-radius: 2px;
+  background: #111827;
+  opacity: 0.15;
+  flex: 1;
+  max-width: 100%;
+}
+
+.suggested-skill-item__freq-label {
+  font-size: 10px;
+  color: #9ca3af;
+  white-space: nowrap;
+  width: 28px;
+  text-align: right;
+}
+
+/* ── Add / added toggle button ───────────────────────────────────────────────── */
+
+.suggested-skill-item__toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 5px;
+  border: 1px solid #e5e7eb;
+  background: white;
+  color: #6b7280;
+  font-size: 11px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.suggested-skill-item__toggle:hover {
+  background: #111827;
+  color: white;
+  border-color: #111827;
+}
+
+.suggested-skill-item__toggle--added {
+  background: #111827;
+  color: white;
+  border-color: #111827;
+}
+
+.suggested-skill-item__toggle--added:hover {
+  background: #374151;
+  border-color: #374151;
+}
+
+/* ── Footer ──────────────────────────────────────────────────────────────────── */
+
+.suggested-skills-modal__footer {
+  padding-top: 10px;
+  border-top: 1px solid #f0f0f0;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.suggested-skills-modal__add-all {
+  font-size: 13px;
+  font-weight: 500;
+  padding: 6px 14px;
+  border-radius: 6px;
+  border: 1px solid #111827;
+  background: #111827;
+  color: white;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.suggested-skills-modal__add-all:hover {
+  background: #374151;
+  border-color: #374151;
+}
+
 .skills-modal {
   background: #fff;
   border-radius: 10px;
@@ -1118,6 +1341,7 @@ textarea
   display: flex;
   align-items: center;
   justify-content: space-between;
+  text-align: left;
 }
 
 .skills-modal__group-label {

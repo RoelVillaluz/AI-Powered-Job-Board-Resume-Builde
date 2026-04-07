@@ -23,7 +23,12 @@ export const SkillsFormGroup = () => {
     const [skillToAdd, setSkillToAdd] = useState<FormSkill>(EMPTY_SKILL);
     
     const debouncedSkill = useDebounce(skillsSearch, 300);
-    const { data: skills = [], isLoading } = useSkillSearchQuery(debouncedSkill);
+
+    const excludeIds = formData.skills
+        .map(skill => skill._id)
+        .filter((id): id is string => !!id);
+
+    const { data: skills = [], isLoading } = useSkillSearchQuery(debouncedSkill, excludeIds);
 
     const skillOptions = useMemo(() => {
         const selectedKeys = new Set(

@@ -10,16 +10,45 @@ import { Types } from "mongoose";
 // ============================================
 
 /**
- * GET /skills/search/:name
- * Search skills by partial name — used for autocomplete dropdowns.
- * Returns max 10 results with only _id and name fields.
+ * GET /skills/search
+ * Search skills by partial name, excluding certain skill IDs if provided.
+ *
+ * Query parameters:
+ * - `name` (string, required): Partial or full name to search for.
+ * - `excludeIds` (string[], optional): IDs of skills to exclude from the result.
+ *
+ * Returns max 10 results with only `_id` and `name` fields, suitable for autocomplete dropdowns.
  */
 export const getSkillsByName = catchAsync(async (req: Request, res: Response) => {
-    const { name } = req.params as { name: string };
+  const rawName = req.query.name;
+  const name =
+    typeof rawName === 'string'
+      ? rawName.trim()
+      : '';
 
-    const skills = await SkillRepo.getSkillsByNameRepository(name);
+  const rawExcludeIds = req.query.excludeIds;
 
-    return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.FETCH, data: skills } as any, 'Skills');
+  const excludeIds: string[] = Array.isArray(rawExcludeIds)
+    ? rawExcludeIds.filter((id): id is string => typeof id === 'string')
+    : typeof rawExcludeIds === 'string'
+      ? [rawExcludeIds]
+      : [];
+
+  if (!name) {
+    return sendResponse(
+      res,
+      { ...STATUS_MESSAGES.ERROR.BAD_REQUEST, message: 'Name query is required' } as any,
+      'Skills'
+    );
+  }
+
+  const skills = await SkillRepo.getSkillsByNameRepository(name, excludeIds);
+
+  return sendResponse(
+    res,
+    { ...STATUS_MESSAGES.SUCCESS.FETCH, data: skills } as any,
+    'Skills'
+  );
 });
 
 /**

@@ -39,17 +39,30 @@ export const getSkillEmbeddingRepository = (id: Types.ObjectId) => {
 }
 
 /**
- * Search skills by name using a case-insensitive regex.
+ * Search skills by name using a case-insensitive regex, optionally excluding certain IDs.
+ *
  * Used for autocomplete and skill search on the frontend.
- * Limited to 10 results to keep response size manageable.
+ * Returns a maximum of 10 results with only `_id` and `name` fields.
  *
  * @param name - Partial or full skill name to search for
+ * @param excludeIds - Array of skill IDs to exclude from results
+ * @returns Promise resolving to an array of skills matching the search criteria
  */
-export const getSkillsByNameRepository = (name: string) => {
-    return Skill.find({ name: { $regex: name, $options: 'i' } })
-        .select('_id name')
-        .limit(10)
-}
+export const getSkillsByNameRepository = (
+  name: string,
+  excludeIds: string[]
+) => {
+  const excludeObjectIds = excludeIds.map(id => new Types.ObjectId(id));
+
+  return Skill.find({
+    name: { $regex: name, $options: 'i' },
+    ...(excludeObjectIds.length > 0 && {
+      _id: { $nin: excludeObjectIds }
+    })
+  })
+    .select('_id name')
+    .limit(10);
+};
 
 /**
  * Bulk fetch skills by an array of exact names.

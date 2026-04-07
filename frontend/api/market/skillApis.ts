@@ -7,7 +7,12 @@ export type SkillSearchResult = {
     name: string
 }
 
-export const searchSkills = async (name: string): Promise<SkillSearchResult[]> => {
-    const { data } = await axios.get(`${BASE_API_URL}/skills/search/${name}`)
-    return data.data
+export const searchSkills = async (name: string, excludeIds: string[]): Promise<SkillSearchResult[]> => {
+  const params = new URLSearchParams();
+  params.append('name', name);
+
+  excludeIds.forEach(id => params.append('excludeIds', id));
+
+  const { data } = await axios.get(`${BASE_API_URL}/skills/search?${params.toString()}`);
+  return data.data;
 }

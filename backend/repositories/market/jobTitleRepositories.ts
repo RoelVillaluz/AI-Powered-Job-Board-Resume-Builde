@@ -84,10 +84,40 @@ export const getJobTitleMetricsByIdRepository = (id: Types.ObjectId) => {
         .select('-embedding -embeddingGeneratedAt') // Include all fields except embedding fields
 }
 
+/**
+ * Fetches the top skills for a given job title, optionally filtered by importance level.
+ *
+ * Each returned skill contains:
+ * - `_id`         → the actual Skill collection ID
+ * - `skillName`   → the human-readable name of the skill
+ * - `frequency`   → how common this skill is for the role
+ * - `importance`  → importance level (e.g., 'required', 'preferred', 'nice-to-have')
+ *
+ * This function ensures that the frontend receives the correct skill `_id` from the skills collection,
+ * rather than the internal `_id` of the topSkill document stored inside the JobTitle document.
+ *
+ * @async
+ * @param {Types.ObjectId} id - The MongoDB ObjectId of the JobTitle document
+ * @param {ImportanceLevel | null} normalizedImportance - Optional importance level to filter skills by;
+ *                                                         if `null`, all topSkills are returned.
+ * @returns {Promise<{
+ *   _id: Types.ObjectId;
+ *   title: string;
+ *   topSkills: Array<{
+ *     _id: Types.ObjectId;
+ *     skillName: string;
+ *     frequency: number;
+ *     importance: string;
+ *   }>;
+ * } | undefined>} - The JobTitle with filtered and mapped topSkills; `undefined` if no matching job title.
+ *
+ * @example
+ * const jobTitle = await getJobTitleTopSkillsByImportance(jobTitleId, 'required');
+ * console.log(jobTitle.topSkills[0]._id); // actual Skill _id
+ */
 export const getJobTitleTopSkillsByImportance = async (
   id: Types.ObjectId,
   normalizedImportance: ImportanceLevel | null,
-  excludeIds = []
 ) => {
   // Only filter if importance is provided
   const matchImportance = normalizedImportance
@@ -101,11 +131,22 @@ export const getJobTitleTopSkillsByImportance = async (
         _id: 1,
         title: 1,
         topSkills: {
-          $filter: {
-            input: '$topSkills',
-            as: 'skill',
-            cond: normalizedImportance ? matchImportance : { $literal: true }
-          }
+            $map: {
+                input: {
+                $filter: {
+                    input: '$topSkills',
+                    as: 'skill',
+                    cond: normalizedImportance ? matchImportance : { $literal: true }
+                    }
+                },
+                as: 's',
+                in: {
+                    _id: '$$s.skill',        // <-- actual Skill ID
+                    skillName: '$$s.skillName',
+                    frequency: '$$s.frequency',
+                    importance: '$$s.importance'
+                }
+            }
         }
       }
     }

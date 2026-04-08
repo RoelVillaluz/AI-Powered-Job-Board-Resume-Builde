@@ -171,3 +171,8 @@ export const createJobPostingSchema = Joi.object({
       "array.base": "Pre-screening questions must be an array",
     }),
 });
+
+export const createJobPostingRequestSchema = Joi.object({
+  jobPostingData: createJobPostingSchema.required(),
+  idempotencyKey: Joi.string().uuid().optional(),
+});

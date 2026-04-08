@@ -73,12 +73,30 @@ export const getJobApplicants = async (id) => {
     }));
 };
 
+const idempotencyCache = new Map();
+
 /**
  * Create a new job posting and associate with company
  * @param {Object} jobPostingData - Job posting data
  * @returns {Promise<Object>}
  */
-export const createJobPosting = async (jobPostingData) => {
+export const createJobPosting = async (jobPostingData, idempotencyKey) => {
+
+    if (idempotencyKey) {
+        const existing = idempotencyCache.get(idempotencyKey);
+
+        if (existing) {
+            if (existing === "PENDING") {
+                throw new Error("Request is already being processed");
+            }
+
+            return await JobPostingRepository.findById(existing);
+        }
+
+        // Mark as in progress
+        idempotencyCache.set(idempotencyKey, "PENDING");
+    }
+
     const session = await mongoose.startSession();
 
     try {
@@ -96,14 +114,27 @@ export const createJobPosting = async (jobPostingData) => {
         );
 
         await session.commitTransaction();
-        
-        // TODO: Invalidate Redis cache if implemented
-        // await invalidateJobCache(newJob);
-        
+
+        if (idempotencyKey) {
+            idempotencyCache.set(idempotencyKey, newJob._id.toString());
+
+            // Optional: cleanup after 10 mins
+            setTimeout(() => {
+                idempotencyCache.delete(idempotencyKey);
+            }, 10 * 60 * 1000);
+        }
+
         return newJob;
+
     } catch (error) {
         await session.abortTransaction();
+
+        if (idempotencyKey) {
+            idempotencyCache.delete(idempotencyKey);
+        }
+
         throw error;
+
     } finally {
         session.endSession();
     }

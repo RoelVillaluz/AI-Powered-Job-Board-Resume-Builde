@@ -39,7 +39,7 @@ function TopJobSection() {
                         <Link to={`job-postings/${topJob._id}`} id="top-job-link">
                             <header>
                                 <div>
-                                    <h1>{typeof topJob.title === 'strong' ? topJob.title : topJob.title.name}</h1>
+                                    <h1>{typeof topJob.title === 'string' ? topJob.title : topJob.title.name}</h1>
                                     <h2>{topJob.company?.name}</h2>
                                 </div>
                                 {topJob.company?.logo && (

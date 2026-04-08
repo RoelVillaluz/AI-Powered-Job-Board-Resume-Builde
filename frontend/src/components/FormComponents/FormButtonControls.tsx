@@ -61,7 +61,7 @@ export const FormButtonControls = ({
             {isSubmitting ? (
               <div className="spinner m-auto"></div>
             ) : (
-              'Sign In'
+              'Submit'
             )}
           </button>
         ) : (

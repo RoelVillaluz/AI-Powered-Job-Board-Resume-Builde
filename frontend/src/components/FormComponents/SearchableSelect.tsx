@@ -9,6 +9,7 @@ interface SearchableSelectProps {
   onChange: (value: string) => void;
   onSelect?: (option: SelectOption) => void;
   onClear?: () => void;
+  onBlur?: () => void;
   isLoading?: boolean;
   placeholder: string;
 }
@@ -63,6 +64,7 @@ export function SearchableSelect({
   onChange,
   onSelect,
   onClear,
+  onBlur,
   isLoading,
   placeholder,
 }: SearchableSelectProps) {
@@ -174,6 +176,7 @@ export function SearchableSelect({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           onKeyDown={handleKeyDown}
+          onBlur={onBlur}
           placeholder={placeholder}
           autoComplete="off"
           role="combobox"

@@ -68,6 +68,13 @@ function JobDetailsSection() {
               handleClearSelection("title");
               setJobTitleSearch("");
             }}
+            onBlur={() => {
+              // If user typed something but didn't select from dropdown,
+              // commit whatever is in the search input as a free-text value
+              if (jobTitleSearch && !formData.title.name) {
+                handleSelect("title", { _id: "", name: jobTitleSearch });
+              }
+            }}
             isLoading={isJobTitleLoading}
             placeholder="Search job titles..."
           />
@@ -88,6 +95,13 @@ function JobDetailsSection() {
             onClear={() => {
               handleClearSelection("location");
               setLocationSearch("");
+            }}
+            onBlur={() => {
+              // If user typed something but didn't select from dropdown,
+              // commit whatever is in the search input as a free-text value
+              if (locationSearch && !formData.location.name) {
+                handleSelect("location", { _id: "", name: locationSearch });
+              }
             }}
             isLoading={isLocationLoading}
             placeholder="Search locations..."

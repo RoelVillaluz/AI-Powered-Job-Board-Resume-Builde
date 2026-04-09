@@ -4,6 +4,7 @@ import { useAuthStore } from "../../stores/authStore";
 import { formatDate } from "../utils/dateUtils";
 import { useResumeStore } from "../../stores/resumeStore";
 import { useEffect } from "react";
+import { Link } from "react-router-dom";
 
 const CompanyBanner = ({ company, isLoading }) => {
     if (isLoading) return <div className="banner"/>;
@@ -85,7 +86,7 @@ const ApplicantsList = ({ job }) => (
 
 function JobDetailHeader({ jobId, showModal }) {
     const user = useAuthStore(state => state.user);
-    const currentResume = useResumeStore(state => state.currentResume);
+    const currentResume = user.role === 'jobseeker' ? useResumeStore(state => state.currentResume) : null;
     const { job, company, isLoading, error } = useJobDetails(jobId);
     const { toggleApplyJob, toggleSaveJob } = useJobActions();
 
@@ -93,7 +94,7 @@ function JobDetailHeader({ jobId, showModal }) {
 
     useEffect(() => {
         if (job && company) {
-            document.title = `${job?.title} - ${company?.name}`;
+            document.title = `${job?.title.name} - ${job?.company?.name}`;
         }
     }, [job?._id, company?._id]);
 
@@ -118,6 +119,14 @@ function JobDetailHeader({ jobId, showModal }) {
                     <>
                         <div className="row">
                             <h1>{typeof job?.title === 'string' ? job?.title : job?.title.name || ""}</h1>
+                            <Link
+                                className="edit-btn-link"
+                                to={`/job-postings/${jobId}/edit`}
+                                aria-label="Edit job posting"
+                                style={{ marginLeft: '-0.5rem' }}
+                            >
+                                <i className="fa-solid fa-pen-to-square" aria-hidden="true"></i>
+                            </Link>
                             <span className="posted-at">{formatDate(job.postedAt)}</span>
                             <h2>
                                 {job.salary.min && job.salary.max
@@ -131,15 +140,17 @@ function JobDetailHeader({ jobId, showModal }) {
                                 <h3>{company?.name}</h3>
                                 <h4>{typeof job.location === 'string' ? job.location : job.location.name || ""}</h4>
                             </div>
-                            <JobActions 
-                                job={job} 
-                                user={user}
-                                currentResume={currentResume} 
-                                toggleApplyJob={toggleApplyJob}
-                                toggleSaveJob={toggleSaveJob}
-                                hasQuestions={hasQuestions} 
-                                showModal={showModal}
-                            />
+                            {user.role === 'jobseeker' && (
+                                <JobActions 
+                                    job={job} 
+                                    user={user}
+                                    currentResume={currentResume} 
+                                    toggleApplyJob={toggleApplyJob}
+                                    toggleSaveJob={toggleSaveJob}
+                                    hasQuestions={hasQuestions} 
+                                    showModal={showModal}
+                                />
+                            )}
                         </div>
                         <ApplicantsList job={job}/>
                     </>

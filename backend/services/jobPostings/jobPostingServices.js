@@ -3,6 +3,8 @@ import * as JobPostingRepository from "../../repositories/jobPostings/jobPosting
 import { transformProfilePictureUrl } from "../transformers/urlTransformers.js";
 import { parseFilterParams } from "../../../frontend/src/utils/jobPostings/filterJobUtils.js";
 import JobPosting from "../../models/jobPostings/jobPostingModel.js";
+import { sanitizeJobData } from "../../utils/sanitizationUtilts.js";
+import { ConflictError } from "../../middleware/errorHandler.js";
 
 /**
  * Get filtered, sorted, and paginated job postings (cursor-based)
@@ -102,8 +104,10 @@ export const createJobPosting = async (jobPostingData, idempotencyKey) => {
     try {
         session.startTransaction();
 
+        const sanitizedData = sanitizeJobData(jobPostingData);
+
         const newJob = await JobPostingRepository.createJob(
-            jobPostingData,
+            sanitizedData,
             { session }
         );
 

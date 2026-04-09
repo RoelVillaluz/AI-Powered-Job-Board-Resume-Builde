@@ -4,6 +4,7 @@ import { checkMissingFields } from '../../utils.js'
 import { STATUS_MESSAGES, sendResponse } from '../../constants.js';
 import { catchAsync } from "../../utils/errorUtils.js";
 import User from "../../models/UserModel.js";
+import logger from "../../utils/logger.js";
 
 /**
  * Get filtered, sorted, and paginated list of job postings
@@ -74,12 +75,21 @@ export const getJobPosting = catchAsync(async (req, res) => {
  * @route POST /api/job/postings
  */
 export const createJobPosting = catchAsync(async (req, res) => {
-    const jobPostingData = req.body;
+    // Log the entire request body to inspect its structure
+    logger.info('Received request body:', req.body);
 
-    const newJob = await JobPostingService.createJobPosting(jobPostingData)
+    // Destructure jobPostingData and idempotencyKey from req.body
+    const { jobPostingData, idempotencyKey } = req.body;
+
+    // Log the destructured data
+    logger.info('Received jobPostingData:', jobPostingData);
+    logger.info('Received idempotencyKey:', idempotencyKey);
+
+    // Proceed to create the job posting
+    const newJob = await JobPostingService.createJobPosting(jobPostingData, idempotencyKey);
 
     return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.CREATE, data: newJob }, 'Job posting');
-})
+});
 
 /**
  * Updates job posting by id

@@ -87,7 +87,7 @@ export const createJobPosting = async (jobPostingData, idempotencyKey) => {
 
         if (existing) {
             if (existing === "PENDING") {
-                throw new Error("Request is already being processed");
+                throw new ConflictError("Request is already being processed")
             }
 
             return await JobPostingRepository.findById(existing);

@@ -75,17 +75,8 @@ export const getJobPosting = catchAsync(async (req, res) => {
  * @route POST /api/job/postings
  */
 export const createJobPosting = catchAsync(async (req, res) => {
-    // Log the entire request body to inspect its structure
-    logger.info('Received request body:', req.body);
-
-    // Destructure jobPostingData and idempotencyKey from req.body
     const { jobPostingData, idempotencyKey } = req.body;
 
-    // Log the destructured data
-    logger.info('Received jobPostingData:', jobPostingData);
-    logger.info('Received idempotencyKey:', idempotencyKey);
-
-    // Proceed to create the job posting
     const newJob = await JobPostingService.createJobPosting(jobPostingData, idempotencyKey);
 
     return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.CREATE, data: newJob }, 'Job posting');

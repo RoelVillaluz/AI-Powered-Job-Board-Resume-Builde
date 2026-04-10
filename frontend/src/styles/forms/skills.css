@@ -1,0 +1,409 @@
+@layer components {
+    .user-skills {
+        max-width: 75%;
+    }
+
+    /* ── Skills 2x2 grid ─────────────────────────────────────────────────────── */
+
+    .skills-list {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-top: 0.5rem;
+        width: 100%;
+        align-self: stretch;
+        text-align: left;
+    }
+
+    .skills-group {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+        border: 1px solid #f0f0f0;
+        border-radius: 6px;
+        background: #fafafa;
+    }
+
+    .skills-group__label {
+        font-size: clamp(0.5rem, 1vw, 0.9rem);
+        font-weight: 600;
+        align-self: flex-start;
+        text-align: left;
+        margin-bottom: 2px;
+    }
+
+    .skills-group__tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        align-items: center;
+    }
+
+    /* ── Base tag ────────────────────────────────────────────────────────────── */
+
+    .skill-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 5px 10px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 500;
+        border: 1px solid #9ca3af;
+        line-height: 1;
+    }
+
+    .skill-tag__icon {
+        font-size: 12px;
+        line-height: 1;
+        flex-shrink: 0;
+    }
+
+    .skill-tag__name {
+        line-height: 1;
+    }
+
+    .skill-tag__remove {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 1rem;
+        height: 1rem;
+        padding: 0;
+        background: none;
+        border: none;
+        border-radius: 3px;
+        cursor: pointer;
+        font-size: 14px;
+        opacity: 0.5;
+        transition: opacity 0.1s ease;
+        line-height: 1;
+        margin-left: 1px;
+    }
+
+    .skill-tag__remove:hover {
+        opacity: 1;
+    }
+
+    /* ── Required ────────────────────────────────────────────────────────────── */
+
+    .skills-group--required .skills-group__label { color: #111827; }
+    .skills-group--required .skill-tag--required {
+        background-color: #111827;
+        color: #f9fafb;
+        border-color: #111827;
+    }
+    .skills-group--required .skill-tag__icon  { color: #9ca3af; }
+    .skills-group--required .skill-tag__remove { color: #f9fafb; }
+
+    /* ── Preferred ───────────────────────────────────────────────────────────── */
+
+    .skills-group--preferred .skills-group__label { color: #374151; }
+    .skills-group--preferred .skill-tag--preferred {
+        background-color: #374151;
+        color: #f3f4f6;
+        border-color: #374151;
+    }
+    .skills-group--preferred .skill-tag__icon  { color: #9ca3af; }
+    .skills-group--preferred .skill-tag__remove { color: #f3f4f6; }
+
+    /* ── Nice-to-have ────────────────────────────────────────────────────────── */
+
+    .skills-group--nice .skills-group__label { color: #4b5563; }
+    .skills-group--nice .skill-tag--nice {
+        background-color: #f3f4f6;
+        color: #1f2937;
+        border-color: #9ca3af;
+    }
+    .skills-group--nice .skill-tag__icon  { color: #6b7280; }
+    .skills-group--nice .skill-tag__remove { color: #1f2937; }
+
+    /* ── Unspecified ─────────────────────────────────────────────────────────── */
+
+    .skills-group--unspecified .skills-group__label { color: #6b7280; }
+    .skills-group--unspecified .skill-tag--unspecified {
+        background-color: #fff;
+        color: #374151;
+        border-color: #9ca3af;
+        border-style: dashed;
+    }
+    .skills-group--unspecified .skill-tag__icon  { color: #9ca3af; }
+    .skills-group--unspecified .skill-tag__remove { color: #374151; }
+
+    /* ── Overflow pill ───────────────────────────────────────────────────────── */
+
+    .skill-tag--overflow {
+        padding: 5px 10px;
+        background: transparent;
+        border-style: dashed;
+        border-color: #6b7280;
+        color: #6b7280;
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: 600;
+        transition: background 0.15s ease, color 0.15s ease;
+    }
+
+    .skill-tag--overflow:hover {
+        background-color: #f3f4f6;
+        color: #374151;
+    }
+
+    /* ── Modals ──────────────────────────────────────────────────────────────── */
+
+    .skills-modal-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 100;
+    }
+
+    .skills-modal {
+        background: #fff;
+        border-radius: 10px;
+        padding: 20px;
+        width: min(400px, 90vw);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .skills-modal__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        text-align: left;
+    }
+
+    .skills-modal__group-label {
+        font-size: clamp(0.5rem, 0.7vw, 0.75rem);
+        font-weight: 600;
+        color: #374151;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .skills-modal__close {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 26px;
+        height: 26px;
+        border: none;
+        background: none;
+        border-radius: 6px;
+        cursor: pointer;
+        color: #9ca3af;
+        font-size: 13px;
+        transition: background 0.1s ease, color 0.1s ease;
+    }
+
+    .skills-modal__close:hover {
+        background: #f3f4f6;
+        color: #374151;
+    }
+
+    .skills-modal__tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+    }
+
+    /* ── Suggested skills modal ──────────────────────────────────────────────── */
+
+    .suggested-skills-modal {
+        width: min(480px, 90vw);
+    }
+
+    .suggested-skills-modal__title {
+        font-size: clamp(0.85rem, 1.25vw, 1.5rem);
+        font-weight: 500;
+        color: #111827;
+        margin: 0 0 0.1rem;
+    }
+
+    .suggested-skills-modal__subtitle {
+        font-size: 12px;
+        color: #6b7280;
+        margin: 0 0 1rem;
+    }
+
+    .suggested-skills-modal__body {
+        max-height: 600px;
+        overflow-y: auto;
+    }
+
+    .suggested-skills-modal__error,
+    .suggested-skills-modal__empty {
+        font-size: 13px;
+        color: #9ca3af;
+        padding: 12px 0;
+        text-align: center;
+    }
+
+    .suggested-skills-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .suggested-skill-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 10px;
+        border-radius: 6px;
+        border: 1px solid #f0f0f0;
+        background: #fafafa;
+        transition: background 0.1s ease;
+    }
+
+    .suggested-skill-item:hover          { background: #f3f4f6; }
+    .suggested-skill-item--added         { background: #f0fdf4; }
+
+    .suggested-skill-item--shimmer {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+        pointer-events: none;
+    }
+
+    .shimmer-bar--sm {
+        height: 8px;
+        width: 40%;
+        border-radius: 4px;
+        background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.2s infinite;
+    }
+
+    .suggested-skill-item__info {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex: 1;
+        min-width: 0;
+    }
+
+    .suggested-skill-item__name {
+        font-size: 13px;
+        font-weight: 500;
+        color: #111827;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .suggested-skill-item__badge {
+        font-size: 10px;
+        font-weight: 600;
+        padding: 2px 6px;
+        border-radius: 3px;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+
+    .suggested-skill-item__badge--required    { background: #111827; color: #f9fafb; }
+    .suggested-skill-item__badge--preferred   { background: #374151; color: #f3f4f6; }
+    .suggested-skill-item__badge--nice-to-have {
+        background: #f3f4f6;
+        color: #374151;
+        border: 1px solid #d1d5db;
+    }
+
+    .suggested-skill-item__freq {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        width: 80px;
+        flex-shrink: 0;
+    }
+
+    .suggested-skill-item__freq-bar {
+        height: 4px;
+        border-radius: 2px;
+        background: #111827;
+        opacity: 0.15;
+        flex: 1;
+        max-width: 100%;
+    }
+
+    .suggested-skill-item__freq-label {
+        font-size: 10px;
+        color: #9ca3af;
+        white-space: nowrap;
+        width: 28px;
+        text-align: right;
+    }
+
+    .suggested-skill-item__toggle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 26px;
+        height: 26px;
+        border-radius: 5px;
+        border: 1px solid #e5e7eb;
+        background: white;
+        color: #6b7280;
+        font-size: 11px;
+        cursor: pointer;
+        flex-shrink: 0;
+        transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+    }
+
+    .suggested-skill-item__toggle:hover {
+        background: #111827;
+        color: white;
+        border-color: #111827;
+    }
+
+    .suggested-skill-item__toggle--added {
+        background: #111827;
+        color: white;
+        border-color: #111827;
+    }
+
+    .suggested-skill-item__toggle--added:hover {
+        background: #374151;
+        border-color: #374151;
+    }
+
+    .suggested-skills-modal__footer {
+        padding-top: 10px;
+        border-top: 1px solid #f0f0f0;
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    .suggested-skills-modal__add-all {
+        font-size: 13px;
+        font-weight: 500;
+        padding: 6px 14px;
+        border-radius: 6px;
+        border: 1px solid #111827;
+        background: #111827;
+        color: white;
+        cursor: pointer;
+        transition: background 0.15s ease;
+    }
+
+    .suggested-skills-modal__add-all:hover {
+        background: #374151;
+        border-color: #374151;
+    }
+}
+
+@keyframes shimmer {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}

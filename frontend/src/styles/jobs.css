@@ -215,6 +215,17 @@
     margin-left: 0.5rem;
 }
 
+.job-overview .edit-btn-link i {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgb(40, 40, 40);
+    color: white;
+    border-radius: 8px;
+    font-weight: 500;
+    padding: 8px;
+}
+
 .job-highlights {
     margin-top: 1rem;
 }

@@ -31,9 +31,9 @@ export const QuestionsFormGroup = () => {
   };
 
   return (
-    <div className="form-details flex flex-col gap-4 w-full">
-      <div className="form-group w-full">
-        <div className="flex items-stretch w-full" style={{ gap: "0.5rem" }}>
+    <div className="form-details" style={{ display: 'flex', flexDirection: 'column', gap: '4px', width: '100%' }}>
+      <div className="form-group">
+        <div className="flex items-stretch w-full" style={{ display: 'flex', width: '100%', gap: "0.5rem" }}>
             <InputField
                 name="preScreeningQuestions.question"
                 value={questionToAdd.question}

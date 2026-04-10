@@ -59,11 +59,19 @@ export const SuggestedSkillsModal = ({
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="skills-modal suggested-skills-modal !w-[40vw]">
-
+      <div className="skills-modal suggested-skills-modal" style={{
+        width: "40vw",
+      }}>
         {/* ── Header ─────────────────────────────────────────────────────── */}
         <div className="skills-modal__header" style={{ alignItems: "start" }}>
-          <div className="flex flex-col items-start gap-1">
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "flex-start",
+              gap: "0.25rem",
+            }}
+          >
             <h4 className="suggested-skills-modal__title">
               Recommended skills for: {" "}
               <strong>{jobTitle.name}</strong>

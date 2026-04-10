@@ -93,12 +93,19 @@ export const SkillsFormGroup = () => {
         }));
     };
     return (
-        <div className="form-details flex flex-col gap-4 w-full">
+        <div className="form-details">
         
-            <div className="form-group w-full">
+            <div className="form-group">
                 <h4>Skills</h4>
 
-                <div className="flex items-stretch w-full" style={{ gap: "0.5rem" }}>
+                <div
+                    style={{
+                        display: "flex",
+                        alignItems: "stretch",
+                        width: "100%",
+                        gap: "0.5rem",
+                    }}
+                >
                     <SearchableSelect
                         name="skills"
                         value={skillsSearch}

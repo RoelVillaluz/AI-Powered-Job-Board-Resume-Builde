@@ -95,7 +95,7 @@ function SignIn() {
 
                     <button type="submit">
                         {isSubmitting ? (
-                            <div className="spinner m-auto"></div>
+                            <div className="spinner" style={{ margin: 'auto' }}></div>
                         ) : (
                             'Sign In'
                         )}

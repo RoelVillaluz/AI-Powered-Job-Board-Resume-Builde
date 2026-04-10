@@ -73,10 +73,15 @@ export const SkillsSection = () => {
 
   return (
     <section>
-        <header className="w-full border-b border-gray-200 pb-6 mb-6">
-            <h3 className="text-xl md:text-2xl font-semibold">Skills</h3>
-            <p>Add the key skills required for this role and specify the expected proficiency level for each.</p>
-        </header>
+        <header>
+        <h3>
+          Skills
+        </h3>
+
+        <p>
+          Add the key skills required for this role and specify the expected proficiency level for each.
+        </p>
+      </header>
 
         <SkillsFormGroup/>
 

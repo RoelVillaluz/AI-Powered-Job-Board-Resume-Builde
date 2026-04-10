@@ -49,7 +49,7 @@ export const RequirementsFormGroup = () => {
     };
 
     return (
-        <div className="form-group w-full" style={{ marginTop: '1rem' }}>
+        <div className="form-group" style={{ marginTop: '1rem', width: '100%' }}>
             <h4>Requirements</h4>
             <textarea 
                 name="requirements.description"
@@ -58,9 +58,9 @@ export const RequirementsFormGroup = () => {
                 id="requirements-textarea"
                 placeholder="Description"
             />
-            <div className="flex items-center w-full" style={{ gap: '0.5rem' }}>
+            <div className="row">
 
-                <div className="form-group flex-1">
+                <div className="form-group" style={{ flex: '1' }}>
                     <input 
                         type="number" 
                         name="requirements.yearsOfExperience"
@@ -71,7 +71,7 @@ export const RequirementsFormGroup = () => {
                         min={0}
                     />
                 </div>
-                <div className="form-group flex-1">
+                <div className="form-group" style={{ flex: '1' }}>
                     <DropdownField
                         label="Education"
                         name="requirements.education"
@@ -84,9 +84,9 @@ export const RequirementsFormGroup = () => {
                 
             </div>
 
-            <div className="form-group w-full">
+            <div className="form-group" style={{ width: '100%' }}>
                 <h4>Certifications</h4>
-                <div className="flex items-stretch w-full" style={{ gap: "0.5rem" }}>
+                <div style={{ display: 'flex', width: '100%', gap: "0.5rem" }}>
                     <InputField
                         name="requirements.certifications"
                         value={certificationToAdd}

@@ -44,7 +44,7 @@ export const SalaryInputField = () => {
         Salary
       </label>
 
-      <div className="flex items-center" style={{ gap: "0.5rem" }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: "0.5rem" }}>
         <DropdownField
           label="Currency"
           name="salary.currency"

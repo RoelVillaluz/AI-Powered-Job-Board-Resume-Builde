@@ -3,6 +3,7 @@ import type { CreateJobFormData } from "../../../types/forms/createJobForm.types
 import { CREATE_JOB_INITIAL_FORM_DATA } from "../../../constants/formSchemas";
 import { useDraftPersistence } from "../useDraftPersistence";
 import { useDraftStore } from "../../stores/draftStore";
+import { setDeep } from "../../utils/forms/formUtils";
 
 export type SelectOption = {
   _id?: string;
@@ -10,13 +11,6 @@ export type SelectOption = {
 };
 
 export const DRAFT_KEY = "create-job-form";
-
-function setDeep<T extends Record<string, any>>(obj: T, path: string, value: any): T {
-  const keys = path.split(".");
-  if (keys.length === 1) return { ...obj, [path]: value };
-  const [head, ...rest] = keys;
-  return { ...obj, [head]: setDeep(obj[head] ?? {}, rest.join("."), value) };
-}
 
 /**
  * Reads the saved draft from the store synchronously — outside React's

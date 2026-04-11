@@ -119,14 +119,16 @@ function JobDetailHeader({ jobId, showModal }) {
                     <>
                         <div className="row">
                             <h1>{typeof job?.title === 'string' ? job?.title : job?.title.name || ""}</h1>
-                            <Link
-                                className="edit-btn-link"
-                                to={`/job-postings/${jobId}/edit`}
-                                aria-label="Edit job posting"
-                                style={{ marginLeft: '-0.5rem' }}
-                            >
-                                <i className="fa-solid fa-pen-to-square" aria-hidden="true"></i>
-                            </Link>
+                            {user.company._id === job.company._id && user.role === 'employer' && (
+                                <Link
+                                    className="edit-btn-link"
+                                    to={`/job-postings/${jobId}/edit`}
+                                    aria-label="Edit job posting"
+                                    style={{ marginLeft: '-0.5rem' }}
+                                >
+                                    <i className="fa-solid fa-pen-to-square" aria-hidden="true"></i>
+                                </Link>
+                            )}
                             <span className="posted-at">{formatDate(job.postedAt)}</span>
                             <h2>
                                 {job.salary.min && job.salary.max

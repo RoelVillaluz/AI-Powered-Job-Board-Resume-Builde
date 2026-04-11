@@ -1,6 +1,6 @@
 import express from "express"
 import { validate } from "../middleware/validation.js"
-import { createJobPostingRequestSchema } from "../validators/jobPostingValidators.js"
+import { createJobPostingRequestSchema, createJobPostingSchema } from "../validators/jobPostingValidators.js"
 import { getJobPostings, getJobPosting, createJobPosting, updateJobPosting, deleteJobPosting } from "../controllers/jobPostings/jobPostingController.js"
 import { authenticate } from "../middleware/authentication/authenticate.js"
 import { requireRole } from "../middleware/authorization/roleAuthorization.js"
@@ -21,6 +21,7 @@ router.post('/',
 
 router.patch('/:id', 
     authenticate,
+    validate(createJobPostingSchema, 'body'),
     updateJobPosting
 )
 

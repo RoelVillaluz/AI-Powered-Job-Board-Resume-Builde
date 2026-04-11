@@ -5,6 +5,9 @@ import { useJobForm } from "../../contexts/JobFormContexts/JobPostingFormContext
 import { BASE_API_URL } from "../../config/api";
 import { useNavigate } from 'react-router-dom';
 import { v4 as uuidv4 } from "uuid";
+import { useDraftStore } from "../../stores/draftStore";
+import { DRAFT_KEY } from "./useCreateJobFormData";
+import { CREATE_JOB_INITIAL_FORM_DATA } from "../../../constants/formSchemas";
 
 /**
  * useCreateJobFormSubmission
@@ -16,9 +19,10 @@ import { v4 as uuidv4 } from "uuid";
  * doesn't own any UI.
  */
 export const useCreateJobFormSubmission = () => {
-  const { formData } = useJobForm();
+  const { formData, setFormData } = useJobForm();
   const token = useAuthStore((state) => state.token);
   const user = useAuthStore((state) => state.user);
+  const clearDraft = useDraftStore((state) => state.clearDraft);
 
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -46,8 +50,6 @@ export const useCreateJobFormSubmission = () => {
         idempotencyKey
       };
 
-      console.log("Form Payload:", payload);
-
       const response = await axios.post(
         `${BASE_API_URL}/job-postings`,
         payload,
@@ -56,11 +58,13 @@ export const useCreateJobFormSubmission = () => {
         }
       );
 
-      console.log("API Response:", response.data);
-
-      // Ensure we are getting the correct ID for redirection
       const jobId = response.data.data._id;
       if (jobId) {
+        // ✅ Reset formData first
+        setFormData(CREATE_JOB_INITIAL_FORM_DATA); 
+        // ✅ Then clear the draft
+        clearDraft(DRAFT_KEY);
+        // Navigate to the new job posting
         navigate(`/job-postings/${jobId}`);
       } else {
         setError("Job posting failed, please try again.");

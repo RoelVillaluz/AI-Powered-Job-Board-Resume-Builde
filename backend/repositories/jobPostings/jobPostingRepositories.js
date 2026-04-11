@@ -205,7 +205,6 @@ export const findJobById = async (id) => {
         .populate('company', 'id name logo industry')
         .populate('title', '_id name')
         .populate('location', '_id name')
-        .populate('skills._id', '_id name')
         .populate('applicants', 'profilePicture')
         .lean()    
 }

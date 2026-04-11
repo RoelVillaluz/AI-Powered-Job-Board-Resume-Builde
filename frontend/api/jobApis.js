@@ -82,3 +82,12 @@ export const fetchInteractedJobs = async (userId) => {
     )
     return data.data
 }
+
+export const updateJobPosting = async (id, updateData) => {
+    const { data } = await axios.patch(
+        `${BASE_API_URL}/job-postings/${id}`,
+        updateData
+    )
+
+    return data.data
+}

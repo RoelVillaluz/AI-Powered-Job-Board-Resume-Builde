@@ -11,11 +11,13 @@ import JobSkillsSection from "../components/JobDetailComponents/JobSkillsSection
 import JobCompany from "../components/JobDetailComponents/JobCompany";
 import JobSimilarityAnalysis from "../components/JobDetailComponents/JobSimilarityAnalysis";
 import { useResumeStore } from "../stores/resumeStore"
+import { useAuthStore } from "../stores/authStore";
 
 function JobDetailPage() {
     const { jobId } = useParams();
     const { job } = useJobDetails(jobId);
-    const currentResume = useResumeStore(state => state.currentResume);
+    const user = useAuthStore((state) => state.user);
+    const currentResume = user.role === 'jobseeker' ? useResumeStore(state => state.currentResume) : null;
     const { handleJobAction } = useJobActions();
 
     const hasQuestions = Boolean(job?.preScreeningQuestions?.length);
@@ -42,7 +44,9 @@ function JobDetailPage() {
                         </div>
                         <JobCompany jobId={jobId}/>
                     </section>
-                    <JobSimilarityAnalysis jobId={jobId}/>
+                    {user.role === 'jobseeker' && (
+                        <JobSimilarityAnalysis jobId={jobId}/>
+                    )}
                 </main> 
             </Layout>
 

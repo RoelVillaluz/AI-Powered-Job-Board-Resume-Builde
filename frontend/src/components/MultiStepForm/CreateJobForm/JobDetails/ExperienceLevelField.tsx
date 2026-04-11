@@ -1,13 +1,6 @@
-import type { CreateJobFormData } from "../../../../../types/forms/createJobForm.types";
+import { EXPERIENCE_LEVEL_OPTIONS } from "../../../../../constants/jobFormConstants";
 import { useJobForm } from "../../../../contexts/JobFormContexts/JobPostingFormContext";
 import { DropdownField } from "../../../FormComponents/DropdownField";
-
-export const EXPERIENCE_LEVEL_OPTIONS = [
-    { value: "Intern", label: "Intern" },
-    { value: "Entry",  label: "Entry"  },
-    { value: "Mid-Level",   label: "Mid-Level" },
-    { value: "Senior",  label: "Senior" },
-] as const satisfies { value: CreateJobFormData["experienceLevel"]; label: string }[];
 
 export const ExperienceLevelField = () => {
     const { formData, handleChange } = useJobForm();

@@ -7,12 +7,7 @@ import type { FormSkill } from "../../../../../types/forms/createJobForm.types";
 import { useJobForm } from "../../../../contexts/JobFormContexts/JobPostingFormContext";
 import type { SelectOption } from "../../../../hooks/createJobForm/useCreateJobFormData";
 import { SkillsList } from "./SkillsList";
-
-export const REQUIREMENT_LEVEL_OPTIONS = [
-  { value: "Required",     label: "Required"     },
-  { value: "Preferred",    label: "Preferred"    },
-  { value: "Nice-to-Have", label: "Nice-to-Have" },
-] as const satisfies { value: NonNullable<FormSkill["requirementLevel"]>; label: string }[];
+import { REQUIREMENT_LEVEL_OPTIONS } from "../../../../../constants/jobFormConstants";
 
 const EMPTY_SKILL: FormSkill = { _id: "", name: "", requirementLevel: undefined };
 

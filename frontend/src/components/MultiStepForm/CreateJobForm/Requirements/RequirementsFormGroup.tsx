@@ -4,19 +4,7 @@ import { DropdownField } from "../../../FormComponents/DropdownField";
 import { InputField } from "../../../FormComponents/InputField";
 import { useJobForm } from "../../../../contexts/JobFormContexts/JobPostingFormContext";
 import { CertificationList } from "./CertificationList";
-
-export const EDUCATION_LEVEL_OPTIONS = [
-  { value: '', label: 'Select education level' },
-  { value: 'High School', label: 'High School' },
-  { value: 'Associate', label: 'Associate' },
-  { value: 'Bachelor', label: 'Bachelor' },
-  { value: 'Master', label: 'Master' },
-  { value: 'PhD', label: 'PhD' },
-  { value: 'None Required', label: 'None Required' },
-] as const satisfies {
-  value: CreateJobFormData['requirements']['education'] | '';
-  label: string;
-}[];
+import { EDUCATION_LEVEL_OPTIONS } from "../../../../../constants/jobFormConstants";
 
 export const RequirementsFormGroup = () => {
     const { formData, setFormData, handleChange } = useJobForm();

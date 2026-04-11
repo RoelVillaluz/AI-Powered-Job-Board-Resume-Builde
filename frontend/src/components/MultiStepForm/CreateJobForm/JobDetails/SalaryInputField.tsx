@@ -1,24 +1,6 @@
-import type { CreateJobFormData } from "../../../../../types/forms/createJobForm.types";
+import { CURRENCY_OPTIONS, FREQUENCY_OPTIONS } from "../../../../../constants/jobFormConstants";
 import { useJobForm } from "../../../../contexts/JobFormContexts/JobPostingFormContext";
 import { DropdownField } from "../../../FormComponents/DropdownField";
-
-// ─── Option constants ─────────────────────────────────────────────────────────
-
-export const CURRENCY_OPTIONS = [
-  { value: "$",  label: "$ USD" },
-  { value: "₱",  label: "₱ PHP" },
-  { value: "€",  label: "€ EUR" },
-  { value: "¥",  label: "¥ JPY" },
-  { value: "£",  label: "£ GBP" },
-] as const satisfies { value: CreateJobFormData["salary"]["currency"]; label: string }[];
-
-export const FREQUENCY_OPTIONS = [
-  { value: "hour",  label: "per hour"  },
-  { value: "day",   label: "per day"   },
-  { value: "week",  label: "per week"  },
-  { value: "month", label: "per month" },
-  { value: "year",  label: "per year"  },
-] as const satisfies { value: CreateJobFormData["salary"]["frequency"]; label: string }[];
 
 /**
  * SalaryInputField

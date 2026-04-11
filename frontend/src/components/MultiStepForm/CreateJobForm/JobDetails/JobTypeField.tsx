@@ -1,13 +1,8 @@
 import { useJobForm } from "../../../../contexts/JobFormContexts/JobPostingFormContext";
 import { DropdownField } from "../../../FormComponents/DropdownField";
 import type { CreateJobFormData } from "../../../../../types/forms/createJobForm.types";
+import { JOB_TYPE_OPTIONS } from "../../../../../constants/jobFormConstants";
 
-export const JOB_TYPE_OPTIONS = [
-  { value: "Full-Time",  label: "Full-Time"  },
-  { value: "Part-Time",  label: "Part-Time"  },
-  { value: "Contract",   label: "Contract"   },
-  { value: "Internship", label: "Internship" },
-] as const satisfies { value: CreateJobFormData["jobType"]; label: string }[];
 
 /**
  * JobTypeField

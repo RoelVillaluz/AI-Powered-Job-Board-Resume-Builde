@@ -34,6 +34,7 @@ export const CREATE_JOB_INITIAL_FORM_DATA: CreateJobFormData = {
         _id: "",
         name: "",
     },
+    description: '',
     location: {
         _id: "",
         name: "",
@@ -55,4 +56,5 @@ export const CREATE_JOB_INITIAL_FORM_DATA: CreateJobFormData = {
     },
     skills: [],           // ← was [{ _id: '', name: '', requirementLevel: undefined }]
     preScreeningQuestions: [],
+    status: 'Active',
 };

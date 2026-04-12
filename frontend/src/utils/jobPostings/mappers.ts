@@ -11,6 +11,8 @@ export function mapJobToFormData(job: JobPosting): CreateJobFormData {
       _id: job.location?._id?.toString() ?? "",
       name: job.location?.name ?? "",
     },
+    status: (job.status as CreateJobFormData["status"] ?? "Active"),
+    description: job.description.toString() ?? "",
     company: job.company?._id?.toString() ?? "",
     jobType: (job.jobType as CreateJobFormData["jobType"]) ?? "Full-Time",
     experienceLevel: (job.experienceLevel as CreateJobFormData["experienceLevel"]) ?? undefined,

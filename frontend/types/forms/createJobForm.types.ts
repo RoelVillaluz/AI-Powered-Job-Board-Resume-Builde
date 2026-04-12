@@ -24,6 +24,7 @@ export type CreateJobFormData = {
     title: FormJobTitle;
     company: string; // Company ID
     location: FormLocation
+    description: string;
     jobType: 'Full-Time' | 'Part-Time' | 'Contract' | 'Internship';
     experienceLevel?: 'Intern' | 'Entry' | 'Mid-Level' | 'Senior';
     salary: {
@@ -40,4 +41,5 @@ export type CreateJobFormData = {
     };
     skills: FormSkill[];
     preScreeningQuestions: FormQuestion[];
+    status: 'Active' | 'Archived';
 };

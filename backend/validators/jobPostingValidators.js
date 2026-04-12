@@ -25,6 +25,11 @@ export const createJobPostingSchema = Joi.object({
     .valid("Active", "Closed", "Archived")
     .default("Active"),
 
+  // ─── DESCRIPTION ────────────────────────────────────────────
+  description: Joi.string().required().messages({
+    "string.empty": "Description is required",
+  }),
+
   // ─── LOCATION ──────────────────────────────────────────
   location: Joi.object({
     _id: objectId.optional().messages({

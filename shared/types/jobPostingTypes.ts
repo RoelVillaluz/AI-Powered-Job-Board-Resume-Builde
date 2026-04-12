@@ -2,6 +2,7 @@ export type JobPosting = {
   _id: string;
   title: { _id: string; name: string };
   company: { _id: string; name: string; industry: string[]; logo: string };
+  description: string,
   status: string;
   location: { _id: string; name: string };
   experienceLevel: string;

@@ -23,6 +23,10 @@ const jobPostingSchema = new mongoose.Schema({
         required: true,
         default: 'Active',
     },
+    description: {
+        type: String,
+        required: true,
+    },
     location: {
         _id: {
             type: mongoose.Schema.Types.ObjectId,

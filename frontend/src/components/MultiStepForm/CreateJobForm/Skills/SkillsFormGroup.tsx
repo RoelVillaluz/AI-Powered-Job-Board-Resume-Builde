@@ -69,11 +69,20 @@ export const SkillsFormGroup = () => {
 
     /** Step 3: commit skillToAdd into formData.skills, then reset local state. */
     const addSkill = () => {
-        if (!skillToAdd.name.trim()) return; // nothing selected yet
+        const name = skillToAdd.name || skillsSearch;
+
+        if (!name.trim()) return;
 
         setFormData((prev) => ({
-        ...prev,
-        skills: [...prev.skills, skillToAdd],
+            ...prev,
+            skills: [
+            ...prev.skills,
+            {
+                _id: skillToAdd._id || "", // empty if custom
+                name,
+                requirementLevel: skillToAdd.requirementLevel
+            }
+            ],
         }));
 
         setSkillToAdd(EMPTY_SKILL);
@@ -130,7 +139,7 @@ export const SkillsFormGroup = () => {
                         type="button"
                         className="add-item-btn"
                         onClick={addSkill}
-                        disabled={!skillToAdd.name.trim()}
+                        disabled={!skillsSearch.trim()}
                         aria-label="Add skill"
                     >
                     <i className="fa fa-plus" aria-hidden="true" />

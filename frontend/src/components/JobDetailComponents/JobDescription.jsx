@@ -20,8 +20,8 @@ const RequirementsSkeleton = () => {
     )
 }
 
-function JobDescription({ jobId }) {
-    const { job, isLoading } = useJobDetails(jobId);
+function JobDescription({ jobId, previewData }) {
+    const { job, isLoading } = useJobDetails(jobId, previewData ?? {});
 
     // Early return for loading state
     if (isLoading) {

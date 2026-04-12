@@ -7,6 +7,7 @@ import { useEditJobFormData } from "../hooks/editJobForm/useEditJobFormData";
 import { GenericEditorForm } from "../components/FormComponents/GenericEditorForm";
 import Layout from "../components/Layout";
 import { useAuthStore } from "../stores/authStore";
+import { EditJobPreview } from "../components/EditJobForm/EditJobPreview";
 
 export default function EditJobDetailPage() {
   const { jobId } = useParams<{ jobId: string }>();
@@ -75,10 +76,16 @@ function EditJobFormShell({ job }: { job: JobPosting | undefined }) {
     <EditJobFormProvider
       value={{ formData, setFormData, handleChange, handleSelect, handleClearSelection, handleUndoChanges }}
     >
-      <GenericEditorForm
-        logo={logo}
-        job={job}
-      />
+      <div className="edit-page-container">
+        <GenericEditorForm
+          logo={logo}
+          job={job}
+        />
+        <EditJobPreview 
+          job={job} 
+        />
+      </div>
+
     </EditJobFormProvider>
   );
 }

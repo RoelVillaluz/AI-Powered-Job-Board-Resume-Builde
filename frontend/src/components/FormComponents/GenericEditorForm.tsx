@@ -1,9 +1,8 @@
 import { useEditJobForm } from "../../contexts/JobFormContexts/EditJobFormContext";
-import type { CreateJobFormData } from "../../../types/forms/createJobForm.types";
-import type { JobseekerFormData } from "../../../types/forms/getStartedForm.types";
 import { EditorJobFormPanel } from "../EditJobForm/EditJobFormPanel";
 import { useEditFormSubmission } from "../../hooks/editJobForm/useEditFormSubmission";
 import type { JobPosting } from "../../../../shared/types/jobPostingTypes";
+import { Link } from "react-router-dom";
 
 export const GenericEditorForm = ({ logo, job }: { logo?: string, job: JobPosting | undefined }) => {
   const { formData } = useEditJobForm();
@@ -15,8 +14,13 @@ export const GenericEditorForm = ({ logo, job }: { logo?: string, job: JobPostin
             <img src={`/${logo}`} className="header-logo" />
 
             <div className="column">
-            <h1>{formData.title?.name ?? ""}</h1>
-            <h2>Editing Job Posting</h2>
+                <div className="row">
+                    <h1>{formData.title?.name ?? ""}</h1>
+                    <Link to={`/job-postings/${job?._id}`}>
+                        <i className="fa fa-angle-right" aria-label="Go to job posting" aria-hidden="true"></i>
+                    </Link>
+                </div>
+                <h2>Editing Job Posting</h2>
             </div>
         </div>
 

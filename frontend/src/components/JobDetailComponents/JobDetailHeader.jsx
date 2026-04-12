@@ -84,10 +84,10 @@ const ApplicantsList = ({ job }) => (
     </div>
 );
 
-function JobDetailHeader({ jobId, showModal }) {
+function JobDetailHeader({ jobId, showModal, previewData, previewMode }) {
     const user = useAuthStore(state => state.user);
     const currentResume = user.role === 'jobseeker' ? useResumeStore(state => state.currentResume) : null;
-    const { job, company, isLoading, error } = useJobDetails(jobId);
+    const { job, company, isLoading } = useJobDetails(jobId, previewData ?? {});
     const { toggleApplyJob, toggleSaveJob } = useJobActions();
 
     const hasQuestions = Boolean(job?.preScreeningQuestions?.length);
@@ -119,7 +119,7 @@ function JobDetailHeader({ jobId, showModal }) {
                     <>
                         <div className="row">
                             <h1>{typeof job?.title === 'string' ? job?.title : job?.title.name || ""}</h1>
-                            {user.company._id === job.company._id && user.role === 'employer' && (
+                            {user.company._id === job.company._id && user.role === 'employer' && !previewMode && (
                                 <Link
                                     className="edit-btn-link"
                                     to={`/job-postings/${jobId}/edit`}
@@ -131,10 +131,10 @@ function JobDetailHeader({ jobId, showModal }) {
                             )}
                             <span className="posted-at">{formatDate(job.postedAt)}</span>
                             <h2>
-                                {job.salary.min && job.salary.max
-                                    ? `${job.salary.currency}${job.salary.min.toLocaleString()} - ${job.salary.currency}${job.salary.max.toLocaleString()}`
-                                    : `${job.salary.currency}${job.salary.amount.toLocaleString()}`}
-                                <span>/{job.salary.frequency}</span>
+                                {job.salary?.min && job.salary?.max
+                                    ? `${job.salary?.currency}${job.salary?.min.toLocaleString()} - ${job.salary?.currency}${job.salary?.max.toLocaleString()}`
+                                    : `${job.salary?.currency}${job.salary?.amount?.toLocaleString()}`}
+                                <span>/{job.salary?.frequency}</span>
                             </h2>
                         </div>
                         <div className="row">
@@ -142,7 +142,7 @@ function JobDetailHeader({ jobId, showModal }) {
                                 <h3>{company?.name}</h3>
                                 <h4>{typeof job.location === 'string' ? job.location : job.location.name || ""}</h4>
                             </div>
-                            {user.role === 'jobseeker' && (
+                            {user.role === 'jobseeker' && !previewMode && (
                                 <JobActions 
                                     job={job} 
                                     user={user}

@@ -4,13 +4,13 @@ import { useJobDetails } from "../../hooks/jobs/useJobDetails";
 import { useToggleSkill } from "../../hooks/resumes/useResumeMutations";
 import { useAuthStore } from "../../stores/authStore";
 
-function JobSkillsSection({ jobId }) {
+function JobSkillsSection({ jobId, previewData, previewMode }) {
     const user = useAuthStore((state) => state.user);
 
     // Get currentResume only if the user is a jobseeker
     const currentResume = user.role === 'jobseeker' ? useResumeStore(state => state.currentResume) : null;
 
-    const { job, isLoading, error } = useJobDetails(jobId);
+    const { job, isLoading } = useJobDetails(jobId, previewData ?? {});
 
     const toggleSkillMutation = useToggleSkill();
 
@@ -28,7 +28,7 @@ function JobSkillsSection({ jobId }) {
                     <ul>
                         {job.skills.map((skill) => (
                             <li key={skill._id}>
-                                {user.role === 'jobseeker' && (
+                                {user.role === 'jobseeker' && !previewMode && (
                                     <div className="checkbox-wrapper-19">
                                         <input 
                                             type="checkbox" 

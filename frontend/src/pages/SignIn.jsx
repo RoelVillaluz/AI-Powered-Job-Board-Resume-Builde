@@ -39,7 +39,10 @@ function SignIn() {
         try {
             const result = await login(formData.email, formData.password);
             await refreshUser(); // ← fetches full user with isOnboardingComplete
-            navigate('/');
+            
+            if (result.success) {
+                navigate('/');
+            }
         } catch (error) {
             setErrorMessage(result.message);
         } finally {
@@ -53,8 +56,6 @@ function SignIn() {
             const response = await axios.post(`${BASE_API_URL}/users/resend-verification-code`, {
                 email: formData.email
             })
-
-            console.log(response.data.data);
 
             setIsEmailSent(true);
             setVerificationCode(response.data?.data?.verificationCode || '');

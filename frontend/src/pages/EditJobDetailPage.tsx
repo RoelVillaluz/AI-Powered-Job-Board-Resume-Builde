@@ -5,6 +5,7 @@ import type { JobPosting } from "../../../shared/types/jobPostingTypes";
 import { EditJobFormProvider } from "../contexts/JobFormContexts/EditJobFormContext";
 import { useEditJobFormData } from "../hooks/editJobForm/useEditJobFormData";
 import { GenericEditorForm } from "../components/FormComponents/GenericEditorForm";
+import { GenericEditorFormSkeleton } from "../components/Skeletons/GenericEditorFormSkeleton";
 import Layout from "../components/Layout";
 import { useAuthStore } from "../stores/authStore";
 import { EditJobPreview } from "../components/EditJobForm/EditJobPreview";
@@ -26,9 +27,7 @@ export default function EditJobDetailPage() {
   if (isLoading) {
     return (
       <Layout>
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <p className="text-sm text-gray-400">Loading...</p>
-        </div>
+        <GenericEditorFormSkeleton/>
       </Layout>
     );
   }

@@ -1,5 +1,10 @@
 import type { CreateJobFormData, FormSkill } from "../types/forms/createJobForm.types";
 
+export const STATUS_OPTIONS = [
+  { value: 'Active', label: 'Active' },
+  { value: 'Archived', label: 'Archived' },
+] as const satisfies { value: CreateJobFormData['status']; label: string }[];
+
 export const CURRENCY_OPTIONS = [
   { value: "$",  label: "$ USD" },
   { value: "₱",  label: "₱ PHP" },

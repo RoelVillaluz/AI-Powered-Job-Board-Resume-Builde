@@ -119,7 +119,7 @@ function JobDetailHeader({ jobId, showModal, previewData, previewMode }) {
                     <>
                         <div className="row">
                             <h1>{typeof job?.title === 'string' ? job?.title : job?.title.name || ""}</h1>
-                            {user.company._id === job.company._id && user.role === 'employer' && !previewMode && (
+                            {user?.company?._id === job?.company?._id && user?.role === 'employer' && !previewMode && (
                                 <Link
                                     className="edit-btn-link"
                                     to={`/job-postings/${jobId}/edit`}

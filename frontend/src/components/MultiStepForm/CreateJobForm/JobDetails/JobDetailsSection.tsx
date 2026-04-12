@@ -21,7 +21,7 @@ import { ExperienceLevelField } from "./ExperienceLevelField";
  * no `useEffect` re-sync is needed.
  */
 function JobDetailsSection() {
-  const { formData, handleSelect, handleClearSelection } = useJobForm();
+  const { formData, handleChange, handleSelect, handleClearSelection } = useJobForm();
 
   // These seed correctly on first render because formData is already
   // populated from the draft store before this component mounts.
@@ -105,6 +105,16 @@ function JobDetailsSection() {
             }}
             isLoading={isLocationLoading}
             placeholder="Search locations..."
+          />
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="job-description-textarea">Description</label>
+          <textarea 
+            name="description" 
+            value={formData.description}
+            onChange={handleChange}
+            id="job-description-textarea"
           />
         </div>
 

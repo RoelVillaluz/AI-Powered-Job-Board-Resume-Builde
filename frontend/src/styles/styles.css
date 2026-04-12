@@ -1564,7 +1564,7 @@
         object-fit: cover;
     }
 
-    .job-card .fa-building {
+    .icon-box {
         display: flex;
         align-items: center;
         justify-content: center;
@@ -1573,6 +1573,11 @@
         width: clamp(1rem, 2.5vw, 4rem);
         height: clamp(1rem, 2.5vw, 4rem);
         border-radius: 8px;
+    }
+
+    .icon-box i {
+        font-size: 1.2em;
+        line-height: 1;
     }
 
     .job-card h2 {

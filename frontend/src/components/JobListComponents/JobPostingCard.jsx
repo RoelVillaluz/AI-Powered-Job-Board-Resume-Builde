@@ -43,7 +43,9 @@ const JobPostingCard = ({ job, user, resume, onShowModal }) => {
                     {job.company.logo ? (
                         <img src={job.company.logo} alt="" />
                     ) : (
-                        <i className="fa-solid fa-building"></i>
+                        <div className="icon-box">
+                            <i className="fa-solid fa-building"></i>
+                        </div>
                     )}
                     <div>
                         <h2>{typeof job.title === 'string' ? job.title : job.title.name || ""}</h2>

@@ -21,6 +21,14 @@ export const sanitizeJobData = (data: any) => {
         sanitized.location._id = undefined;
     }
 
+    if (Array.isArray(sanitized.skills)) {
+        sanitized.skills = sanitized.skills.map((skill: any) => ({
+            ...skill,
+            _id: skill._id === '' ? undefined : skill._id,
+            name: typeof skill.name === "string" ? skill.name.trim() : skill.name
+        }));
+    }
+
     // Add any other sanitization rules you need
     // Example: trim strings
     Object.keys(sanitized).forEach((key) => {

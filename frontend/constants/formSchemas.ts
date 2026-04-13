@@ -4,9 +4,15 @@ import type { JobseekerFormData, EmployerFormData } from "../types/forms/getStar
 export const JOBSEEKER_INITIAL_FORM_DATA: Omit<JobseekerFormData, 'user'> = {
     firstName: "",
     lastName: "",
-    jobTitle: "",
+    jobTitle: {
+        _id: "",
+        name: "",
+    },
+    location: {
+        _id: "",
+        name: "",
+    },
     phone: "",
-    address: "",
     summary: "",
     skills: [],
     workExperience: [],

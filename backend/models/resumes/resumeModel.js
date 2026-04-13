@@ -43,8 +43,19 @@ const resumeSchema = new mongoose.Schema({
         required: true
     },
     skills: [{
-        name: String,
-        level: String
+        _id: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Skill',  // ✅ Reference to Skill collection
+        },
+        name: { 
+            type: String, 
+            required: true 
+        },
+        level: {  // Keep this - it's resume-specific
+            type: String,
+            enum: ['Beginner', 'Intermediate', 'Advanced', 'Expert'],
+            required: false
+        }
     }],
     workExperience: [{
         jobTitle: String,

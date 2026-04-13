@@ -1,20 +1,38 @@
-export type EmbeddingVector = number[]
+import { Types } from "mongoose";
 
-export type MeanEmbeddings = {
-  skills?: EmbeddingVector;
-  workExperience?: EmbeddingVector;
-  certifications?: EmbeddingVector;
-}
+export type EmbeddingVector = number[];
 
-export type ResumeEmbeddings = {
-  meanEmbeddings: MeanEmbeddings;
-}
+// --- Resume ---
 
-export type EmbeddingValidationReturn = {
-  valid: boolean;
-  errors: string[];
-  warnings: string[];
-  validSections?: string[];
+export type ResumeMeanEmbeddings = {
+    skills?: EmbeddingVector;
+    workExperience?: EmbeddingVector;
+    certifications?: EmbeddingVector;
 };
 
-export type Embedding = number[];
+export type ResumeEmbeddings = {
+    meanEmbeddings: ResumeMeanEmbeddings;
+};
+
+// --- Job Posting ---
+
+export type JobPostingMeanEmbeddings = {
+    jobTitle?: EmbeddingVector;
+    skills: EmbeddingVector;
+    requirements: EmbeddingVector;
+    experienceLevel?: EmbeddingVector;
+    location?: EmbeddingVector;
+};
+
+export type JobPostingEmbeddings = {
+    meanEmbeddings: JobPostingMeanEmbeddings;
+};
+
+// --- Validation ---
+
+export type EmbeddingValidationReturn = {
+    valid: boolean;
+    errors: string[];
+    warnings: string[];
+    validSections?: string[];
+};

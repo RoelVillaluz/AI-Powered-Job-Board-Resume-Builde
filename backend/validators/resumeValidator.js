@@ -1,11 +1,14 @@
 import Joi from "joi";
 
 export const createResumeSchema = new Joi.object({
-    jobTitle: Joi.string()
-        .min(5)
-        .messages({
-            'string.min': 'Job title must be at least 5 letters long'
+    jobTitle: Joi.object({
+        _id: objectId.optional().messages({
+          "string.pattern.base": "Invalid job title ID format",
         }),
+        name: Joi.string().trim().required().messages({
+          "string.empty": "Job title is required",
+        }),
+    }).required(),
     firstName: Joi.string()
         .required()
         .min(2)
@@ -25,11 +28,14 @@ export const createResumeSchema = new Joi.object({
         .messages({
             'string.pattern.base': 'Phone number must contain only digits and may start with +'
         }),
-    address: Joi.string()
-        .required()
-        .messages({
-            'string.empty': 'Address is required'
+    location: Joi.object({
+        _id: objectId.optional().messages({
+          "string.pattern.base": "Invalid location ID format",
         }),
+        name: Joi.string().trim().required().messages({
+          "string.empty": "Location is required",
+        }),
+    }).required(),
     summary: Joi.string()
         .required()
         .messages({

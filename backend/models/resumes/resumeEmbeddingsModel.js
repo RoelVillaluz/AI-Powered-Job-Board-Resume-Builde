@@ -36,16 +36,8 @@ const resumeEmbeddingSchema = new mongoose.Schema({
         index: true
     },
     embeddings: {
-        skills: {
-            type: [[Number]],
-            default: [],
-        },
-        workExperience: {
-            type: [[Number]],
-            default: [],
-        },
-        certifications: {
-            type: [[Number]],
+        jobTitle: {
+            type: [Number],
             default: [],
         },
     },

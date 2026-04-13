@@ -68,10 +68,6 @@ const jobPostingEmbeddingSchema = new mongoose.Schema(
         },
     },
     meanEmbeddings: {
-        jobTitle: {
-            type: [Number],
-            default: null,
-        },
         skills: {
             type: [Number],
             required: true,

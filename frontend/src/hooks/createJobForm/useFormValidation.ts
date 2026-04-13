@@ -21,6 +21,9 @@ const validateJobDetailsSection = (formData: CreateJobFormData): FormErrors => {
   if (!formData.location?.name.trim()) {
     errors.location = "Location is required.";
   }
+  if (!formData.description.trim()) {
+    errors.description = "Description is required.";
+  }
   if (!formData.jobType?.toString().trim()) {
     errors.jobType = "Job type is required.";
   }

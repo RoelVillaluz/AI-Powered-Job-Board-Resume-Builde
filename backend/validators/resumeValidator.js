@@ -1,5 +1,8 @@
 import Joi from "joi";
 
+// Reusable ObjectId validator
+const objectId = Joi.string().regex(/^[0-9a-fA-F]{24}$/).allow(null, '');
+
 export const createResumeSchema = new Joi.object({
     jobTitle: Joi.object({
         _id: objectId.optional().messages({

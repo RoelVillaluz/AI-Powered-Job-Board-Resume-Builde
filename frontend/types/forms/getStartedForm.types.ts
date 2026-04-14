@@ -36,7 +36,7 @@ export type EmployerFormData = {
     user: string | null;
     name: string;
     industry: string[];
-    location: string;
+    location: FormLocation;
     website: string;
     size: string;
     description: string;

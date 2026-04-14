@@ -12,209 +12,217 @@ import { useGetStartedFormSubmission } from "../hooks/getStartedForm/useGetStart
 import { useGetStartedFormData } from "../hooks/getStartedForm/useGetStartedFormData";
 import { useStepNavigation } from "../hooks/getStartedForm/useStepNavigation";
 import { useRoleSelection } from "../hooks/getStartedForm/useRoleSelection";
+import {
+  GetStartedFormProvider,
+  useGetStartedForm,
+} from "../contexts/GetStartedFormContext";
 
+/**
+ * GetStartedForm
+ * --------------
+ * Owns originalUser and seeds GetStartedFormProvider with form state
+ * and role selection. Step navigation reads from the context via
+ * GetStartedShell, keeping this component free of prop drilling.
+ */
 function GetStartedForm() {
-    const user = useAuthStore((state) => state.user);
-    const navigate = useNavigate();
+  const user = useAuthStore((state) => state.user);
+  const [originalUser, setOriginalUser] = useState<any>(null);
 
-    const [originalUser, setOriginalUser] = useState<any>(null);
-    
-    // Save the original user data before the patch request
-    useEffect(() => {
-        if (!originalUser && user) {
-            setOriginalUser(user); // Only set the original user once
-        }
-    }, [user, originalUser]);
+  useEffect(() => {
+    if (!originalUser && user) setOriginalUser(user);
+  }, [user, originalUser]);
 
-    const { selectedRole, setSelectedRole } = useRoleSelection();
+  useEffect(() => {
+    document.title = "Let's get started";
+  }, []);
 
-    const {
-        formData,
-        setFormData,
-        handleChange,
-        handleKeyDown,
-        handleRemoveListItem,
-        handleDragEnd,
-    } = useGetStartedFormData(selectedRole, originalUser?._id || null);
+  const { selectedRole, setSelectedRole } = useRoleSelection();
 
-    const { currentStepIndex, isNextAllowed, nextStep, prevStep, steps } =
-        useStepNavigation(selectedRole, formData, originalUser);
+  const formState = useGetStartedFormData(selectedRole, originalUser?._id || null);
 
-    const { handleFormSubmit, error, isLoading } = useGetStartedFormSubmission({
-        formData,
-        selectedRole,
-        user,
-        navigate,
-    });
+  return (
+    <GetStartedFormProvider value={{ ...formState, selectedRole, setSelectedRole }}>
+      <GetStartedShell originalUser={originalUser} />
+    </GetStartedFormProvider>
+  );
+}
 
-    useEffect(() => {
-        document.title = "Let's get started";
-    }, []);
+/**
+ * GetStartedShell
+ * ---------------
+ * Rendered inside GetStartedFormProvider so useStepNavigation can
+ * read formData and selectedRole from context rather than props.
+ */
+function GetStartedShell({ originalUser }: { originalUser: any }) {
+  const { formData, selectedRole } = useGetStartedForm();
+  const { currentStepIndex, isNextAllowed, nextStep, prevStep, steps } =
+    useStepNavigation(selectedRole, formData, originalUser);
 
-    const currentStep = steps[currentStepIndex];
+  return (
+    <GetStartedContent
+      currentStepIndex={currentStepIndex}
+      isNextAllowed={isNextAllowed}
+      nextStep={nextStep}
+      prevStep={prevStep}
+      steps={steps}
+      originalUser={originalUser}
+    />
+  );
+}
 
-    // Return only role selection page if no formdata exists yet/role has been selected yet
-    if (!formData) {
-        return (
-            <div className="form-container" id="multi-step-form">
-                <StepsContainer
-                    selectedRole={selectedRole}
-                    currentStepIndex={currentStepIndex}
-                />
-                <div className="form-panel">
-                    <RoleSection
-                        selectedRole={selectedRole}
-                        setSelectedRole={setSelectedRole}
-                    />
-                    <div
-                        className="buttons"
-                        style={{
-                            justifyContent:
-                                currentStepIndex > 0 ? "space-between" : "flex-end",
-                        }}
-                    >
-                        {currentStepIndex > 0 && (
-                            <button onClick={prevStep} id="prev-step-btn" type="button">
-                                Previous
-                            </button>
-                        )}
-                        {isNextAllowed && (
-                            <button
-                                onClick={(e) => {
-                                    e.preventDefault();
-                                    nextStep();
-                                }}
-                                id="next-step-btn"
-                                type="button"
-                            >
-                                Next
-                            </button>
-                        )}
-                    </div>
-                </div>
-            </div>
-        );
-    }
+/**
+ * GetStartedContent
+ * -----------------
+ * Reads all form state from context. No props needed for form fields —
+ * only navigation props from useStepNavigation are threaded down.
+ */
+type ContentProps = {
+  currentStepIndex: number;
+  isNextAllowed: boolean;
+  nextStep: () => void;
+  prevStep: () => void;
+  steps: { key: string }[];
+  originalUser: any;
+};
 
+function GetStartedContent({
+  currentStepIndex,
+  isNextAllowed,
+  nextStep,
+  prevStep,
+  steps,
+  originalUser,
+}: ContentProps) {
+  const navigate = useNavigate();
+  const user = useAuthStore((state) => state.user);
+
+  const {
+    formData,
+    setFormData,
+    handleChange,
+    handleKeyDown,
+    handleRemoveListItem,
+    handleDragEnd,
+    selectedRole,
+    setSelectedRole,
+  } = useGetStartedForm();
+
+  const { handleFormSubmit, error, isLoading } = useGetStartedFormSubmission({
+    formData,
+    selectedRole,
+    user,
+    navigate,
+  });
+
+  const currentStep = steps[currentStepIndex];
+
+  const buttonRow = (
+    <div
+      className="buttons"
+      style={{ justifyContent: currentStepIndex > 0 ? "space-between" : "flex-end" }}
+    >
+      {currentStepIndex > 0 && (
+        <button onClick={prevStep} id="prev-step-btn" type="button">
+          Previous
+        </button>
+      )}
+      {currentStep.key === "finished" ? (
+        <button id="submit-btn" type="submit" disabled={isLoading}>
+          {isLoading ? "Submitting..." : "Submit"}
+        </button>
+      ) : (
+        isNextAllowed && (
+          <button
+            onClick={(e) => { e.preventDefault(); nextStep(); }}
+            id="next-step-btn"
+            type="button"
+          >
+            Next
+          </button>
+        )
+      )}
+    </div>
+  );
+
+  // No role selected yet — show role picker only
+  if (!formData) {
     return (
-        <>
-            <div className="form-container" id="multi-step-form">
-                <StepsContainer
-                    selectedRole={selectedRole}
-                    currentStepIndex={currentStepIndex}
-                />
-                <form
-                    className="form-panel"
-                    onSubmit={handleFormSubmit}
-                    onKeyDown={handleKeyDown}
-                >
-                    {/* ROLE SELECTION SECTION */}
-                    {currentStep.key === "role" && (
-                        <RoleSection
-                            selectedRole={selectedRole}
-                            setSelectedRole={setSelectedRole}
-                        />
-                    )}
-
-                    {/* USER DETAILS SECTION */}
-                    {currentStep.key === "details" && (
-                        <UserDetailsSection
-                            selectedRole={selectedRole}
-                            formData={formData}
-                            handleChange={handleChange}
-                        />
-                    )}
-
-                    {/* ROLE-SPECIFIC SECTIONS */}
-                    {selectedRole === "jobseeker" ? (
-                        <>
-                            {/* SKILLS SECTION */}
-                            {currentStep.key === "skills" && (
-                                <SkillsSection
-                                    selectedRole={selectedRole}
-                                    formData={formData}
-                                    setFormData={setFormData}
-                                    handleChange={handleChange}
-                                    handleDrag={handleDragEnd}
-                                    handleRemove={handleRemoveListItem}
-                                />
-                            )}
-
-                            {/* WORK EXPERIENCE SECTION */}
-                            {currentStep.key === "workExperience" && (
-                                <WorkExperience
-                                    formData={formData}
-                                    setFormData={setFormData}
-                                    handleDrag={handleDragEnd}
-                                    handleRemove={handleRemoveListItem}
-                                />
-                            )}
-
-                            {/* RESUME TEMPLATE SECTION - Add this component if you have it */}
-                            {currentStep.key === "resume" && (
-                                <div>
-                                    <h3>Resume Template Selection</h3>
-                                    <p>Resume template picker would go here</p>
-                                </div>
-                            )}
-                        </>
-                    ) : (
-                        <>
-                            {/* INDUSTRY SECTION */}
-                            {currentStep.key === "industry" && (
-                                <IndustrySection
-                                    formData={formData}
-                                    handleChange={handleChange}
-                                />
-                            )}
-                        </>
-                    )}
-
-                    {/* FINISHED */}
-                    {currentStep.key === "finished" && (
-                        <WelcomeSection selectedRole={selectedRole} />
-                    )}
-
-                    <div
-                        className="buttons"
-                        style={{
-                            justifyContent:
-                                currentStepIndex > 0 ? "space-between" : "flex-end",
-                        }}
-                    >
-                        {currentStepIndex > 0 && (
-                            <button onClick={prevStep} id="prev-step-btn" type="button">
-                                Previous
-                            </button>
-                        )}
-                        {currentStep.key === "finished" ? (
-                            <button id="submit-btn" type="submit" disabled={isLoading}>
-                                {isLoading ? "Submitting..." : "Submit"}
-                            </button>
-                        ) : (
-                            isNextAllowed && (
-                                <button
-                                    onClick={(e) => {
-                                        e.preventDefault();
-                                        nextStep();
-                                    }}
-                                    id="next-step-btn"
-                                    type="button"
-                                >
-                                    Next
-                                </button>
-                            )
-                        )}
-                    </div>
-                </form>
-            </div>
-            {error && (
-                <div className="error-message" style={{ color: "red", padding: "1rem" }}>
-                    {error}
-                </div>
+      <div className="form-container" id="multi-step-form">
+        <StepsContainer selectedRole={selectedRole} currentStepIndex={currentStepIndex} />
+        <div className="form-panel">
+          <RoleSection selectedRole={selectedRole} setSelectedRole={setSelectedRole} />
+          <div
+            className="buttons"
+            style={{ justifyContent: currentStepIndex > 0 ? "space-between" : "flex-end" }}
+          >
+            {currentStepIndex > 0 && (
+              <button onClick={prevStep} id="prev-step-btn" type="button">Previous</button>
             )}
-        </>
+            {isNextAllowed && (
+              <button
+                onClick={(e) => { e.preventDefault(); nextStep(); }}
+                id="next-step-btn"
+                type="button"
+              >
+                Next
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
     );
+  }
+
+  return (
+    <>
+      <div className="form-container" id="multi-step-form">
+        <StepsContainer selectedRole={selectedRole} currentStepIndex={currentStepIndex} />
+        <form className="form-panel" onSubmit={handleFormSubmit} onKeyDown={handleKeyDown}>
+
+          {currentStep.key === "role" && (
+            <RoleSection selectedRole={selectedRole} setSelectedRole={setSelectedRole} />
+          )}
+
+          {currentStep.key === "details" && (
+            <UserDetailsSection/>
+          )}
+
+          {selectedRole === "jobseeker" ? (
+            <>
+              {currentStep.key === "skills" && (
+                <SkillsSection/>
+              )}
+              {currentStep.key === "workExperience" && (
+                <WorkExperience/>
+              )}
+              {currentStep.key === "resume" && (
+                <div>
+                  <h3>Resume Template Selection</h3>
+                  <p>Resume template picker would go here</p>
+                </div>
+              )}
+            </>
+          ) : (
+            <>
+              {currentStep.key === "industry" && <IndustrySection />}
+            </>
+          )}
+
+          {currentStep.key === "finished" && (
+            <WelcomeSection selectedRole={selectedRole} />
+          )}
+
+          {buttonRow}
+        </form>
+      </div>
+
+      {error && (
+        <div className="error-message" style={{ color: "red", padding: "1rem" }}>
+          {error}
+        </div>
+      )}
+    </>
+  );
 }
 
 export default GetStartedForm;

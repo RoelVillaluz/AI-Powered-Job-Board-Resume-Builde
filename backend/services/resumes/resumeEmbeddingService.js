@@ -5,6 +5,7 @@ import { validateResumeEmbeddings } from "../../utils/embeddingValidationUtils.t
 import logger from "../../utils/logger.js";
 import { runPython } from "../../utils/pythonRunner.js";
 import { UnauthorizedError } from "../../middleware/errorHandler.js";
+import { safeQueueOperation } from "../../utils/queueUtils.js";
 
 /**
  * Main service entry point for resume embedding generation.
@@ -55,18 +56,31 @@ export const getOrGenerateResumeEmbeddingService = async (resumeId, invalidateCa
         reason: invalidateCache ? "forced_regeneration" : "cache_miss"
     });
 
-    const job = await resumeEmbeddingQueue.add("generate-embeddings", {
-        resumeId,
-        userId,
-        invalidateCache
-    }, {
-        attempts: 3,
-        backoff: { type: "exponential", delay: 2000 },
-        // 2 min — covers the full embedding + score Python pipeline
-        timeout: 120000
-    });
+    // Safe fallback approach to the embedding generation
+    const result = await safeQueueOperation(
+        async () => {
+            const job = await resumeEmbeddingQueue.add("generate-embeddings", {
+                resumeId,
+                userId,
+                invalidateCache
+            }, {
+                attempts: 3,
+                backoff: { type: "exponential", delay: 2000 },
+                timeout: 120000
+            });
 
-    return { cached: false, jobId: job.id };
+            return { jobId: job.id };
+        },
+        async () => {
+            return await createResumeEmbeddingService(resumeId, invalidateCache, null, userId);
+        }
+    );
+
+    if (result.type === 'queued') {
+        return { cached: false, jobId: result.jobId };
+    }
+
+    return { cached: false, data: result.data };
 };
 
 /**

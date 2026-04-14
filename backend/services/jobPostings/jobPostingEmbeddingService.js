@@ -2,6 +2,7 @@ import { jobEmbeddingQueue } from "../../queues/index.js"
 import { createJobEmbeddingRepo, getJobEmbeddingRepo } from "../../repositories/jobPostings/jobEmbeddingRepositories.js"
 import logger from "../../utils/logger.js";
 import { runPython } from "../../utils/pythonRunner.js";
+import { safeQueueOperation } from "../../utils/queueUtils.js";
 
 /**
  * Main service function - handles cache check and queue decision
@@ -11,27 +12,40 @@ export const getOrGenerateJobPostingEmbeddingService = async (jobPostingId, inva
     if (!invalidateCache) {
         const cachedResult = await getJobPostingEmbeddingService(jobPostingId);
         if (cachedResult.cached) {
-            return { data: cachedResult.data, cached: true }
-        } 
+            return { data: cachedResult.data, cached: true };
+        }
     }
 
     // Cache miss or invalidate - queue generation
-    logger.info(`Queueing embedding generation for job posting: ${jobPostingId}`);
+    logger.info(`Queueing embedding generation for job posting: ${jobPostingId}`, {
+        reason: invalidateCache ? "forced_regeneration" : "cache_miss"
+    });
 
-    const job = await jobEmbeddingQueue.add('generate-embeddings', {
-        jobPostingId,
-        invalidateCache
-    }, {
-        attempts: 3,
-        backoff: { type: 'exponential', delay: 2000 },
-        timeout: 30000
-    })
+    // Safe fallback approach to the embedding generation
+    const result = await safeQueueOperation(
+        async () => {
+            const job = await jobEmbeddingQueue.add('generate-embeddings', {
+                jobPostingId,
+                invalidateCache
+            }, {
+                attempts: 3,
+                backoff: { type: 'exponential', delay: 2000 },
+                timeout: 30000
+            });
 
-    return {
-        cached: false,
-        jobId: job.id
-    };
-}
+            return { jobId: job.id };
+        },
+        async () => {
+            return await generateJobPostingEmbeddingService(jobPostingId, invalidateCache);
+        }
+    );
+
+    if (result.type === 'queued') {
+        return { cached: false, jobId: result.jobId };
+    }
+
+    return { cached: false, data: result.data };
+};
 
 /**
  * Check if cached embeddings exist and are fresh

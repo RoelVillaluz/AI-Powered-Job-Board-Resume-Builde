@@ -166,7 +166,8 @@ class JobTitleService:
                     "title": 1,
                     "normalizedTitle": 1,
                     "embedding": 1
-                }
+                },
+                collation={"locale": "en", "strength": 2}  # ✅ passed as parameter
             )
 
             return doc

@@ -109,11 +109,52 @@ class SkillService:
                     "seniorityMultiplier": 1,
                     "salaryData": 1
                 }
-            )
+            ).collation({"locale": "en", "strength": 2})
 
         except Exception as e:
             logger.error(f"Error fetching skill embedding by name {skill_name}: {e}")
             return None
+
+    @staticmethod
+    def get_with_embeddings_by_names(skill_names: list[str]) -> list[dict]:
+        """
+        Bulk fetch skills WITH embeddings by name.
+        Used for resume/job similarity calculations.
+        
+        Single round-trip for all skills - optimized for embedding extraction.
+        
+        Args:
+            skill_names: List of skill names to fetch
+            
+        Returns:
+            List of skill documents with embeddings and metrics
+        """
+        if not skill_names:
+            return []
+        
+        try:
+            # Normalize names for better matching
+            normalized_names = [name.lower().strip() for name in skill_names]
+            
+            return list(db.skills.find(
+                {
+                    "$or": [
+                        {"name": {"$in": skill_names}},
+                        {"name": {"$in": normalized_names}}
+                    ]
+                },
+                {
+                    "name": 1,
+                    "embedding": 1,
+                    "demandScore": 1,
+                    "growthRate": 1,
+                    "seniorityMultiplier": 1,
+                    "salaryData": 1
+                }
+            ).collation({"locale": "en", "strength": 2}))
+        except Exception as e:
+            logger.error(f"Error fetching skills with embeddings by names: {e}")
+            return []
 
     @staticmethod
     def extract_metrics(skill_docs: list[dict]) -> list[dict]:

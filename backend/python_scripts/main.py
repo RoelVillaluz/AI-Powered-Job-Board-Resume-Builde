@@ -34,9 +34,7 @@ def generate_resume_embeddings(resume_id: str) -> dict:
         dict: {
             "resume_id": str,
             "embeddings": {
-                "skills": [],           # Reserved — individual embeddings not cached
-                "workExperience": [],
-                "certifications": []
+                "jobTitle": list[float],
             },
             "meanEmbeddings": {
                 "skills": list[float],
@@ -70,9 +68,7 @@ def generate_resume_embeddings(resume_id: str) -> dict:
         result = {
             "resume_id": resume_id,
             "embeddings": {
-                "skills": [],
-                "workExperience": [],
-                "certifications": []
+                "jobTitle": tensor_to_list(embeddings.job_title)
             },
             "meanEmbeddings": {
                 "skills": tensor_to_list(embeddings.skills),
@@ -101,9 +97,10 @@ def generate_job_embeddings(job_id: str) -> dict:
     Returns:
         dict: {
             "job_id": str,
-            "embeddings": {},           # Reserved — individual embeddings not cached
+            "embeddings": {
+                "jobTitle": list[float]
+            },           
             "meanEmbeddings": {
-                "jobTitle": list[float],
                 "skills": list[float],
                 "requirements": list[float],
                 "experienceLevel": list[float],
@@ -129,9 +126,10 @@ def generate_job_embeddings(job_id: str) -> dict:
 
         result = {
             "job_id": job_id,
-            "embeddings": {},
-            "meanEmbeddings": {
+            "embeddings": {
                 "jobTitle": tensor_to_list(embeddings.title),
+            },
+            "meanEmbeddings": {
                 "skills": tensor_to_list(embeddings.skills),
                 "requirements": tensor_to_list(embeddings.requirements),
                 "experienceLevel": tensor_to_list(embeddings.experience_level),

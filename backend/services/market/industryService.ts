@@ -4,7 +4,7 @@ import { QueueJob } from "../../types/queues.types";
 import logger from "../../utils/logger";
 import { PythonResponse, runPythonTyped } from "../../types/python.types";
 import * as IndustryRepo from '../../repositories/market/industryRepositories'
-import { isEmbeddingStale, isValidEmbedding } from "../../utils/embeddingValidationUtils";
+import { isEmbeddingStale, isValidEmbedding } from "../../utils/embeddings/embeddingValidationUtils";
 import { safeQueueOperation } from "../../utils/queueUtils";
 import { industryEmbeddingQueue } from "../../queues";
 import Industry from "../../models/market/industryModel";

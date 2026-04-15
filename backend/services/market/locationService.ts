@@ -2,7 +2,7 @@ import { Types } from "mongoose"
 import Location, { LocationDocument } from "../../models/market/locationModel";
 import * as LocationRepository from '../../repositories/market/locationRepositories'
 import logger from "../../utils/logger";
-import { isEmbeddingStale, isValidEmbedding } from "../../utils/embeddingValidationUtils";
+import { isEmbeddingStale, isValidEmbedding } from "../../utils/embeddings/embeddingValidationUtils";
 import { QueueJob } from "../../types/queues.types";
 import { PythonResponse, runPythonTyped } from "../../types/python.types";
 import { CreateLocationPayload, LocationEmbeddingData, UpdateLocationPayload } from "../../types/location.types";

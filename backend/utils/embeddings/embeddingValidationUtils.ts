@@ -1,4 +1,4 @@
-import { EmbeddingValidationReturn, EmbeddingVector, ResumeEmbeddings } from "../types/embeddings.types";
+import { EmbeddingValidationReturn, EmbeddingVector, JobPostingEmbeddings, ResumeEmbeddings } from "../../types/embeddings.types";
 
 /**
  * Validates that a single embedding vector is usable.
@@ -82,3 +82,7 @@ export const validateResumeEmbeddings = (embeddings: ResumeEmbeddings): Embeddin
             .map(([section]) => section),
     };
 };
+
+export const validateJobEmbeddings = (embeddings: JobPostingEmbeddings) => {
+    
+}

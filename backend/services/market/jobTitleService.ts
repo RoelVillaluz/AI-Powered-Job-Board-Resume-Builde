@@ -1,6 +1,6 @@
 import * as JobTitleRepo from '../../repositories/market/jobTitleRepositories';
 import { Types } from 'mongoose';
-import { isEmbeddingStale, isValidEmbedding } from '../../utils/embeddingValidationUtils';
+import { isEmbeddingStale, isValidEmbedding } from '../../utils/embeddings/embeddingValidationUtils';
 import logger from '../../utils/logger';
 import { PythonResponse, runPythonTyped } from '../../types/python.types';
 import { QueueJob } from '../../types/queues.types';

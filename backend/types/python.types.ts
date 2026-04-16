@@ -1,8 +1,8 @@
-import { runPython } from "../utils/pythonRunner";
-import { Embedding } from "./embeddings.types";
+import { runPython } from "../infrastructure/python/pythonRunner";
+import { EmbeddingVector } from "./embeddings.types";
 
 export interface PythonResponse {
-  embedding: Embedding;
+  embedding: EmbeddingVector;
   error?: string;
 }
 

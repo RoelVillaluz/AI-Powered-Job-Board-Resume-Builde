@@ -1,4 +1,4 @@
-import { EmbeddingValidationReturn, EmbeddingVector, JobPostingEmbeddings, ResumeEmbeddings } from "../../types/embeddings.types";
+import { EmbeddingValidationReturn, EmbeddingVector, ResumeEmbeddingsDocument } from "../../types/embeddings.types";
 
 /**
  * Validates that a single embedding vector is usable.
@@ -47,7 +47,7 @@ export const isEmbeddingStale = (generatedAt: Date | null | undefined, maxAgeDay
  * @param {ResumeEmbeddings} embeddings - The resume embeddings document from the database
  * @returns {EmbeddingValidationReturn} Validation result with errors, warnings, and valid sections
  */
-export const validateResumeEmbeddings = (embeddings: ResumeEmbeddings): EmbeddingValidationReturn => {
+export const validateResumeEmbeddings = (embeddings: ResumeEmbeddingsDocument): EmbeddingValidationReturn => {
     const errors: string[] = [];
     const warnings: string[] = [];
 
@@ -83,6 +83,6 @@ export const validateResumeEmbeddings = (embeddings: ResumeEmbeddings): Embeddin
     };
 };
 
-export const validateJobEmbeddings = (embeddings: JobPostingEmbeddings) => {
+export const validateJobEmbeddings = (embeddings: JobPostingEmbeddingsDocument) => {
     
 }

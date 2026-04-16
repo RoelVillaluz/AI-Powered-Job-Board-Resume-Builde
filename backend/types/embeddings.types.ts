@@ -3,29 +3,39 @@ import { Types } from "mongoose";
 export type EmbeddingVector = number[];
 
 // --- Resume ---
-
-export type ResumeMeanEmbeddings = {
-    skills?: EmbeddingVector;
-    workExperience?: EmbeddingVector;
-    certifications?: EmbeddingVector;
-};
-
-export type ResumeEmbeddings = {
-    meanEmbeddings: ResumeMeanEmbeddings;
+export type ResumeEmbeddingsDocument = {
+    resume: Types.ObjectId | string;
+    embeddings: {
+        jobTitle: EmbeddingVector;
+        location: EmbeddingVector;
+    }
+    meanEmbeddings: {
+        skills?: EmbeddingVector;
+        workExperience?: EmbeddingVector;
+        certifications?: EmbeddingVector;
+    };
+    metrics?: {
+        totalExperienceYears: number;
+    };
+    generatedAt: Date;
 };
 
 // --- Job Posting ---
-
-export type JobPostingMeanEmbeddings = {
-    jobTitle?: EmbeddingVector;
-    skills: EmbeddingVector;
-    requirements: EmbeddingVector;
-    experienceLevel?: EmbeddingVector;
-    location?: EmbeddingVector;
-};
-
-export type JobPostingEmbeddings = {
-    meanEmbeddings: JobPostingMeanEmbeddings;
+export type JobPostingEmbeddingsDocument = {
+    jobPosting: Types.ObjectId | string;
+    embeddings: {
+        jobTitle: EmbeddingVector;
+        experienceLevel: EmbeddingVector;
+        location: EmbeddingVector;
+    };
+    meanEmbeddings: {
+        skills: EmbeddingVector;
+        requirements: EmbeddingVector;
+        experienceLevel?: EmbeddingVector | null;
+    };
+    generatedAt: Date;
+    createdAt?: Date;
+    updatedAt?: Date;
 };
 
 // --- Validation ---

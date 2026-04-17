@@ -5,6 +5,7 @@ import { parseFilterParams } from "../../../frontend/src/utils/jobPostings/filte
 import JobPosting from "../../models/jobPostings/jobPostingModel.js";
 import { sanitizeJobData } from "../../utils/sanitizationUtilts.js";
 import { ConflictError } from "../../middleware/errorHandler.js";
+import { withTransaction } from "../../helpers/transactionHelpers.js";
 
 /**
  * Get filtered, sorted, and paginated job postings (cursor-based)
@@ -89,7 +90,7 @@ export const createJobPosting = async (jobPostingData, idempotencyKey) => {
 
         if (existing) {
             if (existing === "PENDING") {
-                throw new ConflictError("Request is already being processed")
+                throw new ConflictError("Request is already being processed");
             }
 
             return await JobPostingRepository.findById(existing);
@@ -99,30 +100,29 @@ export const createJobPosting = async (jobPostingData, idempotencyKey) => {
         idempotencyCache.set(idempotencyKey, "PENDING");
     }
 
-    const session = await mongoose.startSession();
-
     try {
-        session.startTransaction();
+        const newJob = await withTransaction(async (session) => {
 
-        const sanitizedData = sanitizeJobData(jobPostingData);
+            const sanitizedData = sanitizeJobData(jobPostingData);
 
-        const newJob = await JobPostingRepository.createJob(
-            sanitizedData,
-            { session }
-        );
+            const createdJob = await JobPostingRepository.createJob(
+                sanitizedData,
+                { session }
+            );
 
-        await JobPostingRepository.addJobToCompany(
-            jobPostingData.company,
-            newJob._id,
-            { session }
-        );
+            await JobPostingRepository.addJobToCompany(
+                jobPostingData.company,
+                createdJob._id,
+                { session }
+            );
 
-        await session.commitTransaction();
+            return createdJob;
+        });
 
         if (idempotencyKey) {
             idempotencyCache.set(idempotencyKey, newJob._id.toString());
 
-            // Optional: cleanup after 10 mins
+            // Optional cleanup after 10 mins
             setTimeout(() => {
                 idempotencyCache.delete(idempotencyKey);
             }, 10 * 60 * 1000);
@@ -131,16 +131,12 @@ export const createJobPosting = async (jobPostingData, idempotencyKey) => {
         return newJob;
 
     } catch (error) {
-        await session.abortTransaction();
 
         if (idempotencyKey) {
             idempotencyCache.delete(idempotencyKey);
         }
 
         throw error;
-
-    } finally {
-        session.endSession();
     }
 };
 

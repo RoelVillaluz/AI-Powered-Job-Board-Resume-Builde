@@ -1,4 +1,4 @@
-import { EmbeddingValidationReturn, EmbeddingVector, ResumeEmbeddingsDocument } from "../../types/embeddings.types";
+import { EmbeddingValidationReturn, EmbeddingVector, JobPostingEmbeddingsDocument, ResumeEmbeddingsDocument } from "../../types/embeddings.types";
 
 /**
  * Validates that a single embedding vector is usable.

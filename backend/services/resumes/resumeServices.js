@@ -1,8 +1,5 @@
 import { hasScoreableChange, hasSignificantChange, withTransaction } from "../../helpers/transactionHelpers.js";
 import * as ResumeRepo from "../../repositories/resumes/resumeRepository.js";
-import * as ResumeEmbeddingRepo from "../../repositories/resumes/resumeEmbeddingRepository.js"
-import * as ResumeScoreRepo from "../../repositories/resumes/resumeScoreRepository.js"
-import * as ResumeEmbeddingService from "../../services/resumes/resumeEmbeddingService.js"
 import Resume from "../../models/resumes/resumeModel.js";
 
 /**

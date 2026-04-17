@@ -1,7 +1,7 @@
 import { jobEmbeddingQueue } from "../../queues/index.js"
 import { createJobEmbeddingRepo, getJobEmbeddingRepo } from "../../repositories/jobPostings/jobEmbeddingRepositories.js"
 import logger from "../../utils/logger.js";
-import { runPython } from "../../utils/pythonRunner.js";
+import { runPython } from "../../infrastructure/python/pythonRunner.js";
 import { safeQueueOperation } from "../../utils/queueUtils.js";
 
 /**

@@ -40,6 +40,10 @@ const resumeEmbeddingSchema = new mongoose.Schema({
             type: [Number],
             default: [],
         },
+        location: {
+            type: [Number],
+            default: [],
+        },
     },
     meanEmbeddings: {
         skills: {

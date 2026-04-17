@@ -1,5 +1,5 @@
 import { spawn } from "child_process";
-import logger from "./logger.js";
+import logger from "../../utils/logger.js";
 
 /**
  * Execute a Python AI command and parse JSON output.

@@ -85,36 +85,44 @@ export const safeQueueOperation = async <T>(
     if (redisState === "down") {
         const now = Date.now();
         if (now - lastHealthCheck < HEALTH_CHECK_TTL_MS) {
-            logger.debug("Redis down (cached) — executing fallback immediately");
+            logger.warn(`[SAFE_QUEUE] Redis down (cached) — skipping to fallback immediately. lastHealthCheck=${new Date(lastHealthCheck).toISOString()}, ttlRemaining=${HEALTH_CHECK_TTL_MS - (now - lastHealthCheck)}ms`);
             const data = await fallback();
             return { type: "executed", data };
         }
     }
+
+    logger.info(`[SAFE_QUEUE] redisState=${redisState}, attempting queue operation. maxAttempts=${maxAttempts}`);
 
     let attempt = 0;
     let lastError: unknown;
 
     while (attempt < maxAttempts) {
         try {
+            logger.info(`[SAFE_QUEUE] attempt ${attempt + 1}/${maxAttempts} — checking Redis health`);
             await checkRedisConnectionHealth();
+            logger.info(`[SAFE_QUEUE] Redis healthy — running queue operation`);
             const result = await operation();
+            logger.info(`[SAFE_QUEUE] Queue operation succeeded — jobId=${result.jobId}`);
             return { type: "queued", jobId: result.jobId };
         } catch (error) {
             lastError = error;
             attempt++;
+            logger.warn(`[SAFE_QUEUE] attempt ${attempt}/${maxAttempts} failed — redisState=${redisState}, error=${(error as Error).message}`);
 
             // If Redis just went down, fall back immediately (no point retrying)
             if (redisState === "down") {
+                logger.warn(`[SAFE_QUEUE] Redis went down during attempt — breaking to fallback`);
                 break;
             }
 
             if (attempt < maxAttempts) {
+                logger.info(`[SAFE_QUEUE] Retrying in ${delayMs}ms`);
                 await new Promise((res) => setTimeout(res, delayMs));
             }
         }
     }
 
-    logger.debug("Queue unavailable — executing fallback", { attempts: attempt });
+    logger.warn(`[SAFE_QUEUE] All attempts exhausted — executing fallback. totalAttempts=${attempt}`);
     const data = await fallback();
     return { type: "executed", data };
 };

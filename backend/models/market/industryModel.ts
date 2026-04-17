@@ -12,7 +12,6 @@ const industrySchema = new mongoose.Schema(
       enum: INDUSTRY_NAMES,
       unique: true,
       trim: true,
-      index: true,
     },
     parentIndustry: {
       type: mongoose.Schema.Types.ObjectId,

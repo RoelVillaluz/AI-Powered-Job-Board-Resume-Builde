@@ -105,13 +105,13 @@ def generate_job_embeddings(job_id: str) -> dict:
         dict: {
             "job_id": str,
             "embeddings": {
-                "jobTitle": list[float]
+                "jobTitle": list[float],
+                "location": list[float],
             },           
             "meanEmbeddings": {
                 "skills": list[float],
                 "requirements": list[float],
                 "experienceLevel": list[float],
-                "location": list[float]
             }
         }
         On error: { "error": str }

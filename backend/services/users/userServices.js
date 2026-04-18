@@ -5,7 +5,7 @@ import { createResumeService } from "../resumes/resumeServices.js"
 import { transformProfilePictureUrl } from "../transformers/urlTransformers.js"
 import User from "../../models/UserModel.js"
 import { NotFoundError } from "../../middleware/errorHandler.js"
-import { getOrGenerateResumeEmbeddingService } from "../resumes/resumeEmbeddingService.js"
+import { getOrGenerateResumeEmbeddingService } from "../resumes/resumeEmbeddingService"
 
 /**
  * Fetches connection recommendations for a given user and transforms their profile pictures.

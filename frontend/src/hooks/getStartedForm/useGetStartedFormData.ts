@@ -11,6 +11,7 @@ import {
     COMPANY_INITIAL_FORM_DATA,
 } from "../../../constants/formSchemas";
 import type { DropResult } from "react-beautiful-dnd";
+import type { SelectOption } from "../createJobForm/useCreateJobFormData";
 
 type InputEvent = React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>;
 
@@ -165,10 +166,34 @@ export const useGetStartedFormData = (selectedRole: UserRole | null, userId: str
         if (e.key === "Enter") e.preventDefault();
     };
 
-    useEffect(() => {
-        console.log('Form Data: ', formData)
-    }, [formData])
+    // --- Handle searchable select ---
+    const handleSelect = (field: "jobTitle" | "location", option: SelectOption) => {
+    setFormData((prev) => {
+        if (!prev || prev.role !== "jobseeker") return prev;
+        return {
+        ...prev,
+        data: {
+            ...prev.data,
+            [field]: { _id: option._id, name: option.name },
+        } as JobseekerFormData,
+        };
+    });
+    };
 
+    const handleClearSelection = (field: "jobTitle" | "location") => {
+    setFormData((prev) => {
+        if (!prev || prev.role !== "jobseeker") return prev;
+        return {
+        ...prev,
+        data: {
+            ...prev.data,
+            [field]: { _id: "", name: "" },
+        } as JobseekerFormData,
+        };
+    });
+    };
+
+    // Add to return:
     return {
         formData,
         setFormData,
@@ -176,5 +201,7 @@ export const useGetStartedFormData = (selectedRole: UserRole | null, userId: str
         handleKeyDown,
         handleRemoveListItem,
         handleDragEnd,
+        handleSelect,        
+        handleClearSelection, 
     };
 };

@@ -3,7 +3,7 @@ from typing import Optional, NamedTuple
 import torch
 from bson import ObjectId
 import logging
-from utils.embedding_utils import extract_requirement_embeddings, extract_skills_embeddings
+from utils.embedding_utils import extract_experience_level_embedding, extract_job_title_embedding, extract_location_embedding, extract_requirement_embeddings, extract_skills_embeddings
 from config.database import db
 from models.embeddings import embedding_model
 
@@ -92,37 +92,24 @@ class JobService:
         Returns:
             JobEmbeddings containing all computed embeddings
         """
-        # Extract skills and requirements embeddings
         skills_emb = extract_skills_embeddings(job.get("skills", []))
         requirements_emb = extract_requirement_embeddings(job.get("requirements", []))
-        
-        # Extract single field embeddings
-        experience_level = job.get("experienceLevel")
-        experience_emb = None
-        if experience_level:
-            experience_emb = embedding_model.encode(experience_level)
-            if experience_emb is not None:
-                experience_emb = experience_emb.detach().cpu()
-        
-        title = job.get("title")
-        title_emb = None
-        if title:
-            title_emb = embedding_model.encode(title)
-            if title_emb is not None:
-                title_emb = title_emb.detach().cpu()
-        
-        location = job.get("location")
-        location_emb = None
-        if location:
-            location_emb = embedding_model.encode(location)
-            if location_emb is not None:
-                location_emb = location_emb.detach().cpu()
+
+        job_title_obj = job.get("jobTitle", {})
+        job_title_emb = extract_job_title_embedding(job_title_obj.get("name", ""))
+
+        location_emb = extract_location_embedding(job.get("location", {}).get("name", ""))
+
+        exp_level_emb = None
+        exp_level = job.get("experienceLevel")
+        if exp_level:
+            exp_level_emb = extract_experience_level_embedding(exp_level)
         
         return JobEmbeddings(
             skills=skills_emb,
             requirements=requirements_emb,
-            experience_level=experience_emb,
-            title=title_emb,
+            experience_level=exp_level_emb,
+            title=job_title_emb,
             location=location_emb
         )
     

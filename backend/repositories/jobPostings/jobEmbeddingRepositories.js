@@ -10,3 +10,13 @@ export const createJobEmbeddingRepo = async (embeddingData) => {
     const newEmbedding = new JobEmbedding(embeddingData);
     return await newEmbedding.save();
 }
+
+export const updateJobEmbeddingRepo = async (id, embeddingData) => {
+    const updatedEmbeddings = await JobEmbedding.findByIdAndUpdate(
+        id,
+        embeddingData,
+        { new: true }
+    )
+
+    return updatedEmbeddings
+}

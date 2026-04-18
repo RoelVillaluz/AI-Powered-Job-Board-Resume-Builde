@@ -24,8 +24,14 @@ const companySchema = new mongoose.Schema({
         }
     }],
     location: {
-        type: String,
-        required: true
+        _id: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Location',
+        },
+        name: {
+            type: String,
+            required: true,
+        },
     },
     website: {
         type: String

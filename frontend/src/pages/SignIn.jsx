@@ -18,6 +18,7 @@ function SignIn() {
 
     const [isEmailSent, setIsEmailSent] = useState(false);
     const [verificationCode, setVerificationCode] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
         document.title = 'Sign In';
@@ -33,14 +34,19 @@ function SignIn() {
     const handleFormSubmit = async (e) => {
         e.preventDefault();
         setErrorMessage(null);
+        setIsSubmitting(true);
 
-        const result = await login(formData.email, formData.password);
-
-        if (result.success) {
+        try {
+            const result = await login(formData.email, formData.password);
             await refreshUser(); // ← fetches full user with isOnboardingComplete
-            navigate('/');
-        } else {
+            
+            if (result.success) {
+                navigate('/');
+            }
+        } catch (error) {
             setErrorMessage(result.message);
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -50,8 +56,6 @@ function SignIn() {
             const response = await axios.post(`${BASE_API_URL}/users/resend-verification-code`, {
                 email: formData.email
             })
-
-            console.log(response.data.data);
 
             setIsEmailSent(true);
             setVerificationCode(response.data?.data?.verificationCode || '');
@@ -90,7 +94,13 @@ function SignIn() {
                         <input type="password" onChange={handleChange} name="password" value={formData.password} placeholder="Enter your password" />
                     </div>
 
-                    <button type="submit">Sign In</button>
+                    <button type="submit">
+                        {isSubmitting ? (
+                            <div className="spinner" style={{ margin: 'auto' }}></div>
+                        ) : (
+                            'Sign In'
+                        )}
+                    </button>
                     <span id="sign-in-link-span">Don't have an account yet? <Link to={'/register'}>Create an account now!</Link></span>
 
                     <button type="button" className="forgot-password-btn" onClick={handleForgotPasswordClick}>Forgot Password?</button>

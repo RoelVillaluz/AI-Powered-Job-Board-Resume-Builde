@@ -92,7 +92,8 @@ class LocationService:
                 {
                     "name": 1,
                     "embedding": 1
-                }
+                },
+                collation={"locale": "en", "strength": 2}  # ✅ passed as parameter
             )
         except Exception as e:
             logger.error(f"Error fetching location embedding by id {location_id}: {e}")
@@ -106,7 +107,8 @@ class LocationService:
                 {
                     "name": 1,
                     "embedding": 1
-                }
+                },
+                collation={"locale": "en", "strength": 2}  # ✅ passed as parameter
             )
         except Exception as e:
             logger.error(f"Error fetching location embedding by name {location_name}: {e}")

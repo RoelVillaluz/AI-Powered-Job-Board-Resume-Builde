@@ -1,4 +1,5 @@
 import type { Skill, WorkExperience, Certification, SocialMedia } from "../models/resume";
+import { FormJobTitle, FormLocation } from "./createJobForm.types";
 
 export type UserRole = 'jobseeker' | 'employer' | null;
 
@@ -19,11 +20,11 @@ export type EmployerStepKey =
 
 export type JobseekerFormData = {
     user: string | null;
-    jobTitle: string | null;
+    jobTitle: FormJobTitle;
     firstName: string;
     lastName: string;
     phone: string;
-    address: string;
+    location: FormLocation;
     summary: string;
     skills: Skill[];
     workExperience: WorkExperience[];
@@ -35,7 +36,7 @@ export type EmployerFormData = {
     user: string | null;
     name: string;
     industry: string[];
-    location: string;
+    location: FormLocation;
     website: string;
     size: string;
     description: string;

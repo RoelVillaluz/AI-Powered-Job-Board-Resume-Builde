@@ -3,7 +3,7 @@ import { getResumeScoreRepo, upsertResumeScoreRepo } from "../../repositories/re
 import { getResumeEmbeddingsRepo } from "../../repositories/resumes/resumeEmbeddingRepository.js";
 import { validateResumeScore } from "../../utils/scoreValidationUtils.ts";
 import logger from "../../utils/logger.js";
-import { runPython } from "../../utils/pythonRunner.js";
+import { runPython } from "../../infrastructure/python/pythonRunner.js";
 
 /**
  * Main service entry point for resume score generation.

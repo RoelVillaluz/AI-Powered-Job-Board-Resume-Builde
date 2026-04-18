@@ -20,8 +20,8 @@ const RequirementsSkeleton = () => {
     )
 }
 
-function JobDescription({ jobId }) {
-    const { job, isLoading } = useJobDetails(jobId);
+function JobDescription({ jobId, previewData }) {
+    const { job, isLoading } = useJobDetails(jobId, previewData ?? {});
 
     // Early return for loading state
     if (isLoading) {
@@ -49,7 +49,6 @@ function JobDescription({ jobId }) {
     }
 
     // Safe array access
-    const requirements = job.requirements || []
     const hasDescription = job.description && job.description.trim()
 
     return (
@@ -66,13 +65,7 @@ function JobDescription({ jobId }) {
 
             <div>
                 <h3>Requirements</h3>
-                {requirements.length > 0 && (
-                    <ul>
-                        {requirements.map((req, index) => (
-                            <li key={index}>{req}</li>
-                        ))}
-                    </ul>
-                )}
+                <p>{job.requirements.description}</p>
             </div>
 
         </section>

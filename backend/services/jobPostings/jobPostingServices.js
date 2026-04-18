@@ -3,6 +3,9 @@ import * as JobPostingRepository from "../../repositories/jobPostings/jobPosting
 import { transformProfilePictureUrl } from "../transformers/urlTransformers.js";
 import { parseFilterParams } from "../../../frontend/src/utils/jobPostings/filterJobUtils.js";
 import JobPosting from "../../models/jobPostings/jobPostingModel.js";
+import { sanitizeJobData } from "../../utils/sanitizationUtilts.js";
+import { ConflictError } from "../../middleware/errorHandler.js";
+import { withTransaction } from "../../helpers/transactionHelpers.js";
 
 /**
  * Get filtered, sorted, and paginated job postings (cursor-based)
@@ -73,39 +76,67 @@ export const getJobApplicants = async (id) => {
     }));
 };
 
+const idempotencyCache = new Map();
+
 /**
  * Create a new job posting and associate with company
  * @param {Object} jobPostingData - Job posting data
  * @returns {Promise<Object>}
  */
-export const createJobPosting = async (jobPostingData) => {
-    const session = await mongoose.startSession();
+export const createJobPosting = async (jobPostingData, idempotencyKey) => {
+
+    if (idempotencyKey) {
+        const existing = idempotencyCache.get(idempotencyKey);
+
+        if (existing) {
+            if (existing === "PENDING") {
+                throw new ConflictError("Request is already being processed");
+            }
+
+            return await JobPostingRepository.findById(existing);
+        }
+
+        // Mark as in progress
+        idempotencyCache.set(idempotencyKey, "PENDING");
+    }
 
     try {
-        session.startTransaction();
+        const newJob = await withTransaction(async (session) => {
 
-        const newJob = await JobPostingRepository.createJob(
-            jobPostingData,
-            { session }
-        );
+            const sanitizedData = sanitizeJobData(jobPostingData);
 
-        await JobPostingRepository.addJobToCompany(
-            jobPostingData.company,
-            newJob._id,
-            { session }
-        );
+            const createdJob = await JobPostingRepository.createJob(
+                sanitizedData,
+                { session }
+            );
 
-        await session.commitTransaction();
-        
-        // TODO: Invalidate Redis cache if implemented
-        // await invalidateJobCache(newJob);
-        
+            await JobPostingRepository.addJobToCompany(
+                jobPostingData.company,
+                createdJob._id,
+                { session }
+            );
+
+            return createdJob;
+        });
+
+        if (idempotencyKey) {
+            idempotencyCache.set(idempotencyKey, newJob._id.toString());
+
+            // Optional cleanup after 10 mins
+            setTimeout(() => {
+                idempotencyCache.delete(idempotencyKey);
+            }, 10 * 60 * 1000);
+        }
+
         return newJob;
+
     } catch (error) {
-        await session.abortTransaction();
+
+        if (idempotencyKey) {
+            idempotencyCache.delete(idempotencyKey);
+        }
+
         throw error;
-    } finally {
-        session.endSession();
     }
 };
 

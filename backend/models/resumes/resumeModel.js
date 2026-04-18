@@ -7,9 +7,14 @@ const resumeSchema = new mongoose.Schema({
         required: true
     },
     jobTitle: {
-        type: mongoose.Schema.Types.Mixed,  // Accepts either ObjectId or String
-        ref: 'JobTitle', // Allows for a reference to the JobTitle model
-        required: false
+        _id: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'JobTitle',
+        },
+        name: {
+            type: String,
+            required: true,
+        },
     },
     firstName: {
         type: String,
@@ -23,17 +28,34 @@ const resumeSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    address: {
-        type: String,
-        required: true
+    location: {
+        _id: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Location',
+        },
+        name: {
+            type: String,
+            required: true,
+        },
     },
     summary: {
         type: String,
         required: true
     },
     skills: [{
-        name: String,
-        level: String
+        _id: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Skill',  // ✅ Reference to Skill collection
+        },
+        name: { 
+            type: String, 
+            required: true 
+        },
+        level: {  // Keep this - it's resume-specific
+            type: String,
+            enum: ['Beginner', 'Intermediate', 'Advanced', 'Expert'],
+            required: false
+        }
     }],
     workExperience: [{
         jobTitle: String,

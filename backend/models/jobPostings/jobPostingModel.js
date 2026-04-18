@@ -3,9 +3,14 @@ import mongoose from "mongoose";
 
 const jobPostingSchema = new mongoose.Schema({
     title: {
-        type: mongoose.Schema.Types.Mixed,
-        required: true,
-        ref: 'JobTitle'
+        _id: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'JobTitle',
+        },
+        name: {
+            type: String,
+            required: true,
+        },
     },
     company: {
         type: mongoose.Schema.Types.ObjectId,
@@ -18,9 +23,19 @@ const jobPostingSchema = new mongoose.Schema({
         required: true,
         default: 'Active',
     },
-    location: {
+    description: {
         type: String,
-        required: true
+        required: true,
+    },
+    location: {
+        _id: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Location',
+        },
+        name: {
+            type: String,
+            required: true
+        }
     },
     jobType: {
         type: String,
@@ -38,27 +53,15 @@ const jobPostingSchema = new mongoose.Schema({
             enum: ['$', '₱', '€', '¥', '£'], 
             default: '$'
         },
-        salary: {
-            currency: {
-                type: String,
-                enum: ['$', '₱', '€', '¥', '£'], 
-                default: '$'
-            },
-            min: {
-                type: Number,
-                min: 0,
-                default: null
-            },
-            max: {
-                type: Number,
-                min: 0,
-                default: null
-            },
-            frequency: {
-                type: String,
-                enum: ['hour', 'day', 'week', 'month', 'year'],
-                default: 'year'
-            }
+        min: {
+            type: Number,
+            min: 0,
+            default: null
+        },
+        max: {
+            type: Number,
+            min: 0,
+            default: null
         },
         frequency: {
             type: String,
@@ -89,13 +92,17 @@ const jobPostingSchema = new mongoose.Schema({
         }],
     },
     skills: [{
+        _id: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Skill',
+        },
         name: { 
             type: String, 
             required: true 
         },
         requirementLevel: {
             type: String,
-            enum: ['required', 'preferred', 'nice-to-have'],
+            enum: ['Required', 'Preferred', 'Nice-to-Have'],
             required: false
         }
     }],  

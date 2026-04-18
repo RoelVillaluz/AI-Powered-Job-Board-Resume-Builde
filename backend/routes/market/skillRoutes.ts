@@ -8,6 +8,8 @@ import { checkIfSkillExistsById } from "../../middleware/resourceCheck/skill";
 
 const router = express.Router();
 
+router.get('/search', SkillController.getSkillsByName);
+
 router.get('/:id/embeddings', 
     checkIfSkillExistsById,
     SkillController.getOrGenerateSkillEmbedding
@@ -21,8 +23,6 @@ router.get('/:id',
     checkIfSkillExistsById,
     SkillController.getSkillById
 );
-
-router.get('/search/:name', SkillController.getSkillsByName);
 
 router.post('/', 
     authenticate, 

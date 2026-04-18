@@ -1,4 +1,5 @@
 import Industry from "../../models/market/industryModel";
+import { MarketEmbeddingUpdate } from "../../types/embeddings.types";
 import { IndustryInterface, CreateIndustryPayload, UpdateIndustryPayload } from "../../types/industry.types";
 import { Types } from "mongoose";
 
@@ -82,13 +83,16 @@ export const updateIndustryMetricsRepository = (id: Types.ObjectId, metrics: Par
  * Write a pre-computed embedding vector back to an industry document.
  * Called exclusively by the background embedding worker.
  */
-export const updateIndustryEmbeddingRepository = (id: Types.ObjectId, embedding: number[]) => {
+export const updateIndustryEmbeddingRepository = (
+    id: Types.ObjectId | string,
+    data: MarketEmbeddingUpdate
+) => {
     return Industry.findByIdAndUpdate(
         id,
-        { $set: { embedding, embeddingGeneratedAt: new Date(), astAnalyzed: new Date() } },
+        { $set: { ...data, lastAnalyzed: new Date() } },
         { new: true }
     );
-}
+};
 
 /**
  * Permanently delete an industry document by ObjectId.

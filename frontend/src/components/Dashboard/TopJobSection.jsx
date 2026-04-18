@@ -5,6 +5,7 @@ import { useJobStore } from "../../stores/jobStore";
 import { useResumeStore } from "../../stores/resumeStore";
 import { useAuthStore } from "../../stores/authStore"; // Add this import
 import { formattedSalary } from "../../../../backend/constants";
+import { formatSalary } from "../utils/chats/salaryUtils";
 import { useJobRecommendations } from "../../hooks/jobs/useJobQueries";
 
 function TopJobSection() {
@@ -38,7 +39,7 @@ function TopJobSection() {
                         <Link to={`job-postings/${topJob._id}`} id="top-job-link">
                             <header>
                                 <div>
-                                    <h1>{topJob.title || 'Full Stack Developer'}</h1>
+                                    <h1>{typeof topJob.title === 'string' ? topJob.title : topJob.title.name}</h1>
                                     <h2>{topJob.company?.name}</h2>
                                 </div>
                                 {topJob.company?.logo && (
@@ -47,12 +48,17 @@ function TopJobSection() {
                             </header>
                             <div className="details">
 
-                                <h4>{formattedSalary(topJob)}</h4>
+                                <h4>
+                                    {topJob?.salary?.min && topJob?.salary?.max
+                                        ? formatSalary(topJob.salary)  // Use the new schema format with min and max
+                                        : formattedSalary(topJob)      // Use the old schema format with amount only
+                                    }
+                                </h4>
     
                                 <div className="tags-list">
                                     <div className="tag-item">
                                         <i className="fa-solid fa-location-dot" aria-hidden="true"></i>
-                                        <span>{topJob.location}</span>
+                                        <span>{typeof topJob.location === 'string' ? topJob.location : topJob.location.name || ""}</span>
                                     </div>
                                     <div className="tag-item">
                                         <i className="fa-solid fa-briefcase" aria-hidden="true"></i>

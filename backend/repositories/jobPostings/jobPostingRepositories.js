@@ -45,6 +45,9 @@ export const findJobsWithFilters = async (options) => {
         const jobPostings = await JobPosting.find(baseQuery)
             .select('title location jobType experienceLevel preScreeningQuestions salary postedAt company skills')
             .populate('company', 'name logo industry')
+            .populate('title', '_id name')
+            .populate('location', '_id name')
+            .populate('skills._id', '_id name')
             .sort(sort)
             .limit(limit + 1) // Fetch one extra
             .lean();
@@ -200,6 +203,8 @@ export const findJobsWithPagination = async ({ cursor, limit = 6, excludeIds = [
 export const findJobById = async (id) => {
     return await JobPosting.findById(id)
         .populate('company', 'id name logo industry')
+        .populate('title', '_id name')
+        .populate('location', '_id name')
         .populate('applicants', 'profilePicture')
         .lean()    
 }

@@ -4,6 +4,7 @@ import { useAuthStore } from "../../stores/authStore";
 import { formatDate } from "../utils/dateUtils";
 import { useResumeStore } from "../../stores/resumeStore";
 import { useEffect } from "react";
+import { Link } from "react-router-dom";
 
 const CompanyBanner = ({ company, isLoading }) => {
     if (isLoading) return <div className="banner"/>;
@@ -83,17 +84,17 @@ const ApplicantsList = ({ job }) => (
     </div>
 );
 
-function JobDetailHeader({ jobId, showModal }) {
+function JobDetailHeader({ jobId, showModal, previewData, previewMode }) {
     const user = useAuthStore(state => state.user);
-    const currentResume = useResumeStore(state => state.currentResume);
-    const { job, company, isLoading, error } = useJobDetails(jobId);
+    const currentResume = user.role === 'jobseeker' ? useResumeStore(state => state.currentResume) : null;
+    const { job, company, isLoading } = useJobDetails(jobId, previewData ?? {});
     const { toggleApplyJob, toggleSaveJob } = useJobActions();
 
     const hasQuestions = Boolean(job?.preScreeningQuestions?.length);
 
     useEffect(() => {
         if (job && company) {
-            document.title = `${job?.title} - ${company?.name}`;
+            document.title = `${job?.title.name} - ${job?.company?.name}`;
         }
     }, [job?._id, company?._id]);
 
@@ -117,24 +118,41 @@ function JobDetailHeader({ jobId, showModal }) {
                 {!isLoading ? (
                     <>
                         <div className="row">
-                            <h1>{job?.title}</h1>
+                            <h1>{typeof job?.title === 'string' ? job?.title : job?.title.name || ""}</h1>
+                            {user?.company?._id === job?.company?._id && user?.role === 'employer' && !previewMode && (
+                                <Link
+                                    className="edit-btn-link"
+                                    to={`/job-postings/${jobId}/edit`}
+                                    aria-label="Edit job posting"
+                                    style={{ marginLeft: '-0.5rem' }}
+                                >
+                                    <i className="fa-solid fa-pen-to-square" aria-hidden="true"></i>
+                                </Link>
+                            )}
                             <span className="posted-at">{formatDate(job.postedAt)}</span>
-                            <h2>{job.salary.currency}{job.salary.amount.toLocaleString()}<span>/{job.salary.frequency}</span></h2>
+                            <h2>
+                                {job.salary?.min && job.salary?.max
+                                    ? `${job.salary?.currency}${job.salary?.min.toLocaleString()} - ${job.salary?.currency}${job.salary?.max.toLocaleString()}`
+                                    : `${job.salary?.currency}${job.salary?.amount?.toLocaleString()}`}
+                                <span>/{job.salary?.frequency}</span>
+                            </h2>
                         </div>
                         <div className="row">
                             <div>
                                 <h3>{company?.name}</h3>
-                                <h4>{job.location}</h4>
+                                <h4>{typeof job.location === 'string' ? job.location : job.location.name || ""}</h4>
                             </div>
-                            <JobActions 
-                                job={job} 
-                                user={user}
-                                currentResume={currentResume} 
-                                toggleApplyJob={toggleApplyJob}
-                                toggleSaveJob={toggleSaveJob}
-                                hasQuestions={hasQuestions} 
-                                showModal={showModal}
-                            />
+                            {user.role === 'jobseeker' && !previewMode && (
+                                <JobActions 
+                                    job={job} 
+                                    user={user}
+                                    currentResume={currentResume} 
+                                    toggleApplyJob={toggleApplyJob}
+                                    toggleSaveJob={toggleSaveJob}
+                                    hasQuestions={hasQuestions} 
+                                    showModal={showModal}
+                                />
+                            )}
                         </div>
                         <ApplicantsList job={job}/>
                     </>

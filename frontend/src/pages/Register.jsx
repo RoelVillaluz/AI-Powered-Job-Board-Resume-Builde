@@ -17,6 +17,7 @@ function Register() {
 
     const [verificationCode, setVerificationCode] = useState('');
     const [isEmailSent, setIsEmailSent] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
         document.title = 'Create an account';
@@ -31,6 +32,7 @@ function Register() {
 
     const handleFormSubmit = async (e) => {
         e.preventDefault();
+        setIsSubmitting(true);
         setErrorMessage(null);
 
         if (formData.password !== formData.confirmPassword) {
@@ -52,6 +54,8 @@ function Register() {
                 error.response?.data?.formattedMessage ||
                 'Registration failed. Please try again.'
             );
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -96,7 +100,13 @@ function Register() {
                         )}
                     </div>
 
-                    <button type="submit">Create account</button>
+                    <button type="submit">
+                        {isSubmitting ? (
+                            <div className="spinner" style={{ margin: 'auto' }}></div>
+                        ) : (
+                            'Create account'
+                        )}
+                    </button>
                     <span id="sign-in-link-span">Already have an account? <Link to={'/sign-in'}>Sign-in instead</Link></span>
 
                 </form>

@@ -34,17 +34,21 @@ def generate_resume_embeddings(resume_id: str) -> dict:
         dict: {
             "resume_id": str,
             "embeddings": {
-                "skills": [],           # Reserved — individual embeddings not cached
-                "workExperience": [],
-                "certifications": []
+                "jobTitle":  list[float],
+                "location":  list[float]
             },
             "meanEmbeddings": {
-                "skills": list[float],
+                "skills":         list[float],
                 "workExperience": list[float],
                 "certifications": list[float]
             },
             "metrics": {
                 "totalExperienceYears": float
+            },
+            "backfill": {
+                "skillIds":    list[str],
+                "jobTitleId":  str | None,
+                "locationId":  str | None
             }
         }
         On error: { "error": str }
@@ -61,30 +65,29 @@ def generate_resume_embeddings(resume_id: str) -> dict:
         embeddings = ResumeService.extract_embeddings(resume)
 
         emit_progress("embedding:progress", 40, "Reviewing your work experience...")
-
-        # Work experience is the most time-intensive section — emit after it resolves
         emit_progress("embedding:progress", 52, "Checking your certifications...")
-
         emit_progress("embedding:progress", 58, "Finalizing embedding vectors...")
 
-        result = {
+        return {
             "resume_id": resume_id,
             "embeddings": {
-                "skills": [],
-                "workExperience": [],
-                "certifications": []
+                "jobTitle": tensor_to_list(embeddings.job_title),
+                "location": tensor_to_list(embeddings.location)
             },
             "meanEmbeddings": {
-                "skills": tensor_to_list(embeddings.skills),
+                "skills":         tensor_to_list(embeddings.skills),
                 "workExperience": tensor_to_list(embeddings.work_experience),
                 "certifications": tensor_to_list(embeddings.certifications)
             },
             "metrics": {
                 "totalExperienceYears": embeddings.total_experience_years
+            },
+            "backfill": {
+                "skillIds":   embeddings.backfill.skill_ids,
+                "jobTitleId": embeddings.backfill.job_title_id,
+                "locationId": embeddings.backfill.location_id
             }
         }
-
-        return result
 
     except Exception as e:
         logger.error(f"Error generating resume embeddings: {e}", exc_info=True)
@@ -101,13 +104,14 @@ def generate_job_embeddings(job_id: str) -> dict:
     Returns:
         dict: {
             "job_id": str,
-            "embeddings": {},           # Reserved — individual embeddings not cached
-            "meanEmbeddings": {
+            "embeddings": {
                 "jobTitle": list[float],
+                "location": list[float],
+            },           
+            "meanEmbeddings": {
                 "skills": list[float],
                 "requirements": list[float],
                 "experienceLevel": list[float],
-                "location": list[float]
             }
         }
         On error: { "error": str }
@@ -129,13 +133,15 @@ def generate_job_embeddings(job_id: str) -> dict:
 
         result = {
             "job_id": job_id,
-            "embeddings": {},
-            "meanEmbeddings": {
+            "embeddings": {
                 "jobTitle": tensor_to_list(embeddings.title),
-                "skills": tensor_to_list(embeddings.skills),
-                "requirements": tensor_to_list(embeddings.requirements),
                 "experienceLevel": tensor_to_list(embeddings.experience_level),
                 "location": tensor_to_list(embeddings.location)
+            },
+            "meanEmbeddings": {
+                "skills": tensor_to_list(embeddings.skills),
+                "requirements": tensor_to_list(embeddings.requirements),
+                
             }
         }
 
@@ -340,6 +346,8 @@ def score_resume(resume_id: str) -> dict:
         existing_embeddings = db.resumeEmbeddings.find_one(
             {'resume': ObjectId(resume_id)},
             {
+                'embeddings.jobTitle': 1,
+                'embeddings.location': 1,
                 'meanEmbeddings.skills': 1,
                 'meanEmbeddings.workExperience': 1,
                 'meanEmbeddings.certifications': 1,

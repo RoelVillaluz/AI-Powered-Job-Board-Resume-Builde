@@ -1,5 +1,5 @@
 import { Types } from "mongoose";
-import { Embedding } from "./embeddings.types";
+import { EmbeddingVector } from "./embeddings.types";
 import { Currency } from "./salaryTypes";
 
 type SalaryRange = {
@@ -31,12 +31,17 @@ export interface SkillInterface {
   growthRate: number;
   seniorityMultiplier: number;
   salaryData: SalaryData;
-  embedding: Embedding | null;
+  embedding: EmbeddingVector | null;
   embeddingGeneratedAt?: Date;
   lastUpdated: Date;
 
   createdAt?: Date;
   updatedAt?: Date;
+}
+
+export type SkillSearchResult = {
+  _id: Types.ObjectId;
+  name: string;
 }
 
 // What the client sends when creating a skill

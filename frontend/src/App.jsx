@@ -8,7 +8,6 @@ import Register from "./pages/Register";
 import SignIn from "./pages/SignIn";
 import GetStartedForm from "./pages/GetStartedForm";
 import Dashboard from "./pages/Dashboard";
-import CreateJobForm from "./pages/CreateJobForm";
 import JobPostingsList from "./pages/JobPostingsList";
 import JobDetailPage from "./pages/JobDetailPage.jsx";
 import { useEffect } from "react";
@@ -17,6 +16,8 @@ import ChatsPage from "./pages/ChatsPage";
 import JobApplicantsPage from "./pages/JobApplicantsPage.jsx";
 import JobCandidatesPage from "./pages/JobCandidatesPage.jsx";
 import { Navigate } from "react-router-dom";
+import CreateJobForm from "./pages/CreateJobForm";
+import EditJobDetailPage from "./pages/EditJobDetailPage";
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -55,6 +56,7 @@ function App() {
                   <Route path="/job-postings/:jobId" element={<JobDetailPage />} />
                   <Route path="/job-postings/:jobId/applicants" element={<JobApplicantsPage />} />
                   <Route path="/job-postings/:jobId/candidates" element={<JobCandidatesPage />} />
+                  <Route path="/job-postings/:jobId/edit" element={<EditJobDetailPage />} />
 
                   <Route path="/change-password" element={<ChangePasswordForm />} />
 
@@ -73,7 +75,6 @@ function AppRoutes() {
   const user = useAuthStore(state => state.user);
   const isLoading = useAuthStore(state => state.isLoading);
 
-    console.log('isLoading:', isLoading, 'user:', user, 'isOnboardingComplete:', user?.isOnboardingComplete);
   // Wait for restoreSession() to finish before making routing decisions
   if (isLoading) {
     return null; // or <LoadingSpinner />

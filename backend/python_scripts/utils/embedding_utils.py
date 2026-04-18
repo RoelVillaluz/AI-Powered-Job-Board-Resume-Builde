@@ -3,6 +3,9 @@ import json
 import torch
 from typing import Optional
 import logging
+from services.market_services.location_services import LocationService
+from services.market_services.job_title_services import JobTitleService
+from services.market_services.skill_services import SkillService
 from models.embeddings import embedding_model
 from utils.tensor_utils import stack_embeddings, safe_mean_embedding
 
@@ -10,82 +13,169 @@ logger = logging.getLogger(__name__)
 
 def extract_skills_embeddings(skills: list[dict]) -> Optional[torch.Tensor]:
     """
-        Extract and compute mean skill embedding of skills
-
-        Args:
-            skills: List of skills dictionaries with 'name' field
-
-        Returns:
-            Mean skill embedding or None
-    """
+    Extract mean skill embedding using cached DB embeddings.
+    Falls back to model if skill not in DB.
+    
+    Args:
+        skills: List of skill dicts with 'name' field
+        
+    Returns:
+        Mean skill embedding tensor or None
+    """    
     skill_names = [skill.get("name") for skill in skills if skill.get("name")]
-
     if not skill_names:
+        return None, []
+
+    skill_docs = SkillService.get_with_embeddings_by_names(skill_names)
+    skill_map = {doc.get('name'): doc for doc in skill_docs}
+
+    embeddings = []
+    missing_skills = []
+    needs_backfill = []  # IDs that exist in DB but have null embedding
+
+    for skill_name in skill_names:
+        skill_doc = skill_map.get(skill_name)
+
+        if skill_doc and skill_doc.get('embedding'):
+            embeddings.append(torch.tensor(skill_doc['embedding']))
+        elif skill_doc and not skill_doc.get('embedding'):
+            logger.warning(f"Skill '{skill_name}' found in DB but embedding is null — falling back to model")
+            missing_skills.append(skill_name)
+            needs_backfill.append(str(skill_doc['_id']))  # collect the ID
+        else:
+            logger.warning(f"Skill '{skill_name}' not found in DB — falling back to model")
+            missing_skills.append(skill_name)
+            # not in DB at all — no ID to backfill
+    
+    if missing_skills:
+        fallback_embeddings = embedding_model.encode_batch(missing_skills)
+
+        if fallback_embeddings is not None:
+            if isinstance(fallback_embeddings, torch.Tensor):
+                if fallback_embeddings.dim() == 1:
+                    embeddings.append(fallback_embeddings.detach().cpu())
+                else:
+                    for emb in fallback_embeddings:
+                        embeddings.append(emb.detach().cpu())
+            else:
+                for emb in fallback_embeddings:
+                    embeddings.append(emb.detach().cpu())
+    
+    if not embeddings:
         return None
     
-    embeddings = embedding_model.encode_batch(skill_names)
-    return safe_mean_embedding(embeddings)
+    stacked = stack_embeddings(embeddings)
+    return safe_mean_embedding(stacked), needs_backfill
 
-def extract_job_title_embedding(job_title: str) -> Optional[torch.Tensor]:
+def extract_job_title_embedding(job_title: str) -> tuple[Optional[torch.Tensor], Optional[str]]:
     """
-    Extract embedding for a single job title string.
-    Used as fallback when job title ObjectId ref is unavailable.
-    No mean needed — single text input produces single tensor.
+    Extract job title embedding using cached DB embedding.
+    Falls back to model if job title not in DB.
 
     Args:
-        job_title: Job title string
+        job_title: Job title string (e.g., "Software Engineer")
 
     Returns:
-        Embedding tensor or None
+        Tuple of (embedding tensor or None, job title ID to backfill or None)
     """
     if not job_title:
-        return None
-    
+        return None, None
+
+    job_title_doc = JobTitleService.get_with_embedding_by_name(job_title)
+
+    if job_title_doc and job_title_doc.get('embedding'):
+        return torch.tensor(job_title_doc['embedding']), None
+    elif job_title_doc and not job_title_doc.get('embedding'):
+        logger.warning(f"Job title '{job_title}' found in DB but embedding is null — falling back to model")
+        needs_backfill = str(job_title_doc['_id'])
+    else:
+        logger.warning(f"Job title '{job_title}' not found in DB — falling back to model")
+        needs_backfill = None
+
     embedding = embedding_model.encode(job_title)
     if embedding is None:
-        return None
-    
-    return embedding.detach().cpu()
+        return None, needs_backfill
+
+    return embedding.detach().cpu(), needs_backfill
+
+
+def extract_location_embedding(location_name: str) -> tuple[Optional[torch.Tensor], Optional[str]]:
+    """
+    Extract location embedding using cached DB embedding.
+    Falls back to model if location not in DB.
+
+    Args:
+        location_name: Location name string (e.g., "San Francisco")
+
+    Returns:
+        Tuple of (embedding tensor or None, location ID to backfill or None)
+    """
+    if not location_name:
+        return None, None
+
+    location_doc = LocationService.get_with_embedding_by_name(location_name)
+
+    if location_doc and location_doc.get("embedding"):
+        return torch.tensor(location_doc['embedding']), None
+    elif location_doc and not location_doc.get("embedding"):
+        logger.warning(f"Location '{location_name}' found in DB but embedding is null — falling back to model")
+        needs_backfill = str(location_doc['_id'])
+    else:
+        logger.warning(f"Location not in DB, generating embedding: {location_name}")
+        needs_backfill = None
+
+    embedding = embedding_model.encode(location_name)
+    if embedding is None:
+        return None, needs_backfill
+
+    return embedding.detach().cpu(), needs_backfill
 
 def extract_work_experience_embeddings(work_experiences: list[dict]) -> Optional[torch.Tensor]:
     """
-        Extract and compute mean embedding for work experiences.
-        
-        Args:
-            work_experiences: List of work experience dictionaries
-            
-        Returns:
-            Mean work experience embedding or None
+    Extract mean work experience embedding.
+    Uses DB cache for job titles, generates for responsibilities.
     """
-    experience_texts = []
-
+    if not work_experiences:
+        return None
+    
+    embeddings = []
+    
     for exp in work_experiences:
         job_title = exp.get('jobTitle', '')
         if not job_title:
             continue
-
-        responsibilities = exp.get('responsibilities', [])
-
-        if responsibilities:
-            # Convert responsibilities to strings, handling dicts and other types
-            resp_strings = []
-            for r in responsibilities:
-                if isinstance(r, dict):
-                    resp_strings.append(json.dumps(r))
-                else:
-                    resp_strings.append(str(r))
-
-            text = f"{job_title}: {', '.join(resp_strings)}"
-        else:
-            text = job_title
-
-        experience_texts.append(text)
         
-    if not experience_texts:
+        responsibilities = exp.get('responsibilities', [])
+        
+        # Try to use cached job title embedding
+        job_title_doc = JobTitleService.get_with_embedding_by_name(job_title)
+        
+        if job_title_doc and job_title_doc.get('embedding'):
+            # Use cached job title embedding
+            embeddings.append(torch.tensor(job_title_doc['embedding']))
+        else:
+            # Fallback: Generate embedding for job title + responsibilities
+            if responsibilities:
+                resp_strings = []
+                for r in responsibilities:
+                    if isinstance(r, dict):
+                        resp_strings.append(json.dumps(r))
+                    else:
+                        resp_strings.append(str(r))
+                text = f"{job_title}: {', '.join(resp_strings)}"
+            else:
+                text = job_title
+            
+            logger.warning(f"Job title not in DB, generating embedding: {job_title}")
+            embedding = embedding_model.encode(text)
+            if embedding is not None:
+                embeddings.append(embedding.detach().cpu())
+    
+    if not embeddings:
         return None
     
-    embeddings = embedding_model.encode_batch(experience_texts)
-    return safe_mean_embedding(embeddings)
+    stacked = stack_embeddings(embeddings)
+    return safe_mean_embedding(stacked)
 
 def extract_certification_embeddings(certifications: list[dict]) -> Optional[torch.Tensor]:
     """
@@ -120,8 +210,9 @@ def extract_requirement_embeddings(requirements) -> Optional[torch.Tensor]:
         extracted_requirements = []
 
         # Extract description, education, yearsOfExperience, and certifications
-        if 'description' in requirements and isinstance(requirements['description'], str):
-            extracted_requirements.append(requirements['description'])
+
+        extracted_requirements = [requirements['description']] # Description is always a required field
+
         if 'education' in requirements and isinstance(requirements['education'], str):
             extracted_requirements.append(requirements['education'])
         if 'yearsOfExperience' in requirements and isinstance(requirements['yearsOfExperience'], (int, float)):
@@ -144,3 +235,23 @@ def extract_requirement_embeddings(requirements) -> Optional[torch.Tensor]:
 
     # If the requirements format is invalid, return None
     return None
+
+def extract_experience_level_embedding(experience_level: str) -> Optional[torch.Tensor]:
+    """
+    Extract embedding for an experience level using the embedding model.
+    Consistent with other embedding extraction utilities.
+    
+    Args:
+        experience_level: Experience level string, e.g., "Intern"
+    
+    Returns:
+        Embedding tensor or None
+    """
+    if not experience_level:
+        return None
+
+    embedding = embedding_model.encode(experience_level)
+    if embedding is None:
+        return None
+    
+    return embedding.detach().cpu()

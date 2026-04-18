@@ -3,6 +3,9 @@ import { INDUSTRY_CHOICES } from "../constants.js";
 
 const allowedIndustries = Object.keys(INDUSTRY_CHOICES);
 
+// Reusable ObjectId validator
+const objectId = Joi.string().regex(/^[0-9a-fA-F]{24}$/).allow(null, '');
+
 export const createCompanySchema = Joi.object({
     name: Joi.string()
         .trim()
@@ -28,14 +31,14 @@ export const createCompanySchema = Joi.object({
             'array.min': 'Company must have at least one industry',
             'array.base': 'Industries must be an array'
     }),
-    location: Joi.string()
-        .trim()
-        .min(2)
-        .required()
-        .messages({
-            'string.min': 'Location must be at least 2 characters long',
-            'string.empty': 'Location cannot be empty'
-    }),
+    location: Joi.object({
+        _id: objectId.optional().messages({
+            "string.pattern.base": "Invalid location ID format",
+        }),
+        name: Joi.string().trim().required().messages({
+            "string.empty": "Location is required",
+        }),
+    }).required(),
     website: Joi.string()
         .uri()
         .allow('')

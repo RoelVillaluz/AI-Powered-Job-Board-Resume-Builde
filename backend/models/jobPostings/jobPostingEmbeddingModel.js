@@ -50,16 +50,8 @@ const jobPostingEmbeddingSchema = new mongoose.Schema(
             type: [Number],
             default: [],
         },
-        skills: {
-            type: [[Number]],
-            default: [],
-        },
         experienceLevel: {
             type: [Number],
-            default: [],
-        },
-        requirements: {
-            type: [[Number]],
             default: [],
         },
         location: {
@@ -68,10 +60,6 @@ const jobPostingEmbeddingSchema = new mongoose.Schema(
         },
     },
     meanEmbeddings: {
-        jobTitle: {
-            type: [Number],
-            default: null,
-        },
         skills: {
             type: [Number],
             required: true,
@@ -81,10 +69,6 @@ const jobPostingEmbeddingSchema = new mongoose.Schema(
             required: true,
         },
         experienceLevel: {
-            type: [Number],
-            default: null,
-        },
-        location: {
             type: [Number],
             default: null,
         },

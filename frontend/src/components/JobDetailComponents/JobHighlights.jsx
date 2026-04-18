@@ -1,7 +1,7 @@
 import { useJobDetails } from "../../hooks/jobs/useJobDetails"
 
-function JobHighlights({ jobId }) {
-    const { job, company, isLoading, error } = useJobDetails(jobId);
+function JobHighlights({ jobId, previewData }) {
+    const { job, company, isLoading } = useJobDetails(jobId, previewData ?? {});
 
     return (
         <section className="job-highlights">

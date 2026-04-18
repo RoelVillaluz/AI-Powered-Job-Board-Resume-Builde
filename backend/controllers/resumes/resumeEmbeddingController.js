@@ -1,7 +1,7 @@
 import { sendResponse, STATUS_MESSAGES } from "../../constants.js";
 import { resumeEmbeddingQueue } from "../../queues/index.js";
 import { getAllResumeEmbeddingsRepo } from "../../repositories/resumes/resumeEmbeddingRepository.js";
-import { getOrGenerateResumeEmbeddingService } from "../../services/resumes/resumeEmbeddingService.js";
+import { getOrGenerateResumeEmbeddingService } from "../../services/resumes/resumeEmbeddingService";
 import { catchAsync } from "../../utils/errorUtils.js";
 
 /**

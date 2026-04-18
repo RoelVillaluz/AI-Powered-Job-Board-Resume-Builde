@@ -4,6 +4,7 @@ import { formattedSalary } from "../../../../backend/constants";
 import { useMemo } from "react";
 import { useJobActions } from "../../hooks/jobs/useJobActions";
 import React from "react";
+import { formatSalary } from "../utils/chats/salaryUtils";
 
 export const JobPostingCardSkeleton = () => {
     return (
@@ -42,21 +43,29 @@ const JobPostingCard = ({ job, user, resume, onShowModal }) => {
                     {job.company.logo ? (
                         <img src={job.company.logo} alt="" />
                     ) : (
-                        <i className="fa-solid fa-building"></i>
+                        <div className="icon-box">
+                            <i className="fa-solid fa-building"></i>
+                        </div>
                     )}
                     <div>
-                        <h2>{job.title}</h2>
+                        <h2>{typeof job.title === 'string' ? job.title : job.title.name || ""}</h2>
                         <h3>{job.company.name}</h3>
                     </div>
                 </div>
-                <h4><i className="fa-regular fa-money-bill-1"></i> {formattedSalary(job)}</h4>
+                <h4>
+                    <i className="fa-regular fa-money-bill-1"></i>
+                    {job.salary.min && job.salary.max
+                        ? formatSalary(job.salary)  // Use the new schema format with min and max
+                        : formattedSalary(job)      // Use the old schema format with amount only
+                    }
+                </h4>
                 <p>{job.summary}</p>
 
                 <div className="details">
                     <div className="tags-list">
                         <div className="tag-item">
                             <i className="fa-solid fa-location-dot" aria-hidden="true"></i>
-                            <span>{job.location}</span>
+                            <span><h4>{typeof job.location === 'string' ? job.location : job.location.name || ""}</h4></span>
                         </div>
                         <div className="tag-item">
                             <i className="fa-solid fa-briefcase" aria-hidden="true"></i>

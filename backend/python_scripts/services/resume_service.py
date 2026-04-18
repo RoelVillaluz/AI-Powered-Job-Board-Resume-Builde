@@ -3,7 +3,7 @@ from typing import Optional, NamedTuple
 import torch
 from bson import ObjectId
 import logging
-from utils.embedding_utils import extract_certification_embeddings, extract_skills_embeddings, extract_work_experience_embeddings
+from utils.embedding_utils import extract_certification_embeddings, extract_job_title_embedding, extract_skills_embeddings, extract_work_experience_embeddings
 from config.database import db
 from utils.date_utils import calculate_total_experience
 
@@ -13,6 +13,7 @@ logger = logging.getLogger(__name__)
 class ResumeEmbeddings(NamedTuple):
     """Container for resume embeddings."""
     skills: Optional[torch.Tensor]
+    job_title: Optional[torch.Tensor]
     work_experience: Optional[torch.Tensor]
     certifications: Optional[torch.Tensor]
     total_experience_years: float
@@ -62,6 +63,7 @@ class ResumeService:
         try:
             fields = {
                 "skills": 1,
+                "jobTitle": 1,
                 "workExperience": 1,
                 "certifications": 1,
                 "summary": 1,
@@ -86,6 +88,10 @@ class ResumeService:
         """
         # Extract embeddings for each section
         skills_emb = extract_skills_embeddings(resume.get("skills", []))
+
+        job_title_obj = resume.get("jobTitle", {})
+        job_title_emb = extract_job_title_embedding(job_title_obj.get("name", ""))
+        
         work_emb = extract_work_experience_embeddings(resume.get("workExperience", []))
         cert_emb = extract_certification_embeddings(resume.get("certifications", []))
         
@@ -94,6 +100,7 @@ class ResumeService:
         
         return ResumeEmbeddings(
             skills=skills_emb,
+            job_title=job_title_emb,
             work_experience=work_emb,
             certifications=cert_emb,
             total_experience_years=total_exp

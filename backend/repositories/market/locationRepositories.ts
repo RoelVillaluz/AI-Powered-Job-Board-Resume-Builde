@@ -1,5 +1,6 @@
 // repositories/locationRepository.ts
 import Location from "../../models/market/locationModel";
+import { MarketEmbeddingUpdate } from "../../types/embeddings.types";
 import { LocationInterface, CreateLocationPayload, UpdateLocationPayload } from "../../types/location.types";
 import { Types } from "mongoose";
 
@@ -112,13 +113,16 @@ export const updateLocationMetricsRepository = (id: Types.ObjectId, metrics: Par
  * @param id - Location ObjectId
  * @param embedding - Flat float array from sentence-transformers
  */
-export const updateLocationEmbeddingRepository = (id: Types.ObjectId, embedding: number[]) => {
+export const updateLocationEmbeddingRepository = (
+    id: Types.ObjectId | string,
+    data: MarketEmbeddingUpdate
+) => {
     return Location.findByIdAndUpdate(
         id,
-        { $set: { embedding, embeddingGeneratedAt: new Date() } },
+        { $set: data },
         { new: true }
-    )
-}
+    );
+};
 
 /**
  * Delete a location document by ObjectId.

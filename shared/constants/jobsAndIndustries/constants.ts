@@ -1,5 +1,3 @@
-import { IndustryName } from "../../../backend/types/industry.types";
-
 // constants.ts
 export const INDUSTRY_CHOICES = {
     'Technology': 'Technology',
@@ -44,3 +42,11 @@ export const JOB_TYPES = ['Full-Time', 'Part-Time', 'Contract', 'Internship'] as
 
 // Job status
 export const JOB_STATUS = ['Active', 'Closed', 'Archived'] as const;
+
+export enum ImportanceLevel {
+  Required = 'required',
+  Preferred = 'preferred',
+  NiceToHave = 'nice-to-have'
+}
+
+export type ImportanceLevelInput = keyof typeof ImportanceLevel | ImportanceLevel | null;

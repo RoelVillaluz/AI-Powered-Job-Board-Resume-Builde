@@ -1,6 +1,6 @@
 import express from "express"
 import { validate } from "../middleware/validation.js"
-import { createJobPostingSchema } from "../validators/jobPostingValidators.js"
+import { createJobPostingRequestSchema, createJobPostingSchema } from "../validators/jobPostingValidators.js"
 import { getJobPostings, getJobPosting, createJobPosting, updateJobPosting, deleteJobPosting } from "../controllers/jobPostings/jobPostingController.js"
 import { authenticate } from "../middleware/authentication/authenticate.js"
 import { requireRole } from "../middleware/authorization/roleAuthorization.js"
@@ -15,12 +15,13 @@ router.get('/:id', getJobPosting)
 router.post('/', 
     authenticate,                             // 1. Check if user is logged in
     requireRole('employer'),                  // 2. Check if user is employer
-    validate(createJobPostingSchema, 'body'), // 3. Validate job posting format
+    validate(createJobPostingRequestSchema, 'body'), // 3. Validate job posting format
     createJobPosting
 )
 
 router.patch('/:id', 
     authenticate,
+    validate(createJobPostingSchema, 'body'),
     updateJobPosting
 )
 

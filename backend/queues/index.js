@@ -1,154 +1,59 @@
-/**
- * Queue Manager
- *
- * Creates and exports all job queues.
- * Queues are lightweight - they just add jobs to Redis.
- * Workers (separate process) actually process the jobs.
- */
 import { Queue } from "bullmq";
-import { redisConnection, queueConfig } from "../config/queue.config.js";
+import { redisConnection } from "../config/queue.config.js";
 
 /**
- * Resume Embedding Queue
+ * Embedding Queues
  */
-export const resumeEmbeddingQueue = new Queue(
-    queueConfig.resumeEmbedding.name,
-    {
-        connection: redisConnection,
-        defaultJobOptions: queueConfig.resumeEmbedding.options,
-    }
-);
+export const resumeEmbeddingQueue = new Queue("resume-embedding", {
+    connection: redisConnection,
+});
+
+export const jobEmbeddingQueue = new Queue("job-embedding", {
+    connection: redisConnection
+})
+
+export const skillEmbeddingQueue = new Queue("skill-embedding", {
+    connection: redisConnection,
+});
+
+export const jobTitleEmbeddingQueue = new Queue("job-title-embedding", {
+    connection: redisConnection,
+});
+
+export const locationEmbeddingQueue = new Queue("location-embedding", {
+    connection: redisConnection,
+});
+
+export const industryEmbeddingQueue = new Queue("industry-embedding", {
+    connection: redisConnection,
+});
 
 /**
- * Resume Scoring Queue
+ * Scoring Queues
  */
-export const resumeScoringQueue = new Queue(
-    queueConfig.resumeScoring.name,
-    {
-        connection: redisConnection,
-        defaultJobOptions: queueConfig.resumeScoring.options,
-    }
-);
+export const resumeScoringQueue = new Queue("resume-scoring", {
+    connection: redisConnection,
+});
 
 /**
- * Resume Comparison Queue
+ * DLQs
  */
-export const resumeComparisonQueue = new Queue(
-    queueConfig.resumeComparison.name,
-    {
-        connection: redisConnection,
-        defaultJobOptions: queueConfig.resumeComparison.options,
-    }
-);
+export const skillEmbeddingDLQ = new Queue("skill-dlq", {
+    connection: redisConnection,
+});
 
-/**
- * Job Embedding Queue
- */
-export const jobEmbeddingQueue = new Queue(
-    queueConfig.jobEmbedding.name,
-    {
-        connection: redisConnection,
-        defaultJobOptions: queueConfig.jobEmbedding.options,
-    }
-);
+export const jobTitleEmbeddingDLQ = new Queue("job-title-dlq", {
+    connection: redisConnection,
+});
 
-/**
- * Skill Embedding Queue
- */
-export const skillEmbeddingQueue = new Queue(
-    queueConfig.skillEmbedding.name,
-    {
-        connection: redisConnection,
-        defaultJobOptions: queueConfig.skillEmbedding.options,
-    }
-);
+export const locationEmbeddingDLQ = new Queue("location-dlq", {
+    connection: redisConnection,
+});
 
-/**
- * Job Title Embedding Queue
- */
-export const jobTitleEmbeddingQueue = new Queue(
-    queueConfig.jobTitleEmbedding.name,
-    {
-        connection: redisConnection,
-        defaultJobOptions: queueConfig.jobTitleEmbedding.options,
-    }
-);
+export const jobEmbeddingDLQ = new Queue("job-dlq", {
+    connection: redisConnection,
+});
 
-/**
- * Location Embedding Queue
- */
-export const locationEmbeddingQueue = new Queue(
-    queueConfig.locationEmbedding.name,
-    {
-        connection: redisConnection,
-        defaultJobOptions: queueConfig.locationEmbedding.options,
-    }
-);
-
-/**
- * Industry Embedding Queue
- */
-export const industryEmbeddingQueue = new Queue(
-    queueConfig.industryEmbedding.name,
-    {
-        connection: redisConnection,
-        defaultJobOptions: queueConfig.industryEmbedding.options,
-    }
-)
-
-
-// ─── Dead Letter Queues ───────────────────────────────────────────────────────
-//
-// These queues receive jobs that have exhausted all retries on the main queue.
-// They are never consumed by a worker — they exist for inspection and replay.
-// The 'failed' event listener on each worker is responsible for moving jobs here.
-
-export const locationEmbeddingDLQ = new Queue(
-    queueConfig.locationEmbeddingDLQ.name,
-    { connection: redisConnection }
-);
-
-export const skillEmbeddingDLQ = new Queue(
-    queueConfig.skillEmbeddingDLQ.name,
-    { connection: redisConnection }
-);
-
-export const jobTitleEmbeddingDLQ = new Queue(
-    queueConfig.jobTitleEmbeddingDLQ.name,
-    { connection: redisConnection }
-);
-
-export const jobEmbeddingDLQ = new Queue(
-    queueConfig.jobEmbeddingDLQ.name,
-    { connection: redisConnection }
-);
-
-export const industryEmbeddingDLQ = new Queue(
-    queueConfig.industryEmbeddingDLQ.name,
-    { connection: redisConnection }
-);
-
-// ─── Graceful Shutdown ────────────────────────────────────────────────────────
-
-export const closeQueues = async () => {
-    await Promise.all([
-        resumeEmbeddingQueue.close(),
-        resumeScoringQueue.close(),
-        resumeComparisonQueue.close(),
-        jobEmbeddingQueue.close(),
-        skillEmbeddingQueue.close(),
-        jobTitleEmbeddingQueue.close(),
-        locationEmbeddingQueue.close(),
-        industryEmbeddingQueue.close(),
-
-        locationEmbeddingDLQ.close(),
-        skillEmbeddingDLQ.close(),
-        jobTitleEmbeddingDLQ.close(),
-        jobEmbeddingDLQ.close(),
-        industryEmbeddingDLQ.close(),
-    ]);
-    console.log('All queues closed');
-};
-
-process.on('SIGTERM', closeQueues);
-process.on('SIGINT', closeQueues);
+export const industryEmbeddingDLQ = new Queue("industry-dlq", {
+    connection: redisConnection,
+});

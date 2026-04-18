@@ -51,14 +51,22 @@ export const validateResumeEmbeddings = (embeddings: ResumeEmbeddingsDocument): 
     const errors: string[] = [];
     const warnings: string[] = [];
 
+    if (!embeddings.embeddings) {
+        errors.push('Embeddings field is missing');
+        return { valid: false, errors, warnings };
+    }
+
     if (!embeddings.meanEmbeddings) {
         errors.push('meanEmbeddings field is missing');
         return { valid: false, errors, warnings };
     }
 
+    const { jobTitle, location } = embeddings.embeddings;
     const { skills, workExperience, certifications } = embeddings.meanEmbeddings;
 
     const validations = {
+        jobTitle: isValidEmbedding(jobTitle),
+        location: isValidEmbedding(location),
         skills: isValidEmbedding(skills),
         workExperience: isValidEmbedding(workExperience),
         certifications: isValidEmbedding(certifications),
@@ -84,5 +92,5 @@ export const validateResumeEmbeddings = (embeddings: ResumeEmbeddingsDocument): 
 };
 
 export const validateJobEmbeddings = (embeddings: JobPostingEmbeddingsDocument) => {
-    
+
 }

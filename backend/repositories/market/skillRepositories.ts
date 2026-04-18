@@ -1,5 +1,7 @@
 // repositories/skillRepository.ts
 import Skill from "../../models/market/skillModel";
+import type { SkillDocument } from "../../models/market/skillModel";
+import { MarketEmbeddingUpdate } from "../../types/embeddings.types";
 import { SkillInterface, CreateSkillPayload, UpdateSkillPayload } from "../../types/skill.types";
 import { Types } from "mongoose";
 
@@ -34,9 +36,11 @@ export const getSkillMetricsRepository = (id: Types.ObjectId) => {
  * Embeddings are excluded from normal queries via select:false on the schema.
  * Use only when semantic similarity search is needed.
  */
-export const getSkillEmbeddingRepository = (id: Types.ObjectId) => {
-    return Skill.findById(id).select('_id name embedding embeddingGeneratedAt')
-}
+export const getSkillEmbeddingRepository = async (
+    id: string | Types.ObjectId
+): Promise<SkillDocument | null> => {
+    return Skill.findById(id).exec();
+};
 
 /**
  * Search skills by name using a case-insensitive regex, optionally excluding certain IDs.
@@ -117,13 +121,18 @@ export const updateSkillRepository = (id: Types.ObjectId, updateData: UpdateSkil
  * @param id - Skill ObjectId
  * @param embedding - Flat float array from sentence-transformers
  */
-export const updateSkillEmbeddingRepository = (id: Types.ObjectId, embedding: number[]) => {
-    return Skill.findByIdAndUpdate(
+export const updateSkillEmbeddingRepository = async (
+    id: string | Types.ObjectId,
+    data: MarketEmbeddingUpdate
+): Promise<SkillDocument> => {
+    const updated = await Skill.findByIdAndUpdate(
         id,
-        { $set: { embedding, embeddingGeneratedAt: new Date(), lastUpdated: new Date() } },
+        { $set: data },
         { new: true }
-    )
-}
+    ).exec();
+    if (!updated) throw new Error("Skill not found");
+    return updated;
+};
 
 /**
  * Write computed market metrics back to a skill document.

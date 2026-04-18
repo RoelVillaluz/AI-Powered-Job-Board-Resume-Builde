@@ -1,6 +1,7 @@
 // repositories/jobTitleRepository.ts
 import type { ImportanceLevel } from "../../../shared/constants/jobsAndIndustries/constants";
 import JobTitle from "../../models/market/jobTitleModel";
+import { MarketEmbeddingUpdate } from "../../types/embeddings.types";
 import { JobTitleInterface, CreateJobTitlePayload, UpdateJobTitlePayload } from "../../types/jobTitle.types";
 import { Types } from "mongoose";
 
@@ -179,13 +180,16 @@ export const updateJobTitleRepository = (id: Types.ObjectId, updateData: UpdateJ
  * Called exclusively by the background embedding worker.
  * Uses normalizedTitle for encoding — more consistent across aliases.
  */
-export const updateJobTitleEmbeddingRepository = (id: Types.ObjectId, embedding: number[]) => {
+export const updateJobTitleEmbeddingRepository = (
+    id: Types.ObjectId | string,
+    data: MarketEmbeddingUpdate
+) => {
     return JobTitle.findByIdAndUpdate(
         id,
-        { $set: { embedding, embeddingGeneratedAt: new Date, lastUpdated: new Date() } },
+        { $set: { ...data, lastUpdated: new Date() } },
         { new: true }
-    )
-}
+    );
+};
 
 /**
  * Write computed market metrics back to a job title document.

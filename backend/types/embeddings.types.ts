@@ -46,3 +46,18 @@ export type EmbeddingValidationReturn = {
     warnings: string[];
     validSections?: string[];
 };
+
+/** Market entities — embedding is a field on the document */
+export type MarketEmbeddingUpdate = {
+    embedding:            number[];
+    embeddingGeneratedAt: Date;
+}
+
+/** Entities with extra computed fields on update */
+export type JobTitleEmbeddingUpdate = MarketEmbeddingUpdate & {
+    lastUpdated: Date;
+}
+
+export type IndustryEmbeddingUpdate = MarketEmbeddingUpdate & {
+    lastAnalyzed: Date;
+}

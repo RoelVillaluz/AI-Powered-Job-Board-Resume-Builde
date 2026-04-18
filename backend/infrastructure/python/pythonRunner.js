@@ -56,7 +56,7 @@ export const runPython = (command, args = [], emit = () => {}) => {
                 } catch {
                     // Non-JSON stdout (e.g. accidental print statements) — accumulate
                     // as-is so the close handler can surface a meaningful parse error
-                    logger.debug(`🐍 [Python] Non-JSON stdout: ${trimmed}`);
+                    // logger.debug(`🐍 [Python] Non-JSON stdout: ${trimmed}`);
                     resultBuffer += trimmed;
                     continue;
                 }

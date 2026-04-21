@@ -1,5 +1,5 @@
 // src/server.js
-import "./config/env";
+import "./config/env.js";
 import { createServer } from "http";
 import app from "./app.js";
 import { connectDB } from "./config/db.js";

@@ -2,14 +2,27 @@
   "compilerOptions": {
     "target": "ESNext",
     "module": "ESNext",
-    "moduleResolution": "node",
-    "esModuleInterop": true,   // <--- needed for named import from JS
-    "allowJs": true,           // <--- allows importing JS files
+    "moduleResolution": "Bundler",
+
     "strict": true,
     "skipLibCheck": true,
-    "sourceMap": true,
-    "declaration": true
+    "esModuleInterop": true,
+    "allowJs": true,
+
+    "noEmit": true,
+
+    "baseUrl": ".",
+    "rootDir": "..",
+
+    "paths": {
+      "@shared/*": ["../shared/*"]
+    }
   },
-  "include": ["./**/*"],
+
+  "include": [
+    "src/**/*",
+    "../shared/**/*"
+  ],
+
   "exclude": ["node_modules"]
 }

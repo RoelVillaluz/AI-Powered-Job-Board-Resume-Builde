@@ -4,12 +4,12 @@ import { useJobStore } from "../../stores/jobStore";
 import { useResumeStore } from "../../stores/resumeStore";
 import { useToggleSections } from "../../hooks/jobs/useToggleSections";
 import DatePostedFilter from "./FilterSidebarComponents/DatePostedFilter";
-import { FILTER_CHOICES } from "../../../../backend/constants";
 import { useFilterHandlers } from "../../hooks/jobs/useFilterHandlers";
 import MatchScoreFilter from "./FilterSidebarComponents/MatchScoreFilter";
 import HasQuestionsFilter from "./FilterSidebarComponents/HasQuestionsFilter";
 import CollapsibleCheckboxFilter from "./FilterSidebarComponents/CollapsibleCheckboxFilter";
 import SalaryFilter from "./FilterSidebarComponents/SalaryFilter";
+import { FILTER_CHOICES } from "@shared/constants/jobs/constants"
 
 const FilterSidebar = () => {
   const currentResume = useResumeStore(state => state.currentResume);

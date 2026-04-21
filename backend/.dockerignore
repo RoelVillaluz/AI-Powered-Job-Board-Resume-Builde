@@ -1,0 +1,15 @@
+node_modules
+.git
+.gitignore
+Dockerfile
+.env*
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+*.log
+dist
+build
+*.zip
+*.tar
+*.gz

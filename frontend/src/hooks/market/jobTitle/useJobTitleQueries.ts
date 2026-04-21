@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import type { UseQueryResult } from "@tanstack/react-query"
 import { getJobTitleTopSkills, searchJobTitle } from "../../../../api/market/jobTitleApi";
 import type { JobTitleSearchResult, JobTitleTopSkillsResult } from "../../../../api/market/jobTitleApi";
-import type { ImportanceLevel } from '../../../../../shared/constants/jobsAndIndustries/constants';
+import { ImportanceLevel } from "@shared/constants/jobsAndIndustries/constants";
 
 export const useSearchJobTitleQuery = (name: string): UseQueryResult<JobTitleSearchResult[], Error> => {
     return useQuery({

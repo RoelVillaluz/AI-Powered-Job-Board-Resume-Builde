@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react"
 import { useChatResourceManager } from "../../hooks/chats/resources/useChatResourceManager.js";
 import ChatResourceItemList from "./chatResourceComponents/ChatResourceItemList";
-import CurrentChatResourceDetail from "./chatResourceComponents/currentChatResourceDetail";
+import CurrentChatResourceDetail from "./chatResourceComponents/CurrentChatResourceDetail.jsx"
 
 function ChatResources({ currentConversation }) {
     const { resources, currentResource, setCurrentResource, messagesWithCurrentResource, setMessagesWithCurrentResource, fetchResource } = useChatResourceManager(currentConversation);

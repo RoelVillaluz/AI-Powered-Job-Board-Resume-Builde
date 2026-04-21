@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { INDUSTRY_CHOICES } from "../../../../backend/constants";
+import { INDUSTRY_CHOICES } from "@shared/constants/jobs/constants";
 import { useGetStartedForm } from "../../contexts/GetStartedFormContext";
 
 function IndustrySection() {

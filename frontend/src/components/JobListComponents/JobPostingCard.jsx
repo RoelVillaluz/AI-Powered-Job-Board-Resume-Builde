@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom"
 import { useAuth } from "../../contexts/AuthProvider";
-import { formattedSalary } from "../../../../backend/constants";
 import { useMemo } from "react";
 import { useJobActions } from "../../hooks/jobs/useJobActions";
 import React from "react";
@@ -35,6 +34,9 @@ const JobPostingCard = ({ job, user, resume, onShowModal }) => {
         }
     };
 
+    const formattedSalary = (job) => {
+        return `${job.salary.currency}${job.salary.amount.toLocaleString()}/${job.salary.frequency}`
+    }
     
     return (
         <li className="job-card">

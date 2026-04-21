@@ -1,4 +1,4 @@
-import { DATE_OPTIONS_MAP } from "../../../../../backend/constants"
+import { DATE_OPTIONS_MAP } from "@shared/constants/jobs/constants"
 
 const DatePostedFilter = ({ value, onChange }) => {
     return (

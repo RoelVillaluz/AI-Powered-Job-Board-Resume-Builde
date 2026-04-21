@@ -1,7 +1,7 @@
 // stores/jobStore.js
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
-import { INITIAL_FILTERS } from '../../../backend/constants';
+import { INITIAL_FILTERS } from "@shared/constants/jobs/constants"
 
 /**
  * @typedef {Object} SalaryFilter

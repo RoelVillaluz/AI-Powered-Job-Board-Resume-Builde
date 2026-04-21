@@ -1,4 +1,4 @@
-import { SORTING_CHOICES } from "../../../../backend/constants"
+import { SORTING_CHOICES } from "@shared/constants/jobs/constants"
 import { useSortDropdown } from "../../hooks/jobsList/useSortDropdown"
 
 const JobSorter = () => { 

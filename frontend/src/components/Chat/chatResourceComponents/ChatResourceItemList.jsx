@@ -1,5 +1,5 @@
 import { useMemo } from "react"
-import { RESOURCE_TYPES_WITH_ICONS } from "../../../../../shared/constants/chats/chatResourceTypes"
+import { RESOURCE_TYPES_WITH_ICONS } from "@shared/constants/chats/chatResourceTypes"
 
 const ChatResourceItemList = ({ resources, onResourceClick, currentResource, currentConversationId }) => {
 

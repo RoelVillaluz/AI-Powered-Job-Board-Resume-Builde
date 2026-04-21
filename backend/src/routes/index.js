@@ -1,0 +1,46 @@
+import userRoutes from "./users/userRoutes.js";
+import jobPostingRoutes from "./jobPostingRoutes.js";
+import resumeRoutes from "./resumes/resumeRoutes.js";
+import companyRoutes from "./companyRoutes.js";
+import aiRoutes from "./aiRoutes.js";
+import applicationRoutes from "./applicationRoutes.js";
+import authRoutes from "./authRoutes.js"
+import skillRoutes from './market/skillRoutes'
+import jobTitleRoutes from './market/jobTitleRoutes'
+import locationRoutes from './market/locationRoutes'
+import industryRoutes from './market/industryRoutes'
+
+import {
+  conversationRoutes,
+  attachmentRoutes,
+  linkRoutes,
+  messageRoutes,
+  pinnedMessageRoutes
+} from "./chat/index.js";
+
+export const registerRoutes = (app) => {
+  // Core API
+  app.use("/api/auth", authRoutes);
+  app.use("/api/users", userRoutes);
+  app.use("/api/job-postings", jobPostingRoutes);
+  
+  app.use("/api/companies", companyRoutes);
+  app.use("/api/ai", aiRoutes);
+  app.use("/api/applications", applicationRoutes);
+
+  // Market
+  app.use('/api/job-titles', jobTitleRoutes);
+  app.use('/api/skills', skillRoutes);
+  app.use('/api/locations', locationRoutes);
+  app.use('/api/industries', industryRoutes);
+
+  // Chat
+  app.use("/api/messages", messageRoutes);
+  app.use("/api/conversations", conversationRoutes);
+  app.use("/api/conversations/:conversationId/resources/attachments", attachmentRoutes);
+  app.use("/api/conversations/:conversationId/resources/pinned-messages", pinnedMessageRoutes);
+  app.use("/api/conversations/:conversationId/resources/links", linkRoutes);
+
+  // Resumes
+  app.use("/api/resumes", resumeRoutes);
+};

@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { useResumeStore } from "../../stores/resumeStore";
 import { useJobDetails } from "../jobs/useJobDetails";
 import { useParams } from "react-router-dom";
-import { RESUME_ANALYSIS_MESSAGES, SKILL_ANALYSIS_MESSAGES, EXPERIENCE_ANALYSIS_MESSAGES } from "../../../../backend/constants";
+import { RESUME_ANALYSIS_MESSAGES, SKILL_ANALYSIS_MESSAGES, EXPERIENCE_ANALYSIS_MESSAGES } from "@shared/constants/jobs/constants";
 import { useResumeJobSimilarityQuery } from "./useResumeQueries";
 
 export const useResumeAnalysis = (jobId) => {

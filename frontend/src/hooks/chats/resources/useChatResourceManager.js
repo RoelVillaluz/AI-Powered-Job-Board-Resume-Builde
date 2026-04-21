@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useReducer, useRef, useState } from "react";
 import { useData } from "../../../contexts/DataProvider"
-import { RESOURCE_TYPES } from "../../../../../shared/constants/chats/chatResourceTypes";
+import { RESOURCE_TYPES } from "@shared/constants/chats/chatResourceTypes";
 import { fetchResourceCounts, fetchResourceType } from "../../../utils/chats/chatResourceUtils";
 import { initialState, chatResourcesReducer } from "../../../reducers/chats/chatResourcesReducer";
-import { getResourceState } from "../../../../../shared/constants/chats/chatResourceTypes";
+import { getResourceState } from "@shared/constants/chats/chatResourceTypes";
 
 export const useChatResourceManager = (conversation) => {
     const { baseUrl } = useData();

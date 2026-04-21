@@ -4,7 +4,6 @@ import { Link } from "react-router-dom";
 import { useJobStore } from "../../stores/jobStore"; 
 import { useResumeStore } from "../../stores/resumeStore";
 import { useAuthStore } from "../../stores/authStore"; // Add this import
-import { formattedSalary } from "../../../../backend/constants";
 import { formatSalary } from "../utils/chats/salaryUtils";
 import { useJobRecommendations } from "../../hooks/jobs/useJobQueries";
 
@@ -30,6 +29,10 @@ function TopJobSection() {
         setShuffledSkills(skills)
         }
     }, [resume])
+
+    const formattedSalary = (job) => {
+        return `${job.salary.currency}${job.salary.amount.toLocaleString()}/${job.salary.frequency}`
+    }
     
     return (
         <>

@@ -1,7 +1,7 @@
 import type { CreateJobFormData } from "../../../../../types/forms/createJobForm.types";
 import type { TopSkill } from "./SkillsSection";
 import { useJobTitleTopSkillsQuery } from "../../../../hooks/market/jobTitle/useJobTitleQueries";
-import { ImportanceLevel } from "../../../../../../shared/constants/jobsAndIndustries/constants";
+import { ImportanceLevel } from "@shared/constants/jobsAndIndustries/constants";
 
 /**
  * SuggestedSkillsModal

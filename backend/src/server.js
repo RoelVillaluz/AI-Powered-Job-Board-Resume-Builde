@@ -5,7 +5,7 @@ import app from "./app.js";
 import { connectDB } from "./config/db.js";
 import { initSocket } from "./sockets/index.js";
 import logger from "./utils/logger.js";
-import "./jobs/processes/generateEmbeddings.js";   // boots all workers
+import "./jobs/processes/generateEmbeddings";   // boots all workers
 
 const server = createServer(app);
 

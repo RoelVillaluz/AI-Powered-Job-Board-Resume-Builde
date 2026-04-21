@@ -11,6 +11,7 @@ jobs:
   test:
     name: Run Test Suite
     runs-on: ubuntu-latest
+    environment: Production
 
     services:
       mongodb:
@@ -18,7 +19,6 @@ jobs:
         ports:
           - 27017:27017
 
-          
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -37,7 +37,7 @@ jobs:
       - name: Create .env.test
         working-directory: backend
         run: |
-          cat <<EOF > .env.test
+          cat > .env.test << EOF
           NODE_ENV=test
           PORT=5001
           MONGO_URI=mongodb://localhost:27017/ingpo_test

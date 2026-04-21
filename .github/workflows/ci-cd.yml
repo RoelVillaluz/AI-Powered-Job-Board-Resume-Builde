@@ -31,7 +31,7 @@ jobs:
 
       - name: Install dependencies
         working-directory: backend
-        run: npm ci
+        run: npm ci --include=dev
 
       - name: Create .env.test
         working-directory: backend

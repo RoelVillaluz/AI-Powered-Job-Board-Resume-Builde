@@ -1,89 +1,53 @@
 import request from 'supertest';
 import User from '../../models/UserModel.js';
-import { createTestUser, createTestEmployer, hashPassword } from './testData.js';
+import { Factory } from '../factories/index.js';
 
-/**
- * Creates and authenticates a test user, returns token and user
- */
-export const createAuthenticatedUser = async (app, userOverrides = {}) => {
-  const userData = createTestUser(userOverrides);
-  
-  // Hash password before saving to DB
-  const hashedPassword = await hashPassword(userData.password);
-  
-  const user = await User.create({
-    ...userData,
-    password: hashedPassword
-  });
+export const createAuthenticatedUser = async (app, overrides = {}, traits = []) => {
+  const plainPassword = 'TestPassword123!';
 
-  console.log('Created user for login:', { email: userData.email, role: user.role });
+  // Build user data then override password with hashed version for DB insertion.
+  // plainPassword is kept separately so it can be used in the login request.
+  const userData = await Factory('user').as(...traits).with(overrides).build();
 
-  // Simulate login to get token
+  const user = await User.create(userData);
+
   const loginRes = await request(app)
     .post('/api/auth/login')
-    .send({
-      email: userData.email,
-      password: userData.password // Use plain password for login
-    });
+    .send({ email: userData.email, password: plainPassword });
 
-  console.log('Login status:', loginRes.status);
-  console.log('Login response body:', JSON.stringify(loginRes.body, null, 2));
-
-  // Your login response structure: { success, formattedMessage, data: { token, user } }
-  if (!loginRes.body.data || !loginRes.body.data.token) {
-    console.error('❌ Login failed - Full response:', loginRes.body);
-    throw new Error(`Failed to get authentication token from login response. Status: ${loginRes.status}`);
+  if (!loginRes.body.data?.token) {
+    throw new Error(
+      `createAuthenticatedUser: login failed.\nStatus: ${loginRes.status}\nBody: ${JSON.stringify(loginRes.body, null, 2)}`
+    );
   }
 
   return {
     user,
     token: loginRes.body.data.token,
-    plainPassword: userData.password
+    plainPassword,
   };
 };
 
-/**
- * Creates and authenticates an employer with company
- */
-export const createAuthenticatedEmployer = async (app, employerOverrides = {}) => {
-  const employerData = createTestEmployer(employerOverrides);
-  
-  const hashedPassword = await hashPassword(employerData.password);
-  
-  const employer = await User.create({
-    ...employerData,
-    password: hashedPassword
-  });
+export const createAuthenticatedEmployer = async (app, overrides = {}) => {
+  const { user: employer, token, plainPassword } = await createAuthenticatedUser(
+    app,
+    overrides,
+    ['employer']
+  );
 
-  console.log('Created employer for login:', { email: employerData.email, role: employer.role });
-
-  const loginRes = await request(app)
-    .post('/api/auth/login')
-    .send({
-      email: employerData.email,
-      password: employerData.password
-    });
-
-  console.log('Login status:', loginRes.status);
-  console.log('Login response body:', JSON.stringify(loginRes.body, null, 2));
-
-  // Your login response structure: { success, formattedMessage, data: { token, user } }
-  if (!loginRes.body.data || !loginRes.body.data.token) {
-    console.error('❌ Login failed - Full response:', loginRes.body);
-    throw new Error(`Failed to get authentication token from login response. Status: ${loginRes.status}`);
-  }
-
-  return {
-    employer,
-    token: loginRes.body.data.token,
-    plainPassword: employerData.password
-  };
+  return { employer, token, plainPassword };
 };
 
-/**
- * Helper to make authenticated requests
- */
+export const createAuthenticatedJobseeker = async (app, overrides = {}) => {
+  const { user: jobseeker, token, plainPassword } = await createAuthenticatedUser(
+    app,
+    overrides,
+    ['jobseeker']
+  );
+
+  return { jobseeker, token, plainPassword }
+}
+
 export const authenticatedRequest = (app, method, url, token) => {
-  return request(app)[method](url)
-    .set('Authorization', `Bearer ${token}`);
+  return request(app)[method](url).set('Authorization', `Bearer ${token}`);
 };

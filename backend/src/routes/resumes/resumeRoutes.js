@@ -3,6 +3,9 @@ import { createResume, deleteResume, getResume, getResumes, getResumesByUser, up
 import { getOrGenerateResumeEmbeddings, getAllResumeEmbeddings } from "../../controllers/resumes/resumeEmbeddingController.js"
 import { getOrGenerateResumeScore } from "../../controllers/ai/aiResumeController.js"
 import { authenticate } from "../../middleware/authentication/authenticate.js"
+import { requireRole } from "../../middleware/authorization/roleAuthorization.js"
+import { validate } from "../../middleware/validation.js"
+import { createResumeSchema } from "../../../src/validators/resumeValidator.js"
 
 const router = express.Router()
 
@@ -16,7 +19,13 @@ router.get('/:resumeId/score', authenticate, getOrGenerateResumeScore)
 router.get('/:id', getResume)
 router.get('/', getResumes)
 
-router.post('/', createResume)
+router.post('/', 
+    // authenticate, 
+    // requireRole('jobseeker'), 
+    // validate(createResumeSchema, 'body'), 
+    createResume
+)
+
 router.patch('/:id', updateResume)
 router.delete('/:id', deleteResume)
 

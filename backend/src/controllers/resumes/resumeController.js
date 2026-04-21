@@ -82,16 +82,13 @@ export const getResumesByUser = catchAsync(async (req, res) => {
  */
 export const createResume = catchAsync(async (req, res) => {
     const resumeData = req.body;
-
-    const data = await ResumeService.createResumeService(resumeData);
+    const newResume = await ResumeService.createResumeService(resumeData);
 
     return sendResponse(
         res,
         {
             ...STATUS_MESSAGES.SUCCESS.CREATE,
-            data: {
-                resume: data.resume,
-            }
+            data: newResume
         },
         'Resume'
     );

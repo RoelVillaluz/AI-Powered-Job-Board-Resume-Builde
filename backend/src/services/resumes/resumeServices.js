@@ -72,7 +72,7 @@ export const findResumesService = async (query) => {
 export const createResumeService = async (resumeData, { session } = {}) => {
     const resume = await ResumeRepo.createResumeRepo(resumeData, { session });
 
-    return { resume };
+    return resume;
 };
 
 /**

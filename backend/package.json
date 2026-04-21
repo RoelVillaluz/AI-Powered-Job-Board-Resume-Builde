@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "tsx src/server.js",
     "start": "node src/server.js",
-    "test": "cross-env NODE_ENV=test node --experimental-vm-modules node_modules/jest/bin/jest.js"
+    "test": "cross-env NODE_ENV=test node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",
@@ -40,7 +40,7 @@
     "@babel/preset-env": "^7.29.2",
     "@types/express": "^5.0.6",
     "cross-env": "^10.1.0",
-    "jest": "^30.2.0",
+    "jest": "^30.3.0",
     "nodemon": "^3.1.9",
     "supertest": "^7.1.4",
     "ts-jest": "^29.4.9",

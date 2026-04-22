@@ -1,6 +1,6 @@
 import { embeddingWorkers, shutdownWorkers } from "../../infrastructure/embedding/workers/workersRegistry";
 
-import logger from "../../utils/logger";
+import logger from "../../utils/logger.js";
 
 logger.info("[EMBEDDING WORKERS] Initialized");
 

@@ -57,8 +57,12 @@ jobs:
           python-version: '3.11'
 
       - name: Install Python dependencies
-        working-directory: backend/python_scripts
+        working-directory: backend/src/python_scripts
         run: pip install -r requirements.txt
+        
+      - name: Validate Python scripts
+        working-directory: backend/src/python_scripts
+        run: python -m py_compile *.py && echo "✅ Python scripts valid"
 
   # ─── Job 2: Run Tests ────────────────────────────────────────────────────────
   test:

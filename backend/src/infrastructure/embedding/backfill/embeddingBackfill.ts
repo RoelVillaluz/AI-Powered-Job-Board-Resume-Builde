@@ -1,5 +1,5 @@
 import { Types } from 'mongoose';
-import { industryEmbeddingQueue, jobTitleEmbeddingQueue, locationEmbeddingQueue, skillEmbeddingQueue } from '../../../queues.js';
+import { industryEmbeddingQueue, jobTitleEmbeddingQueue, locationEmbeddingQueue, skillEmbeddingQueue } from '../../../queues/index.js';
 import { upsertSkillEmbeddingService } from '../../../services/market/skillService.js';
 import { upsertJobTitleEmbeddingService } from '../../../services/market/jobTitleService.js';
 import { upsertLocationEmbeddingService } from '../../../services/market/locationService.js';

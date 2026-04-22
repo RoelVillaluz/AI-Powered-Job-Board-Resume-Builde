@@ -2,7 +2,7 @@ import * as SkillRepo from '../../repositories/market/skillRepositories.js';
 import { Types } from 'mongoose';
 import { isEmbeddingStale, isValidEmbedding } from '../../utils/embeddings/embeddingValidationUtils.js';
 import logger from '../../utils/logger.js';
-import { PythonEmit, PythonResponse, runPythonTyped } from '../../types/python.types.js';
+import { PythonEmit } from '../../types/python.types.js';
 import { QueueJob } from '../../types/queues.types.js';
 import Skill, { SkillDocument } from '../../models/market/skillModel.js';
 import { CreateSkillPayload, UpdateSkillPayload } from '../../types/skill.types.js';

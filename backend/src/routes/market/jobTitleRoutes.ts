@@ -2,7 +2,7 @@ import express from "express"
 import { authenticate } from "../../middleware/authentication/authenticate.js";
 import { requireRole } from "../../middleware/authorization/roleAuthorization.js";
 import { validate } from "../../middleware/validation.js";
-import * as JobTitleController from '../../controllers/market/jobTitleController.js'
+import * as JobTitleController from "../../controllers/market/jobTitleController.js"
 import { createJobTitleSchema, updateJobTitleSchema } from "../../validators/jobTitleValidator.js";
 import { checkIfJobTitleExistsById } from "../../middleware/resourceCheck/jobTitle.js";
 

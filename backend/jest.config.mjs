@@ -20,4 +20,7 @@ export default {
   transformIgnorePatterns: [
     'node_modules/(?!(supertest|natural|afinn-165)/)'
   ],
+  moduleNameMapper: {
+    '^(\\.{1,2}/.*)\\.js$': '$1',
+  }
 };

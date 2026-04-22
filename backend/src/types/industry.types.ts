@@ -2,7 +2,7 @@
 import { Types } from "mongoose";
 import { INDUSTRY_NAMES, SENIORITY_LEVELS } from "../../../shared/constants/jobsAndIndustries/constants";
 import { Currency, SalaryBySeniority } from "./salaryTypes.js";
-import { Embedding } from "./embeddings.types.js";
+import { EmbeddingVector } from "./embeddings.types.js";
 
 export type IndustryName = typeof INDUSTRY_NAMES[number];
 export type CompetitionLevel = 'Very Low' | 'Low' | 'Medium' | 'High' | 'Very High';
@@ -71,7 +71,7 @@ export interface IndustryInterface {
     emergingSkills: EmergingSkill[];
     decliningSkills: DecliningSkill[];
     dataQuality: number;
-    embedding: Embedding | null;
+    embedding: EmbeddingVector | null;
     lastAnalyzed: Date;
     createdAt?: Date;
     updatedAt?: Date;
@@ -93,6 +93,6 @@ export interface UpdateIndustryPayload {
 export interface IndustryEmbeddingData {
     _id: Types.ObjectId;
     name: string;
-    embedding: Embedding | null;
+    embedding: EmbeddingVector | null;
     embeddingGeneratedAt?: Date | null;
 }

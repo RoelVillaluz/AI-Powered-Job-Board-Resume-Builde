@@ -134,7 +134,7 @@ jobs:
           HTTP_CODE=$(cat http_code.txt)
           echo "Render API response: $(cat response.json)"
 
-          if [ "$HTTP_CODE" != "201" ]; then
+          if [ "$HTTP_CODE" != "201" ] && [ "$HTTP_CODE" != "202" ]; then
             echo "❌ Deploy trigger failed with status $HTTP_CODE"
             exit 1
           fi

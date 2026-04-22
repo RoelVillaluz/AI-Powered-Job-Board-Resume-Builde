@@ -3,7 +3,7 @@ import { Types } from "mongoose";
 import { INDUSTRY_NAMES } from "../../../shared/constants/jobsAndIndustries/constants";
 import { Currency, SalaryBySeniority, SalaryRange } from "./salaryTypes.js";
 import { SeniorityLevel } from "./industry.types.js";
-import { Embedding } from "./embeddings.types.js";
+import { EmbeddingVector } from "./embeddings.types.js";
 
 
 type SalaryData = {
@@ -75,7 +75,7 @@ export interface JobTitleInterface {
     commonEducation: CommonEducation[];
     experienceDistribution: ExperienceDistribution;
     trendData: TrendData;
-    embedding: Embedding | null;
+    embedding: EmbeddingVector | null;
     embeddingGeneratedAt?: Date;
     isActive: boolean;
     lastAnalyzed: Date;
@@ -102,6 +102,6 @@ export interface JobTitleEmbeddingData {
     _id: Types.ObjectId,
     title: string;
     normalizedTitle: string;
-    embedding: Embedding | null,
+    embedding: EmbeddingVector | null,
     embeddingGeneratedAt?: Date | null;
 }

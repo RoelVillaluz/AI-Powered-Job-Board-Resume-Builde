@@ -1,7 +1,7 @@
 // types/location.types.ts
 import { Types } from "mongoose";
 import { Currency, SalaryRange } from "./salaryTypes.js";
-import { Embedding } from "./embeddings.types.js";
+import { EmbeddingVector } from "./embeddings.types.js";
 
 export interface LocationSalaryData {
     averageSalary: number;
@@ -41,6 +41,6 @@ export interface UpdateLocationPayload {
 export interface LocationEmbeddingData {
     _id: Types.ObjectId;
     name: string;
-    embedding: Embedding | null;
+    embedding: EmbeddingVector | null;
     embeddingGeneratedAt?: Date | null;
 }

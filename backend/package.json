@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "tsx src/server.js",
-    "start": "node src/server.js",
+    "start": "tsx src/server.js",
     "test": "cross-env NODE_ENV=test node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage"
   },
   "dependencies": {

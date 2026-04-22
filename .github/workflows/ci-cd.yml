@@ -57,7 +57,7 @@ jobs:
           python-version: '3.11'
 
       - name: Install Python dependencies
-        working-directory: backend/python_scripts
+        working-directory: backend/src/python_scripts
         run: pip install -r requirements.txt
 
   # ─── Job 2: Run Tests ────────────────────────────────────────────────────────

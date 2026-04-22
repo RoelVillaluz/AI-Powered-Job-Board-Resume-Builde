@@ -3,9 +3,8 @@ import User from '../../models/UserModel.js';
 import Company from '../../models/companyModel.js';
 import JobPosting from '../../models/jobPostings/jobPostingModel.js';
 import Resume from '../../models/resumes/resumeModel.js';
-import { allQueues } from '../queues/index.js';
-import { redisClient } from '../utils/queueUtils.js';
-import logger from '../utils/logger.js';
+import { allQueues } from "../../../src/queues/index.js"
+import logger from "../../../src/utils/logger.js"
 
 export const connectTestDB = async () => {
   if (process.env.NODE_ENV !== 'test') {

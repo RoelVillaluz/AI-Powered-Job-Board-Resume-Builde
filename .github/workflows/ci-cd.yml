@@ -40,21 +40,13 @@ jobs:
           cat > .env.test << EOF
           NODE_ENV=test
           PORT=5001
-          MONGO_URI=mongodb://localhost:27017/ingpo_test
+          MONGO_URI=${{ secrets.MONGO_URI }}
           JWT_SECRET=${{ secrets.JWT_SECRET }}
           EOF
 
       - name: Run tests
         working-directory: backend
         run: npm test
-
-      - name: Upload coverage report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-report
-          path: backend/coverage/
-          retention-days: 7
 
   # ─── Job 2: Deploy to Render ────────────────────────────────────────────────
   deploy:

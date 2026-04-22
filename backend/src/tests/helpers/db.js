@@ -3,6 +3,9 @@ import User from '../../models/UserModel.js';
 import Company from '../../models/companyModel.js';
 import JobPosting from '../../models/jobPostings/jobPostingModel.js';
 import Resume from '../../models/resumes/resumeModel.js';
+import { allQueues } from '../queues/index.js';
+import { redisClient } from '../utils/queueUtils.js';
+import logger from '../utils/logger.js';
 
 export const connectTestDB = async () => {
   if (process.env.NODE_ENV !== 'test') {
@@ -30,7 +33,26 @@ export const disconnectTestDB = async () => {
   if (mongoose.connection.readyState !== 0) {
     await mongoose.connection.dropDatabase(); // optional: only if you want a clean slate
     await mongoose.connection.close();
-    console.log('✅ Test database disconnected'); // keep log from test branch
+
+    // Safely close Redis — it may never have connected in CI where Redis isn't running
+    try {
+      if (redisClient.status !== 'end' && redisClient.status !== 'close') {
+        await redisClient.quit();
+      }
+    } catch {
+      // Redis was never connected — safe to ignore
+    }
+
+    // Safely close all BullMQ queues
+    for (const queue of allQueues) {
+      try {
+        await queue.close();
+      } catch {
+        // Queue may already be closed — safe to ignore
+      }
+    }
+
+    logger.info('✅ Test database disconnected'); // keep log from test branch
   }
 };
 

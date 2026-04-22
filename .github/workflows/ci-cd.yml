@@ -7,17 +7,58 @@ on:
     branches: [main]
 
 jobs:
-  # ─── Job 1: Run Tests ───────────────────────────────────────────────────────
+  # ─── Job 1: Build & Validate ─────────────────────────────────────────────────
+  build:
+    name: Build & Validate
+    runs-on: ubuntu-latest
+    environment: Production
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: backend
+        run: npm ci --include=dev
+
+      - name: Check for missing imports / bad paths
+        working-directory: backend
+        run: |
+          node --experimental-vm-modules --input-type=module <<< "import './src/app.js'" 2>&1
+          if [ $? -ne 0 ]; then
+            echo "❌ Import resolution failed — check for missing files, wrong casing, or missing .js extensions"
+            exit 1
+          fi
+          echo "✅ All imports resolved successfully"
+
+      - name: Check for circular dependencies
+        working-directory: backend
+        run: npx madge --circular --extensions js src/
+
+  # ─── Job 2: Run Tests ────────────────────────────────────────────────────────
   test:
     name: Run Test Suite
     runs-on: ubuntu-latest
     environment: Production
+    needs: build
 
     services:
       mongodb:
         image: mongo:6.0
         ports:
           - 27017:27017
+
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
 
     steps:
       - name: Checkout code
@@ -40,21 +81,23 @@ jobs:
           cat > .env.test << EOF
           NODE_ENV=test
           PORT=5001
-          MONGO_URI=${{ secrets.MONGO_URI }}
+          MONGO_URI=mongodb://localhost:27017/jobboard_test
           JWT_SECRET=${{ secrets.JWT_SECRET }}
+          REDIS_HOST=localhost
+          REDIS_PORT=6379
           EOF
 
       - name: Run tests
         working-directory: backend
-        run: npm test
+        run: npm test -- --detectOpenHandles --forceExit
 
-  # ─── Job 2: Deploy to Render ────────────────────────────────────────────────
+  # ─── Job 3: Deploy to Render ─────────────────────────────────────────────────
   deploy:
     name: Deploy to Render
     runs-on: ubuntu-latest
-    needs: test                        # only runs if test job passes
+    needs: [build, test]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    environment: Production            # pulls secrets from your Production environment
+    environment: Production
 
     steps:
       - name: Trigger Render Deploy

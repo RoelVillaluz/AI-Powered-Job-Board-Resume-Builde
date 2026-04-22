@@ -7,7 +7,7 @@ import {
     locationEmbeddingQueue,
     industryEmbeddingQueue,
     jobEmbeddingQueue,
-} from "../../../queues.js";
+} from "../../../queues/index.js";
 import { EmbeddingEntityConfig } from "./embeddingRegistry.types.js";
 
 // ─── Resume ───────────────────────────────────────────────────────────────────

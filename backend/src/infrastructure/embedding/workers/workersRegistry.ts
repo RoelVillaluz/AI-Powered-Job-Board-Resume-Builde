@@ -13,7 +13,7 @@ import {
     locationEmbeddingDLQ,
     industryEmbeddingDLQ,
     jobEmbeddingQueue,
-} from "../../../queues.js";
+} from "../../../queues/index.js";
 
 import { embeddingRegistry } from "../registry/embeddingRegistry.js";
 import { createEmbeddingWorker } from "./createEmbeddingWorker.js";

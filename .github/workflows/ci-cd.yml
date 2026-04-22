@@ -24,7 +24,7 @@ jobs:
           cache: npm
           cache-dependency-path: backend/package-lock.json
 
-      - name: Install dependencies
+      - name: Install backend dependencies
         working-directory: backend
         run: npm ci --include=dev
 
@@ -38,10 +38,11 @@ jobs:
           FOUND=$(grep -rn "from ['\"]\..*[^/]['\"]" src --include="*.ts" | \
             grep -v "\.js['\"]" | \
             grep -v "\.ts['\"]" | \
-            grep -v "node_modules")
+            grep -v "node_modules" || true)
+          echo "Scan results:"
+          echo "$FOUND"
           if [ -n "$FOUND" ]; then
             echo "❌ Found imports that may resolve to a directory without /index.js:"
-            echo "$FOUND"
             exit 1
           fi
           echo "✅ No bare directory imports found"
@@ -49,6 +50,14 @@ jobs:
       - name: Check for circular dependencies
         working-directory: backend
         run: npx madge --circular --extensions js src/
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Type check frontend
+        working-directory: frontend
+        run: npx tsc --noEmit
 
   # ─── Job 2: Run Tests ────────────────────────────────────────────────────────
   test:

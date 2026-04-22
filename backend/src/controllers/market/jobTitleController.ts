@@ -1,7 +1,7 @@
 import { Types } from "mongoose"
 import { Request, Response } from "express"
-import * as JobTitleRepo from '../../repositories/market/jobTitleRepositories'
-import * as JobTitleService from '../../services/market/jobTitleService'
+import * as JobTitleRepo from '../../repositories/market/jobTitleRepositories.js'
+import * as JobTitleService from '../../services/market/jobTitleService.js'
 import { catchAsync } from "../../utils/errorUtils.js"
 import { sendResponse, STATUS_MESSAGES } from "../../constants.js"
 import type { ImportanceLevel } from "../../../../shared/constants/jobsAndIndustries/constants.js"

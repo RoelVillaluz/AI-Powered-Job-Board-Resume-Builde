@@ -1,7 +1,7 @@
 import { catchAsync } from "../../utils/errorUtils.js";
 import { Request, Response } from "express";
-import * as LocationRepo from '../../repositories/market/locationRepositories'
-import * as LocationService from '../../services/market/locationService'
+import * as LocationRepo from '../../repositories/market/locationRepositories.js'
+import * as LocationService from '../../services/market/locationService.js'
 import { Types } from "mongoose";
 import { STATUS_MESSAGES } from "../../constants.js";
 import { sendTypedResponse } from "../../utils/sendTypedResponse.js";

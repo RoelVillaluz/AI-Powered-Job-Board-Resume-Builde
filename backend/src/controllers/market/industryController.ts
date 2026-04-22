@@ -5,8 +5,8 @@ import { IndustryInterface, IndustryEmbeddingData, CreateIndustryPayload, Update
 import { Types } from "mongoose";
 import { ApiQueueResponse } from "../../types/apiResponse.types.js";
 import { STATUS_MESSAGES } from "../../constants.js";
-import * as IndustryRepo from '../../repositories/market/industryRepositories';
-import * as IndustryService from '../../services/market/industryService';
+import * as IndustryRepo from '../../repositories/market/industryRepositories.js';
+import * as IndustryService from '../../services/market/industryService.js';
 import { sendTypedResponse } from "../../utils/sendTypedResponse.js";
 
 export const getIndustryById = catchAsync(async (req: Request, res: Response) => {

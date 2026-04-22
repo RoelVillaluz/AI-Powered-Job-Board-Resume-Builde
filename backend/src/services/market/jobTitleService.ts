@@ -1,15 +1,15 @@
-import * as JobTitleRepo from '../../repositories/market/jobTitleRepositories';
+import * as JobTitleRepo from '../../repositories/market/jobTitleRepositories.js';
 import { Types } from 'mongoose';
-import { isEmbeddingStale, isValidEmbedding } from '../../utils/embeddings/embeddingValidationUtils';
-import logger from '../../utils/logger';
-import { QueueJob } from '../../types/queues.types';
-import JobTitle from '../../models/market/jobTitleModel';
-import { CreateJobTitlePayload, UpdateJobTitlePayload, JobTitleEmbeddingData } from '../../types/jobTitle.types';
-import { ImportanceLevel } from '../../../../shared/constants/jobsAndIndustries/constants';
-import { embeddingRegistry } from '../../infrastructure/embedding/registry/embeddingRegistry';
-import { orchestrateEmbeddings } from '../../infrastructure/embedding/core/orchestrateEmbedding';
-import { executeEmbeddingPipeline } from '../../infrastructure/embedding/core/executeEmbeddingPipeline';
-import { PythonEmit } from '../../types/python.types';
+import { isEmbeddingStale, isValidEmbedding } from '../../utils/embeddings/embeddingValidationUtils.js';
+import logger from '../../utils/logger.js';
+import { QueueJob } from '../../types/queues.types.js';
+import JobTitle from '../../models/market/jobTitleModel.js';
+import { CreateJobTitlePayload, UpdateJobTitlePayload, JobTitleEmbeddingData } from '../../types/jobTitle.types.js';
+import { ImportanceLevel } from '../../../../shared/constants/jobsAndIndustries/constants.js';
+import { embeddingRegistry } from '../../infrastructure/embedding/registry/embeddingRegistry.js';
+import { orchestrateEmbeddings } from '../../infrastructure/embedding/core/orchestrateEmbedding.js';
+import { executeEmbeddingPipeline } from '../../infrastructure/embedding/core/executeEmbeddingPipeline.js';
+import { PythonEmit } from '../../types/python.types.js';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 

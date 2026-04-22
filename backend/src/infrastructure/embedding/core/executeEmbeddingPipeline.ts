@@ -1,9 +1,9 @@
 import { Types } from 'mongoose';
-import logger from '../../../utils/logger';
-import { embeddingRegistry } from '../registry/embeddingRegistry';
-import { EmbeddingEntityKey } from '../registry/embeddingRegistry.types';
-import { PythonResponse, runPythonTyped } from '../../../types/python.types';
-import { QueueJob } from '../../../types/queues.types';
+import logger from '../../../utils/logger.js';
+import { embeddingRegistry } from '../registry/embeddingRegistry.js';
+import { EmbeddingEntityKey } from '../registry/embeddingRegistry.types.js';
+import { PythonResponse, runPythonTyped } from '../../../types/python.types.js';
+import { QueueJob } from '../../../types/queues.types.js';
 
 
 interface PipelineOptions<TKey extends EmbeddingEntityKey> {

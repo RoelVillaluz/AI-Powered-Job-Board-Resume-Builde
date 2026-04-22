@@ -1,11 +1,11 @@
 import { Types } from 'mongoose';
-import { industryEmbeddingQueue, jobTitleEmbeddingQueue, locationEmbeddingQueue, skillEmbeddingQueue } from '../../../queues';
-import { upsertSkillEmbeddingService } from '../../../services/market/skillService';
-import { upsertJobTitleEmbeddingService } from '../../../services/market/jobTitleService';
-import { upsertLocationEmbeddingService } from '../../../services/market/locationService';
-import { upsertIndustryEmbeddingService } from '../../../services/market/industryService';
-import logger from '../../../utils/logger';
-import { safeQueueOperation } from '../../../utils/queueUtils';
+import { industryEmbeddingQueue, jobTitleEmbeddingQueue, locationEmbeddingQueue, skillEmbeddingQueue } from '../../../queues.js';
+import { upsertSkillEmbeddingService } from '../../../services/market/skillService.js';
+import { upsertJobTitleEmbeddingService } from '../../../services/market/jobTitleService.js';
+import { upsertLocationEmbeddingService } from '../../../services/market/locationService.js';
+import { upsertIndustryEmbeddingService } from '../../../services/market/industryService.js';
+import logger from '../../../utils/logger.js';
+import { safeQueueOperation } from '../../../utils/queueUtils.js';
 
 
 // --- Types ---

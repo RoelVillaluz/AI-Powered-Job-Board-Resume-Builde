@@ -1,14 +1,14 @@
 import { Types } from 'mongoose';
-import Location, { LocationDocument } from '../../models/market/locationModel';
-import * as LocationRepository from '../../repositories/market/locationRepositories';
-import logger from '../../utils/logger';
-import { isEmbeddingStale, isValidEmbedding } from '../../utils/embeddings/embeddingValidationUtils';
-import { QueueJob } from '../../types/queues.types';
-import { PythonEmit, PythonResponse, runPythonTyped } from '../../types/python.types';
-import { CreateLocationPayload, LocationEmbeddingData, UpdateLocationPayload } from '../../types/location.types';
-import { embeddingRegistry } from '../../infrastructure/embedding/registry/embeddingRegistry';
-import { orchestrateEmbeddings } from '../../infrastructure/embedding/core/orchestrateEmbedding';
-import { executeEmbeddingPipeline } from '../../infrastructure/embedding/core/executeEmbeddingPipeline';
+import Location, { LocationDocument } from '../../models/market/locationModel.js';
+import * as LocationRepository from '../../repositories/market/locationRepositories.js';
+import logger from '../../utils/logger.js';
+import { isEmbeddingStale, isValidEmbedding } from '../../utils/embeddings/embeddingValidationUtils.js';
+import { QueueJob } from '../../types/queues.types.js';
+import { PythonEmit, PythonResponse, runPythonTyped } from '../../types/python.types.js';
+import { CreateLocationPayload, LocationEmbeddingData, UpdateLocationPayload } from '../../types/location.types.js';
+import { embeddingRegistry } from '../../infrastructure/embedding/registry/embeddingRegistry.js';
+import { orchestrateEmbeddings } from '../../infrastructure/embedding/core/orchestrateEmbedding.js';
+import { executeEmbeddingPipeline } from '../../infrastructure/embedding/core/executeEmbeddingPipeline.js';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 

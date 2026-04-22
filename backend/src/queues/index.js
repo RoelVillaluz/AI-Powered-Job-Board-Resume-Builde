@@ -57,3 +57,18 @@ export const jobEmbeddingDLQ = new Queue("job-dlq", {
 export const industryEmbeddingDLQ = new Queue("industry-dlq", {
     connection: redisConnection,
 });
+
+export const allQueues = [
+  resumeEmbeddingQueue,
+  jobEmbeddingQueue,
+  skillEmbeddingQueue,
+  jobTitleEmbeddingQueue,
+  locationEmbeddingQueue,
+  industryEmbeddingQueue,
+  resumeScoringQueue,
+  skillEmbeddingDLQ,
+  jobTitleEmbeddingDLQ,
+  locationEmbeddingDLQ,
+  jobEmbeddingDLQ,
+  industryEmbeddingDLQ,
+];

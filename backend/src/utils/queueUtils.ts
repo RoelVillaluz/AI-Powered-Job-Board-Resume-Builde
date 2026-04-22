@@ -14,7 +14,7 @@ const HEALTH_CHECK_TTL_MS = 30_000; // re-check every 30s once marked down
  * - retryStrategy caps retries so ioredis stops hammering the connection
  * - lazyConnect prevents an immediate connection attempt on import
  */
-const redisClient = new Redis(redisConnection);
+export const redisClient = new Redis(redisConnection);
 
 // Suppress ioredis's own unhandled error events — we handle errors manually
 redisClient.on("error", () => {});

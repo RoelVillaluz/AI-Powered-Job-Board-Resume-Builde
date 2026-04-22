@@ -30,13 +30,7 @@ jobs:
 
       - name: Check for missing imports / bad paths
         working-directory: backend
-        run: |
-          node --experimental-vm-modules --input-type=module <<< "import './src/app.js'" 2>&1
-          if [ $? -ne 0 ]; then
-            echo "❌ Import resolution failed — check for missing files, wrong casing, or missing .js extensions"
-            exit 1
-          fi
-          echo "✅ All imports resolved successfully"
+        run: npx tsc --noEmit
 
       - name: Check for circular dependencies
         working-directory: backend

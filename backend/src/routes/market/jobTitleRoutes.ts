@@ -1,10 +1,10 @@
 import express from "express"
-import { authenticate } from "../../middleware/authentication/authenticate";
-import { requireRole } from "../../middleware/authorization/roleAuthorization";
-import { validate } from "../../middleware/validation";
-import * as JobTitleController from '../../controllers/market/jobTitleController'
-import { createJobTitleSchema, updateJobTitleSchema } from "../../validators/jobTitleValidator";
-import { checkIfJobTitleExistsById } from "../../middleware/resourceCheck/jobTitle";
+import { authenticate } from "../../middleware/authentication/authenticate.js";
+import { requireRole } from "../../middleware/authorization/roleAuthorization.js";
+import { validate } from "../../middleware/validation.js";
+import * as JobTitleController from "../../controllers/market/jobTitleController.js"
+import { createJobTitleSchema, updateJobTitleSchema } from "../../validators/jobTitleValidator.js";
+import { checkIfJobTitleExistsById } from "../../middleware/resourceCheck/jobTitle.js";
 
 const router = express.Router();
 

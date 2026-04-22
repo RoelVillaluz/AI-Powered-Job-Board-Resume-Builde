@@ -1,6 +1,6 @@
 import mongoose, { Document, Schema } from "mongoose";
-import { INDUSTRY_NAMES } from "../../../../shared/constants/jobsAndIndustries/constants";
-import { JobTitleInterface } from "../../types/jobTitle.types";
+import { INDUSTRY_NAMES } from "../../../../shared/constants/jobsAndIndustries/constants.js";
+import { JobTitleInterface } from "../../types/jobTitle.types.js";
 import { HydratedDocument } from "mongoose";
 
 export type JobTitleDocument = HydratedDocument<JobTitleInterface>;

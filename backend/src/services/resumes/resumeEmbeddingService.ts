@@ -1,14 +1,14 @@
 import { Types } from "mongoose";
 import { getResumeEmbeddingsRepo } from "../../repositories/resumes/resumeEmbeddingRepository.js";
-import { validateResumeEmbeddings } from "../../utils/embeddings/embeddingValidationUtils";
+import { validateResumeEmbeddings } from "../../utils/embeddings/embeddingValidationUtils.js";
 import logger from "../../utils/logger.js";
 import { UnauthorizedError } from "../../middleware/errorHandler.js";
-import { embeddingRegistry } from "../../infrastructure/embedding/registry/embeddingRegistry";
-import { orchestrateEmbeddings } from "../../infrastructure/embedding/core/orchestrateEmbedding";
-import { executeEmbeddingPipeline } from "../../infrastructure/embedding/core/executeEmbeddingPipeline";
+import { embeddingRegistry } from "../../infrastructure/embedding/registry/embeddingRegistry.js";
+import { orchestrateEmbeddings } from "../../infrastructure/embedding/core/orchestrateEmbedding.js";
+import { executeEmbeddingPipeline } from "../../infrastructure/embedding/core/executeEmbeddingPipeline.js";
 import { QueueJob } from "../../types/queues.types.js";
 import { ResumeEmbeddingsDocument } from "../../types/embeddings.types.js";
-import { executeEmbeddingFallback } from "../../infrastructure/embedding/core/executeEmbeddingFallback";
+import { executeEmbeddingFallback } from "../../infrastructure/embedding/core/executeEmbeddingFallback.js";
 import { PythonEmit } from "../../types/python.types.js";
 
 export const getOrGenerateResumeEmbeddingService = async (

@@ -1,8 +1,8 @@
 // repositories/skillRepository.ts
-import Skill from "../../models/market/skillModel";
-import type { SkillDocument } from "../../models/market/skillModel";
-import { MarketEmbeddingUpdate } from "../../types/embeddings.types";
-import { SkillInterface, CreateSkillPayload, UpdateSkillPayload } from "../../types/skill.types";
+import Skill from "../../models/market/skillModel.js";
+import type { SkillDocument } from "../../models/market/skillModel.js";
+import { MarketEmbeddingUpdate } from "../../types/embeddings.types.js";
+import { SkillInterface, CreateSkillPayload, UpdateSkillPayload } from "../../types/skill.types.js";
 import { Types } from "mongoose";
 
 /**

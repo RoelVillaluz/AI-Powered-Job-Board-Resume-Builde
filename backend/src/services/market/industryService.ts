@@ -1,14 +1,14 @@
-import { IndustryEmbeddingData, CreateIndustryPayload, UpdateIndustryPayload } from '../../types/industry.types';
+import { IndustryEmbeddingData, CreateIndustryPayload, UpdateIndustryPayload } from '../../types/industry.types.js';
 import { Types } from 'mongoose';
-import { QueueJob } from '../../types/queues.types';
-import logger from '../../utils/logger';
-import { PythonEmit, PythonResponse, runPythonTyped } from '../../types/python.types';
-import * as IndustryRepo from '../../repositories/market/industryRepositories';
-import { isEmbeddingStale, isValidEmbedding } from '../../utils/embeddings/embeddingValidationUtils';
-import Industry from '../../models/market/industryModel';
-import { embeddingRegistry } from '../../infrastructure/embedding/registry/embeddingRegistry';
-import { orchestrateEmbeddings } from '../../infrastructure/embedding/core/orchestrateEmbedding';
-import { executeEmbeddingPipeline } from '../../infrastructure/embedding/core/executeEmbeddingPipeline';
+import { QueueJob } from '../../types/queues.types.js';
+import logger from '../../utils/logger.js';
+import { PythonEmit, PythonResponse, runPythonTyped } from '../../types/python.types.js';
+import * as IndustryRepo from '../../repositories/market/industryRepositories.js';
+import { isEmbeddingStale, isValidEmbedding } from '../../utils/embeddings/embeddingValidationUtils.js';
+import Industry from '../../models/market/industryModel.js';
+import { embeddingRegistry } from '../../infrastructure/embedding/registry/embeddingRegistry.js';
+import { orchestrateEmbeddings } from '../../infrastructure/embedding/core/orchestrateEmbedding.js';
+import { executeEmbeddingPipeline } from '../../infrastructure/embedding/core/executeEmbeddingPipeline.js';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 

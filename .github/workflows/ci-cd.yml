@@ -32,6 +32,20 @@ jobs:
         working-directory: backend
         run: npx tsc --noEmit
 
+      - name: Check for directory imports missing index.js
+        working-directory: backend
+        run: |
+          FOUND=$(grep -rn "from ['\"]\..*[^/]['\"]" src --include="*.ts" | \
+            grep -v "\.js['\"]" | \
+            grep -v "\.ts['\"]" | \
+            grep -v "node_modules")
+          if [ -n "$FOUND" ]; then
+            echo "❌ Found imports that may resolve to a directory without /index.js:"
+            echo "$FOUND"
+            exit 1
+          fi
+          echo "✅ No bare directory imports found"
+
       - name: Check for circular dependencies
         working-directory: backend
         run: npx madge --circular --extensions js src/

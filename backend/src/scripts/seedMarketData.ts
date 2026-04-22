@@ -1,13 +1,13 @@
 // scripts/seedMarketData.ts
 import mongoose from "mongoose";
 import dotenv from "dotenv";
-import Industry from "../models/market/industryModel";
-import Location from "../models/market/locationModel";
-import Skill from "../models/market/skillModel";
-import JobTitle from "../models/market/jobTitleModel";
-import { INDUSTRY_CHOICES } from "../../../shared/constants/jobsAndIndustries/constants";
-import type { IndustryName } from "../types/industry.types";
-import { SeniorityLevel } from "../types/industry.types";
+import Industry from "../models/market/industryModel.js";
+import Location from "../models/market/locationModel.js";
+import Skill from "../models/market/skillModel.js";
+import JobTitle from "../models/market/jobTitleModel.js";
+import { INDUSTRY_CHOICES } from "../../../shared/constants/jobsAndIndustries/constants.js";
+import type { IndustryName } from "../types/industry.types.js";
+import { SeniorityLevel } from "../types/industry.types.js";
 dotenv.config({ path: '.env.dev' });
 
 

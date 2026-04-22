@@ -1,5 +1,5 @@
 import { Queue } from "bullmq";
-import { redisConnection } from "../../../config/queue.config";
+import { redisConnection } from "../../../config/queue.config.js";
 
 import {
     resumeEmbeddingQueue,
@@ -13,12 +13,12 @@ import {
     locationEmbeddingDLQ,
     industryEmbeddingDLQ,
     jobEmbeddingQueue,
-} from "../../../queues";
+} from "../../../queues/index.js";
 
-import { embeddingRegistry } from "../registry/embeddingRegistry";
+import { embeddingRegistry } from "../registry/embeddingRegistry.js";
 import { createEmbeddingWorker } from "./createEmbeddingWorker.js";
 import { EmbeddingEntityKey } from "../registry/embeddingRegistry.types.js";
-import logger from "../../../utils/logger";
+import logger from "../../../utils/logger.js";
 
 /**
  * Queue bindings

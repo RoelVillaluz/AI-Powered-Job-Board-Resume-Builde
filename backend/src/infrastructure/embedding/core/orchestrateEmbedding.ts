@@ -1,5 +1,5 @@
-import logger from "../../../utils/logger"
-import { executeEmbeddingFallback } from "./executeEmbeddingFallback"
+import logger from "../../../utils/logger.js"
+import { executeEmbeddingFallback } from "./executeEmbeddingFallback.js"
 
 interface OrchestrationOptions<T> {
     invalidateCache?: boolean;

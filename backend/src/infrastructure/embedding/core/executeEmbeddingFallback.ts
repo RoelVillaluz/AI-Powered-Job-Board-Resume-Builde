@@ -1,5 +1,5 @@
-import logger from "../../../utils/logger";
-import { safeQueueOperation } from "../../../utils/queueUtils";
+import logger from "../../../utils/logger.js";
+import { safeQueueOperation } from "../../../utils/queueUtils.js";
 
 type ExecutionOptions<T> = {
     queueFn: () => Promise<{ jobId: string }>;

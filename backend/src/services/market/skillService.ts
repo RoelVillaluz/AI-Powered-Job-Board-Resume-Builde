@@ -1,14 +1,14 @@
-import * as SkillRepo from '../../repositories/market/skillRepositories';
+import * as SkillRepo from '../../repositories/market/skillRepositories.js';
 import { Types } from 'mongoose';
-import { isEmbeddingStale, isValidEmbedding } from '../../utils/embeddings/embeddingValidationUtils';
-import logger from '../../utils/logger';
-import { PythonEmit, PythonResponse, runPythonTyped } from '../../types/python.types';
-import { QueueJob } from '../../types/queues.types';
-import Skill, { SkillDocument } from '../../models/market/skillModel';
-import { CreateSkillPayload, UpdateSkillPayload } from '../../types/skill.types';
-import { embeddingRegistry } from '../../infrastructure/embedding/registry/embeddingRegistry';
-import { orchestrateEmbeddings } from '../../infrastructure/embedding/core/orchestrateEmbedding';
-import { executeEmbeddingPipeline } from '../../infrastructure/embedding/core/executeEmbeddingPipeline';
+import { isEmbeddingStale, isValidEmbedding } from '../../utils/embeddings/embeddingValidationUtils.js';
+import logger from '../../utils/logger.js';
+import { PythonEmit } from '../../types/python.types.js';
+import { QueueJob } from '../../types/queues.types.js';
+import Skill, { SkillDocument } from '../../models/market/skillModel.js';
+import { CreateSkillPayload, UpdateSkillPayload } from '../../types/skill.types.js';
+import { embeddingRegistry } from '../../infrastructure/embedding/registry/embeddingRegistry.js';
+import { orchestrateEmbeddings } from '../../infrastructure/embedding/core/orchestrateEmbedding.js';
+import { executeEmbeddingPipeline } from '../../infrastructure/embedding/core/executeEmbeddingPipeline.js';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 

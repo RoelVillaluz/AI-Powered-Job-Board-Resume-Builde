@@ -2,10 +2,10 @@ import { createJobEmbeddingRepo, getJobEmbeddingRepo } from "../../repositories/
 import logger from "../../utils/logger.js";
 import { runPython } from "../../infrastructure/python/pythonRunner.js";
 import { Types } from "mongoose";
-import { orchestrateEmbeddings } from "../../infrastructure/embedding/core/orchestrateEmbedding";
+import { orchestrateEmbeddings } from "../../infrastructure/embedding/core/orchestrateEmbedding.js";
 import { JobPostingEmbeddingsDocument } from "../../types/embeddings.types.js";
-import { embeddingRegistry } from "../../infrastructure/embedding/registry/embeddingRegistry";
-import { executeEmbeddingPipeline } from "../../infrastructure/embedding/core/executeEmbeddingPipeline";
+import { embeddingRegistry } from "../../infrastructure/embedding/registry/embeddingRegistry.js";
+import { executeEmbeddingPipeline } from "../../infrastructure/embedding/core/executeEmbeddingPipeline.js";
 import { QueueJob } from "../../types/queues.types.js";
 import { PythonEmit } from "../../types/python.types.js";
 

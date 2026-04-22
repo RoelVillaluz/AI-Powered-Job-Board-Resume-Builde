@@ -1,8 +1,8 @@
 // repositories/jobTitleRepository.ts
-import type { ImportanceLevel } from "../../../../shared/constants/jobsAndIndustries/constants";
-import JobTitle from "../../models/market/jobTitleModel";
-import { MarketEmbeddingUpdate } from "../../types/embeddings.types";
-import { JobTitleInterface, CreateJobTitlePayload, UpdateJobTitlePayload } from "../../types/jobTitle.types";
+import type { ImportanceLevel } from "../../../../shared/constants/jobsAndIndustries/constants.js";
+import JobTitle from "../../models/market/jobTitleModel.js";
+import { MarketEmbeddingUpdate } from "../../types/embeddings.types.js";
+import { JobTitleInterface, CreateJobTitlePayload, UpdateJobTitlePayload } from "../../types/jobTitle.types.js";
 import { Types } from "mongoose";
 
 /**

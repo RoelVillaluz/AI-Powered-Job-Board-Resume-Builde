@@ -1,4 +1,4 @@
-import { runPython } from "../infrastructure/python/pythonRunner";
+import { runPython } from "../infrastructure/python/pythonRunner.js";
 import { EmbeddingVector } from "./embeddings.types.js";
 
 export type PythonEmit = (

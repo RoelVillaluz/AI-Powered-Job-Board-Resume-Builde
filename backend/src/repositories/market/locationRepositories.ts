@@ -1,7 +1,7 @@
 // repositories/locationRepository.ts
-import Location from "../../models/market/locationModel";
-import { MarketEmbeddingUpdate } from "../../types/embeddings.types";
-import { LocationInterface, CreateLocationPayload, UpdateLocationPayload } from "../../types/location.types";
+import Location from "../../models/market/locationModel.js";
+import { MarketEmbeddingUpdate } from "../../types/embeddings.types.js";
+import { LocationInterface, CreateLocationPayload, UpdateLocationPayload } from "../../types/location.types.js";
 import { Types } from "mongoose";
 
 /**

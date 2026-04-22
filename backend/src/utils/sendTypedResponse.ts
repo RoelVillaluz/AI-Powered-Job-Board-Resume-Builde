@@ -1,5 +1,5 @@
 import { Response } from "express";
-import { ApiSendResponse } from "../types/apiResponse.types";
+import { ApiSendResponse } from "../types/apiResponse.types.js";
 
 export function sendTypedResponse<T>(
   res: Response,

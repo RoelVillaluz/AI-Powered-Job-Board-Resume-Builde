@@ -1,9 +1,9 @@
 import express from "express";
-import * as LocationController from "../../controllers/market/locationController";
-import { authenticate } from "../../middleware/authentication/authenticate";
-import { requireRole } from "../../middleware/authorization/roleAuthorization";
-import { validate } from "../../middleware/validation";
-import { createLocationSchema } from "../../validators/locationValidator";
+import * as LocationController from "../../controllers/market/locationController.js";
+import { authenticate } from "../../middleware/authentication/authenticate.js";
+import { requireRole } from "../../middleware/authorization/roleAuthorization.js";
+import { validate } from "../../middleware/validation.js";
+import { createLocationSchema } from "../../validators/locationValidator.js";
 
 const router = express.Router();
 

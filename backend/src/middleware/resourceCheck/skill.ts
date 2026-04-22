@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
-import { catchAsync } from "../../utils/errorUtils";
-import Skill from "../../models/market/skillModel";
+import { catchAsync } from "../../utils/errorUtils.js";
+import Skill from "../../models/market/skillModel.js";
 import { NotFoundError } from "../errorHandler.js";
 
 export const checkIfSkillExistsById = catchAsync(async (req: Request, res: Response, next: NextFunction) => {

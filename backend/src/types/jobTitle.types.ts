@@ -1,6 +1,6 @@
 // types/jobTitle.types.ts
 import { Types } from "mongoose";
-import { INDUSTRY_NAMES } from "../../../shared/constants/jobsAndIndustries/constants";
+import { INDUSTRY_NAMES } from "../../../shared/constants/jobsAndIndustries/constants.js";
 import { Currency, SalaryBySeniority, SalaryRange } from "./salaryTypes.js";
 import { SeniorityLevel } from "./industry.types.js";
 import { EmbeddingVector } from "./embeddings.types.js";

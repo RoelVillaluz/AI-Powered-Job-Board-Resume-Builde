@@ -1,7 +1,7 @@
 import Redis from "ioredis";
-import { redisConnection } from "../config/queue.config";
+import { redisConnection } from "../config/queue.config.js";
 import logger from "./logger.js";
-import { QueueResult } from "../types/queues.types";
+import { QueueResult } from "../types/queues.types.js";
 
 type RedisState = 'healthy' | 'down' | 'unknown';
 

@@ -1,4 +1,4 @@
-import { ResumeScoreDoc, ResumeScoreValidationReturn } from "../types/scores.types";
+import { ResumeScoreDoc, ResumeScoreValidationReturn } from "../types/scores.types.js";
 
 /**
  * Validates that a single score field is usable.

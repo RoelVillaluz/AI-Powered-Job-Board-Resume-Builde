@@ -1,6 +1,6 @@
-import Industry from "../../models/market/industryModel";
-import { MarketEmbeddingUpdate } from "../../types/embeddings.types";
-import { IndustryInterface, CreateIndustryPayload, UpdateIndustryPayload } from "../../types/industry.types";
+import Industry from "../../models/market/industryModel.js";
+import { MarketEmbeddingUpdate } from "../../types/embeddings.types.js";
+import { IndustryInterface, CreateIndustryPayload, UpdateIndustryPayload } from "../../types/industry.types.js";
 import { Types } from "mongoose";
 
 /**

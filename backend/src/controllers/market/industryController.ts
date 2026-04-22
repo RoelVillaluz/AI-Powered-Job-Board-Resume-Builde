@@ -1,13 +1,13 @@
-import { catchAsync } from "../../utils/errorUtils";
+import { catchAsync } from "../../utils/errorUtils.js";
 import { Request, Response } from "express";
-import Industry from "../../models/market/industryModel";
-import { IndustryInterface, IndustryEmbeddingData, CreateIndustryPayload, UpdateIndustryPayload } from "../../types/industry.types";
+import Industry from "../../models/market/industryModel.js";
+import { IndustryInterface, IndustryEmbeddingData, CreateIndustryPayload, UpdateIndustryPayload } from "../../types/industry.types.js";
 import { Types } from "mongoose";
-import { ApiQueueResponse } from "../../types/apiResponse.types";
-import { STATUS_MESSAGES } from "../../constants";
+import { ApiQueueResponse } from "../../types/apiResponse.types.js";
+import { STATUS_MESSAGES } from "../../constants.js";
 import * as IndustryRepo from '../../repositories/market/industryRepositories';
 import * as IndustryService from '../../services/market/industryService';
-import { sendTypedResponse } from "../../utils/sendTypedResponse";
+import { sendTypedResponse } from "../../utils/sendTypedResponse.js";
 
 export const getIndustryById = catchAsync(async (req: Request, res: Response) => {
     const { id } = req.params as { id: string };

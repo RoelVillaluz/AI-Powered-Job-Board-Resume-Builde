@@ -1,7 +1,7 @@
 import { Types } from "mongoose";
-import { catchAsync } from "../../utils/errorUtils";
+import { catchAsync } from "../../utils/errorUtils.js";
 import { Request, Response, NextFunction } from "express";
-import JobTitle from "../../models/market/jobTitleModel";
+import JobTitle from "../../models/market/jobTitleModel.js";
 import { NotFoundError } from "../errorHandler.js";
 
 export const checkIfJobTitleExistsById = catchAsync(async (req: Request, res: Response, next: NextFunction) => {

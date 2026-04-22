@@ -1,10 +1,10 @@
 import express from "express"
-import * as SkillController from "../../controllers/market/skillController";
-import { authenticate } from "../../middleware/authentication/authenticate";
-import { requireRole } from "../../middleware/authorization/roleAuthorization";
-import { validate } from "../../middleware/validation";
-import { createSkillSchema, updateSkillSchema } from "../../validators/skillValidator";
-import { checkIfSkillExistsById } from "../../middleware/resourceCheck/skill";
+import * as SkillController from "../../controllers/market/skillController.js";
+import { authenticate } from "../../middleware/authentication/authenticate.js";
+import { requireRole } from "../../middleware/authorization/roleAuthorization.js";
+import { validate } from "../../middleware/validation.js";
+import { createSkillSchema, updateSkillSchema } from "../../validators/skillValidator.js";
+import { checkIfSkillExistsById } from "../../middleware/resourceCheck/skill.js";
 
 const router = express.Router();
 

@@ -1,6 +1,6 @@
 // validators/market/jobTitleValidator.ts
 import Joi from "joi";
-import { SENIORITY_LEVELS, INDUSTRY_CHOICES } from "../../../shared/constants/jobsAndIndustries/constants";
+import { SENIORITY_LEVELS, INDUSTRY_CHOICES } from "../../../shared/constants/jobsAndIndustries/constants.js";
 
 export const jobTitleId = Joi.object({
   _id: Joi.string().hex().length(24).required()

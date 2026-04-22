@@ -1,6 +1,6 @@
 import { Types } from "mongoose";
-import { QueueJob } from "../../../types/queues.types";
-import { embeddingRegistry } from "./embeddingRegistry";
+import { QueueJob } from "../../../types/queues.types.js";
+import { embeddingRegistry } from "./embeddingRegistry.js";
 
 /**
  * Repository adapter for embedding persistence.

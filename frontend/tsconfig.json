@@ -9,6 +9,9 @@
     "skipLibCheck": true,
     "noEmit": true,
 
+    "allowJs": true,
+    "checkJs": false,  // ← don't type-check JS files, just allow them
+
     "baseUrl": ".",
     "paths": {
       "@shared/*": ["../shared/*"]

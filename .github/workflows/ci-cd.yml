@@ -64,6 +64,10 @@ jobs:
         working-directory: backend/src/python_scripts
         run: python -m py_compile *.py && echo "✅ Python scripts valid"
 
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
   # ─── Job 2: Run Tests ────────────────────────────────────────────────────────
   test:
     name: Run Test Suite

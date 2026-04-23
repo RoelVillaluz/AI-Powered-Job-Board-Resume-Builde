@@ -47,6 +47,9 @@ export const createResumeSchema = new Joi.object({
     skills: Joi.array()
         .items(
             Joi.object({
+                _id: objectId.optional().messages({
+                    "string.pattern.base": "Invalid skill ID format",
+                }),
                 name: Joi.string().trim().required(),
                 level: Joi.string().trim()
             })

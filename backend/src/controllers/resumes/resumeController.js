@@ -81,7 +81,11 @@ export const getResumesByUser = catchAsync(async (req, res) => {
  * }
  */
 export const createResume = catchAsync(async (req, res) => {
-    const resumeData = req.body;
+    const resumeData = {
+        ...req.body,
+        user: req.user.id  // ← inject from authenticated token (Not _id because it comes from JTW decode)
+    };
+    
     const newResume = await ResumeService.createResumeService(resumeData);
 
     return sendResponse(
@@ -92,7 +96,7 @@ export const createResume = catchAsync(async (req, res) => {
         },
         'Resume'
     );
-})
+});
 
 /**
  * Update an existing resume by its ID.

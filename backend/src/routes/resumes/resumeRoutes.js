@@ -20,9 +20,9 @@ router.get('/:id', getResume)
 router.get('/', getResumes)
 
 router.post('/', 
-    // authenticate, 
-    // requireRole('jobseeker'), 
-    // validate(createResumeSchema, 'body'), 
+    authenticate, 
+    requireRole('jobseeker'), 
+    validate(createResumeSchema, 'body'), 
     createResume
 )
 

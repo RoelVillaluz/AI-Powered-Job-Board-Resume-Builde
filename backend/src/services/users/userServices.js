@@ -49,7 +49,7 @@ export const completeUserOnboardingService = async ({ userId, userRole, onboardi
         user.role = userRole;
 
         if (userRole === 'jobseeker') {
-            const { resume } = await createResumeService({
+            const resume = await createResumeService({
                 user: user._id,
                 ...onboardingData,
             }, { session });

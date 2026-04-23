@@ -64,6 +64,14 @@ jobs:
         working-directory: backend/src/python_scripts
         run: python -m py_compile *.py && echo "✅ Python scripts valid"
 
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Type check frontend
+        working-directory: frontend
+        run: ./node_modules/.bin/tsc --noEmit || npx tsc --noEmit
+
   # ─── Job 2: Run Tests ────────────────────────────────────────────────────────
   test:
     name: Run Test Suite

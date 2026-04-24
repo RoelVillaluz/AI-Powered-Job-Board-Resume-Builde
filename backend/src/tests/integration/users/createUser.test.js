@@ -61,8 +61,6 @@ describe('POST /api/users - create users', () => {
                 verificationCode: userData.verificationCode
             }
 
-            console.log('Verification Data: ', verificationData)
-
             const response = await request(app)
                 .post('/api/auth/verify')
                 .send(verificationData)

@@ -20,8 +20,13 @@ export const checkEmailIfUnique = catchAsync(async (req, res, next) => {
         tempUserExistsByEmail(email)
     ]);
 
-    if (existingUser) throw new ForbiddenError('Email already exists');
-    if (existingTempUser) throw new ForbiddenError('A verification email has already been sent to this email');
+    if (existingUser) {
+        throw new ForbiddenError('Email already exists');
+    }
+
+    if (existingTempUser) {
+        throw new ForbiddenError('A verification email has already been sent to this email');
+    }
 
     next();
 });

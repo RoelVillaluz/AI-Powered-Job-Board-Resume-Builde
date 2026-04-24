@@ -5,6 +5,7 @@ import JobPosting from '../../models/jobPostings/jobPostingModel.js';
 import Resume from '../../models/resumes/resumeModel.js';
 import { allQueues } from "../../../src/queues/index.js"
 import logger from "../../../src/utils/logger.js"
+import { TempUser } from '../../models/tempUserModel.js';
 
 export const connectTestDB = async () => {
   if (process.env.NODE_ENV !== 'test') {
@@ -64,7 +65,7 @@ export const clearTestCollections = async () => {
   }
 
   const collections = mongoose.connection.collections;
-  const testCollections = ['users', 'companies', 'jobpostings', 'resumes'];
+  const testCollections = ['tempUsers', 'users', 'companies', 'jobpostings', 'resumes'];
 
   for (const name of testCollections) {
     if (collections[name]) {
@@ -79,6 +80,7 @@ export const clearTestCollections = async () => {
 export class TestDataTracker {
   constructor() {
     this.createdIds = {
+      tempUsers: [],
       users: [],
       companies: [],
       jobs: [],
@@ -97,13 +99,15 @@ export class TestDataTracker {
     await Company.deleteMany({ _id: { $in: this.createdIds.companies } });
     await Resume.deleteMany({ _id: { $in: this.createdIds.resumes } });
     await User.deleteMany({ _id: { $in: this.createdIds.users } });
+    await TempUser.deleteMany({ _id: { $in: this.createdIds.tempUsers } });
 
     // Reset tracking
     this.createdIds = {
+      tempUsers: [],
       users: [],
       companies: [],
       jobs: [],
-      resumes: []
+      resumes: [],
     };
   }
 }

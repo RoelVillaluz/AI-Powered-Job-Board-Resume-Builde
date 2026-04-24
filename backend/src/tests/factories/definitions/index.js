@@ -1,5 +1,6 @@
 import bcrypt from 'bcrypt';
 import { registry } from '../registry';
+import { generateVerificationCode } from '../../../helpers/userHelpers.js';
 
 /**
  * Entity factory definitions for the core Ingpo AI collections.
@@ -12,6 +13,18 @@ import { registry } from '../registry';
  * @see tests/factories/seeders.js for compound entity creation
  * @see tests/factories/definitions/refs.definition.js for embedded ref factories
  */
+
+// ─── TempUser ─────────────────────────────────────────────────────────────────
+registry.define('tempUser', {
+  defaults: (r) => ({
+    email:      `user+${r.seq('user')}@example.com`,
+    firstName:  'Test',
+    lastName:   'User',
+    password:   bcrypt.hashSync('TestPassword123!', 10),
+    verificationCode: generateVerificationCode(),
+  })
+});
+
 
 // ─── User ─────────────────────────────────────────────────────────────────────
 

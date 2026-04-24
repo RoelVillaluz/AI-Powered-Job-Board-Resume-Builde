@@ -76,11 +76,6 @@ jobs:
     needs: build
 
     services:
-      mongodb:
-        image: mongo:6.0
-        ports:
-          - 27017:27017
-
       redis:
         image: redis:7
         ports:
@@ -96,6 +91,15 @@ jobs:
           node-version: 20
           cache: npm
           cache-dependency-path: backend/package-lock.json
+
+      - name: Start MongoDB Replica Set   
+        run: |
+          docker run -d --name mongodb -p 27017:27017 \
+            mongo:6.0 mongod --replSet rs0 --bind_ip_all
+          sleep 3
+          docker exec mongodb mongosh --eval \
+            "rs.initiate({_id:'rs0',members:[{_id:0,host:'localhost:27017'}]})"
+          sleep 2
 
       - name: Install dependencies
         working-directory: backend

@@ -1,5 +1,9 @@
 import { spawn } from "child_process";
 import logger from "../../utils/logger.js";
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 /**
  * Execute a Python AI command and parse JSON output.
@@ -23,21 +27,21 @@ export const runPython = (command, args = [], emit = () => {}) => {
 
     return new Promise((resolve, reject) => {
         const pythonArgs = [
-            "backend/src/python_scripts/main.py",
+            "src/python_scripts/main.py",
             command,
             ...args
         ];
 
         logger.debug(`🐍 [Python] Full invocation: python ${pythonArgs.join(" ")}`);
 
-        const pythonProcess = spawn("python", pythonArgs, {
+        // Use venv Python if available, fall back to system python
+        const pythonExecutable = process.env.PYTHON_EXECUTABLE ?? 'python';
+
+        const pythonProcess = spawn(pythonExecutable, pythonArgs, {
             shell: true,
             env: {
                 ...process.env,
                 PYTHONPATH: process.cwd(),
-
-                // 🔥 Force stable interpreter (optional fallback safety)
-                PY_PYTHON: "3.11"
             }
         });
 

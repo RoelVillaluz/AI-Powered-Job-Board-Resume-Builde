@@ -95,3 +95,71 @@ export const seedFullScenario = async (User, Company, JobPosting, Resume) => {
   const { jobseeker, resume }      = await seedJobseekerWithResume(User, Resume);
   return { employer, company, job, jobseeker, resume };
 };
+
+// ─── Payload Builders ─────────────────────────────────────────────────────────
+// These build request body shapes for API tests — no DB interaction.
+// Named `build*` to distinguish from seeders that persist to the DB.
+
+/**
+ * Builds the onboarding request payload for a jobseeker.
+ * Matches the double-nested shape the frontend sends:
+ * { role, data: { role, data: JobseekerFormData } }
+ *
+ * @param {string|ObjectId} userId
+ * @returns {Promise<Object>} Onboarding request body
+ *
+ * @example
+ * const payload = await buildJobseekerOnboardingPayload(user._id);
+ * await request(app).post(`/api/users/${user._id}/onboarding`).send(payload);
+ */
+export const buildJobseekerOnboardingPayload = async (userId) => {
+  const resumeData = await Factory('resume').with({ user: userId }).build();
+  return {
+    role: 'jobseeker',
+    data: {
+      role: 'jobseeker',
+      data: {
+        jobTitle:       resumeData.jobTitle,
+        firstName:      resumeData.firstName,
+        lastName:       resumeData.lastName,
+        phone:          resumeData.phone,
+        location:       resumeData.location,
+        summary:        resumeData.summary,
+        skills:         resumeData.skills,
+        workExperience: resumeData.workExperience,
+        certifications: resumeData.certifications,
+        socialMedia:    resumeData.socialMedia,
+      }
+    }
+  };
+}
+
+/**
+ * Builds the onboarding request payload for an employer.
+ * Matches the double-nested shape the frontend sends:
+ * { role, data: { role, data: EmployerFormData } }
+ *
+ * @param {string|ObjectId} userId
+ * @returns {Promise<Object>} Onboarding request body
+ *
+ * @example
+ * const payload = await buildEmployerOnboardingPayload(user._id);
+ * await request(app).post(`/api/users/${user._id}/onboarding`).send(payload);
+ */
+export const buildEmployerOnboardingPayload = async (userId) => {
+  const companyData = await Factory('company').with({ user: userId }).build();
+  return {
+    role: 'employer',
+    data: {
+      role: 'employer',
+      data: {
+        name:        companyData.name,
+        industry:    companyData.industry,
+        location:    companyData.location,
+        website:     companyData.website,
+        size:        companyData.size,
+        description: companyData.description,
+      }
+    }
+  };
+};

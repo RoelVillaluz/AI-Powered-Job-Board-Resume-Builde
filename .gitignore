@@ -4,4 +4,5 @@ node_modules/
 venv/
 logs/        
 *.log
+.vscode/settings.json
 backend/coverage

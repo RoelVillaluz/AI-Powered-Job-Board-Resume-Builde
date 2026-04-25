@@ -2,11 +2,11 @@
 from typing import List, Dict, NamedTuple
 from collections import Counter
 import logging
-from backend.src.python_scripts.config.database import db
-from backend.src.python_scripts.services.resume_service import ResumeService
-from backend.src.python_scripts.services.scoring_service import ScoringService
-from backend.src.python_scripts.clustering.job_clustering import JobClusteringService
-from backend.src.python_scripts.services.job_service import JobService
+from config.database import db
+from services.resume_service import ResumeService
+from services.scoring_service import ScoringService
+from clustering.job_clustering import JobClusteringService
+from services.job_service import JobService
 import numpy as np
 
 logger = logging.getLogger(__name__)

@@ -13,14 +13,14 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
-from backend.src.python_scripts.models.embeddings import embedding_model
-from backend.src.python_scripts.services.analytics_service import AnalyticsService
-from backend.src.python_scripts.services.scoring_service import ScoringService
-from backend.src.python_scripts.services.resume_service import ResumeEmbeddings, ResumeService
-from backend.src.python_scripts.services.job_service import JobService
-from backend.src.python_scripts.utils.tensor_utils import tensor_to_list
-from backend.src.python_scripts.utils.websocket_utils import emit_progress
-from backend.src.python_scripts.config.database import db
+from models.embeddings import embedding_model
+from services.analytics_service import AnalyticsService
+from services.scoring_service import ScoringService
+from services.resume_service import ResumeEmbeddings, ResumeService
+from services.job_service import JobService
+from utils.tensor_utils import tensor_to_list
+from utils.websocket_utils import emit_progress
+from config.database import db
 from bson import ObjectId
 
 def generate_resume_embeddings(resume_id: str) -> dict:

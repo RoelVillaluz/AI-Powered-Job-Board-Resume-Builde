@@ -1,7 +1,7 @@
 """ Service for industry-related operations """
 
 from typing import Optional
-from backend.src.python_scripts.config.database import db
+from config.database import db
 from bson import ObjectId
 import logging
 

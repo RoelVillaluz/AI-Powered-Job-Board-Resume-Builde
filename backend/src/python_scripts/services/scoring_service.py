@@ -3,7 +3,7 @@ from typing import NamedTuple, Optional
 import logging
 
 from bson import ObjectId
-from backend.src.python_scripts.config.database import db
+from config.database import db
 
 logger = logging.getLogger(__name__)
 

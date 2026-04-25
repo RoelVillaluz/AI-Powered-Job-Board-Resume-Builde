@@ -16,9 +16,10 @@ class ResumeEmbeddings(NamedTuple):
     skills: Optional[torch.Tensor]
     job_title: Optional[torch.Tensor]
     work_experience: Optional[torch.Tensor]
+    location: Optional[torch.Tensor]
     certifications: Optional[torch.Tensor]
     total_experience_years: float
-
+    backfill_ids: Optional[dict]
 
 class ResumeService:
     """Handles resume data retrieval and processing."""
@@ -65,6 +66,7 @@ class ResumeService:
             fields = {
                 "skills": 1,
                 "jobTitle": 1,
+                "location": 1,
                 "workExperience": 1,
                 "certifications": 1,
                 "summary": 1,
@@ -96,6 +98,7 @@ class ResumeService:
         return ResumeEmbeddings(
             skills=result["skills"],
             job_title=result["job_title"],
+            location=result["location"],
             work_experience=result["work_experience"],
             certifications=result["certifications"],
             total_experience_years=total_exp

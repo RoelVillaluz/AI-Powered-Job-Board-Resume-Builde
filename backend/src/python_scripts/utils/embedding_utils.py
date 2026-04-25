@@ -3,11 +3,11 @@ import json
 import torch
 from typing import Optional
 import logging
-from backend.src.python_scripts.services.market_services.location_services import LocationService
-from backend.src.python_scripts.services.market_services.job_title_services import JobTitleService
-from backend.src.python_scripts.services.market_services.skill_services import SkillService
-from backend.src.python_scripts.models.embeddings import embedding_model
-from backend.src.python_scripts.utils.tensor_utils import stack_embeddings, safe_mean_embedding
+from services.market_services.location_services import LocationService
+from services.market_services.job_title_services import JobTitleService
+from services.market_services.skill_services import SkillService
+from models.embeddings import embedding_model
+from utils.tensor_utils import stack_embeddings, safe_mean_embedding
 
 logger = logging.getLogger(__name__)
 

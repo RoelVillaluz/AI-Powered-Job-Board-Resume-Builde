@@ -15,7 +15,7 @@ from typing import Optional
 import torch
 import logging
 
-from backend.src.python_scripts.utils.embedding_utils import (
+from utils.embedding_utils import (
     extract_skills_embeddings,
     extract_work_experience_embeddings,
     extract_certification_embeddings,

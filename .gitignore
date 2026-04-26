@@ -5,4 +5,9 @@ venv/
 logs/        
 *.log
 .vscode/settings.json
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.cpython-*
 backend/coverage

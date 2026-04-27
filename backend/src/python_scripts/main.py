@@ -22,6 +22,14 @@ from utils.tensor_utils import tensor_to_list
 from utils.websocket_utils import emit_progress
 from config.database import db
 from bson import ObjectId
+from transformers import logging as hf_logging
+import os
+
+hf_logging.set_verbosity_error()
+logging.getLogger("httpx").setLevel(logging.WARNING)
+logging.getLogger("sentence_transformers").setLevel(logging.WARNING)
+
+logger.info(f"HF_HUB_OFFLINE={os.environ.get('HF_HUB_OFFLINE')} TRANSFORMERS_OFFLINE={os.environ.get('TRANSFORMERS_OFFLINE')}")
 
 def generate_resume_embeddings(resume_id: str) -> dict:
     """
@@ -45,11 +53,6 @@ def generate_resume_embeddings(resume_id: str) -> dict:
             "metrics": {
                 "totalExperienceYears": float
             },
-            "backfill": {
-                "skillIds":    list[str],
-                "jobTitleId":  str | None,
-                "locationId":  str | None
-            }
         }
         On error: { "error": str }
     """
@@ -82,11 +85,6 @@ def generate_resume_embeddings(resume_id: str) -> dict:
             "metrics": {
                 "totalExperienceYears": embeddings.total_experience_years
             },
-            "backfill": {
-                "skillIds":   embeddings.backfill.skill_ids,
-                "jobTitleId": embeddings.backfill.job_title_id,
-                "locationId": embeddings.backfill.location_id
-            }
         }
 
     except Exception as e:

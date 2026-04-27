@@ -5,7 +5,7 @@ from bson import ObjectId
 from dotenv import load_dotenv
 import pymongo
 import torch
-from backend.src.python_scripts.utils import extract_resume_embeddings, get_resume_by_id
+from utils import extract_resume_embeddings, get_resume_by_id
 
 load_dotenv()
 

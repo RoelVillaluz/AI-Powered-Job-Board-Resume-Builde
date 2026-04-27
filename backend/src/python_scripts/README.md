@@ -557,6 +557,16 @@ utils/               Computation primitives — how to compute one embedding
   },
   description: String
 }
+``
+
+### Shared Entity Collections (Embedding Cache)
+```javascript
+// skills, jobtitles, locations, industries
+{
+  _id: ObjectId,
+  name: String,           // or normalizedTitle for jobtitles
+  embedding: [Number]     // 768-dim float array; null means backfill needed
+}
 ```
 
 ### Shared Entity Collections

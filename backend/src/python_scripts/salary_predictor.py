@@ -9,7 +9,7 @@ from scipy.spatial.distance import cosine
 from sentence_transformers import SentenceTransformer
 from torch import cosine_similarity
 import torch
-from backend.src.python_scripts.utils import cluster_job_postings, extract_job_embeddings, extract_resume_embeddings, get_embedding, get_resume_by_id
+from utils import cluster_job_postings, extract_job_embeddings, extract_resume_embeddings, get_embedding, get_resume_by_id
 
 load_dotenv()
 

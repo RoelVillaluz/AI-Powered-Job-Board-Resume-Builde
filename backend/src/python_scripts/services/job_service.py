@@ -3,9 +3,10 @@ from typing import Optional, NamedTuple
 import torch
 from bson import ObjectId
 import logging
-from backend.src.python_scripts.utils.embedding_utils import extract_experience_level_embedding, extract_job_title_embedding, extract_location_embedding, extract_requirement_embeddings, extract_skills_embeddings
-from backend.src.python_scripts.config.database import db
-from backend.src.python_scripts.models.embeddings import embedding_model
+from utils.embedding_utils import extract_experience_level_embedding, extract_job_title_embedding, extract_location_embedding, extract_requirement_embeddings, extract_skills_embeddings
+from config.database import db
+from models.embeddings import embedding_model
+from infrastructure.embeddings.embedding_orchestrator import extract_job_embeddings_parallel
 
 logger = logging.getLogger(__name__)
 
@@ -92,25 +93,15 @@ class JobService:
         Returns:
             JobEmbeddings containing all computed embeddings
         """
-        skills_emb = extract_skills_embeddings(job.get("skills", []))
-        requirements_emb = extract_requirement_embeddings(job.get("requirements", []))
-
-        job_title_obj = job.get("jobTitle", {})
-        job_title_emb = extract_job_title_embedding(job_title_obj.get("name", ""))
-
-        location_emb = extract_location_embedding(job.get("location", {}).get("name", ""))
-
-        exp_level_emb = None
-        exp_level = job.get("experienceLevel")
-        if exp_level:
-            exp_level_emb = extract_experience_level_embedding(exp_level)
+        # Batch extract embeddings for each section with parallel processing
+        result = extract_job_embeddings_parallel(job)
         
         return JobEmbeddings(
-            skills=skills_emb,
-            requirements=requirements_emb,
-            experience_level=exp_level_emb,
-            title=job_title_emb,
-            location=location_emb
+            skills=result["skills"],
+            requirements=result["requirements"],
+            experience_level=result["experience_level"],
+            title=result["job_title"],
+            location=result["location"]
         )
     
     @staticmethod

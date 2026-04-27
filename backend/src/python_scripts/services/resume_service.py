@@ -3,22 +3,21 @@ from typing import Optional, NamedTuple
 import torch
 from bson import ObjectId
 import logging
-from backend.src.python_scripts.utils.embedding_utils import extract_certification_embeddings, extract_job_title_embedding, extract_skills_embeddings, extract_work_experience_embeddings
-from backend.src.python_scripts.config.database import db
-from backend.src.python_scripts.utils.date_utils import calculate_total_experience
+from config.database import db
+from infrastructure.embeddings.embedding_orchestrator import extract_resume_embeddings_parallel
+from utils.date_utils import calculate_total_experience
 
 logger = logging.getLogger(__name__)
 
-
+    
 class ResumeEmbeddings(NamedTuple):
     """Container for resume embeddings."""
     skills: Optional[torch.Tensor]
     job_title: Optional[torch.Tensor]
     work_experience: Optional[torch.Tensor]
+    location: Optional[torch.Tensor]
     certifications: Optional[torch.Tensor]
     total_experience_years: float
-
-
 class ResumeService:
     """Handles resume data retrieval and processing."""
     
@@ -64,6 +63,7 @@ class ResumeService:
             fields = {
                 "skills": 1,
                 "jobTitle": 1,
+                "location": 1,
                 "workExperience": 1,
                 "certifications": 1,
                 "summary": 1,
@@ -86,22 +86,17 @@ class ResumeService:
         Returns:
             ResumeEmbeddings containing all computed embeddings
         """
-        # Extract embeddings for each section
-        skills_emb = extract_skills_embeddings(resume.get("skills", []))
-
-        job_title_obj = resume.get("jobTitle", {})
-        job_title_emb = extract_job_title_embedding(job_title_obj.get("name", ""))
-        
-        work_emb = extract_work_experience_embeddings(resume.get("workExperience", []))
-        cert_emb = extract_certification_embeddings(resume.get("certifications", []))
+        # Batch extract embeddings for each section with parallel processing
+        result = extract_resume_embeddings_parallel(resume, resume.get('_id', ''))
         
         # Calculate total experience
         total_exp = calculate_total_experience(resume.get("workExperience", []))
         
         return ResumeEmbeddings(
-            skills=skills_emb,
-            job_title=job_title_emb,
-            work_experience=work_emb,
-            certifications=cert_emb,
-            total_experience_years=total_exp
+            skills=result["skills"],
+            job_title=result["job_title"],
+            location=result["location"],
+            work_experience=result["work_experience"],
+            certifications=result["certifications"],
+            total_experience_years=total_exp,
         )

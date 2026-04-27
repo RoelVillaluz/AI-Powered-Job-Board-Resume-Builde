@@ -9,6 +9,7 @@ import skillRoutes from './market/skillRoutes'
 import jobTitleRoutes from './market/jobTitleRoutes'
 import locationRoutes from './market/locationRoutes'
 import industryRoutes from './market/industryRoutes'
+// import healthRoutes from './health/healthRoutes.js'
 
 import {
   conversationRoutes,
@@ -19,6 +20,9 @@ import {
 } from "./chat/index.js";
 
 export const registerRoutes = (app) => {
+  // Health
+  // app.use("/api/health", healthRoutes);
+
   // Core API
   app.use("/api/auth", authRoutes);
   app.use("/api/users", userRoutes);

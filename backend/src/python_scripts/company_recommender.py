@@ -6,7 +6,7 @@ import numpy as np
 import pymongo
 from bson import ObjectId
 import torch
-from backend.src.python_scripts.utils import extract_job_embeddings, extract_resume_embeddings, get_embedding
+from utils import extract_job_embeddings, extract_resume_embeddings, get_embedding
 
 load_dotenv()
 

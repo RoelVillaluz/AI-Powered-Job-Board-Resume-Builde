@@ -4,10 +4,10 @@ from typing import Optional, Dict
 from bson import ObjectId
 import logging
 import traceback
-from backend.src.python_scripts.config.database import db
-from backend.src.python_scripts.services.resume_service import ResumeService
-from backend.src.python_scripts.services.job_service import JobService
-from backend.src.python_scripts.services.similarity_service import SimilarityService
+from config.database import db
+from services.resume_service import ResumeService
+from services.job_service import JobService
+from services.similarity_service import SimilarityService
 
 logger = logging.getLogger(__name__)
 

@@ -77,9 +77,19 @@ export const runPython = (command, args = [], emit = () => {}) => {
         });
 
         pythonProcess.stderr.on("data", (data) => {
-            const msg = data.toString();
-            logger.error(`🐍 [Python STDERR]: ${msg}`);
-            errorBuffer += msg;
+            const msg = data.toString().trim();
+            if (!msg) return;
+
+            // 🚫 Ignore httpx logs
+            if (msg.includes("httpx")) return;
+
+            if (msg.includes(' - ERROR - ') || msg.includes(' - CRITICAL - ')) {
+                logger.error(`🐍 [Python]: ${msg}`);
+            } else if (msg.includes(' - WARNING - ')) {
+                logger.warn(`🐍 [Python]: ${msg}`);
+            } else {
+                logger.debug(`🐍 [Python]: ${msg}`);
+            }
         });
 
         pythonProcess.on("close", (code) => {

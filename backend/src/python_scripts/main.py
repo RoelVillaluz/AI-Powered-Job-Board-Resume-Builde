@@ -13,15 +13,23 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
-from backend.src.python_scripts.models.embeddings import embedding_model
-from backend.src.python_scripts.services.analytics_service import AnalyticsService
-from backend.src.python_scripts.services.scoring_service import ScoringService
-from backend.src.python_scripts.services.resume_service import ResumeEmbeddings, ResumeService
-from backend.src.python_scripts.services.job_service import JobService
-from backend.src.python_scripts.utils.tensor_utils import tensor_to_list
-from backend.src.python_scripts.utils.websocket_utils import emit_progress
-from backend.src.python_scripts.config.database import db
+from models.embeddings import embedding_model
+from services.analytics_service import AnalyticsService
+from services.scoring_service import ScoringService
+from services.resume_service import ResumeEmbeddings, ResumeService
+from services.job_service import JobService
+from utils.tensor_utils import tensor_to_list
+from utils.websocket_utils import emit_progress
+from config.database import db
 from bson import ObjectId
+from transformers import logging as hf_logging
+import os
+
+hf_logging.set_verbosity_error()
+logging.getLogger("httpx").setLevel(logging.WARNING)
+logging.getLogger("sentence_transformers").setLevel(logging.WARNING)
+
+logger.info(f"HF_HUB_OFFLINE={os.environ.get('HF_HUB_OFFLINE')} TRANSFORMERS_OFFLINE={os.environ.get('TRANSFORMERS_OFFLINE')}")
 
 def generate_resume_embeddings(resume_id: str) -> dict:
     """
@@ -45,11 +53,6 @@ def generate_resume_embeddings(resume_id: str) -> dict:
             "metrics": {
                 "totalExperienceYears": float
             },
-            "backfill": {
-                "skillIds":    list[str],
-                "jobTitleId":  str | None,
-                "locationId":  str | None
-            }
         }
         On error: { "error": str }
     """
@@ -82,11 +85,6 @@ def generate_resume_embeddings(resume_id: str) -> dict:
             "metrics": {
                 "totalExperienceYears": embeddings.total_experience_years
             },
-            "backfill": {
-                "skillIds":   embeddings.backfill.skill_ids,
-                "jobTitleId": embeddings.backfill.job_title_id,
-                "locationId": embeddings.backfill.location_id
-            }
         }
 
     except Exception as e:

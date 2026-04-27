@@ -170,10 +170,10 @@ class SimilarityService:
         Returns:
             SimilarityScore containing individual and overall scores
         """
-        from backend.src.python_scripts.config.database import db
+        from config.database import db
         from bson import ObjectId
-        from backend.src.python_scripts.services.resume_service import ResumeService
-        from backend.src.python_scripts.services.job_service import JobService
+        from services.resume_service import ResumeService
+        from services.job_service import JobService
         
         try:
             # Fetch resume and job

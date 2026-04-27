@@ -6,7 +6,7 @@ import logging
 from utils.embedding_utils import extract_experience_level_embedding, extract_job_title_embedding, extract_location_embedding, extract_requirement_embeddings, extract_skills_embeddings
 from config.database import db
 from models.embeddings import embedding_model
-from infrastructure.embedding_orchestrator import extract_job_embeddings_parallel
+from infrastructure.embeddings.embedding_orchestrator import extract_job_embeddings_parallel
 
 logger = logging.getLogger(__name__)
 

@@ -3,14 +3,13 @@ from typing import Optional, NamedTuple
 import torch
 from bson import ObjectId
 import logging
-from utils.embedding_utils import extract_certification_embeddings, extract_job_title_embedding, extract_skills_embeddings, extract_work_experience_embeddings
 from config.database import db
+from infrastructure.embeddings.embedding_orchestrator import extract_resume_embeddings_parallel
 from utils.date_utils import calculate_total_experience
-from infrastructure.embedding_orchestrator import extract_resume_embeddings_parallel
 
 logger = logging.getLogger(__name__)
 
-
+    
 class ResumeEmbeddings(NamedTuple):
     """Container for resume embeddings."""
     skills: Optional[torch.Tensor]
@@ -19,8 +18,6 @@ class ResumeEmbeddings(NamedTuple):
     location: Optional[torch.Tensor]
     certifications: Optional[torch.Tensor]
     total_experience_years: float
-    backfill_ids: Optional[dict]
-
 class ResumeService:
     """Handles resume data retrieval and processing."""
     
@@ -90,7 +87,7 @@ class ResumeService:
             ResumeEmbeddings containing all computed embeddings
         """
         # Batch extract embeddings for each section with parallel processing
-        result = extract_resume_embeddings_parallel(resume)
+        result = extract_resume_embeddings_parallel(resume, resume.get('_id', ''))
         
         # Calculate total experience
         total_exp = calculate_total_experience(resume.get("workExperience", []))
@@ -101,5 +98,5 @@ class ResumeService:
             location=result["location"],
             work_experience=result["work_experience"],
             certifications=result["certifications"],
-            total_experience_years=total_exp
+            total_experience_years=total_exp,
         )

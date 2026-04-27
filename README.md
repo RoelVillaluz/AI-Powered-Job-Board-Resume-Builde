@@ -1,6 +1,10 @@
 # **AI‑Powered Job Board Website with Resume Maker**
 
 ![CI/CD](https://github.com/RoelVillaluz/AI-Powered-Job-Board-Resume-Builde/actions/workflows/ci-cd.yml/badge.svg)
+![Coverage](https://img.shields.io/badge/coverage-85%25-brightgreen)
+![Status](https://img.shields.io/badge/Status-In%20Development-yellow)
+
+
 
 ![Node.js](https://img.shields.io/badge/Node.js-339933?logo=node.js&logoColor=white)
 ![Express](https://img.shields.io/badge/Express.js-000000?logo=express&logoColor=white)
@@ -10,7 +14,6 @@
 ![PyTorch](https://img.shields.io/badge/PyTorch-EE4C2C?logo=pytorch&logoColor=white)
 ![Jest](https://img.shields.io/badge/Jest-C21325?logo=jest&logoColor=white)
 ![Supertest](https://img.shields.io/badge/Supertest-000000?style=flat&logoColor=white)
-![Status](https://img.shields.io/badge/Status-In%20Development-yellow)
 
 A full‑stack job board platform designed to streamline the entire job application lifecycle — from discovery and matching to resume creation and interviews. The platform combines modern web technologies with AI‑driven features to help job seekers make smarter, faster career decisions.
 

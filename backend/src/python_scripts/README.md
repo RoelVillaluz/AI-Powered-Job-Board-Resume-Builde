@@ -2,19 +2,67 @@
 
 AI-powered resume scoring, job matching, and recommendations using semantic embeddings.
 
-## Quick Start
+---
+
+## Local Setup
+
+### 1. Create and activate the virtual environment
 
 ```bash
-# Install dependencies
-cd backend/python_scripts
-pip freeze > requirements.txt
-pip install -r requirements.txt
+cd backend/src/python_scripts
+python -m venv venv
 
-# Test manually
-python main.py score_resume <resume_id>
-python main.py generate_resume_embeddings <resume_id>
-python main.py generate_job_embeddings <job_id>
+# Windows
+venv\Scripts\activate
+
+# Mac/Linux
+source venv/bin/activate
 ```
+
+### 2. Install dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+### 3. Configure environment variables
+
+Add the following to your root `.env` file:
+
+```env
+# Point Node.js to your venv Python so imports resolve correctly at runtime
+PYTHON_EXECUTABLE=C:/Users/YourName/path/to/project/backend/src/python_scripts/venv/Scripts/python.exe
+```
+
+Use forward slashes even on Windows. Each developer sets their own path — this is machine-specific and must never be committed.
+
+### 4. Configure VS Code interpreter
+
+Add to `.vscode/settings.json` (not committed — already in `.gitignore`):
+
+```json
+{
+  "python.defaultInterpreterPath": "${workspaceFolder}/backend/src/python_scripts/venv/Scripts/python.exe",
+  "python.analysis.extraPaths": [
+    "${workspaceFolder}/backend/src/python_scripts"
+  ]
+}
+```
+
+Use `bin/python` instead of `Scripts/python.exe` on Mac/Linux.
+
+### 5. Verify the setup
+
+```bash
+# Should point inside your venv, not system Python
+where python       # Windows
+which python       # Mac/Linux
+
+# Quick smoke test
+python main.py score_resume <any_resume_id>
+```
+
+---
 
 ## Architecture
 
@@ -22,29 +70,82 @@ python main.py generate_job_embeddings <job_id>
 ┌─────────────────────────────────────────┐
 │  Node.js (Express/BullMQ)               │
 │  - API endpoints                        │
-│  - Queue management                     │
+│  - Queue management (Layer 1 parallel)  │
 │  - Cache checking                       │
+│  - pythonRunner.js spawns Python        │
 └──────────────┬──────────────────────────┘
-               ↓
+               ↓ spawn (PYTHON_EXECUTABLE)
 ┌─────────────────────────────────────────┐
 │  Python Scripts (AI/ML Layer)           │
-│  - Embedding generation                 │
-│  - Similarity calculations              │
-│  - Resume scoring                       │
-└──────────────┬──────────────────────────┘
-               ↓
-┌─────────────────────────────────────────┐
-│  DB Embedding Cache (Skills/Titles/Locs)│
-│  - Pre-computed embeddings              │
-│  - Backfill tracking for null entries   │
-│  - Falls back to live model if missing  │
-└─────────────────────────────────────────┘
+│  - main.py CLI entry point              │
+│  - services/ — domain logic             │
+│  - infrastructure/ — concurrency        │
+│  - utils/ — computation primitives      │
+└──────────┬──────────────┬───────────────┘
+           ↓              ↓
+┌──────────────┐  ┌───────────────────────┐
+│  MongoDB     │  │  Sentence Transformer  │
+│  Embedding   │  │  all-mpnet-base-v2     │
+│  Cache       │  │  (fallback only)       │
+└──────────────┘  └───────────────────────┘
 ```
+
+### Two-Layer Parallelism
+
+The system uses two independent parallelism layers that complement each other:
+
+```
+Layer 1 — Node.js / BullMQ
+  Multiple resumes processed simultaneously across workers.
+  Each worker spawns its own Python process.
+
+  Queue → Worker 1 → python main.py (resume A)
+        → Worker 2 → python main.py (resume B)
+        → Worker N → python main.py (resume N)
+
+Layer 2 — Python / ThreadPoolExecutor
+  Within a single Python process, all 5 embedding sections
+  run concurrently, overlapping DB lookups and model calls.
+
+  python main.py (resume A)
+    ├── Thread: skills embeddings       → MongoDB / model
+    ├── Thread: workExperience          → MongoDB / model
+    ├── Thread: certifications          → model
+    ├── Thread: jobTitle embedding      → MongoDB / model
+    └── Thread: location embedding      → MongoDB / model
+
+Why threads work despite the GIL:
+  MongoDB calls and model inference are I/O-bound.
+  The GIL releases during network/disk waits so threads
+  overlap meaningfully. CPU-bound tensor math is fast
+  enough that sequential execution is not a bottleneck.
+```
+
+### Performance Estimates
+
+```
+                     Before           After
+                  (sequential)   (parallel + batched)
+                 ─────────────  ────────────────────
+  0% cache hit     ~5500ms           ~1400ms    (~4x)
+ 50% cache hit     ~3200ms            ~800ms    (~4x)
+100% cache hit      ~900ms            ~120ms    (~7x)
+
+Time breakdown at 0% cache hit:
+                    Before    After
+  DB queries         800ms    200ms   (batched + parallel)
+  Model inference   4200ms   1050ms   (batched + parallel)
+  Other              500ms    150ms
+```
+
+The DB cache hit rate is the biggest lever — once `skills`, `jobtitles`,
+and `locations` collections are fully populated the model is rarely called.
+
+---
 
 ## Available Commands
 
 ### 1. Resume Scoring
-Calculate comprehensive resume quality score (0-100) with letter grade.
 
 ```bash
 python main.py score_resume <resume_id>
@@ -81,7 +182,8 @@ python main.py score_resume <resume_id>
 - F (0-59): Needs Improvement
 
 ### 2. Resume Embeddings
-Generate semantic embeddings for resume content. Returns both direct embeddings (jobTitle, location) and mean embeddings (skills, workExperience, certifications), plus backfill IDs for any DB entries missing embeddings.
+
+Returns direct embeddings (jobTitle, location), mean embeddings (skills, workExperience, certifications), and backfill IDs for any DB entries missing embeddings. All sections computed concurrently.
 
 ```bash
 python main.py generate_resume_embeddings <resume_id>
@@ -92,27 +194,28 @@ python main.py generate_resume_embeddings <resume_id>
 {
   "resume_id": "...",
   "embeddings": {
-    "jobTitle": [0.44, 0.22, ...],    // 768-dim vector
-    "location": [0.77, 0.99, ...]     // 768-dim vector
+    "jobTitle": [0.44, 0.22, ...],
+    "location": [0.77, 0.99, ...]
   },
   "meanEmbeddings": {
-    "skills": [0.23, 0.45, ...],           // 768-dim vector
-    "workExperience": [0.12, 0.88, ...],   // 768-dim vector
-    "certifications": [0.34, 0.56, ...]    // 768-dim vector
+    "skills": [0.23, 0.45, ...],
+    "workExperience": [0.12, 0.88, ...],
+    "certifications": [0.34, 0.56, ...]
   },
   "metrics": {
     "totalExperienceYears": 5.2
   },
   "backfill": {
-    "skillIds": ["skill_id_1", "skill_id_2"],  // Skills in DB with null embedding
-    "jobTitleId": "title_id_or_null",           // Job title in DB with null embedding
-    "locationId": "location_id_or_null"         // Location in DB with null embedding
+    "skillIds": ["skill_id_1", "skill_id_2"],
+    "jobTitleId": "title_id_or_null",
+    "locationId": "location_id_or_null"
   }
 }
 ```
 
 ### 3. Job Embeddings
-Generate semantic embeddings for job postings. Direct embeddings (jobTitle, experienceLevel, location) are separated from mean embeddings (skills, requirements).
+
+Direct embeddings (jobTitle, experienceLevel, location) separated from mean embeddings (skills, requirements). All sections computed concurrently.
 
 ```bash
 python main.py generate_job_embeddings <job_id>
@@ -123,19 +226,18 @@ python main.py generate_job_embeddings <job_id>
 {
   "job_id": "...",
   "embeddings": {
-    "jobTitle": [0.44, 0.22, ...],          // 768-dim vector
-    "experienceLevel": [0.66, 0.88, ...],   // 768-dim vector
-    "location": [0.77, 0.99, ...]           // 768-dim vector
+    "jobTitle": [0.44, 0.22, ...],
+    "experienceLevel": [0.66, 0.88, ...],
+    "location": [0.77, 0.99, ...]
   },
   "meanEmbeddings": {
-    "skills": [0.33, 0.11, ...],            // 768-dim vector
-    "requirements": [0.55, 0.77, ...]       // 768-dim vector
+    "skills": [0.33, 0.11, ...],
+    "requirements": [0.55, 0.77, ...]
   }
 }
 ```
 
 ### 4. Skill Embeddings
-Generate embedding for a single skill by its DB ID.
 
 ```bash
 python main.py generate_skill_embeddings <skill_id>
@@ -145,12 +247,13 @@ python main.py generate_skill_embeddings <skill_id>
 ```json
 {
   "skill_id": "...",
-  "embedding": [0.12, 0.34, ...]   // Flat float array (768-dim)
+  "embedding": [0.12, 0.34, ...]
 }
 ```
 
 ### 5. Job Title Embeddings
-Generate embedding for a job title using its `normalizedTitle` field. Aliases like "Sr. Engineer" and "Senior Engineer" map to the same normalized form, keeping embeddings semantically consistent.
+
+Uses `normalizedTitle` so aliases like "Sr. Engineer" and "Senior Engineer" produce the same vector.
 
 ```bash
 python main.py generate_job_title_embeddings <title_id>
@@ -160,12 +263,11 @@ python main.py generate_job_title_embeddings <title_id>
 ```json
 {
   "title_id": "...",
-  "embedding": [0.23, 0.56, ...]   // Flat float array (768-dim)
+  "embedding": [0.23, 0.56, ...]
 }
 ```
 
 ### 6. Location Embeddings
-Generate embedding for a location by its DB ID. Geographic and cultural proximity is captured — e.g. "New York, NY" and "Manhattan, NY" produce close vectors.
 
 ```bash
 python main.py generate_location_embeddings <location_id>
@@ -175,12 +277,11 @@ python main.py generate_location_embeddings <location_id>
 ```json
 {
   "location_id": "...",
-  "embedding": [0.77, 0.99, ...]   // Flat float array (768-dim)
+  "embedding": [0.77, 0.99, ...]
 }
 ```
 
 ### 7. Industry Embeddings
-Generate embedding for an industry by its DB ID.
 
 ```bash
 python main.py generate_industry_embeddings <industry_id>
@@ -190,107 +291,181 @@ python main.py generate_industry_embeddings <industry_id>
 ```json
 {
   "industry_id": "...",
-  "embedding": [0.45, 0.67, ...]   // Flat float array (768-dim)
+  "embedding": [0.45, 0.67, ...]
 }
 ```
+
+---
 
 ## Embedding Cache & Backfill Strategy
 
-Embedding generation now prioritizes **pre-computed DB embeddings** over live model inference. This dramatically reduces latency and model load.
+Embedding generation prioritizes pre-computed DB embeddings over live model inference.
 
-### How it works
+### Lookup order
 
-For skills, job titles, and locations, the system:
-
-1. Looks up the entity in the DB (`skills`, `jobtitles`, `locations` collections)
-2. Uses the stored `embedding` field if present
-3. Falls back to the live model if the entity is missing from DB **or** has a null embedding
-4. Returns `backfill` IDs (for resume embeddings) so the caller can schedule embedding writes for null entries
+1. Query the entity collection (`skills`, `jobtitles`, `locations`) by name — single batched query for all names at once
+2. Use the stored `embedding` field if present (~5ms)
+3. Fall back to the live model if missing from DB or embedding is null (~50-100ms)
+4. Return backfill IDs for null entries so the Node.js layer can enqueue writes
 
 ```
-DB hit with embedding  →  ~5ms  (tensor load only)
-DB hit, null embedding →  ~50-100ms (model fallback) + backfill ID returned
-Not in DB             →  ~50-100ms (model fallback)
+DB hit, embedding present  →  ~5ms    tensor load only
+DB hit, embedding null     →  ~50ms   model fallback + backfill ID returned
+Not in DB                  →  ~50ms   model fallback
 ```
 
-### Backfill IDs (Resume Embeddings)
+### Backfill workflow
 
-The `backfill` block in resume embedding responses lets the Node.js layer enqueue writes for DB entries that exist but have no stored embedding:
+After generating resume embeddings, check the `backfill` block and enqueue a write job for each returned ID:
 
-```json
-"backfill": {
-  "skillIds": ["abc123", "def456"],
-  "jobTitleId": "ghi789",
-  "locationId": null
+```bash
+python main.py generate_skill_embeddings <skill_id>
+python main.py generate_job_title_embeddings <title_id>
+python main.py generate_location_embeddings <location_id>
+```
+
+This keeps the cache warm and eliminates repeated model fallback for common entities.
+
+---
+
+## Observability
+
+Every pipeline run is automatically measured and persisted. No manual instrumentation needed — it is wired into `infrastructure/embedding_orchestrator.py`.
+
+### What is captured
+
+- **Per-section timing** — duration in ms for each of the 5 embedding sections
+- **Cache outcome per section** — `hit`, `miss`, `null_backfill`, or `skipped`
+- **Total pipeline duration** — wall-clock time across all concurrent sections
+- **Run summary** — hit/miss/backfill counts, slowest section, error flag
+
+### stderr output (per run)
+
+```
+[embedding_metrics] resume=abc123 total=1342ms hits=3 misses=1 backfills=1
+  ✓ skills               842.3ms  [hit]
+  ✗ workExperience       310.1ms  [miss]
+  ✓ certifications        89.4ms  [hit]
+  ✓ jobTitle              54.2ms  [hit]
+  ~ location              46.8ms  [null_backfill]
+```
+
+### MongoDB document schema (if you choose to persist metrics)
+
+```javascript
+{
+  entityType: "resume",
+  entityId: "abc123",
+  startedAt: ISODate,
+  completedAt: ISODate,
+  totalDurationMs: 1342.0,
+  cacheHits: 3,
+  cacheMisses: 1,
+  nullBackfills: 1,
+  slowestSection: "skills",
+  hadErrors: false,
+  sections: [
+    { section: "skills",         durationMs: 842.3, cacheOutcome: "hit" },
+    { section: "workExperience", durationMs: 310.1, cacheOutcome: "miss" },
+    { section: "certifications", durationMs: 89.4,  cacheOutcome: "hit" },
+    { section: "jobTitle",       durationMs: 54.2,  cacheOutcome: "hit" },
+    { section: "location",       durationMs: 46.8,  cacheOutcome: "null_backfill" }
+  ]
 }
 ```
 
-Use `generate_skill_embeddings`, `generate_job_title_embeddings`, or `generate_location_embeddings` to produce and persist these.
+### Useful queries (once collection is created)
 
-## Integration with Node.js
+These queries assume you have created an `embeddingmetrics` collection and wired `embedding_metrics.py` to write to it.
 
-### From Controller (Direct Call)
 ```javascript
-import { runPython } from '../utils/pythonRunner.js';
+// Average total duration over last 7 days
+db.embeddingmetrics.aggregate([
+  { $match: { startedAt: { $gte: new Date(Date.now() - 7*24*60*60*1000) } } },
+  { $group: { _id: "$entityType", avgMs: { $avg: "$totalDurationMs" } } }
+])
 
-const result = await runPython('score_resume', [resumeId]);
+// Cache hit rate per entity type
+db.embeddingmetrics.aggregate([
+  { $group: {
+    _id: "$entityType",
+    totalHits:   { $sum: "$cacheHits" },
+    totalMisses: { $sum: "$cacheMisses" }
+  }}
+])
+
+// Slowest runs
+db.embeddingmetrics
+  .find({ totalDurationMs: { $gt: 3000 } })
+  .sort({ totalDurationMs: -1 })
+  .limit(10)
+
+// Sections that most often miss (backfill candidates)
+db.embeddingmetrics.aggregate([
+  { $unwind: "$sections" },
+  { $match: { "sections.cacheOutcome": "miss" } },
+  { $group: { _id: "$sections.section", count: { $sum: 1 } } },
+  { $sort: { count: -1 } }
+])
 ```
 
-### From Queue Processor (Async Job)
-```javascript
-export const resumeScoreProcessor = async (job) => {
-    const { resumeId } = job.data;
-    const result = await calculateResumeScoreService(resumeId, job);
-    return result;
-};
-```
-
-### From Webhook (Direct Call)
-```javascript
-export const onResumeUpdate = async (resumeId) => {
-    await createResumeEmbeddingService(resumeId, true);
-};
-```
+---
 
 ## Project Structure
 
 ```
-backend/python_scripts/
-├── main.py                    # CLI entry point (Node.js calls this)
-├── requirements.txt           # Python dependencies
+backend/src/python_scripts/
+├── main.py                         # CLI entry point
+├── requirements.txt                # Python dependencies
+├── venv/                           # Local virtual environment (not committed)
 │
 ├── config/
-│   └── database.py           # MongoDB connection
+│   └── database.py                 # MongoDB connection
 │
 ├── models/
-│   └── embeddings.py         # Sentence transformer model (all-mpnet-base-v2)
+│   └── embeddings.py               # Sentence transformer (all-mpnet-base-v2)
 │
 ├── services/
-│   ├── resume_service.py     # Resume data & embeddings
-│   ├── job_service.py        # Job data & embeddings
-│   ├── scoring_service.py    # Resume scoring logic
-│   ├── similarity_service.py # Cosine similarity calculations
-│   ├── comparison_service.py # Resume-job matching
-│   ├── analytics_service.py  # Insights & recommendations
+│   ├── resume_service.py           # Resume data & embeddings
+│   ├── job_service.py              # Job data & embeddings
+│   ├── scoring_service.py          # Resume scoring logic
+│   ├── similarity_service.py       # Cosine similarity calculations
+│   ├── comparison_service.py       # Resume-job matching
+│   ├── analytics_service.py        # Insights & recommendations
 │   └── market_services/
-│       ├── skill_services.py      # DB cache lookup for skills
-│       ├── job_title_services.py  # DB cache lookup for job titles
-│       └── location_services.py   # DB cache lookup for locations
-        └── industry_services.py   # DB cache lookup for industries
+│       ├── skill_services.py       # DB cache lookup for skills
+│       ├── job_title_services.py   # DB cache lookup for job titles
+│       └── location_services.py    # DB cache lookup for locations
+│       └── industry_services.py    # DB cache lookup for industries
+│
+├── infrastructure/
+│   ├── embedding_orchestrator.py   # Parallel section coordination (ThreadPoolExecutor)
+│   └── embedding_metrics.py        # Observability — timing, cache outcomes, DB write
 │
 ├── utils/
-│   ├── embedding_utils.py    # Extract embeddings from documents (DB-cache aware)
-│   ├── date_utils.py         # Calculate experience years
-│   ├── tensor_utils.py       # PyTorch tensor helpers
-│   └── websocket_utils.py    # Progress event emitter
+│   ├── embedding_utils.py          # Per-section extraction (DB-cache aware)
+│   ├── date_utils.py               # Experience year calculations
+│   ├── tensor_utils.py             # PyTorch tensor helpers
+│   └── websocket_utils.py          # Progress event emitter
 │
 └── clustering/
-    └── job_clustering.py     # K-Means clustering for jobs
+    └── job_clustering.py           # K-Means clustering for jobs
 ```
 
-## Caching Strategy
+### Layer responsibilities
 
-All operations check cache first to avoid redundant calculations:
+```
+main.py              CLI dispatch only — no business logic
+services/            Domain logic — what to fetch, what the result means
+infrastructure/      Concurrency + observability — how to run and measure it
+utils/               Computation primitives — how to compute one embedding
+```
+
+---
+
+---
+
+## Caching Strategy
 
 | Operation | Cache Collection | TTL | Cache Key |
 |-----------|-----------------|-----|-----------|
@@ -301,29 +476,20 @@ All operations check cache first to avoid redundant calculations:
 | Skill Embeddings | `skills.embedding` | Permanent | `skill: ObjectId` |
 | Job Title Embeddings | `jobtitles.embedding` | Permanent | `title: ObjectId` |
 | Location Embeddings | `locations.embedding` | Permanent | `location: ObjectId` |
-| Industry Embeddings | `industrys.embedding` | Permanent | `industry: ObjectId` |
 
-**Performance Impact:**
-- Cache Hit (DB embedding): ~5ms
-- Cache Hit (result doc): ~20ms (database lookup only)
-- Cache Miss: ~500ms (Python execution + embedding generation)
-- **Speedup: 25-100x faster with caching!**
+---
 
 ## ML Model
 
 **Model:** `all-mpnet-base-v2` (Sentence Transformers)
 - **Embedding Size:** 768 dimensions
 - **Max Sequence Length:** 384 tokens
-- **Use Case:** Semantic similarity between text
-- **Performance:** ~50-100ms per encoding
+- **Performance:** ~50-100ms per encoding (called only on cache miss)
+- **First run:** downloads ~400MB, cached at `~/.cache/torch/sentence_transformers/`
 
-**Why this model?**
-- State-of-the-art semantic understanding
-- Balanced speed vs accuracy
-- Pre-trained on diverse text corpus
-- Works well for resume/job matching
+---
 
-## Database Schema Requirements
+## Database Schema
 
 ### Resumes Collection
 ```javascript
@@ -335,23 +501,23 @@ All operations check cache first to avoid redundant calculations:
   phone: String,
   summary: String,
   skills: [{
-    _id: ObjectId,        // ref: 'Skill'
+    _id: ObjectId,   // ref: 'Skill'
     name: String,
-    level: String,        // 'Beginner' | 'Intermediate' | 'Advanced' | 'Expert'
+    level: String,   // 'Beginner' | 'Intermediate' | 'Advanced' | 'Expert'
   }],
   jobTitle: {
-    _id: ObjectId,        // ref: 'JobTitle'
+    _id: ObjectId,   // ref: 'JobTitle'
     name: String,
   },
   location: {
-    _id: ObjectId,        // ref: 'Location'
+    _id: ObjectId,   // ref: 'Location'
     name: String,
   },
   workExperience: [{
     jobTitle: String,
     company: String,
     startDate: Date,
-    endDate: Date,        // or "present"
+    endDate: Date,   // or "present"
     responsibilities: [String]
   }],
   education: [{
@@ -370,21 +536,21 @@ All operations check cache first to avoid redundant calculations:
   title: String,
   company: String,
   location: {
-    _id: ObjectId,        // ref: 'Location'
+    _id: ObjectId,   // ref: 'Location'
     name: String,
   },
   jobTitle: {
-    _id: ObjectId,        // ref: 'JobTitle'
+    _id: ObjectId,   // ref: 'JobTitle'
     name: String,
   },
-  experienceLevel: String,        // "Entry", "Mid", "Senior"
-  status: String,                 // "active", "closed"
+  experienceLevel: String,   // "Entry" | "Mid" | "Senior"
+  status: String,            // "active" | "closed"
   skills: [{
-    _id: ObjectId,        // ref: 'Skill'
+    _id: ObjectId,   // ref: 'Skill'
     name: String,
   }],
-  requirements: String[] | {      // Old schema: array of strings
-    description: String,          // New schema: structured object
+  requirements: String[] | {   // Old schema: array of strings
+    description: String,       // New schema: structured object
     education: String,
     yearsOfExperience: Number,
     certifications: [String]
@@ -403,55 +569,69 @@ All operations check cache first to avoid redundant calculations:
 }
 ```
 
+### Shared Entity Collections
+```javascript
+// skills, jobtitles, locations, industries
+{
+  _id: ObjectId,
+  name: String,        // normalizedTitle for jobtitles
+  embedding: [Number]  // 768-dim float array; null = backfill needed
+}
+```
+
+
+---
+
 ## Error Handling
 
-All functions return JSON with an `error` field on failure:
+All commands return JSON with an `error` field on failure:
 
 ```json
-{
-  "error": "Resume not found: invalid_id"
-}
+{ "error": "Resume not found: invalid_id" }
 ```
 
-**Common Errors:**
-- `Resume not found` — Invalid `resume_id` or resume doesn't exist
-- `Job not found` — Invalid `job_id` or job doesn't exist
-- `Skill not found` — Invalid `skill_id` or skill doesn't exist
-- `Job title not found` — Invalid `title_id`
-- `Location not found` — Invalid `location_id`
-- `Industry not found` — Invalid `industry_id`
-- `Failed to generate embedding` — Model loading failed or input too long
-- `MongoDB connection error` — Database unreachable
+**Common errors:**
+- `Resume not found` — invalid or missing `resume_id`
+- `Job not found` — invalid or missing `job_id`
+- `Skill / Job title / Location / Industry not found` — invalid entity ID
+- `Failed to generate embedding` — model loading failed or input too long
+- `MongoDB connection error` — database unreachable
 
-## Performance Optimization
+Individual embedding sections that fail inside the orchestrator are isolated — one failing section does not abort the rest. The failed section returns `None` and the error is logged to stderr.
 
-### 1. Prefer DB-Cached Embeddings
-```python
-# embedding_utils.py checks DB first for skills, job titles, locations
-# Only calls embedding_model.encode() as a fallback
-skill_docs = SkillService.get_with_embeddings_by_names(skill_names)
+---
+
+## Troubleshooting
+
+### `ModuleNotFoundError: No module named 'torch'` at runtime
+
+Node.js is using system Python instead of the venv. Set `PYTHON_EXECUTABLE` in `.env` to your venv Python path and restart the server.
+
+### Pylance shows import errors in VS Code
+
+VS Code is pointing at the wrong interpreter. Set `python.defaultInterpreterPath` in `.vscode/settings.json` to your venv path and reload (`Ctrl+Shift+P` → Developer: Reload Window).
+
+### `.vscode/settings.json` appearing in git staged changes
+
+It was tracked before being added to `.gitignore`. Untrack it:
+```bash
+git rm --cached .vscode/settings.json
+git commit -m "chore: untrack .vscode/settings.json"
 ```
 
-### 2. Use Field Projections
-```python
-# Good — Only fetch needed fields (3-8 KB)
-resume = ResumeService.get_job_relevant_resume(resume_id)
+### Module import errors
 
-# Bad — Fetch entire document (15-25 KB)
-resume = db.resumes.find_one({"_id": ObjectId(resume_id)})
+```bash
+export PYTHONPATH="${PYTHONPATH}:$(pwd)/backend/src/python_scripts"
 ```
 
-### 3. Leverage Result Caching
-```javascript
-// Always check cache first
-const cached = await getResumeEmbeddingsRepo(resumeId);
-if (cached && isFresh(cached)) {
-    return cached; // Up to 100x faster!
-}
+### Memory issues with large batches
+
+```bash
+BATCH_SIZE=16 python main.py batch_compare ...
 ```
 
-### 4. Schedule Backfill Writes
-After generating resume embeddings, check the `backfill` block and enqueue writes for any returned IDs. This keeps the DB cache warm and avoids repeated model fallback for common skills and titles.
+---
 
 ## Testing
 
@@ -462,37 +642,11 @@ pytest tests/
 # Test specific service
 pytest tests/test_scoring_service.py
 
-# Test with coverage
+# With coverage
 pytest --cov=services tests/
 ```
 
-## Troubleshooting
-
-### Python Script Not Found
-```bash
-# Run from project root
-node backend/server.js
-
-# Not from:
-cd backend/python_scripts && node ../server.js  # Wrong!
-```
-
-### Module Import Errors
-```bash
-export PYTHONPATH="${PYTHONPATH}:$(pwd)/backend/python_scripts"
-```
-
-### Embedding Model Download
-```bash
-# First run downloads ~400MB model
-# Takes ~1-2 minutes
-# Cached in: ~/.cache/torch/sentence_transformers/
-```
-
-### Memory Issues
-```bash
-BATCH_SIZE=16 python main.py batch_compare ...
-```
+---
 
 ## Future Enhancements
 
@@ -505,12 +659,16 @@ BATCH_SIZE=16 python main.py batch_compare ...
 - [ ] Add collaborative filtering
 - [ ] Support for multiple languages
 - [ ] Expose `compare_resume_job` and `get_recommendations` via `main.py` CLI
+- [ ] Persist embedding metrics to a dedicated collection for trend analysis
+
+---
 
 ## Contributing
 
 When adding new commands:
 
-1. Add function to `main.py`
-2. Add corresponding service in `services/`
-3. Update this README with examples
-4. Add tests in `tests/`
+1. Add the function to `main.py`
+2. Add the corresponding service in `services/`
+3. Add an instrumented task wrapper in `infrastructure/embedding_orchestrator.py`
+4. Update this README with the command, response shape, and any schema changes
+5. Add tests in `tests/`

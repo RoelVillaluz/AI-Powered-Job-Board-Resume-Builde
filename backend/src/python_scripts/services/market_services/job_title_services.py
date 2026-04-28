@@ -1,6 +1,6 @@
 """ Service for job title-related operations """
 
-from typing import Optional
+from typing import Dict, List, Optional
 from config.database import db
 from bson import ObjectId
 import torch
@@ -109,6 +109,34 @@ class JobTitleService:
                 for s in title_doc.get("topSkills", [])
             ],
         }
+
+    @staticmethod
+    def get_title_metrics_by_id(title_id: str) -> Dict:
+        if not title_id:
+            return {}
+
+        try:
+            doc = db.job_titles.find_one(
+                {"_id": ObjectId(title_id)},
+                {
+                    "title": 1,
+                    "normalizedTitle": 1,
+                    "seniorityLevel": 1,
+                    "industry": 1,
+                    "demandMetrics": 1,
+                    "salaryData": 1,
+                    "trendData": 1,
+                    "commonEducation": 1,
+                    "experienceDistribution": 1,
+                    "topSkills": 1,
+                }
+            )
+
+            return JobTitleService.extract_metrics(doc)
+
+        except Exception as e:
+            logger.error(f"[TitleMetrics] Failed fetch: {e}")
+            return []
     
     @staticmethod
     def get_with_embedding_by_id(job_title_id: str) -> Optional[dict]:

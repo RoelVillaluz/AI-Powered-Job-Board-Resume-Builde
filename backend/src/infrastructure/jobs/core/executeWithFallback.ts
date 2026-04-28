@@ -1,4 +1,4 @@
-import logger from "../../../utils/logger.js";
+import logger from "../../../utils/logger.js"
 import { safeQueueOperation } from "../../../utils/queueUtils.js";
 
 type ExecutionOptions<T> = {
@@ -6,7 +6,7 @@ type ExecutionOptions<T> = {
     fallbackFn: () => Promise<T>;
 }
 
-export const executeEmbeddingFallback = async <T>({
+export const executeWithFallback = async <T>({
     queueFn,
     fallbackFn
 }: ExecutionOptions<T>) => {

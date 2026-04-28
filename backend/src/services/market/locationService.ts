@@ -6,9 +6,9 @@ import { isEmbeddingStale, isValidEmbedding } from '../../utils/embeddings/embed
 import { QueueJob } from '../../types/queues.types.js';
 import { PythonEmit, PythonResponse, runPythonTyped } from '../../types/python.types.js';
 import { CreateLocationPayload, LocationEmbeddingData, UpdateLocationPayload } from '../../types/location.types.js';
-import { embeddingRegistry } from '../../infrastructure/embedding/registry/embeddingRegistry.js';
-import { orchestrateEmbeddings } from '../../infrastructure/embedding/core/orchestrateEmbedding.js';
-import { executeEmbeddingPipeline } from '../../infrastructure/embedding/core/executeEmbeddingPipeline.js';
+import { embeddingRegistry } from '../../infrastructure/jobs/domains/embedding/embeddingRegistry.js';
+import { orchestrateComputeJob } from '../../infrastructure/jobs/core/orchestrateComputeJob.js';
+import { executeComputePipeline } from '../../infrastructure/jobs/core/executeComputePipeline.js';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -27,7 +27,7 @@ export const getOrGenerateLocationEmbeddingService = async (
     locationId: Types.ObjectId,
     invalidateCache: boolean = false,
 ): Promise<LocationEmbeddingOrchestrationResult> => {
-    return orchestrateEmbeddings<LocationEmbeddingData>({
+    return orchestrateComputeJob<LocationEmbeddingData>({
         invalidateCache,
         logContext: `location:${locationId}`,
 
@@ -83,7 +83,7 @@ export const upsertLocationEmbeddingService = async (
     emit: PythonEmit = () => {},
 ) => {
     if (isFallback) logger.warn(`Location embedding generated inline (Redis fallback)`);
-    return executeEmbeddingPipeline({ entityKey: 'location', id: locationId, job, emit });
+    return executeComputePipeline({ entityKey: 'location', id: locationId, job, emit });
 };
 
 // ─── Create ───────────────────────────────────────────────────────────────────

@@ -105,8 +105,9 @@ export const useResumeScore = () => {
             pipelineStartTime.current = null;
 
             queryClient.setQueryData(["resumeScore", currentResume._id], {
+                success: true,
+                formattedMessage: "Resume Score fetched successfully",
                 data,
-                status: "ready"
             });
         });
 

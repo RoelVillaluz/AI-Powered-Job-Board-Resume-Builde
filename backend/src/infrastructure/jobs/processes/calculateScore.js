@@ -1,9 +1,9 @@
-import Resume from "../../models/resumes/resumeModel.js";
-import { getResumeScoreService, generateResumeScoreService } from "../../services/resumes/resumeScoreService.js";
-import logger from "../../utils/logger.js";
-import { AppError } from "../../middleware/errorHandler.js";
-import { getSocketId } from "../../sockets/presence.js";
-import { getIO } from "../../sockets/index.js";
+import Resume from "../../../models/resumes/resumeModel.js";
+import { getResumeScoreService, generateResumeScoreService } from "../../../services/resumes/resumeScoreService.js";
+import logger from "../../../utils/logger.js";
+import { AppError } from "../../../middleware/errorHandler.js";
+import { getSocketId } from "../../../sockets/presence.js";
+import { getIO } from "../../../sockets/index.js";
 
 /**
  * BullMQ processor for standalone resume score calculation jobs.

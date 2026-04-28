@@ -194,3 +194,20 @@ class SkillService:
             })
 
         return metrics_list
+
+    @staticmethod
+    def extract_metrics_from_ids(skill_ids: list[str]) -> list[dict]:
+        docs = list(db.skills.find(
+            {"_id": {"$in": [ObjectId(id) for id in skill_ids]}},
+            {
+                "name": 1,
+                "type": 1,
+                "demandScore": 1,
+                "growthRate": 1,
+                "seniorityMultiplier": 1,
+                "salaryData": 1,
+                "embedding": 1,
+            }
+        ))
+
+        return SkillService.extract_metrics(docs)

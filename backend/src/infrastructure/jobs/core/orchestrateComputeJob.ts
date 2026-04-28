@@ -1,5 +1,5 @@
 import logger from "../../../utils/logger.js"
-import { executeEmbeddingFallback } from "./executeEmbeddingFallback.js"
+import { executeWithFallback } from "./executeWithFallback.js"
 
 interface OrchestrationOptions<T> {
     invalidateCache?: boolean;
@@ -10,7 +10,7 @@ interface OrchestrationOptions<T> {
     fallbackGeneration: () => Promise<T>;
 }
 
-export const orchestrateEmbeddings = async <T>({
+export const orchestrateComputeJob = async <T>({
     invalidateCache = false,
     logContext,
     getCached,
@@ -40,7 +40,7 @@ export const orchestrateEmbeddings = async <T>({
         reason: invalidateCache ? "forced_regeneration" : "cache_miss"
     });
 
-    const result = await executeEmbeddingFallback({
+    const result = await executeWithFallback({
         queueFn: queueGeneration,
         fallbackFn: fallbackGeneration
     });

@@ -6,9 +6,9 @@ import { PythonEmit, PythonResponse, runPythonTyped } from '../../types/python.t
 import * as IndustryRepo from '../../repositories/market/industryRepositories.js';
 import { isEmbeddingStale, isValidEmbedding } from '../../utils/embeddings/embeddingValidationUtils.js';
 import Industry from '../../models/market/industryModel.js';
-import { embeddingRegistry } from '../../infrastructure/embedding/registry/embeddingRegistry.js';
-import { orchestrateEmbeddings } from '../../infrastructure/embedding/core/orchestrateEmbedding.js';
-import { executeEmbeddingPipeline } from '../../infrastructure/embedding/core/executeEmbeddingPipeline.js';
+import { embeddingRegistry } from '../../infrastructure/jobs/domains/embedding/embeddingRegistry.js';
+import { orchestrateComputeJob } from '../../infrastructure/jobs/core/orchestrateComputeJob.js';
+import { executeComputePipeline } from '../../infrastructure/jobs/core/executeComputePipeline.js';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -27,7 +27,7 @@ export const getOrGenerateIndustryEmbeddingService = async (
     industryId: Types.ObjectId,
     invalidateCache: boolean = false,
 ): Promise<IndustryEmbeddingOrchestrationResult> => {
-    return orchestrateEmbeddings<IndustryEmbeddingData>({
+    return orchestrateComputeJob<IndustryEmbeddingData>({
         invalidateCache,
         logContext: `industry:${industryId}`,
 
@@ -83,7 +83,7 @@ export const upsertIndustryEmbeddingService = async (
     emit: PythonEmit = () => {},
 ) => {
     if (isFallback) logger.warn(`Industry embedding generated inline (Redis fallback)`);
-    return executeEmbeddingPipeline({ entityKey: 'industry', id: industryId, job, emit });
+    return executeComputePipeline({ entityKey: 'industry', id: industryId, job, emit });
 };
 
 // ─── Create ───────────────────────────────────────────────────────────────────

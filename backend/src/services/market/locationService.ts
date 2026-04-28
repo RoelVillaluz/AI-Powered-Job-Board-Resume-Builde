@@ -6,9 +6,9 @@ import { isEmbeddingStale, isValidEmbedding } from '../../utils/embeddings/embed
 import { QueueJob } from '../../types/queues.types.js';
 import { PythonEmit, PythonResponse, runPythonTyped } from '../../types/python.types.js';
 import { CreateLocationPayload, LocationEmbeddingData, UpdateLocationPayload } from '../../types/location.types.js';
-import { embeddingRegistry } from '../../infrastructure/embedding/registry/embeddingRegistry.js';
-import { orchestrateEmbeddings } from '../../infrastructure/embedding/core/orchestrateEmbedding.js';
-import { executeEmbeddingPipeline } from '../../infrastructure/embedding/core/executeEmbeddingPipeline.js';
+import { embeddingRegistry } from '../../infrastructure/domains/embedding/registry/embeddingRegistry.js';
+import { orchestrateEmbeddings } from '../../infrastructure/domains/embedding/core/orchestrateEmbedding.js';
+import { executeEmbeddingPipeline } from '../../infrastructure/domains/embedding/core/executeEmbeddingPipeline.js';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 

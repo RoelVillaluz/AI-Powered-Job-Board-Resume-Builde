@@ -1,5 +1,5 @@
 import { Types } from "mongoose";
-import { QueueJob } from "../../../types/queues.types.js";
+import { QueueJob } from "../../../../types/queues.types.js";
 import { embeddingRegistry } from "./embeddingRegistry.js";
 
 /**

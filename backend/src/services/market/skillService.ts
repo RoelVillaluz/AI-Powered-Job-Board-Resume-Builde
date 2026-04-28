@@ -6,9 +6,9 @@ import { PythonEmit } from '../../types/python.types.js';
 import { QueueJob } from '../../types/queues.types.js';
 import Skill, { SkillDocument } from '../../models/market/skillModel.js';
 import { CreateSkillPayload, UpdateSkillPayload } from '../../types/skill.types.js';
-import { embeddingRegistry } from '../../infrastructure/embedding/registry/embeddingRegistry.js';
-import { orchestrateEmbeddings } from '../../infrastructure/embedding/core/orchestrateEmbedding.js';
-import { executeEmbeddingPipeline } from '../../infrastructure/embedding/core/executeEmbeddingPipeline.js';
+import { embeddingRegistry } from '../../infrastructure/domains/embedding/registry/embeddingRegistry.js';
+import { orchestrateEmbeddings } from '../../infrastructure/domains/embedding/core/orchestrateEmbedding.js';
+import { executeEmbeddingPipeline } from '../../infrastructure/domains/embedding/core/executeEmbeddingPipeline.js';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 

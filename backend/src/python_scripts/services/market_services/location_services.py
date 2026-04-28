@@ -1,6 +1,6 @@
 """ Service for location-related operations """
 
-from typing import Optional
+from typing import Dict, List, Optional
 from config.database import db
 from bson import ObjectId
 import torch
@@ -83,6 +83,28 @@ class LocationService:
             'totalPostings': demand.get('totalPostings', 0),
             'growthRate': demand.get('growthRate', 0),
         }
+    
+    @staticmethod
+    def get_location_metrics_by_id(location_id: str) -> Dict:
+        if not location_id:
+            return {}
+
+        try:
+            doc = db.locations.find_one(
+                {"_id": ObjectId(location_id)},
+                {
+                    "name": 1,
+                    "salaryData": 1,
+                    "baselineFactor": 1,
+                    "demandMetrics": 1,
+                }
+            )
+
+            return LocationService.extract_metrics(doc)
+
+        except Exception as e:
+            logger.error(f"[LocationMetrics] Failed fetch: {e}")
+            return []
     
     @staticmethod
     def get_with_embedding_by_id(location_id: str) -> Optional[dict]:

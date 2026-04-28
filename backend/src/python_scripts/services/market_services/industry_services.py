@@ -1,6 +1,6 @@
 """ Service for industry-related operations """
 
-from typing import Optional
+from typing import Dict, List, Optional
 from config.database import db
 from bson import ObjectId
 import logging
@@ -180,3 +180,28 @@ class IndustryService:
             # Data reliability indicator
             "dataQuality": industry_doc.get("dataQuality", 0),
         }
+    
+    @staticmethod
+    def get_industry_metrics_by_id(industry_id: str) -> Dict:
+        if not industry_id:
+            return {}
+
+        try:
+            doc = INDUSTRY_COLLECTION.find_one( 
+                {"_id": ObjectId(industry_id)},
+                {
+                    "name": 1,
+                    "marketMetrics": 1,
+                    "salaryBenchmarks": 1,
+                    "topSkills": 1,
+                    "emergingSkills": 1,
+                    "decliningSkills": 1,
+                    "dataQuality": 1,
+                }
+            )
+
+            return IndustryService.extract_metrics(doc)
+
+        except Exception as e:
+            logger.error(f"[IndustryMetrics] Failed fetch: {e}")
+            return []

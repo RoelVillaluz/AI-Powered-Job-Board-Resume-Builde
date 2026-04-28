@@ -67,7 +67,7 @@ type QueueRunnerOptions<TPayload> = {
  * 
  * **Example Usage:**
  * ```typescript
- * const queueRunner = createEmbeddingQueueRunner({
+ * const queueRunner = createQueueJobRunner({
  *     queue: resumeEmbeddingQueue,
  *     jobName: "generate-embeddings",
  *     jobIdPrefix: "resume-embedding",
@@ -86,7 +86,7 @@ type QueueRunnerOptions<TPayload> = {
  * @param options - Queue runner configuration
  * @returns Async function that queues a job and returns its ID
  */
-export const createEmbeddingQueueRunner = <TPayload>({
+export const createQueueJobRunner = <TPayload>({
     queue,
     jobName,
     jobIdPrefix,
@@ -102,6 +102,10 @@ export const createEmbeddingQueueRunner = <TPayload>({
      * @throws Error if queue.add() fails
      */
     return async (payload: TPayload & { id: string }) => {
+        const jobId = process.env.NODE_ENV === 'production'
+            ? `${jobIdPrefix}-${payload.id}`
+            : `${jobIdPrefix}-${payload.id}-${Date.now()}`;
+
         const job = await queue.add(jobName, payload, {
             attempts,
             backoff: { 
@@ -109,7 +113,8 @@ export const createEmbeddingQueueRunner = <TPayload>({
                 delay 
             },
             timeout,
-            jobId: `${jobIdPrefix}-${payload.id}`
+
+            jobId: jobId,
         });
 
         return { 

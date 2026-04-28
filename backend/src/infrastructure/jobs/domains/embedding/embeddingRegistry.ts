@@ -1,5 +1,5 @@
 import { Types } from "mongoose";
-import { createEmbeddingQueueRunner } from "../../core/createEmbeddingQueueRunner.js";
+import { createQueueJobRunner } from "../../core/createQueueJobRunner.js";
 import {
     resumeEmbeddingQueue,
     skillEmbeddingQueue,
@@ -8,7 +8,7 @@ import {
     industryEmbeddingQueue,
     jobEmbeddingQueue,
 } from "../../../../queues/index.js";
-import { EmbeddingEntityConfig } from "./embeddingRegistry.types.js";
+import { ComputeJobConfig } from "../../core/computeRegistryTypes.js";
 
 // ─── Resume ───────────────────────────────────────────────────────────────────
 import { JobPostingEmbeddingsDocument, MarketEmbeddingUpdate, ResumeEmbeddingsDocument } from "../../../../types/embeddings.types.js";
@@ -18,7 +18,6 @@ import {
     updateResumeEmbeddingRepo,
 } from "../../../../repositories/resumes/resumeEmbeddingRepository.js";
 import { upsertResumeEmbedding } from "../../../../services/resumes/resumeEmbeddingService.js";
-import { generateResumeScoreService } from "../../../../services/resumes/resumeScoreService.js";
 
 // ─── Skill ────────────────────────────────────────────────────────────────────
 import { SkillDocument } from "../../../../models/market/skillModel.js";
@@ -84,7 +83,7 @@ const emitProgressOnly = (cb: (progress: number) => void): PythonEmit => {
  *   2. Export its Queue + DLQ from queues/index.ts.
  *   3. Add it to queueMap + dlqMap in workerRegistry.ts.
  */
-export const embeddingRegistry: Record<string, EmbeddingEntityConfig<any, any>> = {
+export const embeddingRegistry: Record<string, ComputeJobConfig<any, any>> = {
 
     // =========================================================================
     // RESUME
@@ -98,7 +97,7 @@ export const embeddingRegistry: Record<string, EmbeddingEntityConfig<any, any>> 
         priority:    2,
         dlqName:     null,
 
-        queue: createEmbeddingQueueRunner({
+        queue: createQueueJobRunner({
             queue:       resumeEmbeddingQueue,
             jobName:     'generate-embeddings',
             jobIdPrefix: 'resume-embedding',
@@ -130,13 +129,24 @@ export const embeddingRegistry: Record<string, EmbeddingEntityConfig<any, any>> 
             generatedAt:    new Date(),
         }),
 
-        afterSave: async (saved, _emit, emitSocket) => {
+        afterSave: async (saved, _emit, emitSocket, ctx) => {
             logger.info(`[REGISTRY] Triggering resume score calculation: ${saved.resume}`);
             // emitSocket is (event, data) => void — matches what generateResumeScoreService expects
-            await generateResumeScoreService(saved.resume.toString(), null, emitSocket);
+            
+            const { generateResumeScoreService } = await import(
+                '../../../../services/resumes/resumeScoreService.js'
+            );
+
+            await generateResumeScoreService(
+                saved.resume.toString(),
+                false,
+                null,
+                ctx?.userId ?? null,   // ← userId now flows through
+                emitSocket,
+            );
         },
 
-    } as EmbeddingEntityConfig<ResumeEmbeddingsDocument, { resumeId: string; userId: string }>,
+    } as ComputeJobConfig<ResumeEmbeddingsDocument, { resumeId: string; userId: string }>,
 
     // jobPosting: {
     //     queueName:   'job-embedding',
@@ -144,7 +154,7 @@ export const embeddingRegistry: Record<string, EmbeddingEntityConfig<any, any>> 
     //     priority:    3,
     //     dlqName:     'job-dlq',
 
-    //     queue: createEmbeddingQueueRunner({
+    //     queue: createQueueJobRunner({
     //         queue:       jobEmbeddingQueue,
     //         jobName:     'generate-embeddings',
     //         jobIdPrefix: 'job-embedding',
@@ -175,7 +185,7 @@ export const embeddingRegistry: Record<string, EmbeddingEntityConfig<any, any>> 
     //         generatedAt:    new Date(),
     //     }),
 
-    // } as EmbeddingEntityConfig<JobPostingEmbeddingsDocument, { jobPostingId: string }>,
+    // } as ComputeJobConfig<JobPostingEmbeddingsDocument, { jobPostingId: string }>,
 
     // =========================================================================
     // SKILL
@@ -188,7 +198,7 @@ export const embeddingRegistry: Record<string, EmbeddingEntityConfig<any, any>> 
         priority:    5,
         dlqName:     'skill-embedding-failed',
 
-        queue: createEmbeddingQueueRunner({
+        queue: createQueueJobRunner({
             queue:       skillEmbeddingQueue,
             jobName:     'generate-embeddings',
             jobIdPrefix: 'skill-embedding',
@@ -217,7 +227,7 @@ export const embeddingRegistry: Record<string, EmbeddingEntityConfig<any, any>> 
             embeddingGeneratedAt: new Date(),
         } satisfies MarketEmbeddingUpdate),
 
-    } as EmbeddingEntityConfig<SkillDocument, { skillId: string }>,
+    } as ComputeJobConfig<SkillDocument, { skillId: string }>,
 
     // =========================================================================
     // JOB TITLE
@@ -232,7 +242,7 @@ export const embeddingRegistry: Record<string, EmbeddingEntityConfig<any, any>> 
         priority:    6,
         dlqName:     'job-title-embedding-failed',
 
-        queue: createEmbeddingQueueRunner({
+        queue: createQueueJobRunner({
             queue:       jobTitleEmbeddingQueue,
             jobName:     'generate-embeddings',
             jobIdPrefix: 'job-title-embedding',
@@ -261,7 +271,7 @@ export const embeddingRegistry: Record<string, EmbeddingEntityConfig<any, any>> 
             embeddingGeneratedAt: new Date(),
         } satisfies MarketEmbeddingUpdate),
 
-    } as EmbeddingEntityConfig<JobTitleEmbeddingData, { titleId: string }>,
+    } as ComputeJobConfig<JobTitleEmbeddingData, { titleId: string }>,
 
     // =========================================================================
     // LOCATION
@@ -274,7 +284,7 @@ export const embeddingRegistry: Record<string, EmbeddingEntityConfig<any, any>> 
         priority:    7,
         dlqName:     'location-embedding-failed',
 
-        queue: createEmbeddingQueueRunner({
+        queue: createQueueJobRunner({
             queue:       locationEmbeddingQueue,
             jobName:     'generate-embeddings',
             jobIdPrefix: 'location-embedding',
@@ -303,7 +313,7 @@ export const embeddingRegistry: Record<string, EmbeddingEntityConfig<any, any>> 
             embeddingGeneratedAt: new Date(),
         } satisfies MarketEmbeddingUpdate),
 
-    } as EmbeddingEntityConfig<LocationEmbeddingData, { locationId: string }>,
+    } as ComputeJobConfig<LocationEmbeddingData, { locationId: string }>,
 
     // =========================================================================
     // INDUSTRY
@@ -316,7 +326,7 @@ export const embeddingRegistry: Record<string, EmbeddingEntityConfig<any, any>> 
         priority:    8,
         dlqName:     'industry-embedding-failed',
 
-        queue: createEmbeddingQueueRunner({
+        queue: createQueueJobRunner({
             queue:       industryEmbeddingQueue,
             jobName:     'generate-embeddings',
             jobIdPrefix: 'industry-embedding',
@@ -345,5 +355,5 @@ export const embeddingRegistry: Record<string, EmbeddingEntityConfig<any, any>> 
             embeddingGeneratedAt: new Date(),
         } satisfies MarketEmbeddingUpdate),
 
-    } as EmbeddingEntityConfig<IndustryEmbeddingData, { industryId: string }>,
+    } as ComputeJobConfig<IndustryEmbeddingData, { industryId: string }>,
 };

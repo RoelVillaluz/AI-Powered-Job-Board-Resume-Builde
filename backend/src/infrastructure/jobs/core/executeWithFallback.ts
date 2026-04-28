@@ -6,7 +6,7 @@ type ExecutionOptions<T> = {
     fallbackFn: () => Promise<T>;
 }
 
-export const executeEmbeddingFallback = async <T>({
+export const executeWithFallback = async <T>({
     queueFn,
     fallbackFn
 }: ExecutionOptions<T>) => {

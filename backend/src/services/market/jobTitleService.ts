@@ -7,8 +7,8 @@ import JobTitle from '../../models/market/jobTitleModel.js';
 import { CreateJobTitlePayload, UpdateJobTitlePayload, JobTitleEmbeddingData } from '../../types/jobTitle.types.js';
 import { ImportanceLevel } from '../../../../shared/constants/jobsAndIndustries/constants.js';
 import { embeddingRegistry } from '../../infrastructure/jobs/domains/embedding/embeddingRegistry.js';
-import { orchestrateEmbeddings } from '../../infrastructure/jobs/domains/embedding/core/orchestrateEmbedding.js';
-import { executeEmbeddingPipeline } from '../../infrastructure/jobs/domains/embedding/core/executeEmbeddingPipeline.js';
+import { orchestrateComputeJob } from '../../infrastructure/jobs/core/orchestrateComputeJob.js';
+import { executeComputePipeline } from '../../infrastructure/jobs/core/executeComputePipeline.js';
 import { PythonEmit } from '../../types/python.types.js';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -28,7 +28,7 @@ export const getOrGenerateJobTitleEmbeddingService = async (
     titleId: Types.ObjectId,
     invalidateCache: boolean = false,
 ): Promise<JobTitleEmbeddingOrchestrationResult> => {
-    return orchestrateEmbeddings<JobTitleEmbeddingData>({
+    return orchestrateComputeJob<JobTitleEmbeddingData>({
         invalidateCache,
         logContext: `jobTitle:${titleId}`,
 
@@ -89,7 +89,7 @@ export const upsertJobTitleEmbeddingService = async (
     emit: PythonEmit = () => {},
 ) => {
     if (isFallback) logger.warn(`JobTitle embedding generated inline (Redis fallback)`);
-    return executeEmbeddingPipeline({ entityKey: 'jobTitle', id: titleId, job, emit });
+    return executeComputePipeline({ entityKey: 'jobTitle', id: titleId, job, emit });
 };
 
 // ─── Create ───────────────────────────────────────────────────────────────────

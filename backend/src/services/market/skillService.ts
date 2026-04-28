@@ -7,8 +7,8 @@ import { QueueJob } from '../../types/queues.types.js';
 import Skill, { SkillDocument } from '../../models/market/skillModel.js';
 import { CreateSkillPayload, UpdateSkillPayload } from '../../types/skill.types.js';
 import { embeddingRegistry } from '../../infrastructure/jobs/domains/embedding/embeddingRegistry.js';
-import { orchestrateEmbeddings } from '../../infrastructure/jobs/domains/embedding/core/orchestrateEmbedding.js';
-import { executeEmbeddingPipeline } from '../../infrastructure/jobs/domains/embedding/core/executeEmbeddingPipeline.js';
+import { orchestrateComputeJob } from '../../infrastructure/jobs/core/orchestrateComputeJob.js';
+import { executeComputePipeline } from '../../infrastructure/jobs/core/executeComputePipeline.js';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -26,14 +26,14 @@ type SkillEmbeddingOrchestrationResult =
 /**
  * Decides whether to return a cached embedding or queue generation.
  * Delegates cache-check, shape-validation, queue, and fallback logic
- * to orchestrateEmbeddings — this function owns only the skill-specific
+ * to orchestrateComputeJob — this function owns only the skill-specific
  * cache fetch and shape validator.
  */
 export const getOrGenerateSkillEmbeddingService = async (
     skillId: Types.ObjectId,
     invalidateCache: boolean = false,
 ): Promise<SkillEmbeddingOrchestrationResult> => {
-    return orchestrateEmbeddings<SkillDocument>({
+    return orchestrateComputeJob<SkillDocument>({
         invalidateCache,
         logContext: `skill:${skillId}`,
 
@@ -99,7 +99,7 @@ export const upsertSkillEmbeddingService = async (
     emit: PythonEmit = () => {},
 ) => {
     if (isFallback) logger.warn(`Skill embedding generated inline (Redis fallback)`);
-    return executeEmbeddingPipeline({ entityKey: 'skill', id: skillId, job, emit });
+    return executeComputePipeline({ entityKey: 'skill', id: skillId, job, emit });
 };
 
 // ─── Create ───────────────────────────────────────────────────────────────────

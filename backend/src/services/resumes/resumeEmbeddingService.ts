@@ -4,11 +4,11 @@ import { validateResumeEmbeddings } from "../../utils/embeddings/embeddingValida
 import logger from "../../utils/logger.js";
 import { UnauthorizedError } from "../../middleware/errorHandler.js";
 import { embeddingRegistry } from "../../infrastructure/jobs/domains/embedding/embeddingRegistry.js";
-import { orchestrateEmbeddings } from "../../infrastructure/jobs/core/orchestrateEmbedding.js";
-import { executeEmbeddingPipeline } from "../../infrastructure/jobs/core/executeEmbeddingPipeline.js";
+import { orchestrateComputeJob } from "../../infrastructure/jobs/core/orchestrateComputeJob.js";
+import { executeComputePipeline } from "../../infrastructure/jobs/core/executeComputePipeline.js";
 import { QueueJob } from "../../types/queues.types.js";
 import { ResumeEmbeddingsDocument } from "../../types/embeddings.types.js";
-import { executeEmbeddingFallback } from "../../infrastructure/jobs/core/executeEmbeddingFallback.js";
+import { executeWithFallback } from "../../infrastructure/jobs/core/executeWithFallback.js";
 import { PythonEmit } from "../../types/python.types.js";
 
 export const getOrGenerateResumeEmbeddingService = async (
@@ -20,7 +20,7 @@ export const getOrGenerateResumeEmbeddingService = async (
 
     const entity = embeddingRegistry.resume;
 
-    return orchestrateEmbeddings({
+    return orchestrateComputeJob({
         invalidateCache,
         logContext: `Resume ${resumeId}`,
 
@@ -78,11 +78,11 @@ export const createResumeEmbeddingService = async (
     invalidateCache = false,
     job: QueueJob | null = null,
     userId: string | null = null,
-    emit: (progress: number) => void = () => {}
+    emit: PythonEmit,
 ) => {
     const entity = embeddingRegistry.resume;
 
-    return executeEmbeddingFallback({
+    return executeWithFallback({
         queueFn: () =>
             entity.queue({
                 id: resumeId.toString(),
@@ -93,7 +93,7 @@ export const createResumeEmbeddingService = async (
         fallbackFn: () =>
             entity.fallback(resumeId, invalidateCache, job, {
                 userId: userId ?? undefined,
-                emit: emit ?? (() => {}),
+                emit,
             }),
     });
 };
@@ -103,7 +103,7 @@ export const upsertResumeEmbedding = async (
     job: QueueJob | null = null,
     emit: PythonEmit = () => {},
 ) => {
-    return executeEmbeddingPipeline({
+    return executeComputePipeline({
         entityKey: 'resume',
         id:        new Types.ObjectId(resumeId),
         job,

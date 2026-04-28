@@ -2,10 +2,10 @@ import { createJobEmbeddingRepo, getJobEmbeddingRepo } from "../../repositories/
 import logger from "../../utils/logger.js";
 import { runPython } from "../../infrastructure/python/pythonRunner.js";
 import { Types } from "mongoose";
-import { orchestrateEmbeddings } from "../../infrastructure/jobs/domains/embedding/core/orchestrateEmbedding.js";
+import { orchestrateComputeJob } from "../../infrastructure/jobs/core/orchestrateComputeJob.js";
 import { JobPostingEmbeddingsDocument } from "../../types/embeddings.types.js";
 import { embeddingRegistry } from "../../infrastructure/jobs/domains/embedding/embeddingRegistry.js";
-import { executeEmbeddingPipeline } from "../../infrastructure/jobs/domains/embedding/core/executeEmbeddingPipeline.js";
+import { executeComputePipeline } from "../../infrastructure/jobs/core/executeComputePipeline.js";
 import { QueueJob } from "../../types/queues.types.js";
 import { PythonEmit } from "../../types/python.types.js";
 
@@ -22,7 +22,7 @@ export const getOrGenerateJobPostingEmbeddingService = async (
     jobPostingId: Types.ObjectId,
     invalidateCache: boolean = false,
 ): Promise<JobPostingEmbeddingOrchestrationResult> => {
-    return orchestrateEmbeddings<JobPostingEmbeddingsDocument>({
+    return orchestrateComputeJob<JobPostingEmbeddingsDocument>({
         invalidateCache,
         logContext: `jobPosting:${jobPostingId}`,
 
@@ -99,7 +99,7 @@ export const upsertJobPostingEmbeddingService = async (
     emit: PythonEmit = () => {},
 ) => {
     if (isFallback) logger.warn(`JobPosting embedding generated inline (Redis fallback)`);
-    return executeEmbeddingPipeline({
+    return executeComputePipeline({
         entityKey: 'resume',
         id:        new Types.ObjectId(jobPostingId),
         job,

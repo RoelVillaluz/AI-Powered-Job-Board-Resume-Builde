@@ -6,9 +6,9 @@ import { PythonEmit, PythonResponse, runPythonTyped } from '../../types/python.t
 import * as IndustryRepo from '../../repositories/market/industryRepositories.js';
 import { isEmbeddingStale, isValidEmbedding } from '../../utils/embeddings/embeddingValidationUtils.js';
 import Industry from '../../models/market/industryModel.js';
-import { embeddingRegistry } from '../../infrastructure/domains/embedding/registry/embeddingRegistry.js';
-import { orchestrateEmbeddings } from '../../infrastructure/domains/embedding/core/orchestrateEmbedding.js';
-import { executeEmbeddingPipeline } from '../../infrastructure/domains/embedding/core/executeEmbeddingPipeline.js';
+import { embeddingRegistry } from '../../infrastructure/jobs/domains/embedding/registry/embeddingRegistry.js';
+import { orchestrateEmbeddings } from '../../infrastructure/jobs/domains/embedding/core/orchestrateEmbedding.js';
+import { executeEmbeddingPipeline } from '../../infrastructure/jobs/domains/embedding/core/executeEmbeddingPipeline.js';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 

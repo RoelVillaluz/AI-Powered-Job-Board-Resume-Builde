@@ -1,6 +1,6 @@
-import { embeddingWorkers, shutdownWorkers } from "../../infrastructure/domains/embedding/workers/workersRegistry.js";
+import { embeddingWorkers, shutdownWorkers } from "../../domains/embedding/workers/workersRegistry.js";
 
-import logger from "../../utils/logger.js";
+import logger from "../../../utils/logger.js";
 
 logger.info("[EMBEDDING WORKERS] Initialized");
 

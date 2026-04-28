@@ -15,9 +15,9 @@ import {
     jobEmbeddingQueue,
 } from "../../../../../queues/index.js";
 
-import { embeddingRegistry } from "../registry/embeddingRegistry.js";
+import { embeddingRegistry } from "../embeddingRegistry.js";
 import { createEmbeddingWorker } from "./createEmbeddingWorker.js";
-import { EmbeddingEntityKey } from "../registry/embeddingRegistry.types.js";
+import { EmbeddingEntityKey } from "../embeddingRegistry.types.js";
 import logger from "../../../../../utils/logger.js";
 
 /**

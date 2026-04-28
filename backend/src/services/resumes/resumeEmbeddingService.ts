@@ -3,12 +3,12 @@ import { getResumeEmbeddingsRepo } from "../../repositories/resumes/resumeEmbedd
 import { validateResumeEmbeddings } from "../../utils/embeddings/embeddingValidationUtils.js";
 import logger from "../../utils/logger.js";
 import { UnauthorizedError } from "../../middleware/errorHandler.js";
-import { embeddingRegistry } from "../../infrastructure/jobs/domains/embedding/registry/embeddingRegistry.js";
-import { orchestrateEmbeddings } from "../../infrastructure/jobs/domains/embedding/core/orchestrateEmbedding.js";
-import { executeEmbeddingPipeline } from "../../infrastructure/jobs/domains/embedding/core/executeEmbeddingPipeline.js";
+import { embeddingRegistry } from "../../infrastructure/jobs/domains/embedding/embeddingRegistry.js";
+import { orchestrateEmbeddings } from "../../infrastructure/jobs/core/orchestrateEmbedding.js";
+import { executeEmbeddingPipeline } from "../../infrastructure/jobs/core/executeEmbeddingPipeline.js";
 import { QueueJob } from "../../types/queues.types.js";
 import { ResumeEmbeddingsDocument } from "../../types/embeddings.types.js";
-import { executeEmbeddingFallback } from "../../infrastructure/jobs/domains/embedding/core/executeEmbeddingFallback.js";
+import { executeEmbeddingFallback } from "../../infrastructure/jobs/core/executeEmbeddingFallback.js";
 import { PythonEmit } from "../../types/python.types.js";
 
 export const getOrGenerateResumeEmbeddingService = async (

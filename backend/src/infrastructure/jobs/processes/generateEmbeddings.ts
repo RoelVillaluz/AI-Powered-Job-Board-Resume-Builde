@@ -1,4 +1,4 @@
-import { embeddingWorkers, shutdownWorkers } from "../domains/embedding/workers/workersRegistry.js";
+import { shutdownWorkers } from "../workers/workersRegistry.js";
 
 import logger from "../../../utils/logger.js";
 

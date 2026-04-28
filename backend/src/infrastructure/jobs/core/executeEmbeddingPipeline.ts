@@ -1,7 +1,7 @@
 import { Types } from 'mongoose';
 import logger from '../../../../../utils/logger.js';
-import { embeddingRegistry } from '../registry/embeddingRegistry.js';
-import { EmbeddingEntityKey } from '../registry/embeddingRegistry.types.js';
+import { embeddingRegistry } from '../embeddingRegistry.js';
+import { EmbeddingEntityKey } from '../embeddingRegistry.types.js';
 import { PythonResponse, runPythonTyped } from '../../../../../types/python.types.js';
 import { QueueJob } from '../../../../../types/queues.types.js';
 

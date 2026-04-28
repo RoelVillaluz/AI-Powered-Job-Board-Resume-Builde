@@ -1,5 +1,5 @@
 import { Types } from "mongoose";
-import { createEmbeddingQueueRunner } from "../core/createEmbeddingQueueRunner.js";
+import { createEmbeddingQueueRunner } from "../../core/createEmbeddingQueueRunner.js";
 import {
     resumeEmbeddingQueue,
     skillEmbeddingQueue,
@@ -7,56 +7,56 @@ import {
     locationEmbeddingQueue,
     industryEmbeddingQueue,
     jobEmbeddingQueue,
-} from "../../../../../queues/index.js";
+} from "../../../../queues/index.js";
 import { EmbeddingEntityConfig } from "./embeddingRegistry.types.js";
 
 // ─── Resume ───────────────────────────────────────────────────────────────────
-import { JobPostingEmbeddingsDocument, MarketEmbeddingUpdate, ResumeEmbeddingsDocument } from "../../../../../types/embeddings.types.js";
+import { JobPostingEmbeddingsDocument, MarketEmbeddingUpdate, ResumeEmbeddingsDocument } from "../../../../types/embeddings.types.js";
 import {
     getResumeEmbeddingsRepo,
     createResumeEmbeddingRepo,
     updateResumeEmbeddingRepo,
-} from "../../../../../repositories/resumes/resumeEmbeddingRepository.js";
-import { upsertResumeEmbedding } from "../../../../../services/resumes/resumeEmbeddingService.js";
-import { generateResumeScoreService } from "../../../../../services/resumes/resumeScoreService.js";
+} from "../../../../repositories/resumes/resumeEmbeddingRepository.js";
+import { upsertResumeEmbedding } from "../../../../services/resumes/resumeEmbeddingService.js";
+import { generateResumeScoreService } from "../../../../services/resumes/resumeScoreService.js";
 
 // ─── Skill ────────────────────────────────────────────────────────────────────
-import { SkillDocument } from "../../../../../models/market/skillModel.js";
+import { SkillDocument } from "../../../../models/market/skillModel.js";
 import {
     getSkillEmbeddingRepository,
     updateSkillEmbeddingRepository,
-} from "../../../../../repositories/market/skillRepositories.js";
-import { upsertSkillEmbeddingService } from "../../../../../services/market/skillService.js";
+} from "../../../../repositories/market/skillRepositories.js";
+import { upsertSkillEmbeddingService } from "../../../../services/market/skillService.js";
 
 // ─── JobTitle ─────────────────────────────────────────────────────────────────
-import { JobTitleEmbeddingData } from "../../../../../types/jobTitle.types.js";
+import { JobTitleEmbeddingData } from "../../../../types/jobTitle.types.js";
 import {
     getJobTitleEmbeddingsByIdRepository,
     updateJobTitleEmbeddingRepository,
-} from "../../../../../repositories/market/jobTitleRepositories.js";
-import { upsertJobTitleEmbeddingService } from "../../../../../services/market/jobTitleService.js";
+} from "../../../../repositories/market/jobTitleRepositories.js";
+import { upsertJobTitleEmbeddingService } from "../../../../services/market/jobTitleService.js";
 
 // ─── Location ─────────────────────────────────────────────────────────────────
-import { LocationEmbeddingData } from "../../../../../types/location.types.js";
+import { LocationEmbeddingData } from "../../../../types/location.types.js";
 import {
     getLocationEmbeddingByIdRepository,
     updateLocationEmbeddingRepository,
-} from "../../../../../repositories/market/locationRepositories.js";
-import { upsertLocationEmbeddingService } from "../../../../../services/market/locationService.js";
+} from "../../../../repositories/market/locationRepositories.js";
+import { upsertLocationEmbeddingService } from "../../../../services/market/locationService.js";
 
 // ─── Industry ─────────────────────────────────────────────────────────────────
-import { IndustryEmbeddingData } from "../../../../../types/industry.types.js";
+import { IndustryEmbeddingData } from "../../../../types/industry.types.js";
 import {
     getIndustryEmbeddingByIdRepository,
     updateIndustryEmbeddingRepository,
-} from "../../../../../repositories/market/industryRepositories.js";
-import { upsertIndustryEmbeddingService } from "../../../../../services/market/industryService.js";
+} from "../../../../repositories/market/industryRepositories.js";
+import { upsertIndustryEmbeddingService } from "../../../../services/market/industryService.js";
 
-import logger from "../../../../../utils/logger.js";
-import { QueueJob } from "../../../../../types/queues.types.js";
-import { createJobEmbeddingRepo, getJobEmbeddingRepo, updateJobEmbeddingRepo } from "../../../../../repositories/jobPostings/jobEmbeddingRepositories.js";
-import { getJobPostingEmbeddingService, upsertJobPostingEmbeddingService } from "../../../../../services/jobPostings/jobPostingEmbeddingService.js";
-import { PythonEmit } from "../../../../../types/python.types.js";
+import logger from "../../../../utils/logger.js";
+import { QueueJob } from "../../../../types/queues.types.js";
+import { createJobEmbeddingRepo, getJobEmbeddingRepo, updateJobEmbeddingRepo } from "../../../../repositories/jobPostings/jobEmbeddingRepositories.js";
+import { getJobPostingEmbeddingService, upsertJobPostingEmbeddingService } from "../../../../services/jobPostings/jobPostingEmbeddingService.js";
+import { PythonEmit } from "../../../../types/python.types.js";
 
 const isProd = process.env.NODE_ENV === 'production';
 

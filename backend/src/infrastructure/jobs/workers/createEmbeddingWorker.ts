@@ -1,9 +1,9 @@
 import { Queue, Worker, Job } from 'bullmq';
 import { Types } from 'mongoose';
 import logger from '../../../../../utils/logger.js';
-import { embeddingRegistry } from '../registry/embeddingRegistry.js';
+import { embeddingRegistry } from '../embeddingRegistry.js';
 import { executeEmbeddingPipeline } from '../core/executeEmbeddingPipeline.js';
-import { EmbeddingEntityKey } from '../registry/embeddingRegistry.types.js';
+import { EmbeddingEntityKey } from '../embeddingRegistry.types.js';
 import { getIO } from '../../../../../sockets/index.js';
 import { getSocketId } from '../../../../../sockets/presence.js';
 

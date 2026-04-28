@@ -4,7 +4,7 @@ import { runPython } from "../../infrastructure/python/pythonRunner.js";
 import { Types } from "mongoose";
 import { orchestrateEmbeddings } from "../../infrastructure/jobs/domains/embedding/core/orchestrateEmbedding.js";
 import { JobPostingEmbeddingsDocument } from "../../types/embeddings.types.js";
-import { embeddingRegistry } from "../../infrastructure/jobs/domains/embedding/registry/embeddingRegistry.js";
+import { embeddingRegistry } from "../../infrastructure/jobs/domains/embedding/embeddingRegistry.js";
 import { executeEmbeddingPipeline } from "../../infrastructure/jobs/domains/embedding/core/executeEmbeddingPipeline.js";
 import { QueueJob } from "../../types/queues.types.js";
 import { PythonEmit } from "../../types/python.types.js";

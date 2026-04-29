@@ -9,7 +9,6 @@ import { enforceResumeOwnership } from "../../middleware/authorization/resumeAut
 import { validate } from "../../middleware/validation.js"
 import { createResumeSchema, resumeIdSchema } from "../../../src/validators/resumeValidator.js"
 import { embeddingLimiter } from "../../middleware/security.js"
-import { validate } from "../../middleware/validation.js"
 
 const router = express.Router()
 

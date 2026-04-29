@@ -21,7 +21,7 @@ export const createMessageLimiter = rateLimit({
 
 export const embeddingLimiter = rateLimit({
     windowMs: 1 * 60 * 1000,
-    max: 3,
+    max: process.env.NODE_ENV === 'test' ? 15 : 3,
     message: 'Too many requests, please slow down'
 })
 

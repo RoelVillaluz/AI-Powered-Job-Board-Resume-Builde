@@ -19,6 +19,12 @@ export const createMessageLimiter = rateLimit({
     message: 'Too many messages, please slow down'
 })
 
+export const embeddingLimiter = rateLimit({
+    windowMs: 1 * 60 * 1000,
+    max: 3,
+    message: 'Too many requests, please slow down'
+})
+
 // CORS configuration
 export const corsOptions = {
     origin: process.env.CLIENT_URL || 'localhost:5173',

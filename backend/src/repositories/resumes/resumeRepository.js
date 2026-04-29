@@ -67,6 +67,19 @@ export const findResumeByIdRepo = async (id) => {
 };
 
 /**
+ * Lightweight resume fetch for middleware/security use only.
+ * Returns only minimal fields required for existence + ownership checks.
+ *
+ * @param {string} id - Resume ID
+ * @returns {Promise<{ _id: import('mongoose').Types.ObjectId, user: import('mongoose').Types.ObjectId | string } | null>}
+ */
+export const findResumeByIdLiteRepo = async (id) => {
+  return await Resume.findById(id)
+    .select('_id user')
+    .lean();
+};
+
+/**
  * Find list of resumes by user ID
  * 
  * @async

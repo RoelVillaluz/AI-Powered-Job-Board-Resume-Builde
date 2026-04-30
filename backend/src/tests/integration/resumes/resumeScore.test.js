@@ -18,6 +18,11 @@ const { default: Resume }                 = await import('../../../models/resume
 const { default: ResumeEmbeddingModel }   = await import('../../../models/resumes/resumeEmbeddingsModel.js');
 const { default: ResumeScoreModel }       = await import('../../../models/resumes/resumeScoreModel.js');
 const { default: User }                   = await import('../../../models/UserModel.js');
+
+// Load factories/index.js FIRST — this registers all factory definitions as a side effect
+const { Factory }                         = await import('../../factories/index.js');
+
+// Seeder can now find registered factories
 const { seedJobseekerWithResume }         = await import('../../factories/seeders.js');
 const { getOrGenerateResumeScoreService } = await import('../../../services/resumes/resumeScoreService.js');
 

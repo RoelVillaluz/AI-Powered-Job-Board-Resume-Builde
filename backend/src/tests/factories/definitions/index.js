@@ -226,3 +226,164 @@ registry.define('resume', {
     senior:       () => ({ predictedSalary: 150000 }),
   },
 });
+
+// ─── ResumeEmbeddings ───────────────────────────────────────────────────────────────────
+/**
+ * Produces a ResumeEmbedding document.
+ *
+ * ⚠️ `resume` is not set by default — always inject via .with({ resume: resumeId })
+ *
+ * Embeddings are empty arrays by default — sufficient for DB persistence tests.
+ * The pipeline validates real 768-dim vectors, but seeders only need valid shape.
+ *
+ * @factory resumeEmbedding
+ *
+ * @example
+ * await Factory('resumeEmbedding').with({ resume: resume._id }).for(ResumeEmbedding).create();
+ */
+registry.define('resumeEmbedding', {
+    defaults: () => ({
+        embeddings: {
+            jobTitle:  [],
+            location:  [],
+        },
+        meanEmbeddings: {
+            skills:         null,
+            workExperience: null,
+            certifications: null,
+        },
+        metrics: {
+            totalExperienceYears: 0,
+        },
+        model: {
+            name:    'all-mpnet-base-v2',
+            version: '1.0',
+        },
+        generatedAt: new Date(),
+    }),
+});
+
+/**
+ * Produces a ResumeScore document.
+ *
+ * ⚠️ `resume` is not set by default — always inject via .with({ resume: resumeId })
+ *
+ * Scores are realistic defaults matching the grade system in ResumeScore schema.
+ * The pipeline validates real Python output, but seeders only need valid DB shape.
+ *
+ * Grade System:
+ *   A+ (95-100) | A (90-94) | B+ (85-89) | B (80-84) | C+ (75-79)
+ *   C  (65-74)  | D (50-64) | F  (0-49)
+ *
+ * @factory resumeScore
+ * @traits passing | failing | perfect | gradeA | gradeB | gradeC
+ *
+ * @example
+ * await Factory('resumeScore').with({ resume: resume._id }).for(ResumeScore).create();
+ * await Factory('resumeScore').as('passing').with({ resume: resume._id }).for(ResumeScore).create();
+ */
+registry.define('resumeScore', {
+    defaults: () => ({
+        completenessScore:        50,
+        experienceScore:          40,
+        skillsScore:              70,
+        certificationScore:       0,
+        totalScore:               52.5,
+        grade:                    'D',
+        estimatedExperienceYears: 2,
+        strengths:                ['Diverse skill set'],
+        improvements:             ['Add more work experience'],
+        recommendations:          [],
+        overallMessage:           'Below-average resume that needs improvement.',
+        predictedSalary:          null,
+        predictedSalaryRange:     { min: null, max: null },
+        salaryConfidence:         null,
+        salaryPercentile:         null,
+        calculatedAt:             new Date(),
+        calculationVersion:       '1.0',
+    }),
+    traits: {
+        /** D grade (50-64) — default, needs improvement */
+        failing: () => ({
+            completenessScore: 20,
+            experienceScore:   10,
+            skillsScore:       30,
+            certificationScore: 0,
+            totalScore:        20,
+            grade:             'F',
+            overallMessage:    'Resume needs significant improvement.',
+            strengths:         [],
+            improvements:      ['Add work experience', 'Complete all sections', 'Add certifications'],
+        }),
+
+        /** C grade (65-74) — average */
+        average: () => ({
+            completenessScore: 65,
+            experienceScore:   60,
+            skillsScore:       70,
+            certificationScore: 0,
+            totalScore:        68,
+            grade:             'C',
+            overallMessage:    'Average resume with room for improvement.',
+            strengths:         ['Some relevant skills'],
+            improvements:      ['Add more certifications', 'Expand work experience'],
+        }),
+
+        /** B grade (80-84) — good */
+        passing: () => ({
+            completenessScore: 80,
+            experienceScore:   75,
+            skillsScore:       90,
+            certificationScore: 50,
+            totalScore:        80,
+            grade:             'B',
+            overallMessage:    'Good resume with solid experience.',
+            strengths:         ['Strong skill set', 'Good work history'],
+            improvements:      ['Add more certifications'],
+        }),
+
+        /** A grade (90-94) — excellent */
+        excellent: () => ({
+            completenessScore: 95,
+            experienceScore:   90,
+            skillsScore:       95,
+            certificationScore: 80,
+            totalScore:        92,
+            grade:             'A',
+            overallMessage:    'Excellent resume with comprehensive experience.',
+            strengths:         ['Outstanding skill set', 'Extensive work history', 'Strong certifications'],
+            improvements:      [],
+        }),
+
+        /** A+ grade (95-100) — perfect score boundary test */
+        perfect: () => ({
+            completenessScore:  100,
+            experienceScore:    100,
+            skillsScore:        100,
+            certificationScore: 100,
+            totalScore:         100,
+            grade:              'A+',
+            overallMessage:     'Outstanding resume.',
+            strengths:          ['Perfect completeness', 'Exceptional experience', 'Full certification coverage'],
+            improvements:       [],
+        }),
+
+        /** Fresh score — calculatedAt within 7-day freshness window */
+        fresh: () => ({
+            calculatedAt: new Date(),
+        }),
+
+        /** Stale score — calculatedAt beyond 7-day freshness window, triggers regeneration */
+        stale: () => ({
+            calculatedAt: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000),
+        }),
+
+        /** Has salary prediction — for testing salary-related features */
+        withSalary: () => ({
+            predictedSalary:      95000,
+            predictedSalaryRange: { min: 85000, max: 110000 },
+            salaryConfidence:     75,
+            salaryPercentile:     60,
+        }),
+    },
+});

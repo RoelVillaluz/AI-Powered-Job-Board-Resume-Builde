@@ -27,11 +27,12 @@ export const STATUS_MESSAGES = {
     }
 };
 
-export const sendResponse = (res, { code, success = true, data = null, message }, model = '') => {
+export const sendResponse = (res, { code, success = true, data = null, message, cached = undefined }, model = '') => {
     const formattedMessage = model ? message.replace('(model)', model) : message;
     const response = { success, formattedMessage };
     
-    if (data) response.data = data;
+    if (data !== null) response.data = data;
+    if (cached !== undefined) response.cached = cached; 
 
-    return res.status(code).json(response)
-}
+    return res.status(code).json(response);
+};

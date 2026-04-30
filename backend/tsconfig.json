@@ -16,9 +16,11 @@
     "baseUrl": ".",
     "rootDir": "..",
 
+    "typeRoots": ["./src/types", "./node_modules/@types"],  // ← add this
+
     "paths": {
       "@shared/*": ["../shared/*"]
-    }
+    },
   },
 
   "include": [

@@ -3,7 +3,7 @@ import { ApiSendResponse } from "../types/apiResponse.types.js";
 
 export function sendTypedResponse<T>(
   res: Response,
-  payload: { code: number; message: string; data?: T; success?: boolean },
+  payload: { code: number; message: string; data?: T; success?: boolean, cached?: boolean },
   model?: string
 ): Response {
   const { code, success = true, data = null, message } = payload;

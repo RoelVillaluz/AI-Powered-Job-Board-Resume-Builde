@@ -1,4 +1,5 @@
 import { Factory } from './builders';
+import { createAuthenticatedJobseeker } from '../helpers/authHelper.js';
 
 /**
  * Compound seeders for creating fully wired, DB-persisted entity graphs.
@@ -53,19 +54,71 @@ export const seedJobWithCompany = async (User, Company, JobPosting) => {
 };
 
 /**
- * Creates a jobseeker user and a resume owned by that jobseeker.
+ * Creates a jobseeker user, a resume, and optionally resume embeddings and/or a resume score.
  *
- * @param {mongoose.Model} User
- * @param {mongoose.Model} Resume
- * @returns {Promise<{ jobseeker: Document, resume: Document }>}
+ * @param {object} app                          - Express app instance
+ * @param {mongoose.Model} User                 - User model
+ * @param {mongoose.Model} Resume               - Resume model
+ * @param {mongoose.Model|null} ResumeEmbedding - ResumeEmbedding model (required if hasEmbeddings or hasScore)
+ * @param {mongoose.Model|null} ResumeScore     - ResumeScore model (required if hasScore)
+ * @param {object} [options={}]                 - Seeding options
+ * @param {boolean} [options.hasEmbeddings]     - Whether to seed embeddings
+ * @param {boolean} [options.hasScore]          - Whether to seed a score (also seeds embeddings)
+ *
+ * @returns {Promise<{
+ *   jobseeker:        Document,
+ *   token:            string,
+ *   resume:           Document,
+ *   resumeEmbeddings: Document | null,
+ *   resumeScore:      Document | null
+ * }>}
  *
  * @example
- * const { jobseeker, resume } = await seedJobseekerWithResume(User, Resume);
+ * // Resume only — for testing embedding generation flow
+ * const { jobseeker, token, resume } =
+ *     await seedJobseekerWithResume(app, User, Resume);
+ *
+ * // With embeddings — for testing score generation flow
+ * const { jobseeker, token, resume, resumeEmbeddings } =
+ *     await seedJobseekerWithResume(app, User, Resume, ResumeEmbedding, null, { hasEmbeddings: true });
+ *
+ * // With embeddings + score — for testing cached score flow
+ * const { jobseeker, token, resume, resumeEmbeddings, resumeScore } =
+ *     await seedJobseekerWithResume(app, User, Resume, ResumeEmbedding, ResumeScore, { hasScore: true });
  */
-export const seedJobseekerWithResume = async (User, Resume) => {
-  const jobseeker = await Factory('user').for(User).create();
-  const resume    = await Factory('resume').with({ user: jobseeker._id }).for(Resume).create();
-  return { jobseeker, resume };
+export const seedJobseekerWithResume = async (
+    app,
+    User,
+    Resume,
+    ResumeEmbedding = null,
+    ResumeScore     = null,
+    { hasEmbeddings = false, hasScore = false } = {},
+) => {
+    const { jobseeker, token } = await createAuthenticatedJobseeker(app);
+
+    const resume = await Factory('resume')
+        .with({ user: jobseeker._id })
+        .for(Resume)
+        .create();
+
+    // hasScore implies hasEmbeddings — score requires embeddings to exist
+    const shouldSeedEmbeddings = hasEmbeddings || hasScore;
+
+    const resumeEmbeddings = shouldSeedEmbeddings && ResumeEmbedding
+        ? await Factory('resumeEmbedding')
+            .with({ resume: resume._id })
+            .for(ResumeEmbedding)
+            .create()
+        : null;
+
+    const resumeScore = hasScore && ResumeScore
+        ? await Factory('resumeScore')
+            .with({ resume: resume._id })
+            .for(ResumeScore)
+            .create()
+        : null;
+
+    return { jobseeker, token, resume, resumeEmbeddings, resumeScore };
 };
 
 /**
@@ -90,10 +143,10 @@ export const seedJobseekerWithResume = async (User, Resume) => {
  * const { job, resume } = await seedFullScenario(User, Company, JobPosting, Resume);
  * // Now test your AI matching layer against job and resume
  */
-export const seedFullScenario = async (User, Company, JobPosting, Resume) => {
-  const { employer, company, job } = await seedJobWithCompany(User, Company, JobPosting);
-  const { jobseeker, resume }      = await seedJobseekerWithResume(User, Resume);
-  return { employer, company, job, jobseeker, resume };
+export const seedFullScenario = async (app, User, Company, JobPosting, Resume) => {
+    const { employer, company, job } = await seedJobWithCompany(User, Company, JobPosting);
+    const { jobseeker, token, resume } = await seedJobseekerWithResume(app, User, Resume);
+    return { employer, company, job, jobseeker, token, resume };
 };
 
 // ─── Payload Builders ─────────────────────────────────────────────────────────

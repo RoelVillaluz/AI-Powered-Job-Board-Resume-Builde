@@ -2,6 +2,8 @@ import mongoose from 'mongoose';
 import User from '../../models/UserModel.js';
 import Company from '../../models/companyModel.js';
 import JobPosting from '../../models/jobPostings/jobPostingModel.js';
+import ResumeScore from '../../models/resumes/resumeScoreModel.js';
+import ResumeEmbedding from '../../models/resumes/resumeEmbeddingsModel.js';
 import Resume from '../../models/resumes/resumeModel.js';
 import { allQueues } from "../../../src/queues/index.js"
 import logger from "../../../src/utils/logger.js"
@@ -65,7 +67,7 @@ export const clearTestCollections = async () => {
   }
 
   const collections = mongoose.connection.collections;
-  const testCollections = ['tempUsers', 'users', 'companies', 'jobpostings', 'resumes'];
+  const testCollections = ['tempUsers', 'users', 'companies', 'jobpostings', 'resumes', 'resumeEmbeddings', 'resumeScores'];
 
   for (const name of testCollections) {
     if (collections[name]) {
@@ -84,6 +86,8 @@ export class TestDataTracker {
       users: [],
       companies: [],
       jobs: [],
+      resumeScores: [],
+      resumeEmbeddings: [],
       resumes: []
     };
   }
@@ -91,13 +95,19 @@ export class TestDataTracker {
   trackUser(id) { this.createdIds.users.push(id); }
   trackCompany(id) { this.createdIds.companies.push(id); }
   trackJob(id) { this.createdIds.jobs.push(id); }
+  trackResumeScore(id) { this.createdIds.resumeScores.push(id); }
+  trackResumeEmbedding(id) { this.createdIds.resumeEmbeddings.push(id); }
   trackResume(id) { this.createdIds.resumes.push(id); }
 
   async cleanup() {
     // Delete in reverse order to respect foreign key relationships
     await JobPosting.deleteMany({ _id: { $in: this.createdIds.jobs } });
     await Company.deleteMany({ _id: { $in: this.createdIds.companies } });
+
+    await ResumeScore.deleteMany({ _id: { $in: this.createdIds.resumeScores } });
+    await ResumeEmbedding.deleteMany({ _id: { $in: this.createdIds.resumeEmbeddings }});
     await Resume.deleteMany({ _id: { $in: this.createdIds.resumes } });
+
     await User.deleteMany({ _id: { $in: this.createdIds.users } });
     await TempUser.deleteMany({ _id: { $in: this.createdIds.tempUsers } });
 
@@ -107,6 +117,8 @@ export class TestDataTracker {
       users: [],
       companies: [],
       jobs: [],
+      resumeScores: [],
+      resumeEmbeddings: [],
       resumes: [],
     };
   }

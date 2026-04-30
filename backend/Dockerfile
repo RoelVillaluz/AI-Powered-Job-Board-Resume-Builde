@@ -14,11 +14,11 @@ COPY backend/package*.json ./
 RUN npm install
 
 # Setup Python venv
-COPY backend/src/python_scripts/requirements.txt ./requirements.txt
+# COPY backend/src/ai-service/requirements.txt ./requirements.txt
 
-RUN python3 -m venv /venv
-RUN /venv/bin/pip install --upgrade pip
-RUN /venv/bin/pip install -r requirements.txt
+# RUN python3 -m venv /venv
+# RUN /venv/bin/pip install --upgrade pip
+# RUN /venv/bin/pip install -r requirements.txt
 
 # Copy rest of backend
 COPY backend/ .

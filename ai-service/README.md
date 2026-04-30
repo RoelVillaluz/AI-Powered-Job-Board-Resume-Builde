@@ -9,7 +9,7 @@ AI-powered resume scoring, job matching, and recommendations using semantic embe
 ### 1. Create and activate the virtual environment
 
 ```bash
-cd backend/src/python_scripts
+cd backend/src/ai-service
 python -m venv venv
 
 # Windows
@@ -31,7 +31,7 @@ Add the following to your root `.env` file:
 
 ```env
 # Point Node.js to your venv Python so imports resolve correctly at runtime
-PYTHON_EXECUTABLE=C:/Users/YourName/path/to/project/backend/src/python_scripts/venv/Scripts/python.exe
+PYTHON_EXECUTABLE=C:/Users/YourName/path/to/project/backend/src/ai-service/venv/Scripts/python.exe
 ```
 
 Use forward slashes even on Windows. Each developer sets their own path — this is machine-specific and must never be committed.
@@ -42,9 +42,9 @@ Add to `.vscode/settings.json` (not committed — already in `.gitignore`):
 
 ```json
 {
-  "python.defaultInterpreterPath": "${workspaceFolder}/backend/src/python_scripts/venv/Scripts/python.exe",
+  "python.defaultInterpreterPath": "${workspaceFolder}/backend/src/ai-service/venv/Scripts/python.exe",
   "python.analysis.extraPaths": [
-    "${workspaceFolder}/backend/src/python_scripts"
+    "${workspaceFolder}/backend/src/ai-service"
   ]
 }
 ```
@@ -414,7 +414,7 @@ db.embeddingmetrics.aggregate([
 ## Project Structure
 
 ```
-backend/src/python_scripts/
+ai-service/
 ├── main.py                         # CLI entry point
 ├── requirements.txt                # Python dependencies
 ├── venv/                           # Local virtual environment (not committed)
@@ -622,7 +622,7 @@ git commit -m "chore: untrack .vscode/settings.json"
 ### Module import errors
 
 ```bash
-export PYTHONPATH="${PYTHONPATH}:$(pwd)/backend/src/python_scripts"
+export PYTHONPATH="${PYTHONPATH}:$(pwd)/backend/src/ai-service"
 ```
 
 ### Memory issues with large batches

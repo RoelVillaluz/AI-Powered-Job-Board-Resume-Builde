@@ -57,11 +57,11 @@ jobs:
           python-version: '3.11'
 
       - name: Install Python dependencies
-        working-directory: backend/src/python_scripts
+        working-directory: ai-service
         run: pip install -r requirements.txt
         
       - name: Validate Python scripts
-        working-directory: backend/src/python_scripts
+        working-directory: ai-service
         run: python -m py_compile *.py && echo "✅ Python scripts valid"
 
       - name: Install frontend dependencies

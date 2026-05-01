@@ -1,11 +1,12 @@
 // sendResponse.d.ts
-export function sendResponse<T>(
+export function sendResponse(
     res: any,
     payload: {
         code: number;
         message: string;
-        data?: T;
+        data?: any;
         success?: boolean;
+        cached?: boolean;
     },
     model?: string
-): ApiResponse<T>;
+): void;

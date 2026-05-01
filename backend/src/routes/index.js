@@ -1,6 +1,7 @@
 import userRoutes from "./users/userRoutes.js";
 import jobPostingRoutes from "./jobPostingRoutes.js";
 import resumeRoutes from "./resumes/resumeRoutes.js";
+import resumeRoutesV2 from "./resumes/resumeRoutesV2.js";
 import companyRoutes from "./companyRoutes.js";
 import aiRoutes from "./aiRoutes.js";
 import applicationRoutes from "./applicationRoutes.js";
@@ -46,5 +47,6 @@ export const registerRoutes = (app) => {
   app.use("/api/conversations/:conversationId/resources/links", linkRoutes);
 
   // Resumes
+  app.use("/api/v2/resumes", resumeRoutesV2);
   app.use("/api/resumes", resumeRoutes);
 };

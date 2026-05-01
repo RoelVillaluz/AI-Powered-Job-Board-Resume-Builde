@@ -98,6 +98,14 @@ export const findResumesByUserRepo = async (userId) => {
         .lean()
 }
 
+export const prepareResumeEmbeddingFieldsRepo = async (resumeId) => {
+    return await Resume.findById(resumeId)
+        .select('_id skills jobTitle location workExperience certifications summary')
+        .populate('jobTitle', '_id title')
+        .populate('location', '_id title')
+        .lean();
+};
+
 /**
  * Create a new resume.
  *

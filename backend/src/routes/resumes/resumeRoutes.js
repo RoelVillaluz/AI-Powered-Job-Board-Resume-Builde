@@ -1,6 +1,7 @@
 import express from "express"
 import { createResume, deleteResume, getResume, getResumes, getResumesByUser, updateResume } from "../../controllers/resumes/resumeController.js"
 import { getOrGenerateResumeEmbeddings, getAllResumeEmbeddings } from "../../controllers/resumes/resumeEmbeddingController.js"
+import { getResumeEmbeddingsControllerV2 } from "../../controllers/resumes/resumeEmbeddingControllerV2.js"
 import { getOrGenerateResumeScore } from "../../controllers/ai/aiResumeController.js"
 import { authenticate } from "../../middleware/authentication/authenticate.js"
 import { requireRole } from "../../middleware/authorization/roleAuthorization.js"

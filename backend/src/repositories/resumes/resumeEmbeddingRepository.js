@@ -26,3 +26,20 @@ export const updateResumeEmbeddingRepo = async (resumeId, updateData) => {
 
     return updatedEmbeddings
 }
+
+export const upsertResumeEmbeddingRepo = async (
+    resumeId,
+    payload 
+) => {
+
+    return ResumeEmbedding.findOneAndUpdate(
+        { resume: resumeId },
+        {
+            $set: payload,
+        },
+        {
+            upsert: true,
+            new: true,
+        }
+    ).lean() 
+};

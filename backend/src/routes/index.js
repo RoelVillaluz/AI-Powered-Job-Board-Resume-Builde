@@ -6,7 +6,8 @@ import companyRoutes from "./companyRoutes.js";
 import aiRoutes from "./aiRoutes.js";
 import applicationRoutes from "./applicationRoutes.js";
 import authRoutes from "./authRoutes.js"
-import skillRoutes from './market/skillRoutes'
+import skillRoutes from './market/skills/skillRoutes.js'
+import skillEmbeddingRoutes from './market/skills/skillEmbeddingRoutes.js'
 import jobTitleRoutes from './market/jobTitleRoutes'
 import locationRoutes from './market/locationRoutes'
 import industryRoutes from './market/industryRoutes'
@@ -35,8 +36,12 @@ export const registerRoutes = (app) => {
 
   // Market
   app.use('/api/job-titles', jobTitleRoutes);
+
+  app.use('/api/v2/skills', skillEmbeddingRoutes);
   app.use('/api/skills', skillRoutes);
+
   app.use('/api/locations', locationRoutes);
+
   app.use('/api/industries', industryRoutes);
 
   // Chat

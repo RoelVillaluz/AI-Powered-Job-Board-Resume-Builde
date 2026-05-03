@@ -1,5 +1,6 @@
 import { Types } from "mongoose";
 import { embeddingRegistryV2 } from "../domains/embedding/embeddingRegistryV2";
+import { QueueJob } from "../../../types/queues.types.js";
 
 // ─────────────────────────────────────────────
 // Registry Types
@@ -54,7 +55,11 @@ export interface ComputeConfigV2<T, TAIResult = any> {
     // ─────────────────────────────────────────────
     // Execution control
     // ─────────────────────────────────────────────
-    fallback: "pipeline" | "queue";
+    fallback: (
+        id: string | Types.ObjectId,
+        job?: QueueJob | null,
+        emit?: EmitFn,
+    ) => Promise<any>;
 }
 
 export type EmitFn = (

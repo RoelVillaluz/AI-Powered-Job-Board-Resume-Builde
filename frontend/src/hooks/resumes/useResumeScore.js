@@ -7,7 +7,7 @@ import { useResumeScoreQuery, useUserResumesQuery } from "./useResumeQueries";
 import {
     fetchResumeEmbeddingsV2,
     fetchResumeScoreV2,
-} from "../../api/resumeApis";
+} from "../../../api/resumeApis";
 
 import {
     generateResumeEmbeddingsV2,
@@ -37,6 +37,7 @@ export const useResumeScore = () => {
         data: scoreData,
         isLoading: scoreLoading,
         isFetched: scoreFetched,
+        error: scoreError,
     } = useResumeScoreQuery(resumeId, token);
 
     // ── 2. GET embeddings (only when score missing) ───────────────────────────

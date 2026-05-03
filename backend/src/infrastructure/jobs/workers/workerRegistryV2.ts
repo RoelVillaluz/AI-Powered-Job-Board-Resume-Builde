@@ -104,8 +104,8 @@ export const resumeAllWorkersV2 = async () =>
 // ── Named exports ──────────────────────────────────────────────────────────────
 
 export const resumeWorkerV2   = embeddingWorkersV2.resume;
-// export const skillWorkerV2    = embeddingWorkersV2.skill;
-// export const jobTitleWorkerV2 = embeddingWorkersV2.jobTitle;
-// export const locationWorkerV2 = embeddingWorkersV2.location;
-// export const industryWorkerV2 = embeddingWorkersV2.industry;
-// export const resumeScoreWorkerV2 = scoringWorkersV2.resumeScore;
+export const skillWorkerV2    = embeddingWorkersV2.skill;
+export const jobTitleWorkerV2 = embeddingWorkersV2.jobTitle;
+export const locationWorkerV2 = embeddingWorkersV2.location;
+export const industryWorkerV2 = embeddingWorkersV2.industry;
+export const resumeScoreWorkerV2 = scoringWorkersV2.resumeScore;

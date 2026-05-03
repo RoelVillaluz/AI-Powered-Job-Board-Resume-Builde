@@ -2,19 +2,19 @@ import { Queue } from "bullmq";
 import { redisConnection } from "../../../config/queue.config.js";
 import {
     resumeEmbeddingQueue,
-    // skillEmbeddingQueue,
-    // jobTitleEmbeddingQueue,
-    // locationEmbeddingQueue,
-    // industryEmbeddingQueue,
-    // skillEmbeddingDLQ,
-    // jobTitleEmbeddingDLQ,
-    // locationEmbeddingDLQ,
-    // industryEmbeddingDLQ,
-    // resumeScoringQueue,
+    skillEmbeddingQueue,
+    jobTitleEmbeddingQueue,
+    locationEmbeddingQueue,
+    industryEmbeddingQueue,
+    skillEmbeddingDLQ,
+    jobTitleEmbeddingDLQ,
+    locationEmbeddingDLQ,
+    industryEmbeddingDLQ,
+    resumeScoringQueue,
 } from "../../../queues/index.js";
 
 import { embeddingRegistryV2 } from "../domains/embedding/embeddingRegistryV2.js";
-// import { scoringRegistry }     from "../domains/scoring/scoringRegistry.js";
+import { scoringRegistry }     from "../domains/scoring/scoringRegistry.js";
 import { createWorkerV2 }      from "../workers/createWorkerV2.js";
 import logger                  from "../../../utils/logger.js";
 
@@ -22,27 +22,27 @@ import logger                  from "../../../utils/logger.js";
 
 const embeddingQueueMapV2: Record<string, Queue> = {
     resume:   resumeEmbeddingQueue,
-    // skill:    skillEmbeddingQueue,
-    // jobTitle: jobTitleEmbeddingQueue,
-    // location: locationEmbeddingQueue,
-    // industry: industryEmbeddingQueue,
+    skill:    skillEmbeddingQueue,
+    jobTitle: jobTitleEmbeddingQueue,
+    location: locationEmbeddingQueue,
+    industry: industryEmbeddingQueue,
 };
 
 const embeddingDLQMapV2: Record<string, Queue | null> = {
     resume:   null,
-    // skill:    skillEmbeddingDLQ,
-    // jobTitle: jobTitleEmbeddingDLQ,
-    // location: locationEmbeddingDLQ,
-    // industry: industryEmbeddingDLQ,
+    skill:    skillEmbeddingDLQ,
+    jobTitle: jobTitleEmbeddingDLQ,
+    location: locationEmbeddingDLQ,
+    industry: industryEmbeddingDLQ,
 };
 
-// const scoringQueueMapV2: Record<string, Queue> = {
-//     resumeScore: resumeScoringQueue,
-// };
+const scoringQueueMapV2: Record<string, Queue> = {
+    resumeScore: resumeScoringQueue,
+};
 
-// const scoringDLQMapV2: Record<string, Queue | null> = {
-//     resumeScore: null,
-// };
+const scoringDLQMapV2: Record<string, Queue | null> = {
+    resumeScore: null,
+};
 
 // ── Worker factory ─────────────────────────────────────────────────────────────
 
@@ -70,11 +70,11 @@ export const embeddingWorkersV2 = buildWorkersV2(
     embeddingDLQMapV2,
 );
 
-// export const scoringWorkersV2 = buildWorkersV2(
-//     scoringRegistry,
-//     scoringQueueMapV2,
-//     scoringDLQMapV2,
-// );
+export const scoringWorkersV2 = buildWorkersV2(
+    scoringRegistry,
+    scoringQueueMapV2,
+    scoringDLQMapV2,
+);
 
 const allWorkersV2 = { ...embeddingWorkersV2 };
 

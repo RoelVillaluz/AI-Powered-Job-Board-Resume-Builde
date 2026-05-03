@@ -4,7 +4,7 @@ from typing import Optional
 from pymongo import MongoClient
 from dotenv import load_dotenv
 
-load_dotenv()
+load_dotenv('.env.dev')
 
 class DatabaseConfig:
     """ Handles database connection and configuration. """

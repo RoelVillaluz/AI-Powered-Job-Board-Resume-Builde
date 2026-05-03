@@ -47,7 +47,8 @@ export const prepareSkillEmbeddingComputationRepository = async (
     id: string | Types.ObjectId
 ) => {
     return Skill.findById(id)
-        .select('_id name')
+        .select('_id name embedding embeddingGeneratedAt')
+        .lean();
 };
 
 /**

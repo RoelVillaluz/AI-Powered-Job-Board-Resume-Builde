@@ -35,7 +35,8 @@ export const prepareIndustryEmbeddingComputationRepository = async (
     id: string | Types.ObjectId
 ) => {
     return Industry.findById(id)
-        .select('_id name')
+        .select('_id name embedding embeddingGeneratedAt')
+        .lean();
 };
 
 /**

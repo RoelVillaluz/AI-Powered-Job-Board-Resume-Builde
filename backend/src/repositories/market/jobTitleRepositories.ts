@@ -60,7 +60,8 @@ export const prepareJobTitleEmbeddingComputationRepository = async (
     id: string | Types.ObjectId
 ) => {
     return JobTitle.findById(id)
-        .select('_id title')
+        .select('_id title embedding embeddingGeneratedAt')
+        .lean();
 };
 
 /**

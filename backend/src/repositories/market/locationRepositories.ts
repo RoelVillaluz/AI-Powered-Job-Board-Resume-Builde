@@ -56,7 +56,7 @@ export const prepareLocationEmbeddingComputationRepository = async (
     id: string | Types.ObjectId
 ) => {
     return Location.findById(id)
-        .select('_id name')
+        .select('_id name embedding embeddingGeneratedAt')
 };
 
 /**
@@ -68,6 +68,7 @@ export const prepareLocationEmbeddingComputationRepository = async (
 export const getLocationEmbeddingByNameRepository = (name: string) => {
     return Location.findOne({ name })
         .select('_id name embedding embeddingGeneratedAt')
+        .lean();
 }
 
 /**

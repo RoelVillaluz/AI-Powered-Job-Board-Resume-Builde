@@ -41,11 +41,21 @@ export interface ComputeConfigV2<T, TAIResult = any> {
     // Data layer (IMPORTANT)
     // ─────────────────────────────────────────────
     fetcher: (id: Types.ObjectId | string) =>
-        Promise<Record<string, unknown> | null>;
+        Promise<Record<string, any> | null>;
 
     aiEndpoint: string;
 
-    mapper: (aiResult: TAIResult) => Partial<T>;
+    // Optional — scoring and non-embedding entities set this to true
+    // to bypass the embedding validity check in executeComputePipelineV2
+    skipEmbeddingCheck?: boolean;
+
+    // Optional — used when AI response needs custom payload building
+    // instead of the standard mapper pattern (e.g. scoring)
+    // If present, used instead of mapper
+    buildPayload?: (aiResult: TAIResult, id: Types.ObjectId) => Partial<T>;
+
+    // mapper is now optional since buildPayload can replace it
+    mapper?: (aiResult: TAIResult) => Partial<T>;
 
     persist: (
         id: string | Types.ObjectId,
@@ -60,6 +70,14 @@ export interface ComputeConfigV2<T, TAIResult = any> {
         job?: QueueJob | null,
         emit?: EmitFn,
     ) => Promise<any>;
+
+    // Optional — runs after document is saved to DB
+    // Used by resume to trigger scoring pipeline
+    afterSave?: (
+        saved:      T,
+        emitSocket: (event: string, data: any) => void,
+        ctx:        { userId: string | null },
+    ) => Promise<void>;
 }
 
 export type EmitFn = (

@@ -1,101 +1,116 @@
 import { Types } from "mongoose";
 import logger from "../../../utils/logger.js";
 import { aiClient } from "../../clients/aiClientHandler.js";
-import { embeddingRegistryV2 } from "../domains/embedding/embeddingRegistryV2.js";
 import { QueueJob } from "../../../types/queues.types.js";
-import { PythonEmit } from "../../../types/python.types.js";
-import { ResumeEmbeddingAIResult } from "../../../types/aiResults.types.js";
-import { EmitFn } from "./computeRegistryTypesV2.js";
+import { ComputeConfigV2, EmitFn } from "./computeRegistryTypesV2.js";
+import {
+    isValidEmbedding,
+    isEmbeddingStale,
+} from "../../../utils/embeddings/embeddingValidationUtils.js";
+import { EmbeddingVector } from "src/types/embeddings.types.js";
 
 interface PipelineOptions {
-    entityKey: keyof typeof embeddingRegistryV2;
-    id: Types.ObjectId | string;
-    job?: QueueJob | null;
-    emit?: EmitFn;  // ← replaces PythonEmit
+    entityKey: string;
+    id:        Types.ObjectId | string;
+    job?:      QueueJob | null;
+    emit?:     EmitFn;
+    emitSocket?: (event: string, data: any) => void;
 }
 
 export const executeComputePipelineV2 = async ({
     entityKey,
     id,
-    job = null,
-    emit = () => {},
+    job        = null,
+    emit       = () => {},
+    emitSocket = () => {},
 }: PipelineOptions) => {
+    // Lazy import — avoids circular dependency at module init
+    const { embeddingRegistryV2 } = await import('../domains/embedding/embeddingRegistryV2.js');
+    const { scoringRegistryV2 } = await import('../domains/scoring/scoringRegistryV2.js');
 
-    const config = embeddingRegistryV2[entityKey];
-    if (!config) throw new Error(`No config found for ${entityKey}`);
+    const computeRegistry = { ...embeddingRegistryV2, ...scoringRegistryV2 };
 
+    const config   = computeRegistry[entityKey];
     const entityId = new Types.ObjectId(id);
-    const logCtx = `${entityKey}:${entityId}`;
+    const logCtx   = `${entityKey}:${entityId}`;
 
-    const updateProgress = async (progress: number, message?: string) => {
-        try {
-            await job?.updateProgress(progress);
-        } catch {
-            // ignore queue progress failures
-        }
+    if (!config) throw new Error(`No v2 config found for: ${entityKey}`);
 
-        emit("embedding:progress", { progress, message });
+    const progress = async (pct: number, message?: string) => {
+        try { await (job as any)?.updateProgress(pct); } catch { /* best-effort */ }
+        emit('embedding:progress', { progress: pct, message });
     };
 
     try {
-        logger.info(`[PIPELINE START] ${logCtx}`);
-        await updateProgress(10, "Fetching data");
+        logger.info(`[PIPELINE V2 START] ${logCtx}`);
+        await progress(10, 'Fetching data');
 
-        // ───────────────────────────────────────
-        // 1. FETCH (dynamic via registry)
-        // ───────────────────────────────────────
-        const aiInput = await config.fetcher(entityId);
+        // ── 1. Fetch ──────────────────────────────────────────────────────────
+        const raw = await config.fetcher(entityId);
+        if (!raw) throw new Error(`${entityKey} not found: ${entityId}`);
 
-        if (!aiInput) {
-            throw new Error(`${entityKey} not found`);
+        // ── 2. Embedding validity check ───────────────────────────────────────────────
+        // Skipped when config.skipEmbeddingCheck is true (scoring, non-embedding entities)
+        // Skipped when raw has no embedding field (resume fetcher)
+        if (!config.skipEmbeddingCheck) {
+            const hasEmbedding = Array.isArray(raw.embedding) && raw.embedding.length > 0;
+            const isValid      = hasEmbedding && isValidEmbedding(raw.embedding as EmbeddingVector);
+            const isFresh      = hasEmbedding && !isEmbeddingStale(raw.embeddingGeneratedAt as Date, 90);
+
+            if (isValid && isFresh) {
+                logger.info(`[PIPELINE V2 SKIP] Valid fresh embedding exists: ${logCtx}`);
+                await progress(100, 'Embedding already valid');
+                return { cached: true as const, data: raw };
+            }
+
+            if (hasEmbedding && (!isValid || !isFresh)) {
+                logger.warn(`[PIPELINE V2] Stale or invalid — regenerating: ${logCtx}`);
+            }
         }
 
-        await updateProgress(30, "Calling AI service");
+        // ── 3. Call AI service ────────────────────────────────────────────────
+        await progress(30, 'Calling AI service');
+        const aiOutput = await aiClient(config.aiEndpoint, raw);
+        await progress(70, 'Building payload');
 
-        // ───────────────────────────────────────
-        // 2. AI SERVICE CALL
-        // ───────────────────────────────────────
-        const aiOutput = await aiClient(config.aiEndpoint, aiInput);
+        // ── 4. Map AI response → DB payload ───────────────────────────────────────────
+        // buildPayload takes precedence over mapper (used by scoring)
+        // mapper is used by embedding entities
+        const mapped = config.buildPayload
+            ? config.buildPayload(aiOutput, entityId)
+            : config.mapper!(aiOutput);
 
-        await updateProgress(70, "Building payload");
-
-        // ───────────────────────────────────────
-        // 3. BUILD PAYLOAD
-        // ───────────────────────────────────────
-        const mapped = config.mapper(aiOutput);
-
-        // ───────────────────────────────────────
-        // 4. BUILD PAYLOAD
-        // ───────────────────────────────────────
+        // ── 5. Build full document ────────────────────────────────────────────
         const embeddingDocument = {
             [config.entity]: entityId,
             ...mapped,
-            generatedAt: new Date(),
+            // only add generatedAt for embedding entities
+            // scoring entities set calculatedAt in buildPayload
+            ...(config.skipEmbeddingCheck ? {} : { generatedAt: new Date() }),
         };
-        await updateProgress(85, "Saving embeddings");
+        
+        await progress(85, 'Saving embeddings');
 
-        // ───────────────────────────────────────
-        // 5. PERSIST (dynamic via registry)
-        // ───────────────────────────────────────
+        // ── 6. Persist ────────────────────────────────────────────────────────
         const saved = await config.persist(entityId, embeddingDocument);
 
-        await updateProgress(100, "Complete");
+        // ── 7. Post-save hooks ────────────────────────────────────────────────
+        const userId = (job as any)?.data?.userId ?? null;
+        if (config.afterSave) {
+            await config.afterSave(saved, emitSocket, { userId });
+        }
 
-        logger.info(`[PIPELINE SUCCESS] ${logCtx}`);
+        await progress(100, 'Complete');
+        logger.info(`[PIPELINE V2 SUCCESS] ${logCtx}`);
 
-        return {
-            cached: false,
-            data: saved,
-        };
+        return { cached: false as const, data: saved };
 
     } catch (error) {
-        logger.error(`[PIPELINE ERROR] ${logCtx}`, error);
-
-        emit("embedding:error", {
+        logger.error(`[PIPELINE V2 ERROR] ${logCtx}`, error);
+        emit('embedding:error', {
             progress: 0,
-            message: error instanceof Error ? error.message : "Unknown error",
+            message: error instanceof Error ? error.message : 'Unknown error',
         });
-
         throw error;
     }
 };

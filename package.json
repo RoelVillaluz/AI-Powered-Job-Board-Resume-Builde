@@ -7,7 +7,7 @@
     "dev": "concurrently \"npm run server\" \"npm run client\" \"npm run ai\"",
     "server": "cd backend && npm run dev",
     "client": "cd frontend && npm run dev",
-    "ai": "cd ai-service && python -m uvicorn app:app --reload",
+    "ai": "cd ai-service && venv\\Scripts\\activate && python -m uvicorn app:app --reload",
     "test": "cd backend && npm test"
   },
   "devDependencies": {

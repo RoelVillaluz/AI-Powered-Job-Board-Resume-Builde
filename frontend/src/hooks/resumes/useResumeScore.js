@@ -1,37 +1,19 @@
-import { useQueryClient } from "@tanstack/react-query";
+import { useEffect, useRef, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useSocket } from "../../contexts/SocketContext";
 import { useAuthStore } from "../../stores/authStore";
 import { useResumeStore } from "../../stores/resumeStore";
 import { useResumeScoreQuery, useUserResumesQuery } from "./useResumeQueries";
-import { useEffect, useRef, useState } from "react";
-import { useSocket } from "../../contexts/SocketContext";
+import {
+    fetchResumeEmbeddingsV2,
+    fetchResumeScoreV2,
+} from "../../api/resumeApis";
 
-/**
- * Convenience hook that provides resume score data, live job progress, and a
- * time-remaining estimate for the current user's active resume.
- * 
- * 
- * @returns {{
- *   currentResume: object|null,
- *   score: number|null,
- *   jobProgress: number,
- *   secondsRemaining: number|null,
- *   loading: boolean,
- *   error: Error|null,
- *   messages: {
- *     grade: string|undefined,
- *     overallMessage: string|null
- *   },
- *   hasResume: boolean,
- *   totalResumes: number,
- *   isQueued: boolean
- * }}
- *
- * - `score`            — The final score (0–100), or null while calculating.
- * - `jobProgress`      — Unified 0–100% pipeline progress for the gauge. 100 when idle.
- * - `secondsRemaining` — Estimated seconds left, or null when not calculating.
- * - `isQueued`         — True while the embedding/score pipeline is running.
- * - `messages`         — Grade string and overall message from the score document.
- */
+import {
+    generateResumeEmbeddingsV2,
+    generateResumeScoreV2,
+} from "../../services/resumeServices"
+
 export const useResumeScore = () => {
     const { socket } = useSocket();
     const user = useAuthStore(state => state.user);
@@ -43,56 +25,100 @@ export const useResumeScore = () => {
     const [socketMessage, setSocketMessage] = useState(null);
     const [isQueued, setIsQueued] = useState(false);
     const [secondsRemaining, setSecondsRemaining] = useState(null);
-
-    // useRef so time tracking doesn't trigger re-renders
     const pipelineStartTime = useRef(null);
+
+    const resumeId = currentResume?._id;
 
     const { data: resumes, isLoading: resumesLoading, error: resumesError } =
         useUserResumesQuery(user?._id);
 
-    const { data: scoreData, isLoading: scoreLoading, error: scoreError } =
-        useResumeScoreQuery(currentResume?._id, token);
+    // ── 1. GET score ──────────────────────────────────────────────────────────
+    const {
+        data: scoreData,
+        isLoading: scoreLoading,
+        isFetched: scoreFetched,
+    } = useResumeScoreQuery(resumeId, token);
 
-    useEffect(() => {
-        if (!currentResume || !socket) return;
+    // ── 2. GET embeddings (only when score missing) ───────────────────────────
+    const {
+        data: embeddingsData,
+        isFetched: embeddingsFetched,
+    } = useQuery({
+        queryKey: ['resumeEmbeddings', resumeId],
+        queryFn:  () => fetchResumeEmbeddingsV2(resumeId, token),
+        enabled:  !!resumeId && !!token && scoreFetched && !scoreData,
+        retry:    false,
+    });
 
-        // Treat a "queued" API response as the start of an in-progress pipeline
-        if (scoreData?.status === "queued") {
+    // ── 3. POST score (embeddings exist, score missing) ───────────────────────
+    const { mutate: generateScore } = useMutation({
+        mutationFn: () => generateResumeScoreV2(resumeId, token),
+        onSuccess: (data) => {
+            if (data?.status === 'embeddings_required') {
+                // shouldn't happen here but guard anyway
+                generateEmbeddings();
+                return;
+            }
             setIsQueued(true);
-            setSocketMessage("Starting analysis...");
-        }
+            setSocketMessage("Calculating your score...");
+        },
+        onError: (err) => setSocketMessage(err.message),
+    });
 
-        /**
-         * Update unified progress and time-remaining estimate.
-         *
-         * @param {number} mappedProgress - Progress already mapped onto the 0–100 unified scale.
-         * @param {string|undefined} message - Status message from Python, if provided.
-         */
+    // ── 4. POST embeddings (embeddings missing) ───────────────────────────────
+    const { mutate: generateEmbeddings } = useMutation({
+        mutationFn: () => generateResumeEmbeddingsV2(resumeId, token),
+        onSuccess: () => {
+            setIsQueued(true);
+            setSocketMessage("Generating embeddings...");
+        },
+        onError: (err) => setSocketMessage(err.message),
+    });
+
+    // ── Orchestration ─────────────────────────────────────────────────────────
+    useEffect(() => {
+        if (!scoreFetched || !resumeId) return;
+
+        if (scoreData) return; // score exists — nothing to do
+
+        if (!embeddingsFetched) return; // waiting for embeddings query
+
+        if (embeddingsData) {
+            // embeddings exist but no score — POST score
+            generateScore();
+        } else {
+            // no embeddings — POST embeddings
+            // afterSave will trigger scoring automatically
+            generateEmbeddings();
+        }
+    }, [scoreFetched, embeddingsFetched, scoreData, embeddingsData, resumeId]);
+
+    // ── Socket listeners ──────────────────────────────────────────────────────
+    useEffect(() => {
+        if (!socket || !resumeId) return;
+
         const updateProgress = (mappedProgress, message) => {
             setIsQueued(true);
             setSocketProgress(mappedProgress);
             if (message) setSocketMessage(message);
 
-            // Start the clock on first meaningful progress tick
             if (!pipelineStartTime.current && mappedProgress > 0) {
                 pipelineStartTime.current = Date.now();
             }
 
-            // Only estimate once we have enough elapsed data to be meaningful
             if (pipelineStartTime.current && mappedProgress >= 10) {
-                const elapsedSeconds = (Date.now() - pipelineStartTime.current) / 1000;
-                const secondsPerPercent = elapsedSeconds / mappedProgress;
-                const remaining = Math.round(secondsPerPercent * (100 - mappedProgress));
-                setSecondsRemaining(remaining);
+                const elapsed = (Date.now() - pipelineStartTime.current) / 1000;
+                const rate = elapsed / mappedProgress;
+                setSecondsRemaining(Math.round(rate * (100 - mappedProgress)));
             }
         };
 
-        // Embedding phase occupies the first 60% of the unified gauge (raw 0–100 → 0–60)
+        // embedding:progress → 0-60% of unified gauge
         socket.on("embedding:progress", ({ progress, message }) => {
             updateProgress(Math.round(progress * 0.6), message);
         });
 
-        // Score phase occupies the remaining 40% (raw 0–100 → 60–100)
+        // score:progress → 60-100% of unified gauge
         socket.on("score:progress", ({ progress, message }) => {
             updateProgress(60 + Math.round(progress * 0.4), message);
         });
@@ -103,8 +129,7 @@ export const useResumeScore = () => {
             setSocketMessage("Your resume score is ready!");
             setSecondsRemaining(null);
             pipelineStartTime.current = null;
-
-            queryClient.setQueryData(["resumeScore", currentResume._id], {
+            queryClient.setQueryData(["resumeScore", resumeId], {
                 success: true,
                 formattedMessage: "Resume Score fetched successfully",
                 data,
@@ -132,26 +157,25 @@ export const useResumeScore = () => {
             socket.off("score:error");
             socket.off("embedding:error");
         };
-    }, [currentResume?._id, scoreData?.status, socket]);
+    }, [socket, resumeId]);
 
-    const isLoading = resumesLoading || scoreLoading;
-    const error = resumesError || scoreError;
+    const isActive = isQueued || socketProgress > 0 && socketProgress < 100;
 
     return {
         currentResume,
-        score: isQueued ? null : (scoreData?.data?.totalScore ?? null),
-        jobProgress: isQueued ? socketProgress : 100,
+        score:            isActive ? null : (scoreData?.data?.totalScore ?? null),
+        jobProgress:      isActive ? socketProgress : 100,
         secondsRemaining,
-        loading: isLoading,
-        error,
+        loading:          resumesLoading || scoreLoading,
+        error:            resumesError || scoreError,
         messages: {
-            grade: scoreData?.data?.grade,
-            overallMessage: isQueued
+            grade:          scoreData?.data?.grade,
+            overallMessage: isActive
                 ? socketMessage
-                : (scoreData?.data?.overallMessage ?? null)
+                : (scoreData?.data?.overallMessage ?? null),
         },
-        hasResume: !!currentResume,
+        hasResume:    !!currentResume,
         totalResumes: resumes?.length ?? 0,
-        isQueued
+        isQueued:     isActive,
     };
 };

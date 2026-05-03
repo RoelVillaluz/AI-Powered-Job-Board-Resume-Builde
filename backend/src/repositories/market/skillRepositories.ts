@@ -39,7 +39,15 @@ export const getSkillMetricsRepository = (id: Types.ObjectId) => {
 export const getSkillEmbeddingRepository = async (
     id: string | Types.ObjectId
 ): Promise<SkillDocument | null> => {
-    return Skill.findById(id).exec();
+    return Skill.findById(id)
+        .select('_id name embedding embeddingGeneratedAt')
+};
+
+export const prepareSkillEmbeddingComputationRepository = async (
+    id: string | Types.ObjectId
+) => {
+    return Skill.findById(id)
+        .select('_id name')
 };
 
 /**

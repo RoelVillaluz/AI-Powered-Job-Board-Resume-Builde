@@ -31,6 +31,13 @@ export const getIndustryEmbeddingByIdRepository = (id: Types.ObjectId) => {
         .select('_id name embedding marketMetrics salaryBenchmarks embeddingGeneratedAt');
 }
 
+export const prepareIndustryEmbeddingComputationRepository = async (
+    id: string | Types.ObjectId
+) => {
+    return Industry.findById(id)
+        .select('_id name')
+};
+
 /**
  * Fetch an industry including its embedding by name string.
  * Fallback for when only a name string is available.

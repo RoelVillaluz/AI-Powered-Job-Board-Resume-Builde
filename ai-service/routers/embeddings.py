@@ -4,6 +4,8 @@ import logging
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
+from main_v2 import generate_resume_embeddings_v2
+
 # Make sure Python can find the parent ai-service/ folder
 # so imports like `from main import ...` resolve correctly
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
@@ -59,3 +61,9 @@ async def resume_embeddings(body: ComputeRequest) -> dict:
     # model_dump() converts the Pydantic model back to a plain dict
     # equivalent to req.body in Express
     payload = body.model_dump()
+
+    result = generate_resume_embeddings_v2(payload)
+    
+    if "error" in result:
+        return { "data": None, "error": result["error"] }
+    return { "data": result, "error": None }

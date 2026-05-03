@@ -63,6 +63,7 @@ export const findResumeByIdRepo = async (id) => {
     return await Resume.findById(id)
         .populate('user', '_id')
         .populate('jobTitle', '_id title')
+        .populate('location', '_id name')
         .lean();
 };
 

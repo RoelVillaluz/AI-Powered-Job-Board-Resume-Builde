@@ -21,6 +21,13 @@ export const fetchResume = async (resumeId) => {
   return data.data
 }
 
+export const fetchResumeEmbeddingsV2 = async (resumeId, token) => {
+    const { data } = await axios.get(`${BASE_API_URL}/v2/resumes/${resumeId}/embeddings`, {
+        headers: { Authorization: `Bearer ${token}` }
+    });
+    return data.data;
+};
+
 /**
  * Fetch the AI-generated resume score for a given resume ID.
  * @param {string} resumeId - The ID of the resume
@@ -50,6 +57,12 @@ export const fetchResumeScore = async (resumeId, token) => {
   }
 }
 
+export const fetchResumeScoreV2 = async (resumeId, token) => {
+    const { data } = await axios.get(`${BASE_API_URL}/v2/resumes/${resumeId}/score`, {
+        headers: { Authorization: `Bearer ${token}` }
+    });
+    return data.data;
+};
 /**
  * Fetches similarity score between job and resume based on skills, work experience, preferences, etc
  * @param {string} resumeId - ID of current resume being compared with the job

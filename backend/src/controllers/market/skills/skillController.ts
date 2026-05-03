@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
-import * as SkillService from '../../services/market/skillService.js';
-import * as SkillRepo from '../../repositories/market/skillRepositories.js';
-import { catchAsync } from '../../utils/errorUtils.js';
-import { sendResponse, STATUS_MESSAGES } from '../../constants.js';
+import * as SkillService from '../../../services/market/skillService.js';
+import * as SkillRepo from '../../../repositories/market/skillRepositories.js';
+import { catchAsync } from '../../../utils/errorUtils.js';
+import { sendResponse, STATUS_MESSAGES } from '../../../constants.js';
 import { Types } from "mongoose";
 
 // ============================================

@@ -1,9 +1,9 @@
 import { Types } from "mongoose"
 import { Request, Response } from "express"
-import * as JobTitleRepo from '../../repositories/market/jobTitleRepositories.js'
-import * as JobTitleService from '../../services/market/jobTitleService.js'
-import { catchAsync } from "../../utils/errorUtils.js"
-import { sendResponse, STATUS_MESSAGES } from "../../constants.js"
+import * as JobTitleRepo from '../../../repositories/market/jobTitleRepositories.js'
+import * as JobTitleService from '../../../services/market/jobTitleService.js'
+import { catchAsync } from "../../../utils/errorUtils.js"
+import { sendResponse, STATUS_MESSAGES } from "../../../constants.js"
 
 export const getJobTitleById = catchAsync(async (req: Request, res: Response) => {
     const { id } = req.params as { id: string };

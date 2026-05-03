@@ -1,12 +1,12 @@
-import { catchAsync } from "../../utils/errorUtils.js";
+import { catchAsync } from "../../../utils/errorUtils.js";
 import { Request, Response } from "express";
-import * as LocationRepo from '../../repositories/market/locationRepositories.js'
-import * as LocationService from '../../services/market/locationService.js'
+import * as LocationRepo from '../../../repositories/market/locationRepositories.js'
+import * as LocationService from '../../../services/market/locationService.js'
 import { Types } from "mongoose";
-import { STATUS_MESSAGES } from "../../constants.js";
-import { sendTypedResponse } from "../../utils/sendTypedResponse.js";
-import { CreateLocationPayload, LocationEmbeddingData, LocationInterface, UpdateLocationPayload } from "../../types/location.types.js";
-import { ApiQueueResponse } from "../../types/apiResponse.types.js";
+import { STATUS_MESSAGES } from "../../../constants.js";
+import { sendTypedResponse } from "../../../utils/sendTypedResponse.js";
+import { CreateLocationPayload, LocationEmbeddingData, LocationInterface, UpdateLocationPayload } from "../../../types/location.types.js";
+import { ApiQueueResponse } from "../../../types/apiResponse.types.js";
 
 export const getLocationByIdController = catchAsync(async(req: Request, res: Response) => {
     const { id } = req.params as { id: string };

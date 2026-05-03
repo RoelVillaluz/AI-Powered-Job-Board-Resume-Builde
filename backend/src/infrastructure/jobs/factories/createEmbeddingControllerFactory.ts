@@ -30,7 +30,6 @@ export const createEmbeddingControllerFactory = (config: EmbeddingControllerConf
         (sendResponse as any)(res, {
             ...STATUS_MESSAGES.SUCCESS.FETCH,
             data,
-            cached: true,
         }, label);
     });
 

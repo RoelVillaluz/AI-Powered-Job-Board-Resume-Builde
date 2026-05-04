@@ -8,6 +8,7 @@ import {
     isEmbeddingStale,
 } from "../../../utils/embeddings/embeddingValidationUtils.js";
 import { EmbeddingVector } from "src/types/embeddings.types.js";
+import { getComputeConfigV2 } from "./computeRegistryV2.js";
 
 interface PipelineOptions {
     entityKey: string;
@@ -25,12 +26,10 @@ export const executeComputePipelineV2 = async ({
     emitSocket = () => {},
 }: PipelineOptions) => {
     // Lazy import — avoids circular dependency at module init
-    const { embeddingRegistryV2 } = await import('../domains/embedding/embeddingRegistryV2.js');
-    const { scoringRegistryV2 } = await import('../domains/scoring/scoringRegistryV2.js');
+    const config = await getComputeConfigV2(entityKey);
 
-    const computeRegistry = { ...embeddingRegistryV2, ...scoringRegistryV2 };
+    if (!config) throw new Error(`No v2 config found for: ${entityKey}`);
 
-    const config   = computeRegistry[entityKey];
     const entityId = new Types.ObjectId(id);
     const logCtx   = `${entityKey}:${entityId}`;
 

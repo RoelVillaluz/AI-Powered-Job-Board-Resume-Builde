@@ -3,16 +3,6 @@ import { embeddingRegistryV2 } from "../domains/embedding/embeddingRegistryV2";
 import { QueueJob } from "../../../types/queues.types.js";
 
 // ─────────────────────────────────────────────
-// Registry Types
-// ─────────────────────────────────────────────
-export type ComputeRegistry = typeof embeddingRegistryV2;
-
-export type ComputeEntityKey = keyof ComputeRegistry;
-
-export type ComputeEntityConfig<K extends ComputeEntityKey> =
-    ComputeRegistry[K];
-
-// ─────────────────────────────────────────────
 // MAIN CONFIG (RENAMED)
 // ─────────────────────────────────────────────
 export interface ComputeConfigV2<T, TAIResult = any> {

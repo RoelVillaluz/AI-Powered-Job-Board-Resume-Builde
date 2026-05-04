@@ -2,12 +2,12 @@ import { Queue, Worker, Job } from "bullmq";
 import { Types } from "mongoose";
 import logger from "../../../utils/logger.js";
 import { executeComputePipelineV2 } from "../core/executeComputePipelineV2.js";
-import { ComputeEntityKey, EmitFn } from "../core/computeRegistryTypesV2.js";
+import { EmitFn } from "../core/computeRegistryTypesV2.js";
 import { getIO } from "../../../sockets/index.js";
 import { getSocketId } from "../../../sockets/presence.js";
 
 interface WorkerConfig {
-    entityKey: ComputeEntityKey;
+    entityKey: string;
     queue: Queue;
     concurrency?: number;
     connection: any;

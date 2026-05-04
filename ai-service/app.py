@@ -4,6 +4,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from transformers import logging as hf_logging
 from routers.embeddings import router as embeddings_router
+from routers.scoring import router as scoring_router
 from routers.health import router as health_router
 from dotenv import load_dotenv
 
@@ -57,4 +58,5 @@ app = FastAPI(
 )
 
 app.include_router(embeddings_router)
+app.include_router(scoring_router)
 app.include_router(health_router)

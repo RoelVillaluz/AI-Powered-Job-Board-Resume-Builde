@@ -14,7 +14,7 @@ import {
 } from "../../../queues/index.js";
 
 import { embeddingRegistryV2 } from "../domains/embedding/embeddingRegistryV2.js";
-import { scoringRegistry }     from "../domains/scoring/scoringRegistry.js";
+import { scoringRegistryV2 }     from "../domains/scoring/scoringRegistryV2.js";
 import { createWorkerV2 }      from "../workers/createWorkerV2.js";
 import logger                  from "../../../utils/logger.js";
 
@@ -71,12 +71,12 @@ export const embeddingWorkersV2 = buildWorkersV2(
 );
 
 export const scoringWorkersV2 = buildWorkersV2(
-    scoringRegistry,
+    scoringRegistryV2,
     scoringQueueMapV2,
     scoringDLQMapV2,
 );
 
-const allWorkersV2 = { ...embeddingWorkersV2 };
+const allWorkersV2 = { ...embeddingWorkersV2, ...scoringWorkersV2 };
 
 // ── Lifecycle helpers ──────────────────────────────────────────────────────────
 

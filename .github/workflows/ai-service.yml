@@ -1,0 +1,37 @@
+name: AI Service CI
+
+on:
+  push:
+    branches: [main, refactor/python-microservice]
+    paths:
+      - "ai-service/**"
+  pull_request:
+    branches: [main, refactor/python-microservice]
+    paths:
+      - "ai-service/**"
+
+jobs:
+  # ─── Job 1: Validate AI Service ─────────────────────────────────────────────
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Dependencies
+        working-directory: ai-service
+        run: pip install -r requirements.txt
+
+      - name: Compile Check
+        working-directory: ai-service
+        run: python -m compileall .
+
+      - name: Import Test
+        working-directory: ai-service
+        run: python -c "import main"

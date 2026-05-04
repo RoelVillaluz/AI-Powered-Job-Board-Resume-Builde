@@ -1,0 +1,75 @@
+name: Backend CI
+
+on:
+  push:
+    branches: [main, refactor/python-microservice]
+    paths:
+      - "backend/**"
+      - "shared/**"
+  pull_request:
+    branches: [main, refactor/python-microservice]
+    paths:
+      - "backend/**"
+      - "shared/**"
+
+jobs:
+  # ─── Job 1: Test Backend ─────────────────────────────────────────────────
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install Dependencies
+        working-directory: backend
+        run: npm ci --include=dev
+
+      - name: Type Check
+        working-directory: backend
+        run: npx tsc --noEmit
+
+      - name: Circular Dependency Check
+        working-directory: backend
+        run: npx madge --circular --extensions ts src/
+
+      - name: Start MongoDB
+        run: docker run -d --name mongodb -p 27017:27017 mongo:6.0 mongod --replSet rs0 --bind_ip_all
+
+      - name: Wait for MongoDB
+        run: |
+            until docker exec mongodb mongosh --eval "db.runCommand({ ping: 1 })"; do
+            sleep 1
+            done
+
+      - name: Init Replica Set
+        run: docker exec mongodb mongosh --eval "rs.initiate({_id:'rs0',members:[{_id:0,host:'localhost:27017'}]})"
+
+      - name: Create Test Env
+        working-directory: backend
+        run: |
+          cat > .env.test << EOF
+          NODE_ENV=test
+          PORT=5001
+          MONGO_URI=mongodb://localhost:27017/jobboard_test
+          JWT_SECRET=test_jwt_secret
+          REDIS_HOST=localhost
+          REDIS_PORT=6379
+          EOF
+
+      - name: Run Tests
+        working-directory: backend
+        run: npm test -- --detectOpenHandles --forceExit

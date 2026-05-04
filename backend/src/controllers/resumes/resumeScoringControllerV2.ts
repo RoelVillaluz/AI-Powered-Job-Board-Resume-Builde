@@ -13,6 +13,7 @@ export const getResumeScoreControllerV2 = catchAsync(async (
 
     if (!score) {
         sendResponse(res, { ...STATUS_MESSAGES.ERROR.NOT_FOUND }, 'Resume Score');
+        return;
     }
 
     (sendResponse as any)(res, {

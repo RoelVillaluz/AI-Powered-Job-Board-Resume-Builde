@@ -23,7 +23,7 @@ import logger from "../../../utils/logger.js";
 // ── Queue maps ────────────────────────────────────────────────────────────────
 
 const embeddingQueueMap: Record<string, Queue> = {
-    resume:     resumeEmbeddingQueue,
+    // resume:     resumeEmbeddingQueue,
     jobPosting: jobEmbeddingQueue,
     skill:      skillEmbeddingQueue,
     jobTitle:   jobTitleEmbeddingQueue,
@@ -32,7 +32,7 @@ const embeddingQueueMap: Record<string, Queue> = {
 };
 
 const embeddingDLQMap: Record<string, Queue | null> = {
-    resume:     null,
+    // resume:     null,
     jobPosting: null,
     skill:      skillEmbeddingDLQ,
     jobTitle:   jobTitleEmbeddingDLQ,
@@ -41,11 +41,11 @@ const embeddingDLQMap: Record<string, Queue | null> = {
 };
 
 const scoringQueueMap: Record<string, Queue> = {
-    resumeScore: resumeScoringQueue,
+    // resumeScore: resumeScoringQueue,
 };
 
 const scoringDLQMap: Record<string, Queue | null> = {
-    resumeScore: null,
+    // resumeScore: null,
 };
 
 // ── Worker factories ──────────────────────────────────────────────────────────

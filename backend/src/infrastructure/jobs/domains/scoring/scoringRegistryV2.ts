@@ -29,12 +29,12 @@ export const scoringRegistryV2: Record<string, ComputeConfigV2<any, any>> = {
         priority:    3,
         dlqName:     "resume-scoring-dlq",
 
-        // Fetches full resume
+        // Fetches full resume + total years metrics from embedding model
         fetcher: async (id) => {
-            const { findResumeByIdRepo } = await import(
+            const { prepareResumeScoringFieldsRepo } = await import(
                 "../../../../repositories/resumes/resumeRepository.js"
             );
-            return findResumeByIdRepo(id as string);
+            return prepareResumeScoringFieldsRepo(id as string);
         },
 
         aiEndpoint: "score_resume",

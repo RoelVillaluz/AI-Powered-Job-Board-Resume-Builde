@@ -3,6 +3,7 @@
 import { Types } from "mongoose";
 import { createQueueJobRunner } from "../../core/createQueueJobRunner.js";
 import { ComputeConfigV2 } from "../../core/computeRegistryTypesV2.js";
+import logger from "../../../../utils/logger.js";
 
 import {
     resumeEmbeddingQueue,
@@ -87,6 +88,24 @@ export const embeddingRegistryV2: Record<string, ComputeConfigV2<any, any>> = {
                 "../../core/executeComputePipelineV2.js"
             );
             return executeComputePipelineV2({ entityKey: "resume", id, job, emit });
+        },
+        
+        afterSave: async (saved, emitSocket, ctx) => {
+            logger.info(`[REGISTRY V2] Triggering resume score: ${saved.resume}`);
+
+            if (!ctx.userId) {
+                logger.warn(`[REGISTRY V2] No userId in ctx — skipping score enqueue`);
+                return;
+            }
+
+            const { enqueueResumeScoreServiceV2 } = await import(
+                '../../../../services/resumes/resumeScoreServiceV2.js'
+            );
+
+            await enqueueResumeScoreServiceV2(
+                saved.resume.toString(),
+                ctx.userId,
+            );
         },
     } as ComputeConfigV2<ResumeEmbeddingsDocument, { resumeId: string; userId: string }>,
 

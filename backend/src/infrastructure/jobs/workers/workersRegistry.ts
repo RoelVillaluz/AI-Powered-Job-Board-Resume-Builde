@@ -57,18 +57,20 @@ const buildWorkers = (
     jobName:  string,
 ) =>
     Object.fromEntries(
-        Object.entries(registry).map(([key, config]) => [
-            key,
-            createWorker({
-                entityKey:   key,
-                config,          // ← passed directly, worker never touches any registry
-                queue:       queueMap[key],
-                jobName,
-                concurrency: config.concurrency,
-                connection:  redisConnection,
-                dlq:         dlqMap[key] ?? null,
-            }),
-        ])
+        Object.entries(registry)
+            .filter(([key]) => !!queueMap[key])  // ← skip if no queue mapped
+            .map(([key, config]) => [
+                key,
+                createWorker({
+                    entityKey:   key,
+                    config,
+                    queue:       queueMap[key],
+                    jobName,
+                    concurrency: config.concurrency,
+                    connection:  redisConnection,
+                    dlq:         dlqMap[key] ?? null,
+                }),
+            ])
     );
 
 export const embeddingWorkers = buildWorkers(

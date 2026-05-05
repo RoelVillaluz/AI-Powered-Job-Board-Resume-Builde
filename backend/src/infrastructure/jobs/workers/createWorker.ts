@@ -1,7 +1,7 @@
 import { Queue, Worker, Job } from 'bullmq';
 import { Types } from 'mongoose';
 import logger from '../../../utils/logger.js';
-import { executeComputePipeline } from '../core/executeComputePipeline.js';
+import { executeComputePipelineV2 } from '../core/executeComputePipelineV2.js';
 import { ComputeJobConfig } from '../core/computeRegistryTypes.js';
 import { getIO } from '../../../sockets/index.js';
 import { getSocketId } from '../../../sockets/presence.js';
@@ -91,7 +91,7 @@ export const createWorker = ({
             emitSocket(event, data);
         };
 
-        const result = await executeComputePipeline({
+        const result = await executeComputePipelineV2({
             entityKey,
             id: new Types.ObjectId(id),
             job,

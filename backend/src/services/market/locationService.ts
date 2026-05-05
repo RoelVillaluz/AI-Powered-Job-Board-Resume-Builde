@@ -6,9 +6,9 @@ import { isEmbeddingStale, isValidEmbedding } from '../../utils/embeddings/embed
 import { QueueJob } from '../../types/queues.types.js';
 import { PythonEmit, PythonResponse, runPythonTyped } from '../../types/python.types.js';
 import { CreateLocationPayload, LocationEmbeddingData, UpdateLocationPayload } from '../../types/location.types.js';
-import { embeddingRegistry } from '../../infrastructure/jobs/domains/embedding/embeddingRegistry.js';
+import { embeddingRegistryV2 } from '../../infrastructure/jobs/domains/embedding/embeddingRegistryV2.js';
 import { orchestrateComputeJob } from '../../infrastructure/jobs/core/orchestrateComputeJob.js';
-import { executeComputePipeline } from '../../infrastructure/jobs/core/executeComputePipeline.js';
+import { executeComputePipelineV2 } from '../../infrastructure/jobs/core/executeComputePipelineV2.js';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -41,7 +41,7 @@ export const getOrGenerateLocationEmbeddingService = async (
         validateShape: (data) => isValidEmbedding(data.embedding),
 
         queueGeneration: () =>
-            embeddingRegistry.location.queue({
+            embeddingRegistryV2.location.queue({
                 id:         locationId.toString(),
                 locationId: locationId.toString(),
             }),
@@ -83,7 +83,7 @@ export const upsertLocationEmbeddingService = async (
     emit: PythonEmit = () => {},
 ) => {
     if (isFallback) logger.warn(`Location embedding generated inline (Redis fallback)`);
-    return executeComputePipeline({ entityKey: 'location', id: locationId, job, emit });
+    return executeComputePipelineV2({ entityKey: 'location', id: locationId, job, emit });
 };
 
 // ─── Create ───────────────────────────────────────────────────────────────────
@@ -91,7 +91,7 @@ export const upsertLocationEmbeddingService = async (
 export const createLocationService = async (data: CreateLocationPayload): Promise<LocationDocument> => {
     const newLocation = await LocationRepository.createLocationRepository(data);
 
-    await embeddingRegistry.location.queue({
+    await embeddingRegistryV2.location.queue({
         id:         newLocation._id.toString(),
         locationId: newLocation._id.toString(),
     }).catch(async () => {
@@ -115,7 +115,7 @@ export const updateLocationService = async (
             $set: { embedding: null, embeddingGeneratedAt: null },
         });
 
-        await embeddingRegistry.location.queue({
+        await embeddingRegistryV2.location.queue({
             id:         id.toString(),
             locationId: id.toString(),
         }).catch(async () => {

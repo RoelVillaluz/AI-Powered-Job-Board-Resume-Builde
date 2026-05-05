@@ -4,8 +4,8 @@
 // import { Types } from "mongoose";
 // import { orchestrateComputeJob } from "../../infrastructure/jobs/core/orchestrateComputeJob.js";
 // import { JobPostingEmbeddingsDocument } from "../../types/embeddings.types.js";
-// import { embeddingRegistry } from "../../infrastructure/jobs/domains/embedding/embeddingRegistry.js";
-// import { executeComputePipeline } from "../../infrastructure/jobs/core/executeComputePipeline.js";
+// import { embeddingRegistryV2 } from "../../infrastructure/jobs/domains/embedding/embeddingRegistryV2.js";
+// import { executeComputePipelineV2 } from "../../infrastructure/jobs/core/executeComputePipelineV2.js";
 // import { QueueJob } from "../../types/queues.types.js";
 // import { PythonEmit } from "../../types/python.types.js";
 
@@ -39,7 +39,7 @@
 //             !!data.embeddings && Object.keys(data.embeddings).length > 0,
 
 //         queueGeneration: () =>
-//             embeddingRegistry.jobPosting.queue({
+//             embeddingRegistryV2.jobPosting.queue({
 //                 id:           jobPostingId.toString(),
 //                 jobPostingId: jobPostingId.toString(),
 //             }),
@@ -99,7 +99,7 @@
 //     emit: PythonEmit = () => {},
 // ) => {
 //     if (isFallback) logger.warn(`JobPosting embedding generated inline (Redis fallback)`);
-//     return executeComputePipeline({
+//     return executeComputePipelineV2({
 //         entityKey: 'resume',
 //         id:        new Types.ObjectId(jobPostingId),
 //         job,

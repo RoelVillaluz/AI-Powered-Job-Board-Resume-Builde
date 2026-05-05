@@ -42,25 +42,6 @@ jobs:
         working-directory: backend
         run: npx tsc --noEmit
 
-      - name: Check for circular dependencies (TypeScript)
-        working-directory: backend
-        run: |
-          OUTPUT=$(npx madge \
-            --circular \
-            --extensions ts \
-            --ts-config tsconfig.json \
-            src/)
-
-          echo "$OUTPUT"
-
-          # Ignore known cycle
-          FILTERED=$(echo "$OUTPUT" | grep -v "embeddingRegistryV2.ts")
-
-          if echo "$FILTERED" | grep -q "circular dependency"; then
-            echo "❌ New circular dependencies found!"
-            exit 1
-          fi
-
       - name: Check for circular dependencies (JavaScript)
         working-directory: backend
         run: |

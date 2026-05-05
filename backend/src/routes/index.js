@@ -1,14 +1,23 @@
 import userRoutes from "./users/userRoutes.js";
 import jobPostingRoutes from "./jobPostingRoutes.js";
 import resumeRoutes from "./resumes/resumeRoutes.js";
+import resumeRoutesV2 from "./resumes/resumeRoutesV2.js";
 import companyRoutes from "./companyRoutes.js";
 import aiRoutes from "./aiRoutes.js";
 import applicationRoutes from "./applicationRoutes.js";
-import authRoutes from "./authRoutes.js"
-import skillRoutes from './market/skillRoutes'
-import jobTitleRoutes from './market/jobTitleRoutes'
-import locationRoutes from './market/locationRoutes'
-import industryRoutes from './market/industryRoutes'
+import authRoutes from "./authRoutes.js";
+import skillRoutes from './market/skills/skillRoutes.js';
+import skillEmbeddingRoutes from './market/skills/skillEmbeddingRoutes.js';
+
+import jobTitleRoutes from './market/jobTitle/jobTitleRoutes';
+import jobTitleEmbeddingRoutes from './market/jobTitle/jobTitleEmbeddingRoutes';
+
+import locationRoutes from './market/location/locationRoutes.js';
+import locationEmbeddingRoutes from './market/location/locationEmbeddingRoutes.js';
+
+import industryRoutes from './market/industry/industryRoutes';
+import industryEmbeddingRoutes from './market/industry/industryEmbeddingRoutes';
+
 // import healthRoutes from './health/healthRoutes.js'
 
 import {
@@ -33,9 +42,17 @@ export const registerRoutes = (app) => {
   app.use("/api/applications", applicationRoutes);
 
   // Market
+  app.use('/api/v2/job-titles', jobTitleEmbeddingRoutes);
   app.use('/api/job-titles', jobTitleRoutes);
+
+  app.use('/api/v2/skills', skillEmbeddingRoutes);
   app.use('/api/skills', skillRoutes);
+
+  app.use('/api/v2/locations', locationEmbeddingRoutes);
   app.use('/api/locations', locationRoutes);
+
+
+  app.use('/api/v2/industries', industryEmbeddingRoutes);
   app.use('/api/industries', industryRoutes);
 
   // Chat
@@ -46,5 +63,6 @@ export const registerRoutes = (app) => {
   app.use("/api/conversations/:conversationId/resources/links", linkRoutes);
 
   // Resumes
+  app.use("/api/v2/resumes", resumeRoutesV2);
   app.use("/api/resumes", resumeRoutes);
 };

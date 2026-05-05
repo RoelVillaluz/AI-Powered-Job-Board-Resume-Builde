@@ -2,7 +2,6 @@ import { spawn } from "child_process";
 import logger from "../../utils/logger.js";
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
-
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 /**
@@ -27,7 +26,7 @@ export const runPython = (command, args = [], emit = () => {}) => {
 
     return new Promise((resolve, reject) => {
         const pythonArgs = [
-            "src/python_scripts/main.py",
+            "'../../../../ai-service/main.py",
             command,
             ...args
         ];

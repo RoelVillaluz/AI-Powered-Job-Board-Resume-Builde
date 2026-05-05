@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query"
 import { useResumeStore } from "../../stores/resumeStore";
-import { fetchResume, fetchResumeJobSimilarity, fetchResumeScore, fetchUserResumes } from "../../../api/resumeApis";
+import { fetchResume, fetchResumeEmbeddingsV2, fetchResumeJobSimilarity, fetchResumeScoreV2, fetchUserResumes } from "../../../api/resumeApis";
 import { useEffect } from "react";
 
 /**
@@ -43,6 +43,15 @@ export const useResumeQuery = (resumeId) => {
   })
 }
 
+export const useResumeEmbeddingsQuery = (resumeId, token) => {
+  return useQuery({
+    queryKey: ['resumeEmbeddings', resumeId],
+    queryFn: () => fetchResumeEmbeddingsV2(resumeId, token),
+    enabled: !!resumeId, 
+    staleTime: 1000 * 60 * 5,
+  })
+}
+
 /**
  * React Query hook to fetch the score for a given resume.
  * @param {string} resumeId - The ID of the resume
@@ -51,7 +60,7 @@ export const useResumeQuery = (resumeId) => {
 export const useResumeScoreQuery = (resumeId, token) => {
   return useQuery({
     queryKey: ['resumeScore', resumeId],
-    queryFn: () => fetchResumeScore(resumeId, token),
+    queryFn: () => fetchResumeScoreV2(resumeId, token),
     enabled: !!resumeId, 
     staleTime: 1000 * 60 * 5,
   })

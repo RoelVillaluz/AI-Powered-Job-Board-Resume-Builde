@@ -78,7 +78,7 @@ export const getRecommendedSkills = async (req, res) => {
         if (!userId) {
             return sendResponse(res, { ...STATUS_MESSAGES.ERROR.NOT_FOUND }, "User")
         }
-        const pythonProcess = spawn("py", ["backend/python_scripts/skills_recommender.py", userId]);
+        const pythonProcess = spawn("py", ["backend/ai-service/skills_recommender.py", userId]);
 
         let result = ""
         let errorOutput = ""
@@ -125,7 +125,7 @@ export const getResumeScore = async (req, res) => {
             return res.status(200).json({ score: resume.score })
         }
 
-        const pythonProcess = spawn("py", ["backend/python_scripts/resume_scorer.py", "score", resumeId])
+        const pythonProcess = spawn("py", ["backend/ai-service/resume_scorer.py", "score", resumeId])
 
         let result = ""
         let errorOutput = ""
@@ -178,7 +178,7 @@ export const getPredictedSalary = async (req, res) => {
             return res.status(200).json({ predictedSalary: resume.predictedSalary })
         }
 
-        const pythonProcess = spawn("py", ["backend/python_scripts/salary_predictor.py", resumeId])
+        const pythonProcess = spawn("py", ["backend/ai-service/salary_predictor.py", resumeId])
 
         let result = ""
         let errorOutput = ""
@@ -222,7 +222,7 @@ export const recommendCompanies = async (req, res) => {
         if (!user) return res.status(404).json({ error: "User not found" });
 
         // Start the Python process
-        const pythonProcess = spawn("py", ["backend/python_scripts/company_recommender.py", userId]);
+        const pythonProcess = spawn("py", ["backend/ai-service/company_recommender.py", userId]);
 
         let result = "";
         let errorOutput = "";
@@ -286,7 +286,7 @@ export const compareResumeAndJob = async (req, res) => {
 
         // Spawn Python script to compare resume and job
         const pythonProcess = spawn("py", [
-            "backend/python_scripts/resume_scorer.py", 
+            "backend/ai-service/resume_scorer.py", 
             "compare", 
             resumeId, 
             jobId

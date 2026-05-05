@@ -56,6 +56,14 @@ export const getJobTitleEmbeddingsByIdRepository = (id: Types.ObjectId) => {
         .select('_id title normalizedTitle embedding embeddingGeneratedAt')
 }
 
+export const prepareJobTitleEmbeddingComputationRepository = async (
+    id: string | Types.ObjectId
+) => {
+    return JobTitle.findById(id)
+        .select('_id title embedding embeddingGeneratedAt')
+        .lean();
+};
+
 /**
  * Fetch a job title including its embedding by normalized title string.
  * Fallback for free-text title input that needs semantic matching.

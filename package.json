@@ -4,9 +4,10 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "dev": "concurrently \"npm run server\" \"npm run client\" \"npm run ai\"",
     "server": "cd backend && npm run dev",
     "client": "cd frontend && npm run dev",
+    "ai": "cd ai-service && venv\\Scripts\\activate && python -m uvicorn app:app --reload",
     "test": "cd backend && npm test"
   },
   "devDependencies": {

@@ -1,0 +1,16 @@
+import express from 'express';
+import * as IndustryController from '../../../controllers/market/industry/industryController.js'
+
+const router = express.Router();
+
+router.get('/:id', IndustryController.getIndustryById);
+router.get('/:name', IndustryController.getIndustryByName);
+router.get('/', IndustryController.getAllIndustries);
+
+router.post('/', IndustryController.createIndustry);
+
+router.patch('/:id', IndustryController.updateIndustry);
+
+router.delete('/:id', IndustryController.deleteIndustry);
+
+export default router;

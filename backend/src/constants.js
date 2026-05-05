@@ -7,7 +7,8 @@ export const STATUS_MESSAGES = {
         RESENT_CODE: { code: 200, message: "code resent successfully"},
         LOGIN: { code: 200, message: 'Logged in successfully'},
         MATCHED_CODE: { code: 200, message: 'The code you entered is correct.'},
-        PINNED_MESSAGE: { code: 200, message: 'Message pinned/unpinned successfully.' }
+        PINNED_MESSAGE: { code: 200, message: 'Message pinned/unpinned successfully.' },
+        QUEUED: { code: 202, message: "(model) generation queued" },
     },
     ERROR: {
         SERVER: { code: 500, message: "Server Error" },
@@ -18,6 +19,7 @@ export const STATUS_MESSAGES = {
         INVALID_CREDENTIALS: { code: 400, message: "Invalid credentials"},
         INVALID_INPUT: { code: 400, message: "The inputs are wrong format"},
         WEAK_PASSWORD: { code: 400, message: "Password is too weak"},
+        UNAUTHORIZED: { code: 401, message: "Unauthorized user" },
         MISSING_FIELD: (field) => ({ 
             code: 400, 
             message: field === 'email' 

@@ -52,6 +52,13 @@ export const getLocationEmbeddingByIdRepository = (id: Types.ObjectId) => {
         .select('_id name embedding embeddingGeneratedAt')
 }
 
+export const prepareLocationEmbeddingComputationRepository = async (
+    id: string | Types.ObjectId
+) => {
+    return Location.findById(id)
+        .select('_id name embedding embeddingGeneratedAt')
+};
+
 /**
  * Fetch a location including its embedding by name string.
  * Fallback when only a name string is available.
@@ -61,6 +68,7 @@ export const getLocationEmbeddingByIdRepository = (id: Types.ObjectId) => {
 export const getLocationEmbeddingByNameRepository = (name: string) => {
     return Location.findOne({ name })
         .select('_id name embedding embeddingGeneratedAt')
+        .lean();
 }
 
 /**

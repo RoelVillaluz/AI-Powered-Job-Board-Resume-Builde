@@ -63,6 +63,7 @@ export const findResumeByIdRepo = async (id) => {
     return await Resume.findById(id)
         .populate('user', '_id')
         .populate('jobTitle', '_id title')
+        .populate('location', '_id name')
         .lean();
 };
 
@@ -97,6 +98,61 @@ export const findResumesByUserRepo = async (userId) => {
         .populate('jobTitle', '_id title')
         .lean()
 }
+
+/**
+ * Prepares the resume fields required for embedding generation.
+ *
+ * Fetches only the fields relevant to AI embedding computation:
+ * skills, jobTitle, location, workExperience, certifications, and summary.
+ * jobTitle and location are populated with their _id and title so FastAPI
+ * receives named entities rather than raw ObjectIds.
+ *
+ * Called by embeddingRegistryV2.resume.fetcher before sending payload to FastAPI.
+ * Node owns the DB fetch — FastAPI receives prepared data and never touches the DB.
+ *
+ * @param {string | import('mongoose').Types.ObjectId} resumeId
+ * @returns {Promise<object | null>} Lean resume document with populated references, or null if not found
+ */
+export const prepareResumeEmbeddingFieldsRepo = async (resumeId) => {
+    return await Resume.findById(resumeId)
+        .select('_id skills jobTitle location workExperience certifications summary')
+        .populate('jobTitle', '_id title')
+        .populate('location', '_id title')
+        .lean();
+};
+
+/**
+ * Prepares the resume fields required for score calculation.
+ *
+ * Fetches the full resume document alongside the pre-computed
+ * totalExperienceYears metric from the ResumeEmbedding model.
+ * This avoids recomputing experience years from workExperience dates
+ * since the value is already calculated and stored during embedding generation.
+ *
+ * Falls back gracefully — if no embedding document exists yet,
+ * totalExperienceYears is null and the scoring service computes it
+ * directly from workExperience as a safety net.
+ *
+ * Called by scoringRegistryV2.resumeScore.fetcher before sending payload to FastAPI.
+ *
+ * @param {string | import('mongoose').Types.ObjectId} resumeId
+ * @returns {Promise<object | null>} Full resume document with totalExperienceYears appended, or null if not found
+ */
+export const prepareResumeScoringFieldsRepo = async (resumeId) => {
+    const [resume, embedding] = await Promise.all([
+        Resume.findById(resumeId).lean(),
+        ResumeEmbedding.findOne({ resume: resumeId })
+            .select('metrics')
+            .lean()
+    ]);
+
+    if (!resume) return null;
+
+    return {
+        ...resume,
+        totalExperienceYears: embedding?.metrics?.totalExperienceYears ?? null,
+    };
+};
 
 /**
  * Create a new resume.

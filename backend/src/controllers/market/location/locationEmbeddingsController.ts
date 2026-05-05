@@ -1,5 +1,5 @@
-import { getLocationEmbeddingServiceV2, enqueueLocationEmbeddingServiceV2 } from "../../../services/market/locationServiceV2";
-import { createEmbeddingControllerFactory } from "../../../infrastructure/jobs/factories/createEmbeddingControllerFactory";
+import { getLocationEmbeddingServiceV2, enqueueLocationEmbeddingServiceV2 } from "../../../services/market/locationServiceV2.js";
+import { createEmbeddingControllerFactory } from "../../../infrastructure/jobs/factories/createEmbeddingControllerFactory.js";
 
 const locationEmbeddingControllers = createEmbeddingControllerFactory({
     label: 'Location Embedding',

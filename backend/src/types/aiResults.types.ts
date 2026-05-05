@@ -1,4 +1,4 @@
-import { ResumeEmbeddingsDocument } from "./embeddings.types";
+import { ResumeEmbeddingsDocument } from "./embeddings.types.js";
 
 export type ResumeEmbeddingAIResult = Omit<
     ResumeEmbeddingsDocument,

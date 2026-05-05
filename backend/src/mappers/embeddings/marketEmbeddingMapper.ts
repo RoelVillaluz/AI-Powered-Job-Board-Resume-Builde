@@ -1,4 +1,4 @@
-import { MarketEmbeddingUpdate } from "../../types/embeddings.types";
+import { MarketEmbeddingUpdate } from "../../types/embeddings.types.js";
 
 /**
  * Maps FastAPI response to DB update shape for all market entities.

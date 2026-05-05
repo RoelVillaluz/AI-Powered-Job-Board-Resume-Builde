@@ -3,7 +3,6 @@ import * as IndustryController from '../../../controllers/market/industry/indust
 
 const router = express.Router();
 
-router.get('/:id/embeddings', IndustryController.getIndustryEmbeddingsById);
 router.get('/:id', IndustryController.getIndustryById);
 router.get('/:name', IndustryController.getIndustryByName);
 router.get('/', IndustryController.getAllIndustries);

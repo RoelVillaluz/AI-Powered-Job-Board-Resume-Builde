@@ -1,7 +1,7 @@
 import { Types } from "mongoose"
 import { Request, Response } from "express"
 import * as JobTitleRepo from '../../../repositories/market/jobTitleRepositories.js'
-import * as JobTitleService from '../../../services/market/jobTitleService.js'
+import * as JobTitleServiceV2 from '../../../services/market/jobTitleServiceV2.js'
 import { catchAsync } from "../../../utils/errorUtils.js"
 import { sendResponse, STATUS_MESSAGES } from "../../../constants.js"
 
@@ -53,37 +53,11 @@ export const getJobTitleMetrics = catchAsync(async (req: Request, res: Response)
     return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.FETCH, data: jobTitleMetrics } as any, 'Job Title Metrics')
 })
 
-export const getOrGenerateJobTitleEmbedding = catchAsync(async (req: Request, res: Response) => {
-    const { id } = req.params as { id: string };
-    const { invalidateCache = false } = req.body;
-
-    const result = await JobTitleService.getOrGenerateJobTitleEmbeddingService(
-        new Types.ObjectId(id),
-        invalidateCache
-    );
-
-    if (result.cached) {
-        return sendResponse(res, {
-            ...STATUS_MESSAGES.SUCCESS.FETCH,
-            cached: true,
-            data: result.data
-        } as any, 'Job Title Embedding');
-    }
-
-    return res.status(202).json({
-        success: true,
-        cached: false,
-        message: 'Embedding generation queued',
-        jobId: result.jobId,
-        statusUrl: `/api/jobs/${result.jobId}/status`
-    });
-})
-
 export const getJobTitleTopSkills = catchAsync(async (req: Request, res: Response) => {
     const { id } = req.params as { id: string };
     const importance = (req.query.importance as string | undefined) ?? null;
 
-    const result = await JobTitleService.getJobTitleTopSkillsService(
+    const result = await JobTitleServiceV2.getJobTitleTopSkillsServiceV2(
         new Types.ObjectId(id),
         importance
     );
@@ -96,7 +70,7 @@ export const getJobTitleTopSkills = catchAsync(async (req: Request, res: Respons
 });
 
 export const createJobTitle = catchAsync(async (req: Request, res: Response) => {
-    const newJobTitle = await JobTitleService.createJobTitleService(req.body);
+    const newJobTitle = await JobTitleServiceV2.createJobTitleServiceV2(req.body);
 
     return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.CREATE, data: newJobTitle } as any, 'Job Title')
 })
@@ -105,7 +79,7 @@ export const updateJobTitle = catchAsync(async (req: Request, res: Response) => 
     const { id } = req.params as { id: string };
     const { data } = req.body;
 
-    const updatedJobTitle = JobTitleService.updateJobTitleService(new Types.ObjectId(id), data);
+    const updatedJobTitle = JobTitleServiceV2.updateJobTitleServiceV2(new Types.ObjectId(id), data);
 
     return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.UPDATE, data: updatedJobTitle } as any, 'Job Title')
 })

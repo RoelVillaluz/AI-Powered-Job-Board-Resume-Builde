@@ -8,7 +8,6 @@ import { createLocationSchema } from "../../../validators/locationValidator.js";
 const router = express.Router();
 
 router.get('/search/:name', LocationController.searchLocationsByName); // move this UP
-router.get('/:id/embeddings', LocationController.getLocationEmbeddingsById); // before generic :id
 router.get('/:id/metrics');
 router.get('/:id', LocationController.getLocationByIdController);
 router.get('/:name', LocationController.getLocationsBName);

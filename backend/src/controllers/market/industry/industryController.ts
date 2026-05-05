@@ -1,12 +1,10 @@
 import { catchAsync } from "../../../utils/errorUtils.js";
 import { Request, Response } from "express";
-import Industry from "../../../models/market/industryModel.js";
-import { IndustryInterface, IndustryEmbeddingData, CreateIndustryPayload, UpdateIndustryPayload } from "../../../types/industry.types.js";
+import { IndustryInterface, CreateIndustryPayload, UpdateIndustryPayload } from "../../../types/industry.types.js";
 import { Types } from "mongoose";
-import { ApiQueueResponse } from "../../../types/apiResponse.types.js";
 import { STATUS_MESSAGES } from "../../../constants.js";
 import * as IndustryRepo from '../../../repositories/market/industryRepositories.js';
-import * as IndustryService from '../../../services/market/industryService.js';
+import * as IndustryServiceV2 from '../../../services/market/industryServiceV2.js';
 import { sendTypedResponse } from "../../../utils/sendTypedResponse.js";
 
 export const getIndustryById = catchAsync(async (req: Request, res: Response) => {
@@ -31,39 +29,10 @@ export const getAllIndustries = catchAsync(async (req: Request, res: Response) =
     return sendTypedResponse<IndustryInterface[]>(res, { ...STATUS_MESSAGES.SUCCESS.FETCH, data: industries }, 'Industry');
 });
 
-export const getIndustryEmbeddingsById = catchAsync(async (req: Request, res: Response) => {
-    const { id } = req.params as { id: string };
-    const { invalidateCache } = req.body;
-
-    const result = await IndustryService.getOrGenerateIndustryEmbeddingService(
-        new Types.ObjectId(id),
-        invalidateCache
-    );
-
-    if (result.cached) {
-        return sendTypedResponse<IndustryEmbeddingData>(
-            res,
-            {
-                ...STATUS_MESSAGES.SUCCESS.FETCH,
-                data: result.data
-            },
-            'Industry Embeddings'
-        );
-    }
-
-    return res.status(201).json({
-        success: true,
-        cached: false,
-        message: 'Embedding generation queued',
-        jobId: result.jobId,
-        statusUrl: `/api/jobs/${result.jobId}/status`
-    } as ApiQueueResponse);
-});
-
 export const createIndustry = catchAsync(async (req: Request, res: Response) => {
     const { data } = req.body as { data: CreateIndustryPayload };
 
-    const newIndustry = await IndustryService.createIndustryService(data);
+    const newIndustry = await IndustryServiceV2.createIndustryServiceV2(data);
 
     return sendTypedResponse<IndustryInterface>(res, { ...STATUS_MESSAGES.SUCCESS.CREATE, data: newIndustry }, 'Industry');
 });
@@ -72,7 +41,7 @@ export const updateIndustry = catchAsync(async (req: Request, res: Response) => 
     const { id } = req.params as { id: string };
     const { data } = req.body as { data: UpdateIndustryPayload };
 
-    const updatedIndustry = await IndustryService.updateIndustryService(new Types.ObjectId(id), data);
+    const updatedIndustry = await IndustryServiceV2.updateIndustryServiceV2(new Types.ObjectId(id), data);
 
     return sendTypedResponse<IndustryInterface | null>(res, { ...STATUS_MESSAGES.SUCCESS.UPDATE, data: updatedIndustry }, 'Industry');
 });

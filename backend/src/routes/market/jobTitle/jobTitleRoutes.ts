@@ -16,7 +16,6 @@ router.get('/industry/:industry', JobTitleController.getJobTitlesByIndustry);
 
 // Single job title
 router.get('/:id/metrics', authenticate, checkIfJobTitleExistsById, JobTitleController.getJobTitleMetrics);
-router.get('/:id/embeddings', checkIfJobTitleExistsById, JobTitleController.getOrGenerateJobTitleEmbedding);
 router.get('/:id/top-skills', checkIfJobTitleExistsById, JobTitleController.getJobTitleTopSkills);
 router.get('/:id', checkIfJobTitleExistsById, JobTitleController.getJobTitleById);
 

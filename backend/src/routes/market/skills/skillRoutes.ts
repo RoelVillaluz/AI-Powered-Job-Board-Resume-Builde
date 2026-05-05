@@ -10,10 +10,6 @@ const router = express.Router();
 
 router.get('/search', SkillController.getSkillsByName);
 
-router.get('/:id/embeddings', 
-    checkIfSkillExistsById,
-    SkillController.getOrGenerateSkillEmbedding
-)
 router.get('/:id/metrics', 
     checkIfSkillExistsById,
     SkillController.getSkillMetrics

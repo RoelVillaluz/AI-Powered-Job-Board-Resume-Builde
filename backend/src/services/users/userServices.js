@@ -5,7 +5,7 @@ import { createResumeService } from "../resumes/resumeServices.js"
 import { transformProfilePictureUrl } from "../transformers/urlTransformers.js"
 import User from "../../models/UserModel.js"
 import { NotFoundError } from "../../middleware/errorHandler.js"
-import { getOrGenerateResumeEmbeddingService } from "../resumes/resumeEmbeddingService"
+import { enqueueResumeEmbeddingServiceV2 } from "../resumes/resumeEmbeddingServiceV2.js"
 
 /**
  * Fetches connection recommendations for a given user and transforms their profile pictures.
@@ -73,7 +73,7 @@ export const completeUserOnboardingService = async ({ userId, userRole, onboardi
 
     // ✅ Only reaches here after transaction is fully committed
     if (createdResumeId) {
-        await getOrGenerateResumeEmbeddingService(createdResumeId, true, userId);
+        await enqueueResumeEmbeddingServiceV2(createdResumeId, user._id);
     }
 
     return user;

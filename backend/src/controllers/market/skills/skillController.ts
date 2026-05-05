@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import * as SkillService from '../../../services/market/skillService.js';
+import * as SkillServiceV2 from '../../../services/market/skillServiceV2.js';
 import * as SkillRepo from '../../../repositories/market/skillRepositories.js';
 import { catchAsync } from '../../../utils/errorUtils.js';
 import { sendResponse, STATUS_MESSAGES } from '../../../constants.js';
@@ -95,7 +95,7 @@ export const getSkillMetrics = catchAsync(async (req: Request, res: Response) =>
  * Only accepts { name } — all metrics are computed by the AI pipeline later.
  */
 export const createSkill = catchAsync(async (req: Request, res: Response) => {
-    const skill = await SkillService.createSkillService(req.body);
+    const skill = await SkillServiceV2.createSkillServiceV2(req.body);
 
     return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.CREATE,    data: skill } as any, 'Skill');
 });
@@ -113,7 +113,7 @@ export const createSkill = catchAsync(async (req: Request, res: Response) => {
 export const updateSkill = catchAsync(async (req: Request, res: Response) => {
     const { id } = req.params as { id: string };
 
-    const skill = await SkillService.updateSkillService(new Types.ObjectId(id), req.body);
+    const skill = await SkillServiceV2.updateSkillServiceV2(new Types.ObjectId(id), req.body);
 
     // Move 404 validation check to service
     if (!skill) {
@@ -142,40 +142,4 @@ export const deleteSkill = catchAsync(async (req: Request, res: Response) => {
     }
 
     return sendResponse(res, { ...STATUS_MESSAGES.SUCCESS.DELETE, data: null } as any, 'Skill');
-});
-
-// ============================================
-// EMBEDDING
-// ============================================
-
-/**
- * GET /skills/:id/embeddings
- * Trigger embedding generation or return cached embedding for a skill.
- * Routes through the orchestrator — never calls Python directly.
- * Returns jobId if queued, or cached data if valid embedding exists.
- */
-export const getOrGenerateSkillEmbedding = catchAsync(async (req: Request, res: Response) => {
-    const { id } = req.params as { id: string };
-    const { invalidateCache = false } = req.body;
-
-    const result = await SkillService.getOrGenerateSkillEmbeddingService(
-        new Types.ObjectId(id),
-        invalidateCache
-    );
-
-    if (result.cached) {
-        return sendResponse(res, {
-            ...STATUS_MESSAGES.SUCCESS.FETCH,
-            cached: true,
-            data: result.data
-        } as any, 'Skill Embedding');
-    }
-
-    return res.status(202).json({
-        success: true,
-        cached: false,
-        message: 'Embedding generation queued',
-        jobId: result.jobId,
-        statusUrl: `/api/jobs/${result.jobId}/status`
-    });
 });

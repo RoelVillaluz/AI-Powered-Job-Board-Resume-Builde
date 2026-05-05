@@ -6,9 +6,9 @@ import { PythonEmit } from '../../types/python.types.js';
 import { QueueJob } from '../../types/queues.types.js';
 import Skill, { SkillDocument } from '../../models/market/skillModel.js';
 import { CreateSkillPayload, UpdateSkillPayload } from '../../types/skill.types.js';
-import { embeddingRegistry } from '../../infrastructure/jobs/domains/embedding/embeddingRegistry.js';
+import { embeddingRegistryV2 } from '../../infrastructure/jobs/domains/embedding/embeddingRegistryV2.js';
 import { orchestrateComputeJob } from '../../infrastructure/jobs/core/orchestrateComputeJob.js';
-import { executeComputePipeline } from '../../infrastructure/jobs/core/executeComputePipeline.js';
+import { executeComputePipelineV2 } from '../../infrastructure/jobs/core/executeComputePipelineV2.js';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -47,7 +47,7 @@ export const getOrGenerateSkillEmbeddingService = async (
         validateShape: (data) => isValidEmbedding(data.embedding),
 
         queueGeneration: () =>
-            embeddingRegistry.skill.queue({
+            embeddingRegistryV2.skill.queue({
                 id:      skillId.toString(),
                 skillId: skillId.toString(),
             }),
@@ -99,7 +99,7 @@ export const upsertSkillEmbeddingService = async (
     emit: PythonEmit = () => {},
 ) => {
     if (isFallback) logger.warn(`Skill embedding generated inline (Redis fallback)`);
-    return executeComputePipeline({ entityKey: 'skill', id: skillId, job, emit });
+    return executeComputePipelineV2({ entityKey: 'skill', id: skillId, job, emit });
 };
 
 // ─── Create ───────────────────────────────────────────────────────────────────
@@ -111,7 +111,7 @@ export const upsertSkillEmbeddingService = async (
 export const createSkillService = async (skillData: CreateSkillPayload) => {
     const newSkill = await SkillRepo.createSkillRepository(skillData);
 
-    await embeddingRegistry.skill.queue({
+    await embeddingRegistryV2.skill.queue({
         id:      newSkill._id.toString(),
         skillId: newSkill._id.toString(),
     }).catch(async () => {
@@ -139,7 +139,7 @@ export const updateSkillService = async (
             $set: { embedding: null, embeddingGeneratedAt: null },
         });
 
-        await embeddingRegistry.skill.queue({
+        await embeddingRegistryV2.skill.queue({
             id:      skillId.toString(),
             skillId: skillId.toString(),
         }).catch(async () => {

@@ -6,9 +6,9 @@ import { PythonEmit, PythonResponse, runPythonTyped } from '../../types/python.t
 import * as IndustryRepo from '../../repositories/market/industryRepositories.js';
 import { isEmbeddingStale, isValidEmbedding } from '../../utils/embeddings/embeddingValidationUtils.js';
 import Industry from '../../models/market/industryModel.js';
-import { embeddingRegistry } from '../../infrastructure/jobs/domains/embedding/embeddingRegistry.js';
+import { embeddingRegistryV2 } from '../../infrastructure/jobs/domains/embedding/embeddingRegistryV2.js';
 import { orchestrateComputeJob } from '../../infrastructure/jobs/core/orchestrateComputeJob.js';
-import { executeComputePipeline } from '../../infrastructure/jobs/core/executeComputePipeline.js';
+import { executeComputePipelineV2 } from '../../infrastructure/jobs/core/executeComputePipelineV2.js';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -41,7 +41,7 @@ export const getOrGenerateIndustryEmbeddingService = async (
         validateShape: (data) => isValidEmbedding(data.embedding),
 
         queueGeneration: () =>
-            embeddingRegistry.industry.queue({
+            embeddingRegistryV2.industry.queue({
                 id:         industryId.toString(),
                 industryId: industryId.toString(),
             }),
@@ -83,7 +83,7 @@ export const upsertIndustryEmbeddingService = async (
     emit: PythonEmit = () => {},
 ) => {
     if (isFallback) logger.warn(`Industry embedding generated inline (Redis fallback)`);
-    return executeComputePipeline({ entityKey: 'industry', id: industryId, job, emit });
+    return executeComputePipelineV2({ entityKey: 'industry', id: industryId, job, emit });
 };
 
 // ─── Create ───────────────────────────────────────────────────────────────────
@@ -91,7 +91,7 @@ export const upsertIndustryEmbeddingService = async (
 export const createIndustryService = async (data: CreateIndustryPayload) => {
     const newIndustry = await IndustryRepo.createIndustryRepository(data);
 
-    await embeddingRegistry.industry.queue({
+    await embeddingRegistryV2.industry.queue({
         id:         newIndustry._id.toString(),
         industryId: newIndustry._id.toString(),
     }).catch(async () => {
@@ -119,7 +119,7 @@ export const updateIndustryService = async (
             $set: { embedding: null, embeddingGeneratedAt: null },
         });
 
-        await embeddingRegistry.industry.queue({
+        await embeddingRegistryV2.industry.queue({
             id:         industryId.toString(),
             industryId: industryId.toString(),
         }).catch(async () => {

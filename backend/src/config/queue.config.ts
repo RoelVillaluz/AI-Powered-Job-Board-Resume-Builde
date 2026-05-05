@@ -24,7 +24,7 @@ export const redisConnection = {
 
 /**
  * Default job options applied to all queued jobs.
- * Override per-entity in embeddingRegistry if needed.
+ * Override per-entity in embeddingRegistryV2 if needed.
  */
 export const defaultJobOptions = {
     attempts: 3,
@@ -42,4 +42,4 @@ export const defaultJobOptions = {
 };
 
 // queueConfig and workerConcurrency removed —
-// all per-entity config now lives in embeddingRegistry.
+// all per-entity config now lives in embeddingRegistryV2.

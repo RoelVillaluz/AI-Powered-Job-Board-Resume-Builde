@@ -6,9 +6,9 @@ import { QueueJob } from '../../types/queues.types.js';
 import JobTitle from '../../models/market/jobTitleModel.js';
 import { CreateJobTitlePayload, UpdateJobTitlePayload, JobTitleEmbeddingData } from '../../types/jobTitle.types.js';
 import { ImportanceLevel } from '../../../../shared/constants/jobsAndIndustries/constants.js';
-import { embeddingRegistry } from '../../infrastructure/jobs/domains/embedding/embeddingRegistry.js';
+import { embeddingRegistryV2 } from '../../infrastructure/jobs/domains/embedding/embeddingRegistryV2.js';
 import { orchestrateComputeJob } from '../../infrastructure/jobs/core/orchestrateComputeJob.js';
-import { executeComputePipeline } from '../../infrastructure/jobs/core/executeComputePipeline.js';
+import { executeComputePipelineV2 } from '../../infrastructure/jobs/core/executeComputePipelineV2.js';
 import { PythonEmit } from '../../types/python.types.js';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -42,7 +42,7 @@ export const getOrGenerateJobTitleEmbeddingService = async (
         validateShape: (data) => isValidEmbedding(data.embedding),
 
         queueGeneration: () =>
-            embeddingRegistry.jobTitle.queue({
+            embeddingRegistryV2.jobTitle.queue({
                 id:      titleId.toString(),
                 titleId: titleId.toString(),
             }),
@@ -89,7 +89,7 @@ export const upsertJobTitleEmbeddingService = async (
     emit: PythonEmit = () => {},
 ) => {
     if (isFallback) logger.warn(`JobTitle embedding generated inline (Redis fallback)`);
-    return executeComputePipeline({ entityKey: 'jobTitle', id: titleId, job, emit });
+    return executeComputePipelineV2({ entityKey: 'jobTitle', id: titleId, job, emit });
 };
 
 // ─── Create ───────────────────────────────────────────────────────────────────
@@ -97,7 +97,7 @@ export const upsertJobTitleEmbeddingService = async (
 export const createJobTitleService = async (data: CreateJobTitlePayload) => {
     const newTitle = await JobTitleRepo.createJobTitleRepository(data);
 
-    await embeddingRegistry.jobTitle.queue({
+    await embeddingRegistryV2.jobTitle.queue({
         id:      newTitle._id.toString(),
         titleId: newTitle._id.toString(),
     }).catch(async () => {
@@ -126,7 +126,7 @@ export const updateJobTitleService = async (
             $set: { embedding: null, embeddingGeneratedAt: null },
         });
 
-        await embeddingRegistry.jobTitle.queue({
+        await embeddingRegistryV2.jobTitle.queue({
             id:      id.toString(),
             titleId: id.toString(),
         }).catch(async () => {

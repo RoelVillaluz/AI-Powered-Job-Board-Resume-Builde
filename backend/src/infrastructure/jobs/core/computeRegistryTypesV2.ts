@@ -1,5 +1,4 @@
 import { Types } from "mongoose";
-import { embeddingRegistryV2 } from "../domains/embedding/embeddingRegistryV2";
 import { QueueJob } from "../../../types/queues.types.js";
 
 // ─────────────────────────────────────────────
@@ -51,15 +50,6 @@ export interface ComputeConfigV2<T, TAIResult = any> {
         id: string | Types.ObjectId,
         data: Partial<T>
     ) => Promise<T>;
-
-    // ─────────────────────────────────────────────
-    // Execution control
-    // ─────────────────────────────────────────────
-    fallback: (
-        id: string | Types.ObjectId,
-        job?: QueueJob | null,
-        emit?: EmitFn,
-    ) => Promise<any>;
 
     // Optional — runs after document is saved to DB
     // Used by resume to trigger scoring pipeline

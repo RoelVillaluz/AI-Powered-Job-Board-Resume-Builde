@@ -38,9 +38,11 @@ export const executeComputePipelineV2 = async ({
     const entityId = new Types.ObjectId(id);
     const logCtx   = `${entityKey}:${entityId}`;
 
+    const progressEvent = config.progressEvent ?? 'embedding'
+
     const progress = async (pct: number, message?: string) => {
         try { await (job as any)?.updateProgress(pct); } catch { /* best-effort */ }
-        emit('embedding:progress', { progress: pct, message });
+        emit(`${progressEvent}:progress`, { progress: pct, message });
     };
 
     try {
@@ -96,7 +98,7 @@ export const executeComputePipelineV2 = async ({
 
     } catch (error) {
         logger.error(`[PIPELINE V2 ERROR] ${logCtx}`, error);
-        emit('embedding:error', {
+        emit(`${progressEvent}:error`, {
             progress: 0,
             message: error instanceof Error ? error.message : 'Unknown error',
         });

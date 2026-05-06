@@ -38,6 +38,7 @@ export const scoringRegistryV2: Record<string, ComputeConfigV2<any, any>> = {
             overallMessage:           aiResult.overall_message                ?? "",
             calculatedAt:             new Date(),
         }),
+        progressEvent: 'score',
         persist: async (id, payload) => {
             return upsertResumeScoreRepo(id, payload);
         },

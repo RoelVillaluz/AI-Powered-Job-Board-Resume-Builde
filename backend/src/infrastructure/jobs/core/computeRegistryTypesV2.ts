@@ -43,6 +43,8 @@ export interface ComputeConfigV2<T, TAIResult = any> {
     // If present, used instead of mapper
     buildPayload?: (aiResult: TAIResult, id: Types.ObjectId) => Partial<T>;
 
+    progressEvent?: string; // defaults to 'embedding'
+
     // mapper is now optional since buildPayload can replace it
     mapper?: (aiResult: TAIResult) => Partial<T>;
 

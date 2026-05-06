@@ -6,14 +6,61 @@ import { useResumeStore } from "../../stores/resumeStore";
 import { useResumeScoreQuery, useUserResumesQuery } from "./useResumeQueries";
 import {
     fetchResumeEmbeddingsV2,
-    fetchResumeScoreV2,
 } from "../../../api/resumeApis";
-
 import {
     generateResumeEmbeddingsV2,
     generateResumeScoreV2,
-} from "../../services/resumeServices"
+} from "../../services/resumeServices";
 
+/**
+ * useResumeScore
+ *
+ * Orchestrates the full resume scoring pipeline using React Query + Socket.IO:
+ *
+ * PIPELINE FLOW:
+ * 1. Check if resume already has a score
+ * 2. If missing → fetch embeddings
+ * 3. If embeddings missing → generate embeddings
+ * 4. Generate resume score
+ * 5. Track real-time progress via socket events
+ * 6. Normalize embedding + scoring progress into unified 0–100 scale
+ * 7. Finalize with a brief 100% "completion buffer" before caching result
+ *
+ * SOCKET PROGRESS MODEL:
+ * - embedding:progress → mapped to 0–60%
+ * - score:progress → mapped to 60–100%
+ * - score:complete → forces 100% then finalizes after short delay
+ *
+ * STATE NOTES:
+ * - isActive = pipeline currently running (queued but not complete)
+ * - isCompletingRef prevents late socket updates from overriding completion state
+ * - getJobProgress() ensures correct UI progression state:
+ *   - 0 → nothing started
+ *   - 0–100 → live pipeline
+ *   - 100 → completed score exists
+ *
+ * UX BEHAVIOR:
+ * - Progress always visually reaches 100% before final score appears
+ * - Final state is delayed slightly for smoother UI transition
+ * - Socket events are ignored once completion phase starts
+ *
+ * @returns {Object} Resume scoring pipeline state
+ *
+ * @property {Object} currentResume - Selected resume object
+ * @property {number|null} score - Final computed resume score (null while processing)
+ * @property {number} jobProgress - Unified progress (0–100 or 100 when complete)
+ * @property {number|null} secondsRemaining - Estimated time remaining in seconds
+ * @property {boolean} loading - Whether initial queries are loading
+ * @property {Error|null} error - Fetch or mutation errors
+ *
+ * @property {Object} messages - UI messages from pipeline
+ * @property {string|null} messages.grade - Final grade (A/B/C etc.)
+ * @property {string|null} messages.overallMessage - Status/progress message
+ *
+ * @property {boolean} hasResume - Whether a resume is currently selected
+ * @property {number} totalResumes - Total resumes for user
+ * @property {boolean} isQueued - Whether pipeline is actively running
+ */
 export const useResumeScore = () => {
     const { socket } = useSocket();
     const user = useAuthStore(state => state.user);
@@ -24,10 +71,24 @@ export const useResumeScore = () => {
     const [socketProgress, setSocketProgress] = useState(0);
     const [socketMessage, setSocketMessage] = useState(null);
     const [isQueued, setIsQueued] = useState(false);
+    const [isComplete, setIsComplete] = useState(false);
     const [secondsRemaining, setSecondsRemaining] = useState(null);
     const pipelineStartTime = useRef(null);
 
     const resumeId = currentResume?._id;
+
+    const completionTimeout = useRef(null);
+    const isCompletingRef = useRef(false);
+
+    // reset all pipeline state when resume changes
+    useEffect(() => {
+        setIsQueued(false);
+        setIsComplete(false);
+        setSocketProgress(0);
+        setSocketMessage(null);
+        setSecondsRemaining(null);
+        pipelineStartTime.current = null;
+    }, [resumeId]);
 
     const { data: resumes, isLoading: resumesLoading, error: resumesError } =
         useUserResumesQuery(user?._id);
@@ -51,12 +112,11 @@ export const useResumeScore = () => {
         retry:    false,
     });
 
-    // ── 3. POST score (embeddings exist, score missing) ───────────────────────
+    // ── 3. POST score ─────────────────────────────────────────────────────────
     const { mutate: generateScore } = useMutation({
         mutationFn: () => generateResumeScoreV2(resumeId, token),
         onSuccess: (data) => {
             if (data?.status === 'embeddings_required') {
-                // shouldn't happen here but guard anyway
                 generateEmbeddings();
                 return;
             }
@@ -66,7 +126,7 @@ export const useResumeScore = () => {
         onError: (err) => setSocketMessage(err.message),
     });
 
-    // ── 4. POST embeddings (embeddings missing) ───────────────────────────────
+    // ── 4. POST embeddings ────────────────────────────────────────────────────
     const { mutate: generateEmbeddings } = useMutation({
         mutationFn: () => generateResumeEmbeddingsV2(resumeId, token),
         onSuccess: () => {
@@ -79,20 +139,16 @@ export const useResumeScore = () => {
     // ── Orchestration ─────────────────────────────────────────────────────────
     useEffect(() => {
         if (!scoreFetched || !resumeId) return;
-
-        if (scoreData) return; // score exists — nothing to do
-
-        if (!embeddingsFetched) return; // waiting for embeddings query
+        if (isQueued || isComplete) return;  // ← don't re-trigger while running or done
+        if (scoreData) return;               // score exists — nothing to do
+        if (!embeddingsFetched) return;      // waiting for embeddings query
 
         if (embeddingsData) {
-            // embeddings exist but no score — POST score
             generateScore();
         } else {
-            // no embeddings — POST embeddings
-            // afterSave will trigger scoring automatically
             generateEmbeddings();
         }
-    }, [scoreFetched, embeddingsFetched, scoreData, embeddingsData, resumeId]);
+    }, [scoreFetched, embeddingsFetched, scoreData, embeddingsData, resumeId, isQueued, isComplete]);
 
     // ── Socket listeners ──────────────────────────────────────────────────────
     useEffect(() => {
@@ -125,16 +181,23 @@ export const useResumeScore = () => {
         });
 
         socket.on("score:complete", ({ data }) => {
-            setIsQueued(false);
+            isCompletingRef.current = true;
+
             setSocketProgress(100);
-            setSocketMessage("Your resume score is ready!");
-            setSecondsRemaining(null);
-            pipelineStartTime.current = null;
-            queryClient.setQueryData(["resumeScore", resumeId], {
-                success: true,
-                formattedMessage: "Resume Score fetched successfully",
-                data,
-            });
+            setSocketMessage("Finalizing...");
+
+            setTimeout(() => {
+                setIsQueued(false);
+                setIsComplete(true);
+                setSocketProgress(0);
+                setSocketMessage(null);
+                setSecondsRemaining(null);
+                pipelineStartTime.current = null;
+
+                isCompletingRef.current = false;
+
+                queryClient.setQueryData(["resumeScore", resumeId], data);
+            }, 1000);
         });
 
         socket.on("score:error", ({ message }) => {
@@ -157,23 +220,34 @@ export const useResumeScore = () => {
             socket.off("score:complete");
             socket.off("score:error");
             socket.off("embedding:error");
+
+            if (completionTimeout.current) {
+                clearTimeout(completionTimeout.current);
+            }
         };
     }, [socket, resumeId]);
 
-    const isActive = isQueued || socketProgress > 0 && socketProgress < 100;
+    // pipeline is active only while queued and not yet complete
+    const isActive = isQueued && !isComplete;
+
+    const getJobProgress = () => {
+        if (isActive) return socketProgress;      // pipeline running — show live progress
+        if (scoreData?.totalScore) return 100;    // score exists — show complete
+        return 0;                                 // nothing yet — show empty
+    };
 
     return {
         currentResume,
-        score:            isActive ? null : (scoreData?.data?.totalScore ?? null),
-        jobProgress:      isActive ? socketProgress : 100,
+        score:            isActive ? null : (scoreData?.totalScore ?? null),
+        jobProgress: getJobProgress(),
         secondsRemaining,
         loading:          resumesLoading || scoreLoading,
         error:            resumesError || scoreError,
         messages: {
-            grade:          scoreData?.data?.grade,
+            grade:          scoreData?.grade,
             overallMessage: isActive
                 ? socketMessage
-                : (scoreData?.data?.overallMessage ?? null),
+                : (scoreData?.overallMessage ?? null),
         },
         hasResume:    !!currentResume,
         totalResumes: resumes?.length ?? 0,

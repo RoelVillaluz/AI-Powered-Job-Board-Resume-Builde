@@ -1,6 +1,7 @@
 import sys
 import logging
-import torch
+from infrastructure.embeddings.embed_text import embed_text
+from models.embeddings import embedding_model
 from services.resume_service import ResumeService
 from services.scoring_service import ScoringService
 from utils.tensor_utils import tensor_to_list
@@ -148,3 +149,27 @@ def score_resume_v2(resume_body: dict) -> dict:
     except Exception as e:
         logger.error(f"Error scoring resume v2: {e}", exc_info=True)
         return {"error": str(e)}
+
+def generate_skill_embeddings_v2(payload: dict) -> dict:
+    text = payload.get('name')
+
+    return {
+        "skill_id": payload.get("_id"),
+        "embedding": embed_text(text)
+    }
+
+def generate_job_title_embeddings_v2(payload: dict) -> dict:
+    text = payload.get("normalizedTitle") or payload.get("title")
+
+    return {
+        "title_id": payload.get("_id"),
+        "embedding": embed_text(text)
+    }
+
+def generate_location_embeddings_v2(payload: dict) -> dict:
+    text = payload.get('name')
+
+    return {
+        "skill_id": payload.get("_id"),
+        "embedding": embed_text(text)
+    }

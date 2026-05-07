@@ -48,7 +48,7 @@ export const enqueueResumeScoreServiceV2 = async (
     });
 };
 
-export const upsertResumeEmbeddingServiceV2 = async (
+export const upsertResumeScoreServiceV2 = async (
     resumeId: string | Types.ObjectId,
     job: QueueJob | null = null,
     emit?: EmitFn,

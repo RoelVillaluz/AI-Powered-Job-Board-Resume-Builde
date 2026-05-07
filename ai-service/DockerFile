@@ -1,24 +1,29 @@
-FROM python:3.11-slim
+FROM python:3.11-slim AS base
 
 RUN apt-get update && apt-get install -y \
-    build-essential \
-    gcc \
-    g++ \
+    build-essential gcc g++ \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-# Install dependencies first (for caching)
-COPY ai-service/requirements.txt ./requirements.txt
-
+COPY ai-service/requirements.txt ./
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
-# Copy only AI service code
+# ── Pre-download model so container starts warm ───────────────────────────────
+# Downloads all-mpnet-base-v2 into image layer during build.
+# Container starts with model already cached — no HF network call at runtime.
+RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('all-mpnet-base-v2')"
+
 COPY ai-service/ ./
 
 ENV PYTHONUNBUFFERED=1
+ENV TRANSFORMERS_OFFLINE=1
+ENV HF_HUB_OFFLINE=1
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')" || exit 1
 
 EXPOSE 8000
 
-CMD ["python", "main.py"]
+CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "2"]

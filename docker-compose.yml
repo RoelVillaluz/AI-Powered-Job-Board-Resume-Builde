@@ -9,15 +9,39 @@ services:
       - "5000:5000"
     env_file:
       - backend/.env.dev
-    depends_on:
-      - redis
     environment:
       REDIS_HOST: redis
+      AI_SERVICE_URL: http://ai-service:8000
+    depends_on:
+      redis:
+        condition: service_healthy
+      ai-service:
+        condition: service_healthy
+    restart: unless-stopped
+
+  ai-service:
+    build:
+      context: .
+      dockerfile: ai-service/Dockerfile
+    ports:
+      - "8000:8000"
+    env_file:
+      - ai-service/.env.dev
+    environment:
+      TRANSFORMERS_OFFLINE: "1"
+      HF_HUB_OFFLINE: "1"
+    restart: unless-stopped
 
   redis:
-    image: redis:alpine
+    image: redis:7-alpine
     ports:
       - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
 
   frontend:
     build:
@@ -27,3 +51,4 @@ services:
       - "5173:5173"
     depends_on:
       - backend
+    restart: unless-stopped

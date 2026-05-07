@@ -11,8 +11,8 @@ on:
       - "ai-service/**"
 
 jobs:
-  # ─── Job 1: Validate AI Service ─────────────────────────────────────────────
-  test:
+  validate:
+    name: Validate & Test
     runs-on: ubuntu-latest
 
     steps:
@@ -23,6 +23,8 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+          cache: pip
+          cache-dependency-path: ai-service/requirements.txt
 
       - name: Install Dependencies
         working-directory: ai-service
@@ -30,8 +32,26 @@ jobs:
 
       - name: Compile Check
         working-directory: ai-service
-        run: python -m compileall .
+        run: python -m compileall . -q
 
-      - name: Import Test
+      - name: Import Check
         working-directory: ai-service
-        run: python -c "import main"
+        run: |
+          python -c "from routers.embeddings import router" && echo "✅ embeddings router OK"
+          python -c "from routers.scoring import router"    && echo "✅ scoring router OK"
+          python -c "from routers.health import router"     && echo "✅ health router OK"
+          python -c "from models.embeddings import EmbeddingModel" && echo "✅ model OK"
+
+      - name: FastAPI startup check
+        working-directory: ai-service
+        env:
+          TRANSFORMERS_OFFLINE: "0"
+        run: |
+          python -c "
+          from app import app
+          from fastapi.testclient import TestClient
+          client = TestClient(app)
+          r = client.get('/health')
+          assert r.status_code == 200, f'Health check failed: {r.status_code}'
+          print('✅ FastAPI health check passed')
+          "

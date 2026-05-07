@@ -13,8 +13,8 @@ on:
       - "shared/**"
 
 jobs:
-  # ─── Job 1: Build Frontend ─────────────────────────────────────────────────
   build:
+    name: Build & Validate
     runs-on: ubuntu-latest
 
     steps:
@@ -32,6 +32,17 @@ jobs:
         working-directory: frontend
         run: npm ci
 
-      - name: Build Frontend
+      - name: Type Check
+        working-directory: frontend
+        run: npx tsc --noEmit
+        continue-on-error: true
+
+      - name: Build
         working-directory: frontend
         run: npm run build
+
+      - name: Check bundle size
+        working-directory: frontend
+        run: |
+          SIZE=$(du -sh dist | cut -f1)
+          echo "📦 Bundle size: $SIZE"

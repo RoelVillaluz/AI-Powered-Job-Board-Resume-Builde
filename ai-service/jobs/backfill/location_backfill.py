@@ -8,7 +8,7 @@ in embedding_utils and passed in as arguments.
 import logging
 
 from config.database import db
-from infrastructure.backfill.backfill_persistence import BackfillStatus, _backfill_single
+from jobs.backfill.backfill_persistence import BackfillStatus, _backfill_single
 
 logger = logging.getLogger(__name__)
 

@@ -15,6 +15,9 @@ jobs:
     name: Validate & Test
     runs-on: ubuntu-latest
 
+    env:
+      MONGO_URI: mongodb://localhost:27017/testdb
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4

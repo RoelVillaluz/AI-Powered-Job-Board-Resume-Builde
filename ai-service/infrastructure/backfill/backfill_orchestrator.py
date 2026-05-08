@@ -1,7 +1,7 @@
 from typing import Any, Dict, List, NamedTuple, TypedDict
 import logging
 import torch
-from jobs.backfill.backfill_registry import BACKFILL_REGISTRY
+from infrastructure.backfill.backfill_registry import BACKFILL_REGISTRY
 
 logger = logging.getLogger(__name__)
 

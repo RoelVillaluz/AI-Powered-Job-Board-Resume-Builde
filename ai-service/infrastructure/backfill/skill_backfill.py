@@ -3,7 +3,7 @@ from typing import List
 import torch
  
 from config.database import db
-from jobs.backfill.backfill_persistence import BackfillStatus, _backfill_batch
+from infrastructure.backfill.backfill_persistence import BackfillStatus, _backfill_batch
  
 logger = logging.getLogger(__name__)
 

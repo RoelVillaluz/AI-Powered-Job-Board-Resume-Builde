@@ -1,34 +1,37 @@
-// src/infrastructure/jobs/factories/createEmbeddingServiceFactory.ts
-
 import { Types }  from 'mongoose';
 import logger     from '../../../utils/logger.js';
 import { isEmbeddingStale } from '../../../utils/embeddings/embeddingValidationUtils.js';
 import { executeComputePipelineV2 } from '../core/executeComputePipelineV2.js';
 import { QueueJob } from '../../../types/queues.types.js';
-import { EmitFn }   from '../core/computeRegistryTypesV2.js';
+import { EmitFn, ComputeConfigV2 }   from '../core/computeRegistryTypesV2.js';
 
 // ─── Config ───────────────────────────────────────────────────────────────────
 
-export interface EmbeddingServiceConfig<T, TCreate, TUpdate extends Record<string, any>> {
-    entityKey:    string;
-    label:        string;
+export interface EmbeddingServiceConfig<
+    T,
+    TCreate,
+    TUpdate extends Record<string, any>,
+> {
+    // ── Identity ──────────────────────────────────────────────────────────────
+    entityKey: string;
+    label:     string;
 
     // ── Repo ──────────────────────────────────────────────────────────────────
     getEmbedding: (id: Types.ObjectId) => Promise<T | null>;
     create:       (data: TCreate) => Promise<any>;
     update:       (id: Types.ObjectId, data: TUpdate) => Promise<any>;
 
-    // ── Queue ─────────────────────────────────────────────────────────────────
-    queue:             (payload: { id: string; [key: string]: string }) => Promise<{ jobId: string }>;
+    // ── Queue payload builder ─────────────────────────────────────────────────
+    // queue fn is resolved lazily from the registry — no direct import needed
     buildQueuePayload: (id: Types.ObjectId) => { id: string; [key: string]: string };
 
-    // ── Model (for embedding invalidation) ────────────────────────────────────
+    // ── Model (for embedding invalidation on update) ──────────────────────────
     model: {
         findByIdAndUpdate: (id: any, update: any) => Promise<any>;
     };
 
-    // ── Config ────────────────────────────────────────────────────────────────
-    // Fields that trigger re-embedding when changed (e.g. ['name'] or ['title', 'normalizedTitle'])
+    // ── Embedding config ──────────────────────────────────────────────────────
+    // Fields that trigger re-embedding when changed
     embeddingFields: string[];
     ttlDays?:        number;
 }
@@ -48,14 +51,30 @@ export const createEmbeddingServiceFactory = <
         getEmbedding,
         create,
         update,
-        queue,
         buildQueuePayload,
         model,
         embeddingFields,
         ttlDays = 90,
     } = config;
 
-    // ── GET: DB read + staleness check ────────────────────────────────────────
+    // ── Lazy registry resolver ────────────────────────────────────────────────
+    // Avoids static circular imports: services → factory → registry → services
+    const resolveRegistryConfig = async (): Promise<ComputeConfigV2<any, any>> => {
+        const [{ embeddingRegistryV2 }, { scoringRegistryV2 }] = await Promise.all([
+            import('../domains/embedding/embeddingRegistryV2.js'),
+            import('../domains/scoring/scoringRegistryV2.js'),
+        ]);
+
+        const resolved = embeddingRegistryV2[entityKey] ?? scoringRegistryV2[entityKey];
+
+        if (!resolved) {
+            throw new Error(`[${label}] No registry config found for entityKey: ${entityKey}`);
+        }
+
+        return resolved;
+    };
+
+    // ── GET: cache check + staleness ──────────────────────────────────────────
 
     const getEmbeddingService = async (
         id: Types.ObjectId,
@@ -76,12 +95,14 @@ export const createEmbeddingServiceFactory = <
         return { cached: true, data: doc };
     };
 
-    // ── POST: enqueue with Redis fallback ─────────────────────────────────────
+    // ── POST: enqueue with inline fallback ────────────────────────────────────
 
     const enqueueEmbeddingService = async (
         id: Types.ObjectId,
     ): Promise<{ jobId: string }> => {
-        return queue(buildQueuePayload(id)).catch(async () => {
+        const registryConfig = await resolveRegistryConfig();
+
+        return registryConfig.queue(buildQueuePayload(id)).catch(async () => {
             logger.warn(`[${label}] Queue unavailable — running inline: ${id}`);
             await upsertEmbeddingService(id);
             return { jobId: 'inline' };
@@ -95,7 +116,14 @@ export const createEmbeddingServiceFactory = <
         job: QueueJob | null = null,
         emit?: EmitFn,
     ) => {
-        return executeComputePipelineV2({ entityKey, id, job, emit });
+        const registryConfig = await resolveRegistryConfig();
+
+        return executeComputePipelineV2({
+            config: registryConfig,
+            id,
+            job,
+            emit,
+        });
     };
 
     // ── Create: persist then enqueue ──────────────────────────────────────────
@@ -107,7 +135,7 @@ export const createEmbeddingServiceFactory = <
         return created;
     };
 
-    // ── Update: persist then invalidate + re-enqueue if name changed ──────────
+    // ── Update: persist then invalidate + re-enqueue if semantic fields changed
 
     const updateService = async (
         id: Types.ObjectId,
@@ -115,9 +143,9 @@ export const createEmbeddingServiceFactory = <
     ) => {
         const updated = await update(id, updateData);
 
-        const nameChanged = embeddingFields.some(field => field in updateData);
+        const semanticFieldChanged = embeddingFields.some(field => field in updateData);
 
-        if (nameChanged) {
+        if (semanticFieldChanged) {
             await model.findByIdAndUpdate(id, {
                 $set: { embedding: null, embeddingGeneratedAt: null },
             });

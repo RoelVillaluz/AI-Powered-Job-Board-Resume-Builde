@@ -48,7 +48,7 @@ export const upsertResumeEmbeddingServiceV2 = async (
     emit?: EmitFn,
 ) => {
     return executeComputePipelineV2({
-        entityKey: "resume",
+        config: embeddingRegistryV2.resume,
         id: resumeId,
         job,
         emit,

@@ -48,15 +48,22 @@ export const enqueueResumeScoreServiceV2 = async (
     });
 };
 
+// resumeScoreServiceV2.ts
+
 export const upsertResumeScoreServiceV2 = async (
     resumeId: string | Types.ObjectId,
     job: QueueJob | null = null,
     emit?: EmitFn,
 ) => {
+    // Import scoring registry here — this is a service, not the pipeline
+    const { scoringRegistryV2 } = await import(
+        '../../infrastructure/jobs/domains/scoring/scoringRegistryV2.js'
+    );
+
     return executeComputePipelineV2({
-        entityKey: "resume",
-        id: resumeId,
+        config: scoringRegistryV2.resumeScore,  // ← pass config directly
+        id:     resumeId,
         job,
-        emit
-    })
-}
+        emit,
+    });
+};

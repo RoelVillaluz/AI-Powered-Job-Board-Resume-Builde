@@ -52,6 +52,7 @@ def resume_sparse():
         "firstName": "John",
         "lastName": "Doe",
         "email": "john@example.com",
+        "phone": "+63 75147083",
         "skills": [{"name": "Python"}],
         "workExperience": [],
         "certifications": [],

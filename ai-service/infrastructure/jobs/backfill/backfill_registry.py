@@ -1,8 +1,8 @@
 from typing import Callable, Any, TypedDict, Optional
-from jobs.backfill.job_title_backfill import backfill_job_title
-from jobs.backfill.location_backfill import backfill_location
-from jobs.backfill.skill_backfill import backfill_skills
-from jobs.backfill.backfill_persistence import BackfillStatus
+from infrastructure.jobs.backfill.job_title_backfill import backfill_job_title
+from infrastructure.jobs.backfill.location_backfill import backfill_location
+from infrastructure.jobs.backfill.skill_backfill import backfill_skills
+from infrastructure.jobs.backfill.backfill_persistence import BackfillStatus
 
 
 class BackfillConfig(TypedDict):

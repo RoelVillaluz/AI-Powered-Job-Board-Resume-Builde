@@ -3,6 +3,7 @@ import { ComputeConfigV2 }     from "../../core/computeRegistryTypesV2.js";
 import { createQueueJobRunner } from "../../core/createQueueJobRunner.js";
 import { resumeScoringQueue }  from "../../../../queues/index.js";
 import { upsertResumeScoreRepo } from "../../../../repositories/resumes/resumeScoreRepository.js";
+import { buildScoringPayload } from "src/helpers/scoring/buildScoringPayload.js";
 
 const isProd = process.env.NODE_ENV === "production";
 
@@ -17,10 +18,10 @@ export const scoringRegistryV2: Record<string, ComputeConfigV2<any, any>> = {
         priority:    3,
         dlqName:     "resume-scoring-dlq",
         fetcher: async (id) => {
-            const { prepareResumeScoringFieldsRepo } = await import(
-                "../../../../repositories/resumes/resumeRepository.js"
-            );
-            return prepareResumeScoringFieldsRepo(id as string);
+            const { buildScoringPayload } = await import(
+                "../../../../helpers/scoring/buildScoringPayload.js"
+            )
+            return buildScoringPayload(id as string)
         },
         aiEndpoint: "score_resume",
         skipEmbeddingCheck: true,

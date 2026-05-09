@@ -41,7 +41,12 @@ export const embeddingRegistryV2: Record<string, ComputeConfigV2<any, any>> = {
         concurrency: isProd ? 5 : 2,
         priority:    2,
         dlqName:     null,
-        fetcher:    prepareResumeEmbeddingFieldsRepo,
+        fetcher: async (id) => {
+            const { buildResumeEmbeddingPayload } = await import(
+                "../../../../helpers/embeddings/buildResumeEmbeddingPayload.js"
+            )
+            return buildResumeEmbeddingPayload(id as string)
+        },
         aiEndpoint: "generate_resume_embeddings",
         mapper:     mapResumeEmbeddingResult,
         persist: async (id, payload) => {

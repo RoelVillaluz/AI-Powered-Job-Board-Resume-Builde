@@ -25,10 +25,10 @@ def _task_factory(
     run: PipelineRun,
 ) -> dict:
     return {
-        "skills":          lambda: run_skills(job, skill_docs, run),
+        "skills":          lambda: run_skills(job, run, skill_docs=skill_docs),
         "requirements":    lambda: run_requirements(job, run),
-        "jobTitle":        lambda: run_job_title(job, job_title_doc, run),
-        "location":        lambda: run_location(job, location_doc, run),
+        "jobTitle":        lambda: run_job_title(job, run, job_title_doc=job_title_doc),
+        "location":        lambda: run_location(job, run, location_doc=location_doc),
         "experienceLevel": lambda: run_experience_level(job, run),
     }
 

@@ -26,11 +26,11 @@ def _task_factory(
     run: PipelineRun,
 ) -> dict:
     return {
-        "skills":         lambda: run_skills(resume, skill_docs, run),
-        "workExperience": lambda: run_work_experience(resume, work_experience_title_docs, run),
+        "skills":         lambda: run_skills(resume, run, skill_docs=skill_docs),
+        "workExperience": lambda: run_work_experience(resume, run, work_experience_title_docs=work_experience_title_docs),
         "certifications": lambda: run_certifications(resume, run),
-        "jobTitle":       lambda: run_job_title(resume, job_title_doc, run),
-        "location":       lambda: run_location(resume, location_doc, run),
+        "jobTitle":       lambda: run_job_title(resume, run, job_title_doc=job_title_doc),
+        "location":       lambda: run_location(resume, run, location_doc=location_doc),
     }
 
 

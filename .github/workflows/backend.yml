@@ -13,31 +13,77 @@ on:
       - "shared/**"
 
 jobs:
-  build:
-    # ─── Job 1: Build & Validate ─────────────────────────────────────────────────
-    name: Build & Validate
+  # ── Job 1: Install ────────────────────────────────────────────────────────────
+  install:
+    name: Install Dependencies
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
           cache-dependency-path: backend/package-lock.json
 
-      - name: Install Dependencies
+      - name: Install
         working-directory: backend
         run: npm ci --include=dev
+
+      - name: Cache node_modules
+        uses: actions/cache@v4
+        with:
+          path: backend/node_modules
+          key: backend-node-modules-${{ hashFiles('backend/package-lock.json') }}
+
+  # ── Job 2: Type Check ─────────────────────────────────────────────────────────
+  typecheck:
+    name: Type Check
+    runs-on: ubuntu-latest
+    needs: install
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Restore node_modules
+        uses: actions/cache@v4
+        with:
+          path: backend/node_modules
+          key: backend-node-modules-${{ hashFiles('backend/package-lock.json') }}
 
       - name: Type Check
         working-directory: backend
         run: npx tsc --noEmit
 
-      - name: Check circular dependencies (TypeScript)
+  # ── Job 3: Circular Dependencies ──────────────────────────────────────────────
+  circular-deps:
+    name: Circular Dependency Check
+    runs-on: ubuntu-latest
+    needs: install
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Restore node_modules
+        uses: actions/cache@v4
+        with:
+          path: backend/node_modules
+          key: backend-node-modules-${{ hashFiles('backend/package-lock.json') }}
+
+      - name: Check TypeScript Circular Deps
         working-directory: backend
         run: |
           npx madge \
@@ -46,7 +92,7 @@ jobs:
             --ts-config tsconfig.json \
             src/
 
-      - name: Check circular dependencies (JavaScript)
+      - name: Check JavaScript Circular Deps
         working-directory: backend
         run: |
           npx madge \
@@ -54,11 +100,11 @@ jobs:
             --extensions js \
             src/
 
+  # ── Job 4: Test ───────────────────────────────────────────────────────────────
   test:
-    # ─── Job 2: Run Tests ────────────────────────────────────────────────────────
     name: Run Tests
     runs-on: ubuntu-latest
-    needs: build
+    needs: [typecheck, circular-deps]
 
     services:
       redis:
@@ -72,19 +118,19 @@ jobs:
           --health-retries 5
 
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
           cache-dependency-path: backend/package-lock.json
 
-      - name: Install Dependencies
-        working-directory: backend
-        run: npm ci --include=dev
+      - name: Restore node_modules
+        uses: actions/cache@v4
+        with:
+          path: backend/node_modules
+          key: backend-node-modules-${{ hashFiles('backend/package-lock.json') }}
 
       - name: Start MongoDB Replica Set
         run: |
@@ -111,3 +157,11 @@ jobs:
       - name: Run Tests
         working-directory: backend
         run: npm test -- --detectOpenHandles --forceExit
+
+      - name: Upload Test Results
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-test-results
+          path: backend/
+          retention-days: 7

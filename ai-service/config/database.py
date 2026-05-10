@@ -9,7 +9,8 @@ from dotenv import load_dotenv
 BASE_DIR = Path(__file__).resolve().parent.parent  # go up from /config to /ai-service
 env_path = BASE_DIR / ".env.dev"
 
-load_dotenv(env_path)
+if env_path.exists():
+    load_dotenv(env_path)
 
 
 class DatabaseConfig:

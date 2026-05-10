@@ -1,7 +1,8 @@
 import userRoutes from "./users/userRoutes.js";
-import jobPostingRoutes from "./jobPostingRoutes.js";
+import jobPostingRoutes from "./jobPostings/jobPostingRoutes.js";
+import jobPostingEmbeddingRoutes from "./jobPostings/jobPostingEmbeddingRoutes.js";
 import resumeRoutes from "./resumes/resumeRoutes.js";
-import resumeRoutesV2 from "./resumes/resumeRoutesV2.js";
+import resumeEmbeddingRoutes from "./resumes/resumeEmbeddingRoutes.js";
 import companyRoutes from "./companyRoutes.js";
 import aiRoutes from "./aiRoutes.js";
 import applicationRoutes from "./applicationRoutes.js";
@@ -35,8 +36,11 @@ export const registerRoutes = (app) => {
   // Core API
   app.use("/api/auth", authRoutes);
   app.use("/api/users", userRoutes);
+
+  // Job Postings
   app.use("/api/job-postings", jobPostingRoutes);
-  
+  app.use("/api/job-postings", jobPostingEmbeddingRoutes);
+
   app.use("/api/companies", companyRoutes);
   app.use("/api/ai", aiRoutes);
   app.use("/api/applications", applicationRoutes);
@@ -63,6 +67,6 @@ export const registerRoutes = (app) => {
   app.use("/api/conversations/:conversationId/resources/links", linkRoutes);
 
   // Resumes
-  app.use("/api/v2/resumes", resumeRoutesV2);
   app.use("/api/resumes", resumeRoutes);
+  app.use("/api/resumes", resumeEmbeddingRoutes);
 };

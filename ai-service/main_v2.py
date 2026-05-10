@@ -187,6 +187,9 @@ def score_resume_v2(resume_body: dict, scoring_payload: dict) -> dict:
         logger.error(f"Error scoring resume v2: {e}", exc_info=True)
         return {"error": str(e)}
 
+def generate_job_posting_embeddings_v2(job_posting_body: dict) -> dict:
+    pass
+
 def generate_skill_embeddings_v2(payload: dict) -> dict:
     text = payload.get('name')
 

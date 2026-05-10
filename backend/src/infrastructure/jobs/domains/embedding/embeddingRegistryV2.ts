@@ -5,6 +5,7 @@ import logger from "../../../../utils/logger.js";
 
 import {
     resumeEmbeddingQueue,
+    jobEmbeddingQueue,
     skillEmbeddingQueue,
     jobTitleEmbeddingQueue,
     locationEmbeddingQueue,
@@ -15,13 +16,14 @@ import {
     industryEmbeddingDLQ,
 } from "../../../../queues/index.js";
 
-import { MarketEmbeddingUpdate, ResumeEmbeddingsDocument } from "../../../../types/embeddings.types.js";
+import { JobPostingEmbeddingsDocument, MarketEmbeddingUpdate, ResumeEmbeddingsDocument } from "../../../../types/embeddings.types.js";
 import { prepareResumeEmbeddingFieldsRepo } from "../../../../repositories/resumes/resumeRepository.js";
 import { mapResumeEmbeddingResult } from "../../../../mappers/embeddings/resumeEmbeddingMapper.js";
 import { prepareSkillEmbeddingComputationRepository }    from "../../../../repositories/market/skillRepositories.js";
 import { prepareJobTitleEmbeddingComputationRepository } from "../../../../repositories/market/jobTitleRepositories.js";
 import { prepareLocationEmbeddingComputationRepository } from "../../../../repositories/market/locationRepositories.js";
 import { prepareIndustryEmbeddingComputationRepository } from "../../../../repositories/market/industryRepositories.js";
+import { mapJobPostingEmbeddingResult } from "../../../../mappers/embeddings/mapJobPostingEmbeddingResult.js";
 
 const isProd = process.env.NODE_ENV === "production";
 
@@ -75,6 +77,47 @@ export const embeddingRegistryV2: Record<string, ComputeConfigV2<any, any>> = {
             );
         },
     } as ComputeConfigV2<ResumeEmbeddingsDocument, { resumeId: string; userId: string }>,
+
+    jobPosting: {
+        key: "jobPosting",
+        entity: "jobPosting",
+
+        queueName: "job-embedding",
+        jobName: "generate-embeddings",
+        jobIdPrefix: "job-embedding",
+
+        concurrency: isProd ? 5 : 2,
+        priority: 2,
+
+        dlqName: null,
+
+        fetcher: async (id) => {
+            const { buildJobPostingEmbeddingPayload } = await import(
+                "../../../../helpers/embeddings/buildJobPostingEmbeddingPayload.js"
+            );
+
+            return buildJobPostingEmbeddingPayload(id as string);
+        },
+
+        aiEndpoint: "generate_job_posting_embeddings",
+
+        mapper: mapJobPostingEmbeddingResult,
+
+        persist: async (id, payload) => {
+
+            const { upsertJobEmbeddingRepo } = await import(
+                "../../../../repositories/jobPostings/jobEmbeddingRepositories.js"
+            );
+
+            return upsertJobEmbeddingRepo(id, payload);
+        },
+
+        queue: createQueueJobRunner({
+            queue: jobEmbeddingQueue,
+            jobName: "generate-embeddings",
+            jobIdPrefix: "job-embedding",
+        }),
+    } as ComputeConfigV2<JobPostingEmbeddingsDocument, { jobPostingId: string }>,
 
     skill: {
         key:    "skill",

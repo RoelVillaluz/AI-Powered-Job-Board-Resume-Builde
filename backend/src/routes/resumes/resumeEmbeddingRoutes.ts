@@ -5,7 +5,7 @@ import { requireRole } from "../../middleware/authorization/roleAuthorization.js
 import { checkIfResumeExistsById } from "../../middleware/resourceCheck/resume.js"
 import { enforceResumeOwnership } from "../../middleware/authorization/resumeAuthorization.js"
 import { validate } from "../../middleware/validation.js"
-import { resumeIdSchema } from "../../../src/validators/resumeValidator.js"
+import { resumeIdSchema } from "../../validators/resumeValidator.js"
 import { embeddingLimiter } from "../../middleware/security.js"
 import { getResumeScoreControllerV2, generateResumeScoreControllerV2 } from '../../controllers/resumes/resumeScoringControllerV2.js'
 

@@ -209,6 +209,13 @@ export const findJobById = async (id) => {
         .lean()    
 }
 
+export const prepareJobPostingEmbeddingFieldsRepo = async (id) => {
+    return await JobPosting.findById(id)
+        .select('_id name title location skills requirements')
+        .populate('title', '_id name')
+        .populate('location', '_id name')
+}
+
 /**
  * Create a new job posting
  * @param {Object} jobPostingData - Job posting data

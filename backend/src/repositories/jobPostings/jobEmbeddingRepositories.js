@@ -20,3 +20,22 @@ export const updateJobEmbeddingRepo = async (id, embeddingData) => {
 
     return updatedEmbeddings
 }
+
+export const upsertJobEmbeddingRepo = async (
+    jobPostingId,
+    updateData
+) => {
+    const { jobPosting, _id, ...dataToSet } = updateData;
+
+    return JobEmbedding.findOneAndUpdate(
+        { jobPosting: id },
+        {
+            $set: dataToSet,
+            $setOnInsert: { jobPosting: jobPostingId }
+        },
+        {
+            new: true,
+            upsert: true
+        }
+    ).lean();
+}

@@ -59,8 +59,7 @@ export const generateJobPostingEmbeddingsController = catchAsync(async (
     }
 
     const { jobId } = await enqueueJobPostingEmbeddingService(
-        jobPostingId,
-        userId
+        jobPostingId
     );
 
     (sendResponse as any)(

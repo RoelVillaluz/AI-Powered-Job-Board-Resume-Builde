@@ -144,15 +144,13 @@ jobs:
       - name: Create Test Env
         working-directory: backend
         run: |
-          cat > .env.test << EOF
-          NODE_ENV=test
-          PORT=5001
-          MONGO_URI=mongodb://localhost:27017/jobboard_test
-          JWT_SECRET=${{ secrets.JWT_SECRET }}
-          REDIS_HOST=localhost
-          REDIS_PORT=6379
-          AI_SERVICE_URL=http://localhost:8000
-          EOF
+          echo "NODE_ENV=test"                                    >> .env.test
+          echo "PORT=5001"                                        >> .env.test
+          echo "MONGO_URI=mongodb://localhost:27017/jobboard_test" >> .env.test
+          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}"            >> .env.test
+          echo "REDIS_HOST=localhost"                             >> .env.test
+          echo "REDIS_PORT=6379"                                  >> .env.test
+          echo "AI_SERVICE_URL=http://localhost:8000"             >> .env.test
 
       - name: Run Tests
         working-directory: backend

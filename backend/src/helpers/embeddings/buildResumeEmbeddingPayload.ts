@@ -145,17 +145,19 @@ export const buildResumeEmbeddingPayload = async (
         ])
     );
 
-    const workExperienceTitleDocs: MarketDoc[] = workExpTitleRefs
-        .map((t: any) => {
-            const market = workExpEmbeddingMap.get(t._id?.toString());
-            if (!market) return null;
-            return {
-                _id:       t._id,
-                name:      market.title,   // map 'title' → 'name' for Python
-                embedding: market.embedding,
-            };
-        })
-        .filter((d): d is MarketDoc => d !== null);
+    const workExperienceTitleDocs: MarketDoc[] = (
+        workExpTitleRefs
+            .map((t: any): MarketDoc | null => {
+                const market = workExpEmbeddingMap.get(t._id?.toString());
+                if (!market) return null;
+                return {
+                    _id:       t._id,
+                    name:      market.title,
+                    embedding: market.embedding,
+                };
+            })
+            .filter((d: MarketDoc | null): d is MarketDoc => d !== null)
+    );
 
     // 6. Return
     return {

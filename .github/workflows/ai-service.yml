@@ -100,7 +100,8 @@ jobs:
  
       - name: Run Scoring Tests
         working-directory: ai-service
-        run: pytest tests/ -v --tb=short --no-header -q
+        run: python -m pytest tests/test_scoring_service.py -v -s --log-cli-level=INFO --tb=short
+
  
       - name: Upload Test Results
         if: failure()

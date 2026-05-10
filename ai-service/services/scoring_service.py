@@ -8,6 +8,11 @@ All data is pre-fetched by Node and passed in via ScoringPayload.
 from typing import NamedTuple, Optional
 import logging
 
+# ── Result types ──────────────────────────────────────────────────────────────
+
+from bson import ObjectId
+from config.database import db
+
 logger = logging.getLogger(__name__)
 
 

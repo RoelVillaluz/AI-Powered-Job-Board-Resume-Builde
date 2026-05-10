@@ -37,6 +37,9 @@ jobs:
   startup:
     name: Import & Startup Check
     runs-on: ubuntu-latest
+
+    env:
+      MONGO_URI: mongodb://localhost:27017/testdb
     
     steps:
       - uses: actions/checkout@v4

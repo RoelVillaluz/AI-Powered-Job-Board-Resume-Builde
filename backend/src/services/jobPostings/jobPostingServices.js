@@ -5,6 +5,7 @@ import { parseFilterParams } from "../../../../frontend/src/utils/jobPostings/fi
 import { sanitizeJobData } from "../../utils/sanitizationUtilts";
 import { ConflictError } from "../../middleware/errorHandler.js";
 import { withTransaction } from "../../helpers/transactionHelpers.js";
+import { enqueueJobPostingEmbeddingService } from "./jobPostingEmbeddingService.js";
 
 /**
  * Get filtered, sorted, and paginated job postings (cursor-based)
@@ -95,13 +96,11 @@ export const createJobPosting = async (jobPostingData, idempotencyKey) => {
             return await JobPostingRepository.findById(existing);
         }
 
-        // Mark as in progress
         idempotencyCache.set(idempotencyKey, "PENDING");
     }
 
     try {
         const newJob = await withTransaction(async (session) => {
-
             const sanitizedData = sanitizeJobData(jobPostingData);
 
             const createdJob = await JobPostingRepository.createJob(
@@ -118,10 +117,15 @@ export const createJobPosting = async (jobPostingData, idempotencyKey) => {
             return createdJob;
         });
 
+        // Enqueue embedding generation after transaction commits
+        const { enqueueJobPostingEmbeddingService } = await import(
+            "./jobPostingEmbeddingService.js"
+        );
+        await enqueueJobPostingEmbeddingService(newJob._id.toString());
+
         if (idempotencyKey) {
             idempotencyCache.set(idempotencyKey, newJob._id.toString());
 
-            // Optional cleanup after 10 mins
             setTimeout(() => {
                 idempotencyCache.delete(idempotencyKey);
             }, 10 * 60 * 1000);
@@ -130,7 +134,6 @@ export const createJobPosting = async (jobPostingData, idempotencyKey) => {
         return newJob;
 
     } catch (error) {
-
         if (idempotencyKey) {
             idempotencyCache.delete(idempotencyKey);
         }

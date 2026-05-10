@@ -2,6 +2,7 @@ import sys
 import logging
 from infrastructure.embeddings.embed_text import embed_text
 from models.embeddings import embedding_model
+from services.job_service import JobService
 from services.resume_service import ResumeService
 from services.scoring_service import ScoringService
 from utils.tensor_utils import tensor_to_list
@@ -187,8 +188,60 @@ def score_resume_v2(resume_body: dict, scoring_payload: dict) -> dict:
         logger.error(f"Error scoring resume v2: {e}", exc_info=True)
         return {"error": str(e)}
 
-def generate_job_posting_embeddings_v2(job_posting_body: dict) -> dict:
-    pass
+def generate_job_posting_embeddings_v2(
+    job_body: dict,
+    skill_docs: list[dict],
+    job_title_doc: dict | None,
+    location_doc: dict | None,
+) -> dict:
+    """
+    Generate mean embeddings and experience metrics for a resume.
+
+    Args:
+        job_body (dict): Job Object containing relevant fields for job.
+        skill_docs list[dict]:
+        job_title_doc (dict):
+        location_doc (dict):
+
+    Returns:
+        dict: {
+            "job_id": str,
+            "embeddings": {
+                "jobTitle": list[float],
+                "location": list[float],
+            },           
+            "meanEmbeddings": {
+                "skills": list[float],
+                "requirements": list[float],
+                "experienceLevel": list[float],
+            }
+        }
+        On error: { "error": str }
+    """
+    try:
+        embeddings = JobService.extract_embeddings(
+            job_body,
+            skill_docs,
+            job_title_doc,
+            location_doc
+        )
+
+        return {
+            "job_id": job_body.get("_id"),
+            "embeddings": {
+                "jobTitle": tensor_to_list(embeddings.job_title),
+                "location": tensor_to_list(embeddings.location)
+            },
+            "meanEmbeddings": {
+                "skills": tensor_to_list(embeddings.skills),
+            },
+            "metrics": {
+                "totalExperienceYears": embeddings.total_experience_years
+            },
+        }
+    except Exception as e:
+        logger.error(f"Error generating job embeddings: {e}", exc_info=True)
+        return {"error": str(e)}
 
 def generate_skill_embeddings_v2(payload: dict) -> dict:
     text = payload.get('name')

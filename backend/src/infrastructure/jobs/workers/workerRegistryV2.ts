@@ -2,6 +2,7 @@ import { Queue } from 'bullmq';
 import { redisConnection } from '../../../config/queue.config.js';
 import {
     resumeEmbeddingQueue,
+    jobEmbeddingQueue,
     skillEmbeddingQueue,
     jobTitleEmbeddingQueue,
     locationEmbeddingQueue,
@@ -21,6 +22,7 @@ import logger from '../../../utils/logger.js';
 
 const queueMap: Record<string, Queue> = {
     resume:      resumeEmbeddingQueue,
+    jobPosting:  jobEmbeddingQueue,
     skill:       skillEmbeddingQueue,
     jobTitle:    jobTitleEmbeddingQueue,
     location:    locationEmbeddingQueue,

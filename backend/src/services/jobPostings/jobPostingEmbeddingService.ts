@@ -39,12 +39,10 @@ export const getJobPostingEmbeddingService = async (
 
 export const enqueueJobPostingEmbeddingService = async (
     jobPostingId: string,
-    userId: string,
 ): Promise<{ jobId: string }> => {
     return embeddingRegistryV2.jobPosting.queue({
         id: jobPostingId,
         jobPostingId,
-        userId,
     });
 };
 

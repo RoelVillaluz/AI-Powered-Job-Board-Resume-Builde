@@ -9,15 +9,15 @@ const router = express.Router();
 router.get('/:jobId/embeddings',
     authenticate,                             
     requireRole('employer'),   
-    getJobPostingEmbeddingsController,
-    embeddingLimiter,               
+    embeddingLimiter,  
+    getJobPostingEmbeddingsController,             
 )
 
 router.post('/:jobId/embeddings',
     authenticate,                             
     requireRole('employer'),
-    generateJobPostingEmbeddingsController,
     embeddingLimiter,                  
+    generateJobPostingEmbeddingsController,
 )
 
 export default router;

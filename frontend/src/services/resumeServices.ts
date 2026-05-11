@@ -31,14 +31,14 @@ export const updateResumeService = async (
 };
 
 export const generateResumeEmbeddingsV2 = async (resumeId: string, token: string) => {
-    const { data } = await axios.post(`${BASE_API_URL}/v2/resumes/${resumeId}/embeddings`, {}, {
+    const { data } = await axios.post(`${BASE_API_URL}/resumes/${resumeId}/embeddings`, {}, {
         headers: { Authorization: `Bearer ${token}` }
     });
     return data.data; // { jobId, statusUrl }
 }
 
 export const generateResumeScoreV2 = async (resumeId: string, token: string) => {
-    const { data } = await axios.post(`${BASE_API_URL}/v2/resumes/${resumeId}/score`, {}, {
+    const { data } = await axios.post(`${BASE_API_URL}/resumes/${resumeId}/score`, {}, {
         headers: { Authorization: `Bearer ${token}` }
     });
     return data.data; // { jobId, statusUrl }

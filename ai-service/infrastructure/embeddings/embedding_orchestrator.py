@@ -61,10 +61,12 @@ def extract_embeddings_parallel(
     Raises:
         KeyError: if entity_type has no registered pipeline.
     """
+    normalized_entity = pipeline_registry.normalize_entity_type(entity_type)
+    
     build_fn, unpack_fn = pipeline_registry.get(entity_type)
-    run = PipelineRun(entity_type=entity_type, entity_id=entity_id)
+    run = PipelineRun(entity_type=normalized_entity, entity_id=entity_id)
 
     tasks = build_fn(**kwargs, run=run)
-    raw   = run_pipeline(tasks, entity_type=entity_type, entity_id=entity_id)
+    raw   = run_pipeline(tasks, entity_type=normalized_entity, entity_id=entity_id)
 
     return unpack_fn(raw)

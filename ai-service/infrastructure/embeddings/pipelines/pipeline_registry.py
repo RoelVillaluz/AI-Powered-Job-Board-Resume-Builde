@@ -59,4 +59,4 @@ def get(entity_type: str) -> tuple[Callable, Callable]:
             f"No embedding pipeline registered for '{normalized}'. "
             f"Registered types: {list(_REGISTRY.keys())}"
         )
-    return _REGISTRY[entity_type]
+    return _REGISTRY[normalized]

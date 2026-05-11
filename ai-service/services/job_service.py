@@ -53,7 +53,7 @@ class JobService:
             JobEmbeddings with all computed tensors.
         """
         result = extract_embeddings_parallel(
-            entity_type    = "jobPosting",
+            entity_type    = "job_posting",
             entity_id      = job.get("_id"),
 
             job            = job,

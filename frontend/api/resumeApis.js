@@ -22,7 +22,7 @@ export const fetchResume = async (resumeId) => {
 }
 
 export const fetchResumeEmbeddingsV2 = async (resumeId, token) => {
-    const { data } = await axios.get(`${BASE_API_URL}/v2/resumes/${resumeId}/embeddings`, {
+    const { data } = await axios.get(`${BASE_API_URL}/resumes/${resumeId}/embeddings`, {
         headers: { Authorization: `Bearer ${token}` }
     });
     return data.data;
@@ -58,7 +58,7 @@ export const fetchResumeScore = async (resumeId, token) => {
 }
 
 export const fetchResumeScoreV2 = async (resumeId, token) => {
-    const { data } = await axios.get(`${BASE_API_URL}/v2/resumes/${resumeId}/score`, {
+    const { data } = await axios.get(`${BASE_API_URL}/resumes/${resumeId}/score`, {
         headers: { Authorization: `Bearer ${token}` }
     });
     return data.data;

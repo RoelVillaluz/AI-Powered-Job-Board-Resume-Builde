@@ -44,4 +44,4 @@ _PIPELINE = EmbeddingPipeline(
     },
 )
 
-pipeline_registry.register("job", *make_pipeline(_PIPELINE))
+pipeline_registry.register("job_posting", *make_pipeline(_PIPELINE))

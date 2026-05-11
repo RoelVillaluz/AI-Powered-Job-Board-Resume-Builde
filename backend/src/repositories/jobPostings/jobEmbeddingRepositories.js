@@ -28,7 +28,7 @@ export const upsertJobEmbeddingRepo = async (
     const { jobPosting, _id, ...dataToSet } = updateData;
 
     return JobEmbedding.findOneAndUpdate(
-        { jobPosting: id },
+        { jobPosting: jobPostingId },
         {
             $set: dataToSet,
             $setOnInsert: { jobPosting: jobPostingId }

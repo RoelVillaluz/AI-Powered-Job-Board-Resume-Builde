@@ -77,6 +77,15 @@ def generate_resume_embeddings_v2(
             "metrics": {
                 "totalExperienceYears": embeddings.total_experience_years
             },
+            # ── Backfill candidates ───────────────────────────────────────────
+            # Market docs that had null embeddings — Node writes vectors back
+            # to Skill / JobTitle / Location collections after receiving this.
+            "skill_ids_to_backfill":        embeddings.skill_ids_to_backfill,
+            "skill_embeddings_to_backfill": [
+                tensor_to_list(e) for e in embeddings.skill_embeddings_to_backfill
+            ],
+            "job_title_id_to_backfill":     embeddings.job_title_id_to_backfill,
+            "location_id_to_backfill":      embeddings.location_id_to_backfill,
         }
     except Exception as e:
         logger.error(f"Error generating resume embeddings: {e}", exc_info=True)
@@ -235,9 +244,13 @@ def generate_job_posting_embeddings_v2(
             "meanEmbeddings": {
                 "skills": tensor_to_list(embeddings.skills),
             },
-            "metrics": {
-                "totalExperienceYears": embeddings.total_experience_years
-            },
+            # ── Backfill candidates ───────────────────────────────────────────
+            "skill_ids_to_backfill":        embeddings.skill_ids_to_backfill,
+            "skill_embeddings_to_backfill": [
+                tensor_to_list(e) for e in embeddings.skill_embeddings_to_backfill
+            ],
+            "job_title_id_to_backfill":     embeddings.job_title_id_to_backfill,
+            "location_id_to_backfill":      embeddings.location_id_to_backfill,
         }
     except Exception as e:
         logger.error(f"Error generating job embeddings: {e}", exc_info=True)

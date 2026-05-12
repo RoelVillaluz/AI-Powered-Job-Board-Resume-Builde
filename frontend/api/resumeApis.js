@@ -70,6 +70,6 @@ export const fetchResumeScoreV2 = async (resumeId, token) => {
  * @returns {Promise<Number>} - Similarity percentage from 0-100%
  */
 export const fetchResumeJobSimilarity = async (resumeId, jobId) => {
-  const { data } = await axios.get(`${BASE_API_URL}/ai//compare/${resumeId}/${jobId}`)
+  const { data } = await axios.get(`${BASE_API_URL}/ai/compare/${resumeId}/${jobId}`)
   return data
 }

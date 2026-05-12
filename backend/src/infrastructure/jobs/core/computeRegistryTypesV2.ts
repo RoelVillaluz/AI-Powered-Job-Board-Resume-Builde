@@ -41,12 +41,13 @@ export interface ComputeConfigV2<T, TAIResult = any> {
     // Optional — used when AI response needs custom payload building
     // instead of the standard mapper pattern (e.g. scoring)
     // If present, used instead of mapper
-    buildPayload?: (aiResult: TAIResult, id: Types.ObjectId) => Partial<T>;
+    buildPayload?: (aiOutput: unknown, id: Types.ObjectId) => Promise<any>;
 
     progressEvent?: string; // defaults to 'embedding'
 
     // mapper is now optional since buildPayload can replace it
-    mapper?: (aiResult: TAIResult) => Partial<T>;
+    mapper?:       (aiResult: unknown) => any | Promise<any>;
+
 
     persist: (
         id: string | Types.ObjectId,

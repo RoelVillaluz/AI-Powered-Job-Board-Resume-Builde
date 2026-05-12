@@ -61,8 +61,8 @@ export const executeComputePipelineV2 = async ({
 
         // ── Payload mapping ───────────────────────────────────────────────────
         const mapped = config.buildPayload
-            ? config.buildPayload(aiOutput, entityId)
-            : config.mapper!(aiOutput);
+            ? await config.buildPayload(aiOutput, entityId)
+            : await config.mapper!(aiOutput);
 
         const document = {
             [config.entity]: entityId,

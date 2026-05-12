@@ -20,8 +20,16 @@ async def resume_embeddings(body: ComputeRequest) -> dict:
 async def job_posting_embeddings(body: ComputeRequest) -> dict:
     data = body.model_dump()
 
+    job = data.get("job", data)
+
+    # Normalize: job postings store the title ref as 'title',
+    # but the embedding task_registry reads doc.get("jobTitle").
+    # Alias it here so the pipeline finds it without changing shared infrastructure.
+    if "title" in job and "jobTitle" not in job:
+        job["jobTitle"] = job["title"]
+
     return wrap(generate_job_posting_embeddings_v2(
-        job_body=data.get("job", data),
+        job_body=job,
         skill_docs=data.get("skillDocs", []),
         job_title_doc=data.get("jobTitleDoc"),
         location_doc=data.get("locationDoc"),

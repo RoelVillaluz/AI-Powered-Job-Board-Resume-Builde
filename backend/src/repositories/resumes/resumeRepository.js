@@ -154,6 +154,26 @@ export const prepareResumeScoringFieldsRepo = async (resumeId) => {
     };
 };
 
+export const prepareResumeSalaryPredictionRepo = async (resumeId) => {
+    const [resume, embedding] = await Promise.all([
+        Resume.findById(resumeId)
+            .select('_id jobTitle location skills')
+            .populate('jobTitle', '_id title normalizedTitle industry')
+            .populate('location', '_id name baselineFactor costOfLivingIndex salaryData')
+            .lean(),
+        ResumeEmbedding.findOne({ resume: resumeId })
+            .select('metrics')
+            .lean(),
+    ]);
+ 
+    if (!resume) return null;
+
+    return { 
+        resume,
+        metrics: embedding.metrics
+    }
+}
+
 /**
  * Create a new resume.
  *

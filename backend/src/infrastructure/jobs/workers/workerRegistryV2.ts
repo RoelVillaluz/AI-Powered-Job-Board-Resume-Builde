@@ -12,11 +12,13 @@ import {
     jobTitleEmbeddingDLQ,
     locationEmbeddingDLQ,
     industryEmbeddingDLQ,
+    salaryPredictionQueue,
 } from '../../../queues/index.js';
 import { embeddingRegistryV2 } from '../domains/embedding/embeddingRegistryV2.js';
 import { scoringRegistryV2 }   from '../domains/scoring/scoringRegistryV2.js';
 import { createWorkerV2 }      from './createWorkerV2.js';
 import logger from '../../../utils/logger.js';
+import { salaryPredictionRegistry } from '../domains/salary/salaryPredictionRegistry.js';
 
 // ── Queue + DLQ maps ──────────────────────────────────────────────────────────
 
@@ -28,6 +30,7 @@ const queueMap: Record<string, Queue> = {
     location:    locationEmbeddingQueue,
     industry:    industryEmbeddingQueue,
     resumeScore: resumeScoringQueue,
+    resumeSalaryPrediction: salaryPredictionQueue,
 };
 
 const dlqMap: Record<string, Queue | null> = {
@@ -46,6 +49,7 @@ const dlqMap: Record<string, Queue | null> = {
 const allConfigs = {
     ...embeddingRegistryV2,
     ...scoringRegistryV2,
+    ...salaryPredictionRegistry,
 };
 
 export const workersV2 = Object.fromEntries(

@@ -99,12 +99,7 @@ const resumeScoreSchema = new mongoose.Schema({
         required: true,
         default: 'No message yet',
     },
-    
-    // Predicted metrics (optional, for future features)
-    predictedSalary: {
-        type: Number,
-        default: null
-    },
+
     estimatedExperienceYears: {
         type: Number,
         default: 0
@@ -122,27 +117,6 @@ const resumeScoreSchema = new mongoose.Schema({
     recommendations: {
         type: [String],
         default: []
-    },
-    
-    predictedSalary: {
-        type: Number,
-        default: null
-    },
-    predictedSalaryRange: {
-        min: { type: Number, default: null },
-        max: { type: Number, default: null }
-    },
-    salaryConfidence: {
-        type: Number,
-        min: 0,
-        max: 100,
-        default: null
-    },
-    salaryPercentile: {
-        type: Number,
-        min: 0,
-        max: 100,
-        default: null
     },
     
     // Metadata

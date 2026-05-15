@@ -1,8 +1,11 @@
 import userRoutes from "./users/userRoutes.js";
 import jobPostingRoutes from "./jobPostings/jobPostingRoutes.js";
 import jobPostingEmbeddingRoutes from "./jobPostings/jobPostingEmbeddingRoutes.js";
+
 import resumeRoutes from "./resumes/resumeRoutes.js";
 import resumeEmbeddingRoutes from "./resumes/resumeEmbeddingRoutes.js";
+import resumeSalaryPredictionRoutes from './resumes/resumeSalaryPredictionRoutes.js'
+
 import companyRoutes from "./companyRoutes.js";
 import aiRoutes from "./aiRoutes.js";
 import applicationRoutes from "./applicationRoutes.js";
@@ -69,4 +72,5 @@ export const registerRoutes = (app) => {
   // Resumes
   app.use("/api/resumes", resumeRoutes);
   app.use("/api/resumes", resumeEmbeddingRoutes);
+  app.use("/api/resumes", resumeSalaryPredictionRoutes)
 };

@@ -43,3 +43,11 @@ export const generateResumeScoreV2 = async (resumeId: string, token: string) => 
     });
     return data.data; // { jobId, statusUrl }
 };
+
+export const generateResumeSalaryPrediction = async (resumeId: string, token: string) => {
+  const { data } = await axios.post(`${BASE_API_URL}/resumes/${resumeId}/salary-prediction`, {}, {
+    headers: { Authorization: `Bearer ${token}`}
+  });
+
+  return data.data
+}

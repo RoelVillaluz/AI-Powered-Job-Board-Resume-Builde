@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query"
 import { useResumeStore } from "../../stores/resumeStore";
-import { fetchResume, fetchResumeEmbeddingsV2, fetchResumeJobSimilarity, fetchResumeScoreV2, fetchUserResumes } from "../../../api/resumeApis";
+import { fetchResume, fetchResumeEmbeddingsV2, fetchResumeJobSimilarity, fetchResumeSalaryPrediction, fetchResumeScoreV2, fetchUserResumes } from "../../../api/resumeApis";
 import { useEffect } from "react";
 
 /**
@@ -73,6 +73,17 @@ export const useResumeJobSimilarityQuery = (resumeId, jobId) => {
     enabled: !!resumeId && !!jobId,
     staleTime: 1000 * 60 * 5,
     retry: 3,
+    refetchOnWindowFocus: false // avoids unnecessary refetches
+  })
+}
+
+export const useResumeSalaryPredictionQuery = (resumeId, token) => {
+  return useQuery({
+    queryKey: ['resumeSalaryPrediction', resumeId],
+    queryFn: () => fetchResumeSalaryPrediction(resumeId, token),
+    enabled: !!resumeId && !!token,
+    staleTime: 1000 * 60 * 5,
+    retry: false, // 👈 important (we handle fallback ourselves)
     refetchOnWindowFocus: false // avoids unnecessary refetches
   })
 }

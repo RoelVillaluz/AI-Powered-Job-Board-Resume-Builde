@@ -73,3 +73,11 @@ export const fetchResumeJobSimilarity = async (resumeId, jobId) => {
   const { data } = await axios.get(`${BASE_API_URL}/ai/compare/${resumeId}/${jobId}`)
   return data
 }
+
+export const fetchResumeSalaryPrediction = async (resumeId, token) => {
+  const { data } = await axios.get(`${BASE_API_URL}/resumes/${resumeId}/salary-prediction`, {
+    headers: { Authorization: `Bearer ${token}`}
+  });
+
+  return data.data
+}

@@ -1,9 +1,13 @@
 import sys
 import logging
+from typing import Optional
 from infrastructure.embeddings.embed_text import embed_text
 from models.embeddings import embedding_model
+from utils.salary_normalization.constants import BASE_EXCHANGE_RATES
+from utils.salary_normalization.serializer import _serialise_prediction
 from services.job_service import JobService
 from services.resume_service import ResumeService
+from services.salary_prediction_service import SalaryPredictionService
 from services.scoring_service import ScoringService
 from utils.tensor_utils import tensor_to_list
 from utils.date_utils import calculate_total_experience
@@ -279,3 +283,30 @@ def generate_location_embeddings_v2(payload: dict) -> dict:
         "skill_id": payload.get("_id"),
         "embedding": embed_text(text)
     }
+
+def predict_salary(
+    seniority_level:        str,
+    resume_score:           Optional[float],
+    total_experience_years: Optional[float],
+    job_title_data:         Optional[dict],
+    industry_data:          Optional[dict],
+    location_data:          Optional[dict],
+    skill_market_data:      Optional[list[dict]],
+    exchange_rates:         dict[str, float] = BASE_EXCHANGE_RATES,
+) -> dict:
+    try:
+        prediction = SalaryPredictionService.predict(
+            seniority_level=        seniority_level,
+            resume_score=           resume_score,
+            total_experience_years= total_experience_years,
+            job_title_data=         job_title_data,
+            industry_data=          industry_data,
+            location_data=          location_data,
+            skill_market_data=      skill_market_data,
+            exchange_rates=         exchange_rates,
+        )
+        return _serialise_prediction(prediction)
+ 
+    except Exception as e:
+        logger.error(f"[predict_salary] Pipeline error: {e}", exc_info=True)
+        return {"error": str(e)}

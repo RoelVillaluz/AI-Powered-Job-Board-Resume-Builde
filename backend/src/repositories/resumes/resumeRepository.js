@@ -155,7 +155,7 @@ export const prepareResumeScoringFieldsRepo = async (resumeId) => {
 };
 
 export const prepareResumeSalaryPredictionRepo = async (resumeId) => {
-    const [resume, embedding] = await Promise.all([
+    const [resume, embedding, score] = await Promise.all([
         Resume.findById(resumeId)
             .select('_id jobTitle location skills')
             .populate('jobTitle', '_id title normalizedTitle industry')
@@ -164,13 +164,17 @@ export const prepareResumeSalaryPredictionRepo = async (resumeId) => {
         ResumeEmbedding.findOne({ resume: resumeId })
             .select('metrics')
             .lean(),
+        ResumeScore.findOne({ resume: resumeId })
+            .select('totalScore')
+            .lean()
     ]);
  
     if (!resume) return null;
 
     return { 
         resume,
-        metrics: embedding.metrics
+        metrics: embedding.metrics ?? null,
+        totalScore: score?.totalScore ?? null
     }
 }
 

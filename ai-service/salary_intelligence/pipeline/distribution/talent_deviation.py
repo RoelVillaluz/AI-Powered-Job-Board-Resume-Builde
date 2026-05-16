@@ -55,8 +55,8 @@ import logging
 import math
 from typing import NamedTuple, Optional
 
-from .salary_normalizer import SalaryNormalizer
-from .constants import FREQUENCY_YEAR
+from ...normalization.salary_normalizer import SalaryNormalizer
+from ...normalization.constants import FREQUENCY_YEAR
 
 logger = logging.getLogger(__name__)
 
@@ -242,7 +242,7 @@ class TalentDeviation:
     def build_explanation(result: TalentDeviationResult) -> list[str]:
         """
         Generate human-readable explanation bullets for the talent deviation step.
-        Called by the explanation layer in SalaryPredictionService.
+        Called by the explanation layer in SalaryPredictionOrchestrator.
         """
         lines: list[str] = []
         pct_display = round(result.percentile * 100, 0)

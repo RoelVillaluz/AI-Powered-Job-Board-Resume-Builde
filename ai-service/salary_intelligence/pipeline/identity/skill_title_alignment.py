@@ -407,7 +407,7 @@ class SkillTitleAlignment:
     def build_explanation(result: AlignmentResult) -> list[str]:
         """
         Generate human-readable explanation bullets for the alignment step.
-        Called by the explanation layer in SalaryPredictionService.
+        Called by the explanation layer in SalaryPredictionOrchestrator.
         """
         lines: list[str] = []
 

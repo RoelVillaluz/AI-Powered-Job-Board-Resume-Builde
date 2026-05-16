@@ -1,5 +1,5 @@
 """
-salary_prediction_service.py
+salary_prediction_orchestrator.py
 ────────────────────────────
 Orchestrator for the Salary Prediction Engine.
 
@@ -41,13 +41,13 @@ from __future__ import annotations
 import logging
 from typing import NamedTuple, Optional
 
-from utils.salary_normalization.anchor_resolver       import SalaryAnchorResolver, AnchorResult
-from utils.salary_normalization.location_factor       import LocationFactorApplicator, LocationAdjustment
-from utils.salary_normalization.experience_multiplier import ExperienceMultiplier, ExperienceAdjustment
-from utils.salary_normalization.skill_premium         import SkillPremium, SkillPremiumAdjustment
-from utils.salary_normalization.talent_deviation      import TalentDeviation, TalentDeviationResult
-from utils.salary_normalization.effective_seniority   import resolve_effective_seniority
-from utils.salary_normalization.skill_title_alignment import SkillTitleAlignment, AlignmentResult
+from salary_intelligence.pipeline.anchor.anchor_resolver       import SalaryAnchorResolver, AnchorResult
+from salary_intelligence.pipeline.adjustments.location_factor       import LocationFactorApplicator, LocationAdjustment
+from salary_intelligence.pipeline.adjustments.experience_multiplier import ExperienceMultiplier, ExperienceAdjustment
+from salary_intelligence.pipeline.adjustments.skill_premium         import SkillPremium, SkillPremiumAdjustment
+from salary_intelligence.pipeline.distribution.talent_deviation      import TalentDeviation, TalentDeviationResult
+from salary_intelligence.pipeline.identity.effective_seniority   import resolve_effective_seniority
+from salary_intelligence.pipeline.identity.skill_title_alignment import SkillTitleAlignment, AlignmentResult
 
 logger = logging.getLogger(__name__)
 
@@ -113,7 +113,7 @@ class SalaryPrediction(NamedTuple):
 
 # ── Service ───────────────────────────────────────────────────────────────────
 
-class SalaryPredictionService:
+class SalaryPredictionOrchestrator:
     """
     Orchestrates the salary prediction pipeline.
     Static-only — no instantiation needed.
@@ -173,7 +173,7 @@ class SalaryPredictionService:
         )
         if seniority_downgraded:
             logger.info(
-                f"[SalaryPredictionService] Step 0 — Seniority: "
+                f"[SalaryPredictionOrchestrator] Step 0 — Seniority: "
                 f"{seniority_level} → {effective_seniority} "
                 f"(years={total_experience_years}, skills={skill_count})"
             )
@@ -187,7 +187,7 @@ class SalaryPredictionService:
             job_title_top_skills=     job_title_top_skills,
         )
         logger.info(
-            f"[SalaryPredictionService] Step 0.5 — Alignment: "
+            f"[SalaryPredictionOrchestrator] Step 0.5 — Alignment: "
             f"score={alignment.alignment_score:.3f} "
             f"label={alignment.alignment_label} "
             f"blend={alignment.blend_weight:.3f}"
@@ -202,7 +202,7 @@ class SalaryPredictionService:
             blend_weight=    alignment.blend_weight,
         )
         logger.info(
-            f"[SalaryPredictionService] Step 1 — Anchor: "
+            f"[SalaryPredictionOrchestrator] Step 1 — Anchor: "
             f"level={anchor.fallback_level} "
             f"yearly={anchor.yearly:,.0f} "
             f"confidence={anchor.confidence:.0f}"
@@ -217,7 +217,7 @@ class SalaryPredictionService:
             exchange_rates= exchange_rates,
         )
         logger.info(
-            f"[SalaryPredictionService] Step 2 — Location: "
+            f"[SalaryPredictionOrchestrator] Step 2 — Location: "
             f"'{location.location_name}' "
             f"nominal={location.nominal_yearly:,.0f} "
             f"salary_data={'present' if location.salary_data else 'absent'}"
@@ -232,7 +232,7 @@ class SalaryPredictionService:
             experience_years= total_experience_years,
         )
         logger.info(
-            f"[SalaryPredictionService] Step 3 — Experience: "
+            f"[SalaryPredictionOrchestrator] Step 3 — Experience: "
             f"years={experience.years_used} "
             f"multiplier={experience.multiplier:.4f} "
             f"pct_of_ceiling={experience.pct_of_ceiling:.3f}"
@@ -247,7 +247,7 @@ class SalaryPredictionService:
             skill_market_data= skill_market_data,
         )
         logger.info(
-            f"[SalaryPredictionService] Step 4 — Skill premium: "
+            f"[SalaryPredictionOrchestrator] Step 4 — Skill premium: "
             f"portfolio={skill.portfolio_score:.4f} "
             f"multiplier={skill.multiplier:.4f}"
         )
@@ -266,7 +266,7 @@ class SalaryPredictionService:
             exchange_rates=       exchange_rates,
         )
         logger.info(
-            f"[SalaryPredictionService] Step 5 — TalentDeviation: "
+            f"[SalaryPredictionOrchestrator] Step 5 — TalentDeviation: "
             f"mode={talent.mode} "
             f"signal={talent.talent_signal:.4f} "
             f"percentile={talent.percentile:.4f} "
@@ -274,18 +274,18 @@ class SalaryPredictionService:
         )
 
         # ── Step 6: Confidence + range ────────────────────────────────────
-        confidence_score = SalaryPredictionService._accumulate_confidence(
+        confidence_score = SalaryPredictionOrchestrator._accumulate_confidence(
             anchor, alignment, location, experience, skill
         )
 
         predicted_yearly  = talent.predicted_yearly
         predicted_monthly = talent.predicted_monthly
-        range_min, range_max = SalaryPredictionService._compute_range(
+        range_min, range_max = SalaryPredictionOrchestrator._compute_range(
             predicted_yearly, confidence_score
         )
 
         logger.info(
-            f"[SalaryPredictionService] Final: "
+            f"[SalaryPredictionOrchestrator] Final: "
             f"predicted={predicted_yearly:,.0f}/yr "
             f"({predicted_monthly:,.0f}/mo) "
             f"range=[{range_min:,.0f}, {range_max:,.0f}] "

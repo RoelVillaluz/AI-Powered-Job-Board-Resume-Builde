@@ -2,7 +2,7 @@
 Salary Prediction Smoke Test — Legazpi City, Albay (PH)
 """
 
-from services.salary_prediction_service import SalaryPredictionService
+from salary_intelligence.pipeline.salary_prediction_orchestrator import SalaryPredictionOrchestrator
 
 
 EXCHANGE_RATES = {
@@ -60,7 +60,7 @@ def test_salary_predictions_smoke():
     ]
 
     for label, seniority, exp, skills in cases:
-        result = SalaryPredictionService.predict(
+        result = SalaryPredictionOrchestrator.predict(
             seniority_level=seniority,
             total_experience_years=exp,
             job_title_data=JOB_TITLE_DEV,

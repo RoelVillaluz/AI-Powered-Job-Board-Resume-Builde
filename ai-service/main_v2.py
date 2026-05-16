@@ -3,11 +3,11 @@ import logging
 from typing import Optional
 from infrastructure.embeddings.embed_text import embed_text
 from models.embeddings import embedding_model
-from utils.salary_normalization.constants import BASE_EXCHANGE_RATES
-from utils.salary_normalization.serializer import _serialise_prediction
+from salary_intelligence.normalization.constants import BASE_EXCHANGE_RATES
+from salary_intelligence.serialization.serializer import _serialise_prediction
 from services.job_service import JobService
 from services.resume_service import ResumeService
-from services.salary_prediction_service import SalaryPredictionService
+from salary_intelligence.pipeline.salary_prediction_orchestrator import SalaryPredictionOrchestrator
 from services.scoring_service import ScoringService
 from utils.tensor_utils import tensor_to_list
 from utils.date_utils import calculate_total_experience
@@ -295,7 +295,7 @@ def predict_salary(
     exchange_rates:         dict[str, float] = BASE_EXCHANGE_RATES,
 ) -> dict:
     try:
-        prediction = SalaryPredictionService.predict(
+        prediction = SalaryPredictionOrchestrator.predict(
             seniority_level=        seniority_level,
             resume_score=           resume_score,
             total_experience_years= total_experience_years,

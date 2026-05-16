@@ -36,8 +36,8 @@ from __future__ import annotations
 import logging
 from typing import Optional
 
-from .salary_normalizer import SalaryNormalizer
-from .constants import (
+from ...normalization.salary_normalizer import SalaryNormalizer
+from ...normalization.constants import (
     BASE_CURRENCY,
     FREQUENCY_YEAR,
     CONFIDENCE_JOB_TITLE_BY_SENIORITY,
@@ -46,7 +46,7 @@ from .constants import (
     CONFIDENCE_INDUSTRY_OVERALL,
     CONFIDENCE_NO_DATA,
 )
-from .types import AnchorResult
+from ...normalization.types import AnchorResult
 
 logger = logging.getLogger(__name__)
 

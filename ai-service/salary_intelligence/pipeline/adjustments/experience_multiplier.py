@@ -309,7 +309,7 @@ class ExperienceMultiplier:
         """
         Generate human-readable explanation bullets for the experience step.
 
-        Called by the explanation layer in SalaryPredictionService.
+        Called by the explanation layer in SalaryPredictionOrchestrator.
         """
         lines: list[str] = []
 

@@ -33,8 +33,8 @@ from __future__ import annotations
 import logging
 from typing import Optional
 
-from services.salary_prediction_service import (
-    SalaryPredictionService,
+from salary_intelligence.pipeline.salary_prediction_orchestrator import (
+    SalaryPredictionOrchestrator,
     SalaryPrediction,
 )
 
@@ -184,7 +184,7 @@ def predict_salary(
     SalaryPrediction on success. wrap() in the router normalises both.
     """
     try:
-        prediction = SalaryPredictionService.predict(
+        prediction = SalaryPredictionOrchestrator.predict(
             seniority_level=        seniority_level,
             total_experience_years= total_experience_years,
             job_title_data=         job_title_data,

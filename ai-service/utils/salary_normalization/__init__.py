@@ -21,7 +21,7 @@ Package structure:
     experience_multiplier.py   — logarithmic experience premium, seniority-aware profiles
 """
 
-from .constants import (
+from ...salary_intelligence.normalization.constants import (
     WORK_HOURS_PER_DAY,
     WORK_DAYS_PER_WEEK,
     WORK_WEEKS_PER_YEAR,
@@ -38,19 +38,19 @@ from .constants import (
     BASE_CURRENCY,
 )
 
-from .types import (
+from ...salary_intelligence.normalization.types import (
     NormalizedSalary,
     NormalizedSalaryRange,
     AnchorResult,
 )
 
-from .frequency_normalizer import FrequencyNormalizer
-from .currency_normalizer import CurrencyNormalizer
-from .salary_normalizer import SalaryNormalizer
-from .anchor_resolver import SalaryAnchorResolver
-from .location_factor import LocationFactorApplicator, LocationAdjustment
-from .experience_multiplier import ExperienceMultiplier, ExperienceAdjustment
-from .skill_premium import SkillScore, SkillPremium, SkillPremiumAdjustment
+from ...salary_intelligence.normalization.frequency_normalizer import FrequencyNormalizer
+from ...salary_intelligence.normalization.currency_normalizer import CurrencyNormalizer
+from ...salary_intelligence.normalization.salary_normalizer import SalaryNormalizer
+from ...salary_intelligence.pipeline.anchor.anchor_resolver import SalaryAnchorResolver
+from ...salary_intelligence.pipeline.adjustments.location_factor import LocationFactorApplicator, LocationAdjustment
+from ...salary_intelligence.pipeline.adjustments.experience_multiplier import ExperienceMultiplier, ExperienceAdjustment
+from ...salary_intelligence.pipeline.adjustments.skill_premium import SkillScore, SkillPremium, SkillPremiumAdjustment
 
 __all__ = [
     # Constants

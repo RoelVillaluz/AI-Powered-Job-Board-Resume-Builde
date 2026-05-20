@@ -79,7 +79,7 @@ export const embeddingRegistryV2: Record<string, ComputeConfigV2<any, any>> = {
 
                 (async () => {
                     const { handleResumeVectorUpsert } = await import(
-                        '../../../pinecone/pineconeAftersave.js'
+                        '../../../pinecone/pineconeAfterSave.js'
                     );
                     await handleResumeVectorUpsert(saved, ctx.userId ?? null);
                 })(),
@@ -131,7 +131,7 @@ export const embeddingRegistryV2: Record<string, ComputeConfigV2<any, any>> = {
             logger.info(`[REGISTRY V2] JobPosting afterSave: ${saved.jobPosting}`);
 
             const { handleJobVectorUpsert } = await import(
-                '../../../pinecone/pineconeAftersave.js'
+                '../../../pinecone/pineconeAfterSave.js'
             );
             await handleJobVectorUpsert(saved);
         },

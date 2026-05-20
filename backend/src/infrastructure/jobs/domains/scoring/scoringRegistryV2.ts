@@ -25,7 +25,7 @@ export const scoringRegistryV2: Record<string, ComputeConfigV2<any, any>> = {
         },
         aiEndpoint: "score_resume",
         skipEmbeddingCheck: true,
-        buildPayload: (aiResult: any, id: Types.ObjectId) => ({
+        buildPayload: async (aiResult: any, id: Types.ObjectId) => ({
             resume:                   id,
             completenessScore:        aiResult.breakdown?.completeness        ?? 0,
             experienceScore:          aiResult.breakdown?.experience          ?? 0,

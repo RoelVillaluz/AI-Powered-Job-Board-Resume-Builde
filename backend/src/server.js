@@ -6,11 +6,13 @@ import { connectDB } from "./config/db.js";
 import { initSocket } from "./sockets/index.js";
 import logger from "./utils/logger.js";
 import "./infrastructure/jobs/processes/generateEmbeddings.js";   // boots all workers
+import { connectPinecone } from "./config/pinecone.js";
 
 const server = createServer(app);
 
 initSocket(server);
 await connectDB();
+await connectPinecone();
 
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, '0.0.0.0', () => {

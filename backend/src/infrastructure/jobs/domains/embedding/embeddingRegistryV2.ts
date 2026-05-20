@@ -63,18 +63,27 @@ export const embeddingRegistryV2: Record<string, ComputeConfigV2<any, any>> = {
             jobIdPrefix: "resume-embedding",
         }),
         afterSave: async (saved, emitSocket, ctx) => {
-            logger.info(`[REGISTRY V2] Triggering resume score: ${saved.resume}`);
-            if (!ctx.userId) {
-                logger.warn(`[REGISTRY V2] No userId in ctx — skipping score enqueue`);
-                return;
-            }
-            const { enqueueResumeScoreServiceV2 } = await import(
-                '../../../../services/resumes/resumeScoreServiceV2.js'
-            );
-            await enqueueResumeScoreServiceV2(
-                saved.resume.toString(),
-                ctx.userId,
-            );
+            logger.info(`[REGISTRY V2] Resume afterSave: ${saved.resume}`);
+
+            await Promise.allSettled([
+                (async () => {
+                    if (!ctx.userId) {
+                        logger.warn(`[REGISTRY V2] No userId in ctx — skipping score enqueue`);
+                        return;
+                    }
+                    const { enqueueResumeScoreServiceV2 } = await import(
+                        '../../../../services/resumes/resumeScoreServiceV2.js'
+                    );
+                    await enqueueResumeScoreServiceV2(saved.resume.toString(), ctx.userId);
+                })(),
+
+                (async () => {
+                    const { handleResumeVectorUpsert } = await import(
+                        '../../../pinecone/pineconeAftersave.js'
+                    );
+                    await handleResumeVectorUpsert(saved, ctx.userId ?? null);
+                })(),
+            ]);
         },
     } as ComputeConfigV2<ResumeEmbeddingsDocument, { resumeId: string; userId: string }>,
 
@@ -117,6 +126,15 @@ export const embeddingRegistryV2: Record<string, ComputeConfigV2<any, any>> = {
             jobName: "generate-embeddings",
             jobIdPrefix: "job-embedding",
         }),
+
+        afterSave: async (saved, emitSocket, ctx) => {
+            logger.info(`[REGISTRY V2] JobPosting afterSave: ${saved.jobPosting}`);
+
+            const { handleJobVectorUpsert } = await import(
+                '../../../pinecone/pineconeAftersave.js'
+            );
+            await handleJobVectorUpsert(saved);
+        },
     } as ComputeConfigV2<JobPostingEmbeddingsDocument, { jobPostingId: string }>,
 
     skill: {

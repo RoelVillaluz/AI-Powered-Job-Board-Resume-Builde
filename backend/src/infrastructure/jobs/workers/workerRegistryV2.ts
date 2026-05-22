@@ -13,6 +13,7 @@ import {
     locationEmbeddingDLQ,
     industryEmbeddingDLQ,
     salaryPredictionQueue,
+    matchingQueue,
 } from '../../../queues/index.js';
 import { embeddingRegistryV2 } from '../domains/embedding/embeddingRegistryV2.js';
 import { scoringRegistryV2 }   from '../domains/scoring/scoringRegistryV2.js';
@@ -31,6 +32,7 @@ const queueMap: Record<string, Queue> = {
     industry:    industryEmbeddingQueue,
     resumeScore: resumeScoringQueue,
     resumeSalaryPrediction: salaryPredictionQueue,
+    resumeJobMatching: matchingQueue,
 };
 
 const dlqMap: Record<string, Queue | null> = {

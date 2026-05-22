@@ -68,7 +68,7 @@ export const useResumeScoreQuery = (resumeId, token) => {
 
 export const useResumeJobSimilarityQuery = (resumeId, jobId) => {
   return useQuery({
-    queryKey: ['resumeJobComparison', resumeId, jobId],
+    queryKey: ['resumeJobMatch', resumeId, jobId],
     queryFn: () => fetchResumeJobSimilarity(resumeId, jobId),
     enabled: !!resumeId && !!jobId,
     staleTime: 1000 * 60 * 5,

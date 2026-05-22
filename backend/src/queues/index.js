@@ -43,6 +43,13 @@ export const salaryPredictionQueue = new Queue("salary-prediction", {
 });
 
 /**
+ * Resume - Job Matching Queues
+ */
+export const matchingQueue = new Queue("resume-job-matching", {
+    connection: redisConnection
+})
+
+/**
  * DLQs
  */
 export const skillEmbeddingDLQ = new Queue("skill-dlq", {
@@ -65,6 +72,10 @@ export const industryEmbeddingDLQ = new Queue("industry-dlq", {
     connection: redisConnection,
 });
 
+export const matchingDLQ = new Queue("resume-job-matching-dlq", {
+    connection: redisConnection
+})
+
 export const allQueues = [
   resumeEmbeddingQueue,
   jobEmbeddingQueue,
@@ -74,9 +85,12 @@ export const allQueues = [
   industryEmbeddingQueue,
   resumeScoringQueue,
   salaryPredictionQueue,
+  matchingQueue,
+
   skillEmbeddingDLQ,
   jobTitleEmbeddingDLQ,
   locationEmbeddingDLQ,
   jobEmbeddingDLQ,
   industryEmbeddingDLQ,
+  matchingDLQ,
 ];

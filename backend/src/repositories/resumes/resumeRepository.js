@@ -1,7 +1,7 @@
 import ResumeEmbedding from "../../models/resumes/resumeEmbeddingsModel.js";
 import Resume from "../../models/resumes/resumeModel.js";
 import ResumeScore from "../../models/resumes/resumeScoreModel.js";
-import ResumeJobComparison from "../../models/resumes/resumeJobComparisonModel.js";
+import resumeJobMatch from "../../models/resumes/resumeJobMatchModel.js";
 
 /**
  * Find resumes with optional filters, sorting, and pagination.
@@ -422,7 +422,7 @@ export const deleteResumeScore = async (resumeId, session = null) => {
  */
 export const deleteResumeComparisonResults = async (resumeId, session = null) => {
     const options = session ? { session } : {};
-    return await ResumeJobComparison.deleteMany(
+    return await resumeJobMatch.deleteMany(
         { resume: resumeId },
         options
     );

@@ -13,6 +13,7 @@ from utils.tensor_utils import tensor_to_list
 from utils.date_utils import calculate_total_experience
 from services.scoring_service import ScoringService
 from services.analytics_service import AnalyticsService
+from services.job_matching_service import JobMatchingService
 
 # Configure logging to stderr so stdout stays clean for JSON output
 logging.basicConfig(
@@ -309,4 +310,19 @@ def predict_salary(
  
     except Exception as e:
         logger.error(f"[predict_salary] Pipeline error: {e}", exc_info=True)
+        return {"error": str(e)}
+
+def score_matches(
+    resume:            dict,
+    job_matches:       list[dict],
+    skill_market_data: list[dict],  # ← added
+) -> dict:
+    try:
+        matches = JobMatchingService.score_matches(resume, job_matches, skill_market_data)
+        return {
+            "matches":     matches,
+            "totalScored": len(matches),
+        }
+    except Exception as e:
+        logger.error(f"[score_matches_v2] {e}", exc_info=True)
         return {"error": str(e)}

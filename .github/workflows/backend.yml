@@ -105,6 +105,7 @@ jobs:
     name: Run Tests
     runs-on: ubuntu-latest
     needs: [typecheck, circular-deps]
+    environment: Production
 
     services:
       redis:

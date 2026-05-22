@@ -1,21 +1,13 @@
-/**
- * Helper: buildScoringPayload
- *
- * Fetches all data the Python scoring service needs and assembles it into
- * a single ScoringPayload. Pure data assembly — no business logic.
- *
- * Lives in helpers/ because it has no service-level concerns (no caching,
- * no orchestration). Called by resumeScoreService before the AI client call.
- */
-
 import { Types } from "mongoose";
-import JobTitle  from "../../models/market/jobTitleModel.js";
-import Skill     from "../../models/market/skillModel.js";
-import { prepareResumeScoringFieldsRepo } from "../../repositories/resumes/resumeRepository.js";
+import { prepareResumeScoringFieldsRepo }  from "../../repositories/resumes/resumeRepository.js";
+import { getSkillsByBulkNameRepository }   from "../../repositories/market/skillRepositories.js";
+import {
+    getJobTitleForScoringRepository,
+    getHigherPayingTitlesRepository,
+} from "../../repositories/market/jobTitleRepositories.js";
 import logger from "../../utils/logger.js";
 
-// ── Resume shape returned by prepareResumeScoringFieldsRepo ───────────────────
-// Resume.findById().lean() + embedding.metrics.totalExperienceYears merged in
+// ── Types ─────────────────────────────────────────────────────────────────────
 
 interface ResumeScoringFields {
     _id:                  Types.ObjectId;
@@ -34,10 +26,8 @@ interface ResumeScoringFields {
         responsibilities?: string[];
     }>;
     certifications:       Array<{ name?: string; year?: string }>;
-    totalExperienceYears: number | null;  // from embedding.metrics, null if not yet generated
+    totalExperienceYears: number | null;
 }
-
-// ── Payload types sent to Python ──────────────────────────────────────────────
 
 export interface TopSkillEntry {
     skillName:  string;
@@ -76,9 +66,24 @@ export interface ScoringPayload {
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
-// A title must pay at least 15% more than the current title to count as
-// a career progression signal. Matches the Python scoring formula.
 const HIGHER_PAYING_THRESHOLD = 1.15;
+
+// ── Shared mappers ────────────────────────────────────────────────────────────
+
+const mapTopSkills = (topSkills: any[]): TopSkillEntry[] =>
+    (topSkills ?? []).map(ts => ({
+        skillName:  ts.skillName  as string,
+        frequency:  ts.frequency  as number,
+        importance: ts.importance as TopSkillEntry["importance"],
+    }));
+
+const mapSkillMarketData = (skillDocs: any[]): SkillMarketEntry[] =>
+    skillDocs.map(s => ({
+        name:                s.name                ?? '',
+        demandScore:         s.demandScore         ?? 0,
+        growthRate:          s.growthRate          ?? 0,
+        seniorityMultiplier: s.seniorityMultiplier ?? 1.0,
+    }));
 
 // ── Builder ───────────────────────────────────────────────────────────────────
 
@@ -86,7 +91,6 @@ export const buildScoringPayload = async (
     resumeId: string | Types.ObjectId,
 ): Promise<ScoringPayload | null> => {
 
-    // 1. Resume + pre-computed experience years from embedding metrics
     const resume = await prepareResumeScoringFieldsRepo(resumeId as string) as ResumeScoringFields | null;
     if (!resume) {
         logger.error(`[buildScoringPayload] Resume not found: ${resumeId}`);
@@ -107,13 +111,9 @@ export const buildScoringPayload = async (
 
     const targetJobTitle = resume.jobTitle?.name ?? "";
 
-    // 2. Current job title + topSkills
+    // ── Current title ─────────────────────────────────────────────────────────
     const currentTitleDoc = targetJobTitle
-        ? await JobTitle.findOne(
-              { title: targetJobTitle },
-              { title: 1, seniorityLevel: 1, "salaryData.medianSalary": 1,
-                topSkills: 1, industry: 1, normalizedTitle: 1 }
-          ).lean()
+        ? await getJobTitleForScoringRepository(targetJobTitle)
         : null;
 
     const currentTitle: CurrentTitlePayload | null = currentTitleDoc
@@ -121,38 +121,26 @@ export const buildScoringPayload = async (
               title:          currentTitleDoc.title as string,
               medianSalary:   (currentTitleDoc.salaryData as any)?.medianSalary ?? 0,
               seniorityLevel: currentTitleDoc.seniorityLevel as string,
-              topSkills: ((currentTitleDoc.topSkills as any[]) ?? []).map(ts => ({
-                  skillName:  ts.skillName  as string,
-                  frequency:  ts.frequency  as number,
-                  importance: ts.importance as TopSkillEntry["importance"],
-              })),
+              topSkills:      mapTopSkills((currentTitleDoc.topSkills as any[]) ?? []),
           }
         : null;
 
-    // 3. Higher-paying titles in the same industry (career progression signal)
+    // ── Higher-paying titles ──────────────────────────────────────────────────
     let higherPayingTitles: HigherPayingTitlePayload[] = [];
 
     if (currentTitleDoc && currentTitle && currentTitle.medianSalary > 0) {
         const salaryThreshold = currentTitle.medianSalary * HIGHER_PAYING_THRESHOLD;
 
-        const higherTitleDocs = await JobTitle.find(
-            {
-                industry:                  (currentTitleDoc as any).industry,
-                normalizedTitle:           { $ne: currentTitleDoc.normalizedTitle },
-                isActive:                  true,
-                "salaryData.medianSalary": { $gt: salaryThreshold },
-            },
-            { title: 1, "salaryData.medianSalary": 1, topSkills: 1 }
-        ).lean();
+        const higherTitleDocs = await getHigherPayingTitlesRepository(
+            (currentTitleDoc as any).industry,
+            currentTitleDoc.normalizedTitle as string,
+            salaryThreshold,
+        );
 
         higherPayingTitles = higherTitleDocs.map(t => ({
             title:        t.title as string,
             medianSalary: (t.salaryData as any)?.medianSalary ?? 0,
-            topSkills: ((t.topSkills as any[]) ?? []).map(ts => ({
-                skillName:  ts.skillName  as string,
-                frequency:  ts.frequency  as number,
-                importance: ts.importance as TopSkillEntry["importance"],
-            })),
+            topSkills:    mapTopSkills((t.topSkills as any[]) ?? []),
         }));
 
         logger.info(
@@ -161,21 +149,12 @@ export const buildScoringPayload = async (
         );
     }
 
-    // 4. Market data for skills on this resume only
+    // ── Skill market data ─────────────────────────────────────────────────────
     let skillMarketData: SkillMarketEntry[] = [];
 
     if (resumeSkillNames.length > 0) {
-        const skillDocs = await Skill.find(
-            { name: { $in: resumeSkillNames } },
-            { name: 1, demandScore: 1, growthRate: 1, seniorityMultiplier: 1 }
-        ).lean();
-
-        skillMarketData = skillDocs.map(s => ({
-            name:                s.name as string,
-            demandScore:         (s as any).demandScore         ?? 0,
-            growthRate:          (s as any).growthRate          ?? 0,
-            seniorityMultiplier: (s as any).seniorityMultiplier ?? 1.0,
-        }));
+        const skillDocs = await getSkillsByBulkNameRepository(resumeSkillNames).lean();
+        skillMarketData = mapSkillMarketData(skillDocs);
     }
 
     return {

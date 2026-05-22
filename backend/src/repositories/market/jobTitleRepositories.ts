@@ -15,6 +15,61 @@ export const getJobTitleByIdRepository = (id: Types.ObjectId) => {
 }
 
 /**
+ * Fetch a job title by exact name string with scoring fields only.
+ * Used by buildScoringPayload and buildMatchingPayload.
+ */
+export const getJobTitleForScoringRepository = (title: string) => {
+    return JobTitle.findOne(
+        { title },
+        {
+            title:                1,
+            seniorityLevel:       1,
+            normalizedTitle:      1,
+            industry:             1,
+            topSkills:            1,
+            'salaryData.medianSalary': 1,
+        }
+    ).lean();
+};
+
+/**
+ * Fetch job titles in the same industry that pay more than a salary threshold.
+ * Used for career progression signal in resume scoring.
+ *
+ * @param industry          - Industry name from currentTitle doc
+ * @param normalizedTitle   - Exclude the current title itself
+ * @param salaryThreshold   - Minimum median salary (currentSalary × 1.15)
+ */
+export const getHigherPayingTitlesRepository = (
+    industry: string,
+    normalizedTitle: string,
+    salaryThreshold: number
+) => {
+    return JobTitle.find(
+        {
+            industry,
+            normalizedTitle:           { $ne: normalizedTitle },
+            isActive:                  true,
+            'salaryData.medianSalary': { $gt: salaryThreshold },
+        },
+        {
+            title:                     1,
+            topSkills:                 1,
+            'salaryData.medianSalary': 1,
+        }
+    ).lean();
+}
+
+/**
+ * Fetch job titles in the same industry that pay more than a salary threshold.
+ * Used for career progression signal in resume scoring.
+ *
+ * @param industry          - Industry name from currentTitle doc
+ * @param normalizedTitle   - Exclude the current title itself
+ * @param salaryThreshold   - Minimum median salary (currentSalary × 1.15)
+ */
+
+/**
  * Fetch a job title by its title/normalized title string.
  */
 export const searchJobTitlesByNameRepository = (title: string) => {

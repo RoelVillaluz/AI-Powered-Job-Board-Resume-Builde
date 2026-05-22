@@ -60,7 +60,7 @@ jobs:
 
       - name: Type Check
         working-directory: frontend
-        run: ./node_modules/.bin/tsc --noEmit
+        run: npx tsc --noEmit
 
   # ── Job 3: Build ──────────────────────────────────────────────────────────────
   build:

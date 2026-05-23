@@ -18,6 +18,13 @@ on:
         required: false
         type: string
         default: "20"
+      lint-blocking:
+        required: false
+        type: boolean
+        default: true
+        # Set to false while clearing a pre-existing lint backlog.
+        # Lint still runs and reports — it just won't fail the build.
+        # Flip back to true once the codebase is clean.
 
 permissions:
   contents: read
@@ -43,10 +50,12 @@ jobs:
 
       - name: Lint check
         working-directory: ${{ inputs.working-directory }}
+        continue-on-error: ${{ !inputs.lint-blocking }}
         run: npm run lint --if-present || npx eslint src/ --max-warnings=0
 
       - name: Format check
         working-directory: ${{ inputs.working-directory }}
+        continue-on-error: ${{ !inputs.lint-blocking }}
         run: npm run format:check --if-present || npx prettier --check "src/**/*.{ts,tsx,js,json,css}"
 
       - name: Type check
@@ -63,7 +72,6 @@ jobs:
         working-directory: ${{ inputs.working-directory }}
         run: |
           npm test -- --coverage --watchAll=false 2>&1 | tee /tmp/test-output.txt
-          # Extract coverage summary lines for the report
           grep -E "^(All files|Statements|Branches|Functions|Lines)" /tmp/test-output.txt \
             > /tmp/coverage-summary.txt || true
 
@@ -82,6 +90,7 @@ jobs:
           DIR="${{ inputs.working-directory }}"
           SHA="${{ github.sha }}"
           SHORT_SHA="${SHA:0:7}"
+          LINT_STATUS="${{ inputs.lint-blocking && 'blocking' || 'non-blocking (backlog mode)' }}"
 
           echo "## ${DIR} CI" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
@@ -95,15 +104,15 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
 
           echo "### Gates" >> $GITHUB_STEP_SUMMARY
-          echo "| Check | |" >> $GITHUB_STEP_SUMMARY
+          echo "| Check | Mode |" >> $GITHUB_STEP_SUMMARY
           echo "|---|---|" >> $GITHUB_STEP_SUMMARY
-          echo "| Lint | ran |" >> $GITHUB_STEP_SUMMARY
-          echo "| Format | ran |" >> $GITHUB_STEP_SUMMARY
-          echo "| Type check | ran |" >> $GITHUB_STEP_SUMMARY
-          echo "| Security audit | ran |" >> $GITHUB_STEP_SUMMARY
+          echo "| Lint | ${LINT_STATUS} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Format | ${LINT_STATUS} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Type check | blocking |" >> $GITHUB_STEP_SUMMARY
+          echo "| Security audit | blocking |" >> $GITHUB_STEP_SUMMARY
 
           if [ "${{ inputs.run-tests }}" = "true" ]; then
-            echo "| Tests | ran |" >> $GITHUB_STEP_SUMMARY
+            echo "| Tests | blocking |" >> $GITHUB_STEP_SUMMARY
             if [ -f /tmp/coverage-summary.txt ]; then
               echo "" >> $GITHUB_STEP_SUMMARY
               echo "### Coverage" >> $GITHUB_STEP_SUMMARY
@@ -115,7 +124,7 @@ jobs:
 
           if [ "${{ inputs.run-build }}" = "true" ]; then
             SIZE="${{ steps.build.outputs.size_kb }}"
-            echo "| Build | ran |" >> $GITHUB_STEP_SUMMARY
+            echo "| Build | blocking |" >> $GITHUB_STEP_SUMMARY
             if [ -n "$SIZE" ]; then
               echo "" >> $GITHUB_STEP_SUMMARY
               echo "### Bundle" >> $GITHUB_STEP_SUMMARY

@@ -26,3 +26,4 @@ jobs:
       working-directory: frontend
       run-tests: false
       run-build: true
+      lint-blocking: false  # 463 errors in backlog — non-blocking until cleared

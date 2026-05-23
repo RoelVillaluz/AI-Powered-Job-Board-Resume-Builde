@@ -25,3 +25,4 @@ jobs:
     with:
       working-directory: backend
       run-tests: true
+      lint-blocking: true   # backend is clean — keep lint as a hard gate

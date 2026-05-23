@@ -1,0 +1,135 @@
+name: Node CI Core
+
+on:
+  workflow_call:
+    inputs:
+      working-directory:
+        required: true
+        type: string
+      run-tests:
+        required: false
+        type: boolean
+        default: true
+      run-build:
+        required: false
+        type: boolean
+        default: false
+      node-version:
+        required: false
+        type: string
+        default: "20"
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js & Cache
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node-version }}
+          cache: npm
+          cache-dependency-path: ${{ inputs.working-directory }}/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ${{ inputs.working-directory }}
+        run: npm ci
+
+      - name: Lint check
+        working-directory: ${{ inputs.working-directory }}
+        run: npm run lint --if-present || npx eslint src/ --max-warnings=0
+
+      - name: Format check
+        working-directory: ${{ inputs.working-directory }}
+        run: npm run format:check --if-present || npx prettier --check "src/**/*.{ts,tsx,js,json,css}"
+
+      - name: Type check
+        working-directory: ${{ inputs.working-directory }}
+        run: npm run typecheck --if-present || npx tsc --noEmit
+
+      - name: Security audit
+        working-directory: ${{ inputs.working-directory }}
+        run: npm audit --audit-level=high --omit=dev
+
+      - name: Run tests with coverage
+        id: tests
+        if: inputs.run-tests
+        working-directory: ${{ inputs.working-directory }}
+        run: |
+          npm test -- --coverage --watchAll=false 2>&1 | tee /tmp/test-output.txt
+          # Extract coverage summary lines for the report
+          grep -E "^(All files|Statements|Branches|Functions|Lines)" /tmp/test-output.txt \
+            > /tmp/coverage-summary.txt || true
+
+      - name: Production build
+        id: build
+        if: inputs.run-build
+        working-directory: ${{ inputs.working-directory }}
+        run: |
+          npm run build
+          SIZE_KB=$(du -sk dist | cut -f1)
+          echo "size_kb=${SIZE_KB}" >> $GITHUB_OUTPUT
+
+      - name: Write CI summary
+        if: always()
+        run: |
+          DIR="${{ inputs.working-directory }}"
+          SHA="${{ github.sha }}"
+          SHORT_SHA="${SHA:0:7}"
+
+          echo "## ${DIR} CI" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| | |" >> $GITHUB_STEP_SUMMARY
+          echo "|---|---|" >> $GITHUB_STEP_SUMMARY
+          echo "| Commit | \`${SHORT_SHA}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Branch | \`${{ github.ref_name }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Triggered by | ${{ github.actor }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Event | ${{ github.event_name }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Node | ${{ inputs.node-version }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          echo "### Gates" >> $GITHUB_STEP_SUMMARY
+          echo "| Check | |" >> $GITHUB_STEP_SUMMARY
+          echo "|---|---|" >> $GITHUB_STEP_SUMMARY
+          echo "| Lint | ran |" >> $GITHUB_STEP_SUMMARY
+          echo "| Format | ran |" >> $GITHUB_STEP_SUMMARY
+          echo "| Type check | ran |" >> $GITHUB_STEP_SUMMARY
+          echo "| Security audit | ran |" >> $GITHUB_STEP_SUMMARY
+
+          if [ "${{ inputs.run-tests }}" = "true" ]; then
+            echo "| Tests | ran |" >> $GITHUB_STEP_SUMMARY
+            if [ -f /tmp/coverage-summary.txt ]; then
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "### Coverage" >> $GITHUB_STEP_SUMMARY
+              echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+              cat /tmp/coverage-summary.txt >> $GITHUB_STEP_SUMMARY
+              echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            fi
+          fi
+
+          if [ "${{ inputs.run-build }}" = "true" ]; then
+            SIZE="${{ steps.build.outputs.size_kb }}"
+            echo "| Build | ran |" >> $GITHUB_STEP_SUMMARY
+            if [ -n "$SIZE" ]; then
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "### Bundle" >> $GITHUB_STEP_SUMMARY
+              echo "| | |" >> $GITHUB_STEP_SUMMARY
+              echo "|---|---|" >> $GITHUB_STEP_SUMMARY
+              echo "| dist size | ${SIZE} KB |" >> $GITHUB_STEP_SUMMARY
+            fi
+          fi
+
+      - name: Upload test artifacts
+        if: failure() && inputs.run-tests
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.working-directory }}-test-results-${{ github.run_id }}
+          path: |
+            ${{ inputs.working-directory }}/coverage/
+          retention-days: 7

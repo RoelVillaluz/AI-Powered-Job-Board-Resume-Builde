@@ -92,5 +92,41 @@ export const validateResumeEmbeddings = (embeddings: ResumeEmbeddingsDocument): 
 };
 
 export const validateJobEmbeddings = (embeddings: JobPostingEmbeddingsDocument) => {
+    const errors: string[] = [];
+    const warnings: string[] = [];
 
+    if (!embeddings.embeddings) {
+        errors.push('Embeddings field is missing');
+        return { valid: false, errors, warnings };
+    }
+
+    if (!embeddings.meanEmbeddings) {
+        errors.push('meanEmbeddings field is missing');
+        return { valid: false, errors, warnings };
+    }
+
+    const { jobTitle, location } = embeddings.embeddings;
+    const { skills, requirements } = embeddings.meanEmbeddings;
+
+    const validations = {
+        jobTitle: isValidEmbedding(jobTitle),
+        location: isValidEmbedding(location),
+        skills: isValidEmbedding(skills),
+        requirements: isValidEmbedding(requirements),
+    };
+
+    const hasAtLeastOne = Object.values(validations).some(v => v);
+    if (!hasAtLeastOne) {
+        errors.push('No valid embeddings found for any section');
+        return { valid: false, errors, warnings };
+    }
+
+    return {
+        valid: true,
+        errors: [],
+        warnings,
+        validSections: Object.entries(validations)
+            .filter(([_, isValid]) => isValid)
+            .map(([section]) => section),
+    };
 }

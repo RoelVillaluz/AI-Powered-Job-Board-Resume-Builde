@@ -10,12 +10,15 @@ import { ResumeEmbeddingsDocument, JobPostingEmbeddingsDocument } from '../../ty
 export const handleResumeVectorUpsert = async (
     saved: ResumeEmbeddingsDocument,
     userId: string | null,
+    bypassThreshold = false,   // ← reconciliation passes true
 ): Promise<void> => {
     try {
-        const { shouldUsePinecone } = await import('./pineconeThreshold.js');
-        if (!await shouldUsePinecone()) {
-            logger.info(`[PINECONE] Below threshold - skipping resume upsert: ${saved.resume}`);
-            return;
+        if (!bypassThreshold) {
+            const { shouldUsePinecone } = await import('./pineconeThreshold.js');
+            if (!await shouldUsePinecone()) {
+                logger.info(`[Pinecone] Below threshold — skipping resume upsert: ${saved.resume}`);
+                return;
+            }
         }
 
         const Resume = (await import('../../models/resumes/resumeModel.js')).default;
@@ -55,8 +58,17 @@ export const handleResumeVectorUpsert = async (
  */
 export const handleJobVectorUpsert = async (
     saved: JobPostingEmbeddingsDocument,
+    bypassThreshold = false,   // ← reconciliation passes true
 ) => {
     try {
+        if (!bypassThreshold) {
+            const { shouldUsePinecone } = await import('./pineconeThreshold.js');
+            if (!await shouldUsePinecone()) {
+                logger.info(`[Pinecone] Below threshold — skipping job upsert: ${saved.jobPosting}`);
+                return;
+            }
+        }
+        
         const { shouldUsePinecone } = await import('./pineconeThreshold.js');
         if (!await shouldUsePinecone()) {
             logger.info(`[Pinecone] Below threshold — skipping job upsert: ${saved.jobPosting}`);

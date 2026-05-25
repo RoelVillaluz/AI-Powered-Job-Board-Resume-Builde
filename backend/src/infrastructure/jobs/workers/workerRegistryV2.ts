@@ -20,6 +20,7 @@ import { scoringRegistryV2 }   from '../domains/scoring/scoringRegistryV2.js';
 import { createWorkerV2 }      from './createWorkerV2.js';
 import logger from '../../../utils/logger.js';
 import { salaryPredictionRegistry } from '../domains/salary/salaryPredictionRegistry.js';
+import { matchingRegistry } from '../domains/matching/matchingRegistry.js';
 
 // ── Queue + DLQ maps ──────────────────────────────────────────────────────────
 
@@ -32,7 +33,7 @@ const queueMap: Record<string, Queue> = {
     industry:    industryEmbeddingQueue,
     resumeScore: resumeScoringQueue,
     resumeSalaryPrediction: salaryPredictionQueue,
-    resumeJobMatching: matchingQueue,
+    resumeJobMatch:    matchingQueue,
 };
 
 const dlqMap: Record<string, Queue | null> = {
@@ -52,6 +53,7 @@ const allConfigs = {
     ...embeddingRegistryV2,
     ...scoringRegistryV2,
     ...salaryPredictionRegistry,
+    ...matchingRegistry,
 };
 
 export const workersV2 = Object.fromEntries(

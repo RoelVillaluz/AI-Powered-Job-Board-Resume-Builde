@@ -5,9 +5,9 @@ import { ResumeEmbeddingsDocument } from "../../types/embeddings.types.js";
 import { embeddingRegistryV2 } from "../../infrastructure/jobs/domains/embedding/embeddingRegistryV2.js";
 import { QueueJob } from "../../types/queues.types.js";
 import { executeComputePipelineV2 } from "../../infrastructure/jobs/core/executeComputePipelineV2.js";
-import { EmitFn } from "src/infrastructure/jobs/core/computeRegistryTypesV2.js";
+import { EmitFn } from "../../infrastructure/jobs/core/computeRegistryTypesV2.js";
+import { RESUME_EMBEDDING_TTL_DAYS } from "../../infrastructure/reconciliation/constants/reconciliationConstants.js";
 
-const EMBEDDING_TTL_DAYS = 30;
 
 export const getResumeEmbeddingServiceV2 = async (
     resumeId: string | Types.ObjectId
@@ -23,7 +23,7 @@ export const getResumeEmbeddingServiceV2 = async (
         (Date.now() - new Date(embeddings.generatedAt).getTime()) /
         (1000 * 60 * 60 * 24);
 
-    if (daysSinceGeneration >= EMBEDDING_TTL_DAYS) {
+    if (daysSinceGeneration >= RESUME_EMBEDDING_TTL_DAYS) {
         logger.info(`Embeddings stale for resume: ${resumeId}`);
         return null;
     }

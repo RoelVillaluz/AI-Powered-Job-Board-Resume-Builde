@@ -7,6 +7,9 @@ from routers.embeddings import router as embeddings_router
 from routers.scoring import router as scoring_router
 from routers.health import router as health_router
 from routers.salary import router as salary_router
+from routers.matching import router as matching_router
+from routers.metrics import router as metrics_router
+from metrics import model_loaded
 from dotenv import load_dotenv
 
 load_dotenv('.env.dev')  # load before anything else imports config
@@ -58,7 +61,12 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+# after model loads:
+model_loaded.set(1)
+
 app.include_router(embeddings_router)
 app.include_router(scoring_router)
 app.include_router(salary_router)
 app.include_router(health_router)
+app.include_router(matching_router)
+app.include_router(metrics_router)

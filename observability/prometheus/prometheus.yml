@@ -1,0 +1,17 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  # Node.js backend — prom-client metrics endpoint
+  - job_name: 'backend'
+    static_configs:
+      - targets: ['localhost:5000']
+    metrics_path: '/metrics'
+
+  # Python FastAPI — prometheus-fastapi-instrumentator
+  - job_name: 'ai-service'
+    static_configs:
+      - targets: ['localhost:8000']
+    metrics_path: '/metrics'
+    

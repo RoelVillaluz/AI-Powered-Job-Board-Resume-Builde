@@ -11,3 +11,8 @@ __pycache__/
 *.pyd
 *.cpython-*
 backend/coverage
+# Prometheus binary and data
+backend/src/observability/prometheus/prometheus.exe
+backend/src/observability/prometheus/data/
+backend/src/observability/prometheus/tsdb/
+start-prometheus.bat

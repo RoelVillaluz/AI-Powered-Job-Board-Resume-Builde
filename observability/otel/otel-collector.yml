@@ -1,0 +1,40 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+processors:
+  batch:
+    timeout: 1s
+    send_batch_size: 1024
+  
+  # Drop high-cardinality attributes that bloat storage
+  attributes:
+    actions:
+      - key: http.user_agent
+        action: delete
+      - key: http.request_content_length
+        action: delete
+
+exporters:
+  prometheus:
+    endpoint: "0.0.0.0:8889"
+    namespace: jobboard
+  
+  # Debug logging — disable in production
+  debug:
+    verbosity: basic
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [debug]
+    metrics:
+      receivers: [otlp]
+      processors: [batch, attributes]
+      exporters: [prometheus]

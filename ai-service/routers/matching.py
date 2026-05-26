@@ -5,7 +5,7 @@ from main_v2 import score_matches
 router = APIRouter(prefix='/compute')
 
 @router.post('/score_matches')
-async def score_matches(body: ComputeRequest) -> dict:
+async def score_matches_endpoint(body: ComputeRequest) -> dict:
     data = body.model_dump()
     result = score_matches(
         resume=           data.get("resume", {}),

@@ -30,9 +30,10 @@ export const matchingRegistry: Record<string, ComputeConfigV2<any, any>> = {
         aiEndpoint: "score_matches",
 
         buildPayload: async (aiResult: any, id: any) => ({
-            resume:      id,
-            matches:     aiResult.matches     ?? [],
-            rankedAt:    new Date(),
+            resume:        id,
+            matches:       aiResult.matches     ?? [],
+            usedPinecone:  aiResult.usedPinecone ?? false, 
+            rankedAt:      new Date(),
         }),
 
         persist: async (id, payload) => {

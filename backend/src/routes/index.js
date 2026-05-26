@@ -5,6 +5,7 @@ import jobPostingEmbeddingRoutes from "./jobPostings/jobPostingEmbeddingRoutes.j
 import resumeRoutes from "./resumes/resumeRoutes.js";
 import resumeEmbeddingRoutes from "./resumes/resumeEmbeddingRoutes.js";
 import resumeSalaryPredictionRoutes from './resumes/resumeSalaryPredictionRoutes.js'
+import resumeJobMatchRoutes from './resumes/resumeJobMatchRoutes.js'
 
 import companyRoutes from "./companyRoutes.js";
 import aiRoutes from "./aiRoutes.js";
@@ -73,4 +74,5 @@ export const registerRoutes = (app) => {
   app.use("/api/resumes", resumeRoutes);
   app.use("/api/resumes", resumeEmbeddingRoutes);
   app.use("/api/resumes", resumeSalaryPredictionRoutes)
+  app.use("/api/resumes", resumeJobMatchRoutes)
 };

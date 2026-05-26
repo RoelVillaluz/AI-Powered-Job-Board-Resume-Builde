@@ -155,14 +155,12 @@ class JobMatchingService:
     
     @staticmethod
     def _build_market_lookup(skill_market_data: list[dict]) -> dict[str, dict]:
-        """
-        Build a name → market data map for O(1) lookup during scoring.
-        Called once per score_matches() call, not once per job.
-        """
         return {
-            entry.get("skillName", "").lower(): entry
+            # Accept both "name" (from buildMatchingPayload) and
+            # "skillName" (legacy) so both payload builders work
+            (entry.get("name") or entry.get("skillName") or "").lower(): entry
             for entry in skill_market_data
-            if entry.get("skillName")
+            if entry.get("name") or entry.get("skillName")
         }
     
     @staticmethod

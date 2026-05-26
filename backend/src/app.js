@@ -5,6 +5,7 @@ import { registerRoutes } from "./routes/index.js";
 import logger from "./utils/logger.js";
 import { requestLogger } from "./middleware/requestLogger.js";
 import { errorHandler } from "./middleware/errorHandler.js";
+import { register } from "./config/prometheus_metrics.js";
 
 const app = express();
 
@@ -17,6 +18,12 @@ app.use(express.json());
 
 // Serve static assets
 setupStaticAssets(app);
+
+// After all other middleware, before registerRoutes
+app.get('/metrics', async (req, res) => {
+    res.set('Content-Type', register.contentType);
+    res.end(await register.metrics());
+});
 
 // Register routes
 registerRoutes(app);

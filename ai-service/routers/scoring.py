@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from routers.shared import ComputeRequest, wrap
-from main_v2 import score_resume_v2
+from handlers.resume_handlers import score_resume
 import logging
 
 logger = logging.getLogger(__name__)
@@ -19,4 +19,4 @@ async def calculate_score(body: ComputeRequest) -> dict:
         "skillMarketData":    data.get("skillMarketData", []),
     }
     
-    return wrap(score_resume_v2(resume_body, scoring_payload))
+    return wrap(score_resume(resume_body, scoring_payload))

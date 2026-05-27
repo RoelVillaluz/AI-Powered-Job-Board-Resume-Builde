@@ -42,7 +42,7 @@ from fastapi import APIRouter
 
 from routers.shared.request import ComputeRequest
 from routers.shared.response import wrap
-from main_v2 import predict_salary
+from handlers.salary_handler import predict_salary
 
 router = APIRouter(prefix="/compute")
 

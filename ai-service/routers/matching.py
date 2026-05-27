@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from routers.shared import ComputeRequest, wrap
-from main_v2 import score_matches
+from handlers.matching_handler import score_matches
 
 router = APIRouter(prefix='/compute')
 

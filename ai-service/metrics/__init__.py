@@ -10,4 +10,6 @@ from .prometheus_metrics import (               # new exports
     matching_duration_seconds,
     matching_candidates_scored,
     salary_prediction_requests_total,
+    handler_requests_total,
+    handler_duration_seconds,
 )

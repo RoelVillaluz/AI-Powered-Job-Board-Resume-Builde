@@ -10,7 +10,8 @@
     "client": "cd frontend && npm run dev",
     "ai": "cd ai-service && venv\\Scripts\\activate && python -m uvicorn app:app --reload",
     "test": "cd backend && npm test",
-    "prometheus": "start-prometheus.bat"
+    "prometheus": "start-prometheus.bat",
+    "grafana": "cd /d \"%USERPROFILE%\\OneDrive\\Documents\\grafana-enterprise_13.0.1+security-01_25720641773_windows_amd64\\grafana-13.0.1+security-01\" && bin\\grafana.exe server --config=conf\\defaults.ini --homepath=."
   },
   "devDependencies": {
     "concurrently": "^9.1.2",

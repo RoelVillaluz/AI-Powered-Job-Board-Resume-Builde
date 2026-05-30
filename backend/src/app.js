@@ -5,7 +5,7 @@ import { registerRoutes } from "./routes/index.js";
 import logger from "./utils/logger.js";
 import { requestLogger } from "./middleware/requestLogger.js";
 import { errorHandler } from "./middleware/errorHandler.js";
-import { register } from "./config/prometheus_metrics.js";
+import { register } from "./config/metrics.js";
 
 const app = express();
 

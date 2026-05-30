@@ -1,6 +1,10 @@
 import * as cron from 'node-cron';
 import logger from '../../../utils/logger.js';
 import { runReconciliation } from '../runners/reconciliationRunner.js';
+import {
+    reconciliationRunsTotal,
+    reconciliationRepairedTotal,
+} from '../../../config/metrics.js';
 
 const SCHEDULE  = process.env.RECONCILIATION_CRON_SCHEDULE ?? '0 */6 * * *';
 const IS_PROD   = process.env.NODE_ENV === 'production';
@@ -69,6 +73,12 @@ export const startReconciliationCron = (): void => {
             const totalRepaired = summary.jobs.repaired + summary.resumes.repaired;
             const totalFailed   = summary.jobs.failed   + summary.resumes.failed;
             const totalPinecone = summary.pinecone.repaired;
+
+            // ── Prometheus ────────────────────────────────────────────────────────
+            reconciliationRunsTotal.inc({ status: 'completed '});
+            reconciliationRepairedTotal.inc({ entity: 'job' },      summary.jobs.repaired);
+            reconciliationRepairedTotal.inc({ entity: 'resume' },   summary.resumes.repaired);
+            reconciliationRepairedTotal.inc({ entity: 'pinecone' }, summary.pinecone.repaired);
 
             logger.info(
                 '[RECONCILIATION CRON] Complete | ' +

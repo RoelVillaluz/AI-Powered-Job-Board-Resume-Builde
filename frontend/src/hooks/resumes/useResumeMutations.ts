@@ -4,6 +4,9 @@ import { useAuthStore } from "../../stores/authStore";
 import { useResumeStore } from "../../stores/resumeStore";
 import { updateResumeService } from "../../services/resumeServices";
 import type { Resume, Skill } from "../../../types/models/resume";
+import { generateResumeJobMatches } from "../../services/resumeServices";
+import { useSocket } from "../../contexts/SocketContext";
+import { useEffect } from "react";
 
 interface ToggleSkillVariables {
     resume?: Resume;
@@ -61,4 +64,51 @@ export const useToggleSkill = () => {
             queryClient.invalidateQueries({ queryKey: ['resume', updatedResume._id] }); // single resume
         },
     });
+};
+
+/**
+ * Triggers resume-job match generation via POST.
+ * Called automatically when GET returns 404 (no matches yet)
+ * or manually when user requests fresh matches.
+ *
+ * On success: listens for "matching:complete" socket event
+ * emitted by the BullMQ worker when the pipeline finishes.
+ * Invalidates the match query on completion so GET re-fetches
+ * the fresh results — no arbitrary setTimeout needed.
+ */
+export const useResumeJobMatchMutation = (resumeId: string, token: string) => {
+    const queryClient = useQueryClient();
+    const socketContext = useSocket();
+    const socket = (useSocket() as any)?.socket ?? null;
+
+    const mutation = useMutation({
+        mutationFn: () => generateResumeJobMatches(resumeId, token),
+        onError: (err) => {
+            console.error('[useResumeJobMatchMutation] Failed to trigger match generation:', err);
+        },
+    });
+
+    useEffect(() => {
+        if (!socket || !resumeId || !mutation.isPending) return;
+
+        const handleMatchingComplete = ({ data }: { data: any }) => {
+            if (data?.resume?.toString() === resumeId) {
+                queryClient.setQueryData(['resumeJobMatch', resumeId], data);
+            }
+        };
+
+        const handleMatchingError = ({ message }: { message: string }) => {
+            console.error('[useResumeJobMatchMutation] Worker error:', message);
+        };
+
+        socket.on('matching:complete', handleMatchingComplete);
+        socket.on('matching:error',    handleMatchingError);
+
+        return () => {
+            socket.off('matching:complete', handleMatchingComplete);
+            socket.off('matching:error',    handleMatchingError);
+        };
+    }, [socket, resumeId, mutation.isPending, queryClient]);
+
+    return mutation;
 };

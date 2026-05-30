@@ -1,8 +1,12 @@
-import { useCallback, useMemo} from "react";
+import { useCallback, useEffect, useMemo} from "react";
 import { mergeJobsWithRecommendations } from "../../utils/jobPostings/recommendations/mergeJobsWithRecommendations";
 import { useJobPostings, useJobRecommendations } from "../jobs/useJobQueries";
 import { useAuthStore } from "../../stores/authStore";
 import { useJobStore } from "../../stores/jobStore";
+import { useResumeStore } from "../../stores/resumeStore";
+import { useResumeJobMatchQuery } from "../resumes/useResumeQueries";
+import { fetchResumeJobMatches } from "../../../api/resumeApis";
+import { useResumeJobMatch } from "../resumes/useResumeJobMatches";
 
 /**
  * Custom hook for handling infinite scrolling of job listings.
@@ -25,7 +29,9 @@ import { useJobStore } from "../../stores/jobStore";
  *   Callback to fetch the next page of job postings
  */
 export const useJobInfiniteScroll = () => {
-    const user = useAuthStore(state => state.user);
+    const user  = useAuthStore(state => state.user);
+    const token = useAuthStore(state => state.token);
+    const resume = useResumeStore(state => state.currentResume);
     const sortBy = useJobStore(state => state.sortBy);
     const minMatchScore = useJobStore(state => state.activeFilters.minMatchScore);
 
@@ -37,29 +43,25 @@ export const useJobInfiniteScroll = () => {
         hasNextPage,
     } = useJobPostings();
 
-    const { data: recommendations = [] } = useJobRecommendations(user?._id);
+    const {
+        matches: recommendations,
+        isGenerating: isGeneratingMatches,
+        statusMessage: matchStatusMessage,
+    } = useResumeJobMatch();
 
     const loadMoreJobs = useCallback(() => {
-        if (hasNextPage && !isFetchingNextPage) {
-            fetchNextPage();
-        }
+        if (hasNextPage && !isFetchingNextPage) fetchNextPage();
     }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
     const jobs = useMemo(() => {
-        const flatJobs =
-            data?.pages?.flatMap(page => page.jobPostings) ?? [];
-
+        const flatJobs = data?.pages?.flatMap(page => page.jobPostings) ?? [];
         const merged = mergeJobsWithRecommendations(flatJobs, recommendations);
+        const filtered = merged.filter(job => (job.finalScore ?? 0) >= minMatchScore);
 
-        // Filter by minimum match score (client-side filter)
-        const filtered = merged.filter(job => (job.matchScore ?? 0) >= minMatchScore);
-
-        if (sortBy === "Best Match (Default)") {
+        if (sortBy === 'Best Match (Default)') {
             return [...filtered].sort((a, b) => {
-                const scoreDiff = (b.matchScore ?? 0) - (a.matchScore ?? 0);
+                const scoreDiff = (b.finalScore ?? 0) - (a.finalScore ?? 0);
                 if (scoreDiff !== 0) return scoreDiff;
-
-                // secondary sort: newest
                 return new Date(b.postedAt) - new Date(a.postedAt);
             });
         }
@@ -73,5 +75,7 @@ export const useJobInfiniteScroll = () => {
         hasMoreJobs: hasNextPage,
         loadMoreJobs,
         isFetchingNextPage,
+        isGeneratingMatches,   // show "Analyzing your profile..." banner in UI
+        matchStatusMessage,    // show live status text while pipeline runs
     };
 };

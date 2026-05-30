@@ -91,9 +91,9 @@ const JobPostingCard = ({ job, user, resume, onShowModal }) => {
                 <button className="save-btn" onClick={(e) => toggleSaveJob(e, job._id)} aria-label="Save job">
                     <i className={`fa-${savedJobs.includes(job._id) ? 'solid' : 'regular'} fa-bookmark`}></i>
                 </button>
-                {job.similarity && (
+                {job.finalScore && (
                     <div className="match-score">
-                        {job.similarity}% Match
+                        {Math.round(job.finalScore)}% Match
                     </div>
                 )}
 

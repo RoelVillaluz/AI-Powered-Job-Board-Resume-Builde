@@ -8,6 +8,12 @@ import {
     getSingleJobMatchRepo,
 } from "../../repositories/resumes/resumeJobMatchRepository.js";
 
+import {
+    matchingRequestsTotal,
+    matchingDurationSeconds,
+    matchScoreDistribution,
+} from '../../config/metrics.js';
+
 const MATCH_TTL_DAYS = 1;
 
 /**
@@ -81,13 +87,38 @@ export const upsertMatchingService = async (
     job:      QueueJob | null = null,
     emit?:    EmitFn,
 ) => {
-    const { matchingRegistry } = await import(
+    const end = matchingDurationSeconds.startTimer({ used_pinecone: 'unknown' });
+
+    try {
+        const { matchingRegistry } = await import(
         '../../infrastructure/jobs/domains/matching/matchingRegistry.js'
     );
-    return executeComputePipelineV2({
+    const result = await executeComputePipelineV2({
         config: matchingRegistry.resumeJobMatch,
         id:     resumeId,
         job,
         emit,
     });
+
+    // ── Prometheus ────────────────────────────────────────────────────
+    const usedPinecone = result.data?.usedPinecone ? 'true' : 'false';
+    matchingRequestsTotal.inc({ status: 'success', used_pinecone: usedPinecone });
+
+    end({ used_pinecone: usedPinecone });
+
+    // Record score distribution for each match result
+    for (const match of result.data?.matches ?? []) {
+        matchScoreDistribution.observe(
+            { recommendation_type: match.recommendationType ?? 'Unknown' },
+            match.finalScore ?? 0,
+        );
+    }
+
+    return result;
+    
+    } catch (error) {
+        matchingRequestsTotal.inc({ status: 'failed', used_pinecone: 'unknown' });
+        end({ used_pinecone: 'unknown' });
+        throw error;
+    }
 };

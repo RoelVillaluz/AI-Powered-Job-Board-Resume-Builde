@@ -51,3 +51,11 @@ export const generateResumeSalaryPrediction = async (resumeId: string, token: st
 
   return data.data
 }
+
+export const generateResumeJobMatches = async (resumeId: string, token: string) => {
+    const { data } = await axios.post(`${BASE_API_URL}/resumes/${resumeId}/job-matches`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+    })
+
+    return data.data
+}

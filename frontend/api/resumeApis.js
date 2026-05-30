@@ -81,3 +81,11 @@ export const fetchResumeSalaryPrediction = async (resumeId, token) => {
 
   return data.data
 }
+
+export const fetchResumeJobMatches = async (resumeId, token) => {
+  const { data } = await axios.get(`${BASE_API_URL}/resumes/${resumeId}/job-matches`, {
+    headers: { Authorization: `Bearer ${token}` }
+  })
+
+  return data.data
+}

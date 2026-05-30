@@ -64,3 +64,20 @@ model_loaded = Gauge(
     documentation='1 if embedding model is loaded and warm, 0 otherwise',
     registry=registry,
 )
+
+# ── Handler metrics (generic — covers all handlers via safe_call) ─────────────
+
+handler_requests_total = Counter(
+    name='aiservice_handler_requests_total',
+    documentation='Total requests per handler',
+    labelnames=['handler', 'status'],  # handler: score_resume|score_matches|predict_salary|etc
+    registry=registry,
+)
+
+handler_duration_seconds = Histogram(
+    name='aiservice_handler_duration_seconds',
+    documentation='Handler execution duration',
+    labelnames=['handler'],
+    buckets=[0.05, 0.1, 0.25, 0.5, 1, 2, 5, 10, 15, 30],
+    registry=registry,
+)

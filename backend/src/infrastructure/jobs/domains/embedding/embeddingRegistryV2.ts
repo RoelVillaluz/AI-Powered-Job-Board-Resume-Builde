@@ -24,6 +24,7 @@ import { prepareJobTitleEmbeddingComputationRepository } from "../../../../repos
 import { prepareLocationEmbeddingComputationRepository } from "../../../../repositories/market/locationRepositories.js";
 import { prepareIndustryEmbeddingComputationRepository } from "../../../../repositories/market/industryRepositories.js";
 import { mapJobPostingEmbeddingResult } from "../../../../mappers/embeddings/mapJobPostingEmbeddingResult.js";
+import { embeddingJobsTotal } from '../../../../config/metrics.js';
 
 const isProd = process.env.NODE_ENV === "production";
 
@@ -66,6 +67,7 @@ export const embeddingRegistryV2: Record<string, ComputeConfigV2<any, any>> = {
             logger.info(`[REGISTRY V2] Resume afterSave: ${saved.resume}`);
 
             await Promise.allSettled([
+                // Offload resume scoring to queue and assign worker
                 (async () => {
                     if (!ctx.userId) {
                         logger.warn(`[REGISTRY V2] No userId in ctx — skipping score enqueue`);
@@ -77,13 +79,25 @@ export const embeddingRegistryV2: Record<string, ComputeConfigV2<any, any>> = {
                     await enqueueResumeScoreServiceV2(saved.resume.toString(), ctx.userId);
                 })(),
 
+                // Create pinecone vectors for this resume
                 (async () => {
                     const { handleResumeVectorUpsert } = await import(
                         '../../../pinecone/pineconeAfterSave.js'
                     );
                     await handleResumeVectorUpsert(saved, ctx.userId ?? null);
                 })(),
+
+                // Offload resume to job matching for job recommendations to queue and assign worker
+                (async () => {
+                    const { enqueueMatchingService } = await import(
+                        '../../../../services/resumes/resumeJobMatchService.js'
+                    );
+                    await enqueueMatchingService(saved.resume.toString(), ctx.userId ?? '');
+                })(),
             ]);
+
+            // ── Prometheus ────────────────────────────────────────────────────────
+            embeddingJobsTotal.inc({ entity: 'resume', status: 'success' })
         },
     } as ComputeConfigV2<ResumeEmbeddingsDocument, { resumeId: string; userId: string }>,
 
@@ -134,6 +148,10 @@ export const embeddingRegistryV2: Record<string, ComputeConfigV2<any, any>> = {
                 '../../../pinecone/pineconeAfterSave.js'
             );
             await handleJobVectorUpsert(saved);
+
+            // ── Prometheus ────────────────────────────────────────────────────────
+            embeddingJobsTotal.inc({ entity: 'job', status: 'success' });
+
         },
     } as ComputeConfigV2<JobPostingEmbeddingsDocument, { jobPostingId: string }>,
 

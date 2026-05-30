@@ -1,0 +1,910 @@
+{
+  "__inputs": [],
+  "__requires": [],
+  "annotations": {
+    "list": []
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "title": "Matching Pipeline",
+      "type": "row"
+    },
+    {
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 10
+              },
+              {
+                "color": "red",
+                "value": 50
+              }
+            ]
+          },
+          "unit": "short"
+        }
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 0,
+        "y": 1
+      },
+      "id": 2,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "title": "Total Match Requests",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": "Prometheus",
+          "expr": "sum(jobboard_matching_requests_total) or vector(0)",
+          "legendFormat": "Total"
+        }
+      ]
+    },
+    {
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "short"
+        }
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 4,
+        "y": 1
+      },
+      "id": 3,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "title": "Failed Match Requests",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": "Prometheus",
+          "expr": "sum(jobboard_matching_requests_total{status=\"failed\"}) or vector(0)",
+          "legendFormat": "Failed"
+        }
+      ]
+    },
+    {
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 5
+              },
+              {
+                "color": "red",
+                "value": 15
+              }
+            ]
+          },
+          "unit": "s"
+        }
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 8,
+        "y": 1
+      },
+      "id": 4,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "title": "p95 Match Latency",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": "Prometheus",
+          "expr": "histogram_quantile(0.95, sum(rate(jobboard_matching_duration_seconds_bucket[5m])) by (le)) or vector(0)",
+          "legendFormat": "p95"
+        }
+      ]
+    },
+    {
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 1
+              },
+              {
+                "color": "green",
+                "value": 5
+              }
+            ]
+          },
+          "unit": "short"
+        }
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 12,
+        "y": 1
+      },
+      "id": 5,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "title": "Pinecone Queries",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": "Prometheus",
+          "expr": "sum(jobboard_pinecone_queries_total{status=\"success\"}) or vector(0)",
+          "legendFormat": "Success"
+        }
+      ]
+    },
+    {
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 5
+              },
+              {
+                "color": "red",
+                "value": 20
+              }
+            ]
+          },
+          "unit": "short"
+        }
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 16,
+        "y": 1
+      },
+      "id": 6,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "title": "Fallback Triggers",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": "Prometheus",
+          "expr": "sum(jobboard_pinecone_fallback_total) or vector(0)",
+          "legendFormat": "Fallbacks"
+        }
+      ]
+    },
+    {
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "color": {
+            "mode": "palette-classic"
+          }
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 5
+      },
+      "id": 7,
+      "options": {
+        "legend": {
+          "displayMode": "list"
+        }
+      },
+      "title": "Match Latency Percentiles",
+      "type": "timeseries",
+      "targets": [
+        {
+          "datasource": "Prometheus",
+          "expr": "histogram_quantile(0.50, sum(rate(jobboard_matching_duration_seconds_bucket[5m])) by (le))",
+          "legendFormat": "p50"
+        },
+        {
+          "datasource": "Prometheus",
+          "expr": "histogram_quantile(0.95, sum(rate(jobboard_matching_duration_seconds_bucket[5m])) by (le))",
+          "legendFormat": "p95"
+        },
+        {
+          "datasource": "Prometheus",
+          "expr": "histogram_quantile(0.99, sum(rate(jobboard_matching_duration_seconds_bucket[5m])) by (le))",
+          "legendFormat": "p99"
+        }
+      ]
+    },
+    {
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "palette-classic"
+          }
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 5
+      },
+      "id": 8,
+      "title": "Match Request Rate",
+      "type": "timeseries",
+      "targets": [
+        {
+          "datasource": "Prometheus",
+          "expr": "sum(rate(jobboard_matching_requests_total{status=\"success\"}[5m])) or vector(0)",
+          "legendFormat": "Success/s"
+        },
+        {
+          "datasource": "Prometheus",
+          "expr": "sum(rate(jobboard_matching_requests_total{status=\"failed\"}[5m])) or vector(0)",
+          "legendFormat": "Failed/s"
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 13
+      },
+      "id": 9,
+      "title": "AI Service Handlers",
+      "type": "row"
+    },
+    {
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "palette-classic"
+          }
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 14
+      },
+      "id": 10,
+      "title": "Handler Request Rate by Endpoint",
+      "type": "timeseries",
+      "targets": [
+        {
+          "datasource": "Prometheus",
+          "expr": "sum(rate(aiservice_handler_requests_total{status=\"success\"}[5m])) by (handler)",
+          "legendFormat": "{{handler}}"
+        }
+      ]
+    },
+    {
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "color": {
+            "mode": "palette-classic"
+          }
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 14
+      },
+      "id": 11,
+      "title": "Handler p95 Latency by Endpoint",
+      "type": "timeseries",
+      "targets": [
+        {
+          "datasource": "Prometheus",
+          "expr": "histogram_quantile(0.95, sum(rate(aiservice_handler_duration_seconds_bucket[5m])) by (le, handler))",
+          "legendFormat": "{{handler}} p95"
+        }
+      ]
+    },
+    {
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "palette-classic"
+          }
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 22
+      },
+      "id": 12,
+      "title": "Handler Failures",
+      "type": "timeseries",
+      "targets": [
+        {
+          "datasource": "Prometheus",
+          "expr": "sum(rate(aiservice_handler_requests_total{status=\"failed\"}[5m])) by (handler) or vector(0)",
+          "legendFormat": "{{handler}} failures"
+        }
+      ]
+    },
+    {
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "palette-classic"
+          }
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 22
+      },
+      "id": 13,
+      "title": "Matching Candidates Scored Distribution",
+      "type": "timeseries",
+      "targets": [
+        {
+          "datasource": "Prometheus",
+          "expr": "histogram_quantile(0.50, sum(rate(aiservice_matching_candidates_scored_bucket[5m])) by (le))",
+          "legendFormat": "p50 candidates"
+        },
+        {
+          "datasource": "Prometheus",
+          "expr": "histogram_quantile(0.95, sum(rate(aiservice_matching_candidates_scored_bucket[5m])) by (le))",
+          "legendFormat": "p95 candidates"
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 30
+      },
+      "id": 14,
+      "title": "Score Distribution",
+      "type": "row"
+    },
+    {
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "palette-classic"
+          }
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 31
+      },
+      "id": 15,
+      "title": "Match Score Tiers Over Time",
+      "type": "timeseries",
+      "targets": [
+        {
+          "datasource": "Prometheus",
+          "expr": "sum(rate(jobboard_match_score_distribution_count{recommendation_type=\"Best Fit\"}[5m])) or vector(0)",
+          "legendFormat": "Best Fit"
+        },
+        {
+          "datasource": "Prometheus",
+          "expr": "sum(rate(jobboard_match_score_distribution_count{recommendation_type=\"Good Fit\"}[5m])) or vector(0)",
+          "legendFormat": "Good Fit"
+        },
+        {
+          "datasource": "Prometheus",
+          "expr": "sum(rate(jobboard_match_score_distribution_count{recommendation_type=\"Stretch\"}[5m])) or vector(0)",
+          "legendFormat": "Stretch"
+        },
+        {
+          "datasource": "Prometheus",
+          "expr": "sum(rate(jobboard_match_score_distribution_count{recommendation_type=\"Poor Fit\"}[5m])) or vector(0)",
+          "legendFormat": "Poor Fit"
+        }
+      ]
+    },
+    {
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "palette-classic"
+          }
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 31
+      },
+      "id": 16,
+      "title": "Average Match Score",
+      "type": "timeseries",
+      "targets": [
+        {
+          "datasource": "Prometheus",
+          "expr": "sum(rate(jobboard_match_score_distribution_sum[5m])) / sum(rate(jobboard_match_score_distribution_count[5m]))",
+          "legendFormat": "Avg Score"
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 39
+      },
+      "id": 17,
+      "title": "Embedding Pipeline",
+      "type": "row"
+    },
+    {
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "palette-classic"
+          }
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 40
+      },
+      "id": 18,
+      "title": "Embedding Jobs Processed",
+      "type": "timeseries",
+      "targets": [
+        {
+          "datasource": "Prometheus",
+          "expr": "sum(rate(jobboard_embedding_jobs_total{entity=\"resume\",status=\"success\"}[5m])) or vector(0)",
+          "legendFormat": "Resume/s"
+        },
+        {
+          "datasource": "Prometheus",
+          "expr": "sum(rate(jobboard_embedding_jobs_total{entity=\"job\",status=\"success\"}[5m])) or vector(0)",
+          "legendFormat": "Job/s"
+        },
+        {
+          "datasource": "Prometheus",
+          "expr": "sum(rate(jobboard_embedding_jobs_total{status=\"failed\"}[5m])) or vector(0)",
+          "legendFormat": "Failed/s"
+        }
+      ]
+    },
+    {
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "palette-classic"
+          }
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 40
+      },
+      "id": 19,
+      "title": "AI Service Embedding Duration",
+      "type": "timeseries",
+      "targets": [
+        {
+          "datasource": "Prometheus",
+          "expr": "histogram_quantile(0.95, sum(rate(aiservice_embedding_duration_seconds_bucket[5m])) by (le, entity))",
+          "legendFormat": "{{entity}} p95"
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 48
+      },
+      "id": 20,
+      "title": "Reconciliation",
+      "type": "row"
+    },
+    {
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "palette-classic"
+          }
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 49
+      },
+      "id": 21,
+      "title": "Reconciliation Runs",
+      "type": "timeseries",
+      "targets": [
+        {
+          "datasource": "Prometheus",
+          "expr": "sum(rate(jobboard_reconciliation_runs_total{status=\"completed\"}[1h])) or vector(0)",
+          "legendFormat": "Completed/hr"
+        },
+        {
+          "datasource": "Prometheus",
+          "expr": "sum(rate(jobboard_reconciliation_runs_total{status=\"skipped\"}[1h])) or vector(0)",
+          "legendFormat": "Skipped/hr"
+        }
+      ]
+    },
+    {
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "palette-classic"
+          }
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 49
+      },
+      "id": 22,
+      "title": "Items Repaired by Reconciliation",
+      "type": "timeseries",
+      "targets": [
+        {
+          "datasource": "Prometheus",
+          "expr": "sum(rate(jobboard_reconciliation_repaired_total{entity=\"resume\"}[1h])) or vector(0)",
+          "legendFormat": "Resumes/hr"
+        },
+        {
+          "datasource": "Prometheus",
+          "expr": "sum(rate(jobboard_reconciliation_repaired_total{entity=\"job\"}[1h])) or vector(0)",
+          "legendFormat": "Jobs/hr"
+        },
+        {
+          "datasource": "Prometheus",
+          "expr": "sum(rate(jobboard_reconciliation_repaired_total{entity=\"pinecone\"}[1h])) or vector(0)",
+          "legendFormat": "Pinecone gaps/hr"
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 57
+      },
+      "id": 23,
+      "title": "Pinecone Usage",
+      "type": "row"
+    },
+    {
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "palette-classic"
+          }
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 58
+      },
+      "id": 24,
+      "title": "Pinecone vs Fallback Rate",
+      "type": "timeseries",
+      "targets": [
+        {
+          "datasource": "Prometheus",
+          "expr": "sum(rate(jobboard_pinecone_queries_total{status=\"success\"}[5m])) or vector(0)",
+          "legendFormat": "Pinecone/s"
+        },
+        {
+          "datasource": "Prometheus",
+          "expr": "sum(rate(jobboard_pinecone_fallback_total[5m])) or vector(0)",
+          "legendFormat": "Fallback/s"
+        }
+      ]
+    },
+    {
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "palette-classic"
+          }
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 58
+      },
+      "id": 25,
+      "title": "Fallback Reason Breakdown",
+      "type": "timeseries",
+      "targets": [
+        {
+          "datasource": "Prometheus",
+          "expr": "sum(rate(jobboard_pinecone_fallback_total{reason=\"below_threshold\"}[5m])) or vector(0)",
+          "legendFormat": "Below threshold"
+        },
+        {
+          "datasource": "Prometheus",
+          "expr": "sum(rate(jobboard_pinecone_fallback_total{reason=\"error\"}[5m])) or vector(0)",
+          "legendFormat": "Pinecone error"
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 66
+      },
+      "id": 26,
+      "title": "Model Health",
+      "type": "row"
+    },
+    {
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "short"
+        }
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 0,
+        "y": 67
+      },
+      "id": 27,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "title": "AI Model Loaded",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": "Prometheus",
+          "expr": "aiservice_model_loaded or vector(0)",
+          "legendFormat": "Model"
+        }
+      ]
+    },
+    {
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "palette-classic"
+          }
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 20,
+        "x": 4,
+        "y": 67
+      },
+      "id": 28,
+      "title": "Salary Prediction Requests",
+      "type": "timeseries",
+      "targets": [
+        {
+          "datasource": "Prometheus",
+          "expr": "sum(rate(aiservice_salary_prediction_requests_total{status=\"success\"}[5m])) or vector(0)",
+          "legendFormat": "Success/s"
+        },
+        {
+          "datasource": "Prometheus",
+          "expr": "sum(rate(aiservice_salary_prediction_requests_total{status=\"failed\"}[5m])) or vector(0)",
+          "legendFormat": "Failed/s"
+        }
+      ]
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 38,
+  "tags": [
+    "jobboard",
+    "matching",
+    "pinecone",
+    "ai-service"
+  ],
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Job Board — Matching & Pipeline",
+  "uid": "jobboard-matching-v1",
+  "version": 1
+}

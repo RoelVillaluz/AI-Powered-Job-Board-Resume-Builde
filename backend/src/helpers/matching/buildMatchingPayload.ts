@@ -7,6 +7,12 @@ import { queryJobsForResume, JobQueryFilters } from "../../infrastructure/pineco
 import { fallbackMongoJobQuery }               from "../../infrastructure/pinecone/pineconeFallback.js";
 import { shouldUsePinecone }                   from "../../infrastructure/pinecone/pineconeThreshold.js";
 import { SkillMarketEntry }                    from "../scoring/buildScoringPayload.js";
+import {
+    matchingDurationSeconds,
+    matchingRequestsTotal,
+    pineconeQueriesTotal,
+    pineconeFallbackTotal,
+} from "../../config/metrics.js";
 
 export interface MatchingPayload {
     resume:          Record<string, any>;
@@ -62,8 +68,12 @@ export const buildMatchingPayload = async (
 
     try {
         if (await shouldUsePinecone()) {
+            const end = matchingDurationSeconds.startTimer({ used_pinecone: 'true' });
             jobMatches   = await queryJobsForResume(resumeEmbedding as any, filters, 20);
             usedPinecone = true;
+            end();
+
+            pineconeQueriesTotal.inc({ namespace: 'jobs', status: 'success' })
             logger.info(
                 `[buildMatchingPayload] Pinecone: ${jobMatches.length} candidates for resume: ${resumeId}`
             );
@@ -74,12 +84,18 @@ export const buildMatchingPayload = async (
                 undefined,
                 20,
             );
+            
+            pineconeFallbackTotal.inc({ reason: 'below_threshold' });
             logger.info(
                 `[buildMatchingPayload] Fallback: ${jobMatches.length} candidates for resume: ${resumeId}`
             );
         }
     } catch (err) {
         logger.error(`[buildMatchingPayload] Pinecone failed — using MongoDB fallback`, err);
+
+        pineconeFallbackTotal.inc({ reason: 'error' });
+        pineconeQueriesTotal.inc({ namespace: 'jobs', status: 'failed' });
+
         jobMatches = await fallbackMongoJobQuery(
             resumeSkillNames,
             (resume as any).experienceLevel ?? '',

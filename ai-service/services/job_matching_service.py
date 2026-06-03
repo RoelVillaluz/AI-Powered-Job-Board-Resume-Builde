@@ -14,6 +14,7 @@ Completely separate from ScoringService which scores a resume in isolation.
 import logging
 from typing import Any
 from utils.date_utils import calculate_total_experience
+from metrics.prometheus_metrics import matching_score_tiers_total
 
 logger = logging.getLogger(__name__)
 
@@ -54,6 +55,10 @@ class JobMatchingService:
             for match in job_matches
         ]
         scored.sort(key=lambda x: x["finalScore"], reverse=True)
+
+        for result in scored:
+            matching_score_tiers_total.labels(tier=result['recommendationType']).inc()
+
         return scored
 
     @staticmethod
@@ -328,4 +333,5 @@ class JobMatchingService:
         if score >= 80: return ("Strong", "Best Fit")
         if score >= 60: return ("Medium", "Good Fit")
         if score >= 40: return ("Weak",   "Stretch")
+
         return ("Weak", "Poor Fit")

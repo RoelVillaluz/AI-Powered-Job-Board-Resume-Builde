@@ -20,6 +20,11 @@ from typing import Callable, Optional, Any
 import torch
 
 from metrics.embedding_metrics import PipelineRun, measure_section
+from metrics.prometheus_metrics import (
+    embedding_cache_hits_total,
+    embedding_cache_misses_total,
+    embedding_null_backfills_total
+)
 from infrastructure.embeddings.cache_outcome import CacheOutcome
 from utils.embedding_utils import (
     extract_skills_embeddings,
@@ -60,7 +65,14 @@ class TaskConfig:
 
 def _skills_outcome(result, _extra) -> CacheOutcome:
     emb, backfill_ids, _ = result
-    return CacheOutcome.HIT if emb is not None and not backfill_ids else CacheOutcome.MISS
+
+    if emb is None:
+        return CacheOutcome.MISS
+
+    if backfill_ids:
+        return CacheOutcome.MISS
+
+    return CacheOutcome.HIT
 
 def _single_outcome(result, _extra) -> CacheOutcome:
     emb, backfill_id = result
@@ -69,7 +81,9 @@ def _single_outcome(result, _extra) -> CacheOutcome:
     return CacheOutcome.HIT if emb is not None else CacheOutcome.MISS
 
 def _plain_outcome(result, _extra) -> CacheOutcome:
-    return CacheOutcome.MISS if result is not None else CacheOutcome.SKIPPED
+    if result is None:
+        return CacheOutcome.SKIPPED
+    return CacheOutcome.HIT  # successfully computed = cache hit (or at minimum, not MISS)
 
 
 # ── Registry ──────────────────────────────────────────────────────────────────
@@ -150,7 +164,7 @@ def run_task(section_key: str, doc: dict, run: PipelineRun, **kwargs) -> Any:
     with measure_section(run, section_key) as ctx:
         value = doc.get(cfg.doc_key)
 
-        # Normalise single-field docs (jobTitle, location) to their name string
+        # normalize dict fields
         if isinstance(value, dict):
             value = value.get("name", "")
 
@@ -162,7 +176,24 @@ def run_task(section_key: str, doc: dict, run: PipelineRun, **kwargs) -> Any:
         result = cfg.extract_fn(value, *extra)
 
         outcome_fn = cfg.outcome_fn or _plain_outcome
-        ctx["cache_outcome"] = outcome_fn(result, extra)
+        outcome = outcome_fn(result, extra)
+
+        ctx["cache_outcome"] = outcome
+
+        # ── METRICS EMISSION (FIXED) ─────────────────────────────
+        labels = {
+            "entity": run.entity_type,
+            "section": section_key,
+        }
+
+        if outcome == CacheOutcome.HIT:
+            embedding_cache_hits_total.labels(**labels).inc()
+
+        elif outcome == CacheOutcome.MISS:
+            embedding_cache_misses_total.labels(**labels).inc()
+
+        elif outcome == CacheOutcome.NULL_BACKFILL:
+            embedding_null_backfills_total.labels(**labels).inc()
 
     return result
 

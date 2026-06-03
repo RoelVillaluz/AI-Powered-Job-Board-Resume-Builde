@@ -9,6 +9,7 @@ import logger from "./utils/logger.js";
 import "./infrastructure/jobs/processes/generateEmbeddings.js";   // boots all workers
 import { connectPinecone } from "./config/pinecone.js";
 import { startReconciliationCron, stopReconciliationCron } from "./infrastructure/reconciliation/cron/reconciliationCron.js";
+import { startQueueDepthPoller, stopQueueDepthPoller } from "./infrastructure/monitoring/queueDepthPoller.js";
 
 const server = createServer(app);
 
@@ -18,6 +19,7 @@ await connectPinecone();
 
 // after connectDB() + connectPinecone():
 startReconciliationCron();
+startQueueDepthPoller();
 
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, '0.0.0.0', () => {
@@ -29,6 +31,7 @@ const shutdown = async () => {
 
     // Stop cron first — prevent new runs from starting
     stopReconciliationCron();
+    stopQueueDepthPoller();
 
     // Close HTTP server — stop accepting new requests
     await new Promise(resolve => server.close(resolve));

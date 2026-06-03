@@ -7,6 +7,11 @@ All data is pre-fetched by Node and passed in via ScoringPayload.
 
 from typing import NamedTuple, Optional
 import logging
+import time
+from metrics.prometheus_metrics import (
+    scoring_duration_seconds,
+    scoring_requests_total
+)
 
 # ── Result types ──────────────────────────────────────────────────────────────
 
@@ -352,42 +357,51 @@ class ScoringService:
     ) -> ResumeScore:
         """
         Calculate the full resume score using seniority-aware weights.
-
+ 
         Seniority profiles:
             junior  → skills 40%, market_demand 25%, experience 5%
                       Fresh grads are not penalised for having no work history.
             mid     → skills 35%, experience 20%, market_demand 15%
             senior  → experience 35%, skills 25%, certifications 15%
-
+ 
         Career progression bonus (additive, max +10):
             Skills on the resume that appear in higher-paying title skill sets
             but NOT in currentTitle.topSkills. Weighted by salary delta.
-
+ 
         Args:
             resume:                 Resume dict.
             total_experience_years: Pre-computed by Node or from workExperience.
             scoring_payload:        ScoringPayload dict from Node.
         """
+        start     = time.perf_counter()
         seniority = ScoringService._resolve_seniority(scoring_payload)
         weights   = _WEIGHTS_BY_SENIORITY[seniority]
-
-        completeness   = ScoringService.calculate_completeness_score(resume)
-        experience     = ScoringService.calculate_experience_score(total_experience_years)
-        skills         = ScoringService.calculate_skills_score(resume, scoring_payload)
-        market_demand  = ScoringService.calculate_market_demand_score(scoring_payload)
-        certifications = ScoringService.calculate_certification_score(resume)
-        career_prog    = ScoringService.calculate_career_progression_score(resume, scoring_payload)
-
-        base_score = (
-            completeness   * weights["completeness"]   +
-            experience     * weights["experience"]     +
-            skills         * weights["skills"]         +
-            market_demand  * weights["market_demand"]  +
-            certifications * weights["certifications"]
-        )
-
-        overall = round(min(100.0, base_score + career_prog), 2)
-
+ 
+        try:
+            completeness   = ScoringService.calculate_completeness_score(resume)
+            experience     = ScoringService.calculate_experience_score(total_experience_years)
+            skills         = ScoringService.calculate_skills_score(resume, scoring_payload)
+            market_demand  = ScoringService.calculate_market_demand_score(scoring_payload)
+            certifications = ScoringService.calculate_certification_score(resume)
+            career_prog    = ScoringService.calculate_career_progression_score(resume, scoring_payload)
+ 
+            base_score = (
+                completeness   * weights["completeness"]   +
+                experience     * weights["experience"]     +
+                skills         * weights["skills"]         +
+                market_demand  * weights["market_demand"]  +
+                certifications * weights["certifications"]
+            )
+ 
+            overall = round(min(100.0, base_score + career_prog), 2)
+ 
+            scoring_requests_total.labels(status="success").inc()
+            scoring_duration_seconds.observe(time.perf_counter() - start)
+ 
+        except Exception:
+            scoring_requests_total.labels(status="failed").inc()
+            raise
+ 
         logger.info(
             f"[ScoringService] seniority={seniority} "
             f"completeness={completeness:.1f} experience={experience:.1f} "
@@ -395,7 +409,7 @@ class ScoringService:
             f"certs={certifications:.1f} progression={career_prog:.1f} "
             f"overall={overall:.1f}"
         )
-
+ 
         return ResumeScore(
             completeness_score=       round(completeness,   2),
             experience_score=         round(experience,     2),

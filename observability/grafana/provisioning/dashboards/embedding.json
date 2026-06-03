@@ -1,0 +1,465 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "panels": [
+
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "id": 1,
+      "title": "Pipeline Health",
+      "type": "row"
+    },
+
+    {
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 10 },
+              { "color": "red", "value": 50 }
+            ]
+          },
+          "unit": "short"
+        }
+      },
+      "gridPos": { "h": 4, "w": 4, "x": 0, "y": 1 },
+      "id": 2,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "reduceOptions": { "calcs": ["lastNotNull"] }
+      },
+      "title": "Total Embedding Requests",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": "Prometheus",
+          "expr": "sum(aiservice_embedding_requests_total) or vector(0)",
+          "legendFormat": "Total"
+        }
+      ]
+    },
+
+    {
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "red", "value": 1 }
+            ]
+          },
+          "unit": "short"
+        }
+      },
+      "gridPos": { "h": 4, "w": 4, "x": 4, "y": 1 },
+      "id": 3,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "reduceOptions": { "calcs": ["lastNotNull"] }
+      },
+      "title": "Failed Embedding Requests",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": "Prometheus",
+          "expr": "sum(aiservice_embedding_requests_total{status=\"failed\"}) or vector(0)",
+          "legendFormat": "Failed"
+        }
+      ]
+    },
+
+    {
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 1 },
+              { "color": "red", "value": 5 }
+            ]
+          },
+          "unit": "short"
+        }
+      },
+      "gridPos": { "h": 4, "w": 4, "x": 8, "y": 1 },
+      "id": 4,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "reduceOptions": { "calcs": ["lastNotNull"] }
+      },
+      "title": "Pipeline Runs With Errors",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": "Prometheus",
+          "expr": "sum(aiservice_embedding_errors_total) or vector(0)",
+          "legendFormat": "Errors"
+        }
+      ]
+    },
+
+    {
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "yellow", "value": 0.3 },
+              { "color": "green", "value": 0.6 }
+            ]
+          },
+          "unit": "percentunit"
+        }
+      },
+      "gridPos": { "h": 4, "w": 4, "x": 12, "y": 1 },
+      "id": 5,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "reduceOptions": { "calcs": ["lastNotNull"] }
+      },
+      "title": "Overall Cache Hit Rate",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": "Prometheus",
+          "expr": "sum(aiservice_embedding_cache_hits_total) / (sum(aiservice_embedding_cache_hits_total) + sum(aiservice_embedding_cache_misses_total) + sum(aiservice_embedding_null_backfills_total)) or vector(0)",
+          "legendFormat": "Hit Rate"
+        }
+      ]
+    },
+
+    {
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 1 },
+              { "color": "red", "value": 2 }
+            ]
+          },
+          "unit": "s"
+        }
+      },
+      "gridPos": { "h": 4, "w": 4, "x": 16, "y": 1 },
+      "id": 6,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "reduceOptions": { "calcs": ["lastNotNull"] }
+      },
+      "title": "p95 End-to-End Latency",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": "Prometheus",
+          "expr": "histogram_quantile(0.95, sum(rate(aiservice_embedding_duration_seconds_bucket[5m])) by (le)) or vector(0)",
+          "legendFormat": "p95"
+        }
+      ]
+    },
+
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 5 },
+      "id": 7,
+      "title": "Throughput — Resume vs Job",
+      "type": "row"
+    },
+
+    {
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": { "mode": "palette-classic" }
+        }
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 6 },
+      "id": 8,
+      "title": "Embedding Request Rate by Entity",
+      "type": "timeseries",
+      "targets": [
+        {
+          "datasource": "Prometheus",
+          "expr": "sum(rate(aiservice_embedding_requests_total{entity=\"resume\",status=\"success\"}[5m])) or vector(0)",
+          "legendFormat": "Resume/s"
+        },
+        {
+          "datasource": "Prometheus",
+          "expr": "sum(rate(aiservice_embedding_requests_total{entity=\"job\",status=\"success\"}[5m])) or vector(0)",
+          "legendFormat": "Job/s"
+        },
+        {
+          "datasource": "Prometheus",
+          "expr": "sum(rate(aiservice_embedding_requests_total{status=\"failed\"}[5m])) or vector(0)",
+          "legendFormat": "Failed/s"
+        }
+      ]
+    },
+
+    {
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "color": { "mode": "palette-classic" }
+        }
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 6 },
+      "id": 9,
+      "title": "End-to-End Latency Percentiles by Entity",
+      "type": "timeseries",
+      "targets": [
+        {
+          "datasource": "Prometheus",
+          "expr": "histogram_quantile(0.50, sum(rate(aiservice_embedding_duration_seconds_bucket{entity=\"resume\"}[5m])) by (le))",
+          "legendFormat": "Resume p50"
+        },
+        {
+          "datasource": "Prometheus",
+          "expr": "histogram_quantile(0.95, sum(rate(aiservice_embedding_duration_seconds_bucket{entity=\"resume\"}[5m])) by (le))",
+          "legendFormat": "Resume p95"
+        },
+        {
+          "datasource": "Prometheus",
+          "expr": "histogram_quantile(0.50, sum(rate(aiservice_embedding_duration_seconds_bucket{entity=\"job\"}[5m])) by (le))",
+          "legendFormat": "Job p50"
+        },
+        {
+          "datasource": "Prometheus",
+          "expr": "histogram_quantile(0.95, sum(rate(aiservice_embedding_duration_seconds_bucket{entity=\"job\"}[5m])) by (le))",
+          "legendFormat": "Job p95"
+        }
+      ]
+    },
+
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 14 },
+      "id": 10,
+      "title": "Section Breakdown",
+      "type": "row"
+    },
+
+    {
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "color": { "mode": "palette-classic" }
+        }
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 15 },
+      "id": 11,
+      "title": "Resume — p95 Latency per Section",
+      "type": "timeseries",
+      "targets": [
+        {
+          "datasource": "Prometheus",
+          "expr": "histogram_quantile(0.95, sum(rate(aiservice_embedding_section_duration_seconds_bucket{entity=\"resume\"}[5m])) by (le, section))",
+          "legendFormat": "{{section}}"
+        }
+      ]
+    },
+
+    {
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "color": { "mode": "palette-classic" }
+        }
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 15 },
+      "id": 12,
+      "title": "Job — p95 Latency per Section",
+      "type": "timeseries",
+      "targets": [
+        {
+          "datasource": "Prometheus",
+          "expr": "histogram_quantile(0.95, sum(rate(aiservice_embedding_section_duration_seconds_bucket{entity=\"job\"}[5m])) by (le, section))",
+          "legendFormat": "{{section}}"
+        }
+      ]
+    },
+
+    {
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": { "mode": "palette-classic" }
+        }
+      },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 23 },
+      "id": 13,
+      "title": "Section Request Rate (all entities)",
+      "type": "timeseries",
+      "targets": [
+        {
+          "datasource": "Prometheus",
+          "expr": "sum(rate(aiservice_embedding_section_duration_seconds_count[5m])) by (entity, section)",
+          "legendFormat": "{{entity}}/{{section}}"
+        }
+      ]
+    },
+
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 31 },
+      "id": 14,
+      "title": "Cache Efficiency",
+      "type": "row"
+    },
+
+    {
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": { "mode": "palette-classic" }
+        }
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 32 },
+      "id": 15,
+      "title": "Cache Hits vs Misses vs Null Backfills — Resume",
+      "type": "timeseries",
+      "targets": [
+        {
+          "datasource": "Prometheus",
+          "expr": "sum(rate(aiservice_embedding_cache_hits_total{entity=\"resume\"}[5m])) by (section)",
+          "legendFormat": "hit/{{section}}"
+        },
+        {
+          "datasource": "Prometheus",
+          "expr": "sum(rate(aiservice_embedding_cache_misses_total{entity=\"resume\"}[5m])) by (section)",
+          "legendFormat": "miss/{{section}}"
+        },
+        {
+          "datasource": "Prometheus",
+          "expr": "sum(rate(aiservice_embedding_null_backfills_total{entity=\"resume\"}[5m])) by (section)",
+          "legendFormat": "backfill/{{section}}"
+        }
+      ]
+    },
+
+    {
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": { "mode": "palette-classic" }
+        }
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 32 },
+      "id": 16,
+      "title": "Cache Hits vs Misses vs Null Backfills — Job",
+      "type": "timeseries",
+      "targets": [
+        {
+          "datasource": "Prometheus",
+          "expr": "sum(rate(aiservice_embedding_cache_hits_total{entity=\"job\"}[5m])) by (section)",
+          "legendFormat": "hit/{{section}}"
+        },
+        {
+          "datasource": "Prometheus",
+          "expr": "sum(rate(aiservice_embedding_cache_misses_total{entity=\"job\"}[5m])) by (section)",
+          "legendFormat": "miss/{{section}}"
+        },
+        {
+          "datasource": "Prometheus",
+          "expr": "sum(rate(aiservice_embedding_null_backfills_total{entity=\"job\"}[5m])) by (section)",
+          "legendFormat": "backfill/{{section}}"
+        }
+      ]
+    },
+
+    {
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "color": { "mode": "palette-classic" },
+          "min": 0,
+          "max": 1
+        }
+      },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 40 },
+      "id": 17,
+      "title": "Cache Hit Rate per Section (Resume + Job)",
+      "type": "timeseries",
+      "targets": [
+        {
+          "datasource": "Prometheus",
+          "expr": "sum(rate(aiservice_embedding_cache_hits_total[5m])) by (entity, section) / (sum(rate(aiservice_embedding_cache_hits_total[5m])) by (entity, section) + sum(rate(aiservice_embedding_cache_misses_total[5m])) by (entity, section) + sum(rate(aiservice_embedding_null_backfills_total[5m])) by (entity, section))",
+          "legendFormat": "{{entity}}/{{section}}"
+        }
+      ]
+    },
+
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 48 },
+      "id": 18,
+      "title": "Null Backfill Analysis",
+      "type": "row"
+    },
+
+    {
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": { "mode": "palette-classic" }
+        }
+      },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 49 },
+      "id": 19,
+      "title": "Null Backfill Rate by Section",
+      "type": "timeseries",
+      "targets": [
+        {
+          "datasource": "Prometheus",
+          "expr": "sum(rate(aiservice_embedding_null_backfills_total[5m])) by (entity, section)",
+          "legendFormat": "{{entity}}/{{section}}"
+        }
+      ]
+    }
+
+  ],
+  "refresh": "30s",
+  "schemaVersion": 38,
+  "tags": ["jobboard", "embedding", "ai-service", "pipeline"],
+  "time": { "from": "now-1h", "to": "now" },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Job Board — Embedding Pipeline",
+  "uid": "jobboard-embedding-v1",
+  "version": 1
+}

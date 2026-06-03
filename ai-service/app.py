@@ -11,6 +11,7 @@ from routers.matching import router as matching_router
 from routers.metrics import router as metrics_router
 from metrics import model_loaded
 from dotenv import load_dotenv
+from metrics.prometheus_metrics import model_loaded as model_loaded_prometheus_metric
 
 load_dotenv('.env.dev')  # load before anything else imports config
 
@@ -41,16 +42,19 @@ logger = logging.getLogger(__name__)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info('[FASTAPI] Starting up - loading embedding model')
+    try:
+        from models.embeddings import embedding_model
+        logger.info('[FASTAPI] Model loaded and warm - ready to serve')
+        model_loaded_prometheus_metric.set(1)
+    except Exception:
+        logger.exception('[FASTAPI] Model failed to load')
+        model_loaded_prometheus_metric.set(0)
+        raise
 
-    # Importing the module triggers EmbeddingModel() at module level.
-    # Since EmbeddingModel is a singleton, this is the one and only load.
-    # Every subsequent request uses the already-loaded model from memory.
-    from models.embeddings import embedding_model
-    logger.info('[FASTAPI] Model loaded and warm - ready to serve')
-
-    yield  # ← server is live and serving requests from here
+    yield
 
     logger.info("[FASTAPI] Shutting down")
+    model_loaded_prometheus_metric.set(0)  # accurate on graceful shutdown too
 
 # ── App instance ───────────────────────────────────────────────────────────────
 # FastAPI() is like express() in Node.
@@ -60,9 +64,6 @@ app = FastAPI(
     version="2.0.0",
     lifespan=lifespan,
 )
-
-# after model loads:
-model_loaded.set(1)
 
 app.include_router(embeddings_router)
 app.include_router(scoring_router)

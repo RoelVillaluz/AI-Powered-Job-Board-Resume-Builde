@@ -77,16 +77,24 @@ export const useResumeJobSimilarityQuery = (resumeId, jobId) => {
   })
 }
 
-export const useResumeSalaryPredictionQuery = (resumeId, token) => {
+export const useResumeSalaryPredictionQuery = (
+  resumeId,
+  token,
+  options = {}
+) => {
   return useQuery({
     queryKey: ['resumeSalaryPrediction', resumeId],
     queryFn: () => fetchResumeSalaryPrediction(resumeId, token),
+
     enabled: !!resumeId && !!token,
+
     staleTime: 1000 * 60 * 5,
-    retry: false, // 👈 important (we handle fallback ourselves)
-    refetchOnWindowFocus: false // avoids unnecessary refetches
-  })
-}
+    retry: false,
+    refetchOnWindowFocus: false,
+
+    ...options
+  });
+};
 
 export const useResumeJobMatchQuery = (resumeId, token) => {
   return useQuery({

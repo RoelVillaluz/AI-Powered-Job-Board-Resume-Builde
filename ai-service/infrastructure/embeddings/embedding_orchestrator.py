@@ -3,12 +3,13 @@ Embedding pipeline orchestrator.
 
 Responsibility: single entry point for all embedding extraction.
 Looks up the registered (build, unpack) pair for the entity type,
-executes via run_pipeline, and returns the typed result.
+executes via run_pipeline, emits metrics, and returns the typed result.
 
 WHAT THIS MODULE DOES:
     - Imports pipelines/ to trigger self-registration
     - Looks up the correct pipeline from the registry
     - Wires build → run_pipeline → unpack
+    - Emits PipelineRun metrics after each execution
 
 WHAT THIS MODULE DOES NOT DO:
     - No task definitions  (task_registry.py)
@@ -18,11 +19,13 @@ WHAT THIS MODULE DOES NOT DO:
 """
 
 import logging
+import time
 from typing import Optional
 
 from metrics.embedding_metrics import PipelineRun
 from infrastructure.jobs.parallelization.parallel_utils import run_pipeline
 from infrastructure.embeddings.pipelines import pipeline_registry
+from observability.emitters.embedding_emitters import emit_pipeline_run
 import infrastructure.embeddings.pipelines  # noqa: F401 — triggers registration
 
 logger = logging.getLogger(__name__)
@@ -37,10 +40,9 @@ def extract_embeddings_parallel(
     Extract embeddings for any registered entity type.
 
     Args:
-        entity_type: "resume" | "job" | any registered type.
+        entity_type: "resume" | "job_posting" | any registered type.
         entity_id:   String ID for metrics tagging.
         **kwargs:    Forwarded to the entity's build_fn.
-                     See the relevant pipeline module for expected keys.
 
     Resume kwargs:
         resume:                     dict
@@ -62,11 +64,20 @@ def extract_embeddings_parallel(
         KeyError: if entity_type has no registered pipeline.
     """
     normalized_entity = pipeline_registry.normalize_entity_type(entity_type)
-    
     build_fn, unpack_fn = pipeline_registry.get(entity_type)
     run = PipelineRun(entity_type=normalized_entity, entity_id=entity_id)
+    start = time.perf_counter()
 
-    tasks = build_fn(**kwargs, run=run)
-    raw   = run_pipeline(tasks, entity_type=normalized_entity, entity_id=entity_id)
+    try:
+        tasks  = build_fn(**kwargs, run=run)
+        raw    = run_pipeline(tasks, entity_type=normalized_entity, entity_id=entity_id)
+        result = unpack_fn(raw)
 
-    return unpack_fn(raw)
+        run.finish((time.perf_counter() - start) * 1000)
+        emit_pipeline_run(run, entity=normalized_entity, status="success")
+        return result
+
+    except Exception:
+        run.finish((time.perf_counter() - start) * 1000)
+        emit_pipeline_run(run, entity=normalized_entity, status="failed")
+        raise

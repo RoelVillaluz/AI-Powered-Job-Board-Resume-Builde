@@ -15,7 +15,7 @@ import logger from '../../utils/logger.js';
  *
  * Tune this value based on your actual job posting volume.
  */
-const PINECONE_JOB_THRESHOLD = 500;
+const PINECONE_JOB_THRESHOLD = process.env.NODE_ENV === 'production' ? 500 : 0;
 
 
 /**

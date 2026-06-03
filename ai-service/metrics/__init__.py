@@ -1,14 +1,19 @@
-from .embedding_metrics import PipelineRun      # existing — leave untouched
-from .prometheus_metrics import (               # new exports
-    registry,
+from .embedding_metrics import PipelineRun
+from .prometheus_metrics import (
     model_loaded,
     embedding_requests_total,
     embedding_duration_seconds,
+    embedding_section_duration_seconds,
+    embedding_cache_hits_total,
+    embedding_cache_misses_total,
+    embedding_null_backfills_total,
+    embedding_errors_total,
     scoring_requests_total,
     scoring_duration_seconds,
     matching_requests_total,
     matching_duration_seconds,
     matching_candidates_scored,
+    matching_score_tiers_total,
     salary_prediction_requests_total,
     handler_requests_total,
     handler_duration_seconds,

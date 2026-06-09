@@ -4,12 +4,25 @@ import mongoSanitize from 'express-mongo-sanitize';
 import xss from 'xss-clean';
 import cors from 'cors';
 
+const K6_BYPASS_TOKEN = process.env.K6_BYPASS_TOKEN;
+
+const skipForK6 = (req) => {
+    if (!K6_BYPASS_TOKEN) {
+        console.log('[RateLimit] K6_BYPASS_TOKEN not set in env');
+        return false;
+    }
+    const bypass = req.headers['x-k6-bypass'] === K6_BYPASS_TOKEN;
+    if (bypass) console.log('[RateLimit] K6 bypass activated');
+    return bypass;
+};
+
 export const apiLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
     max: 100, // limit each IP to 100 requests per windowMs
     message: 'Too many requests from this IP, try again later.',
     standardHeaders: true,
     legacyHeaders: false,
+    skip: skipForK6,
 })
 
 // Stricter rate limit for specific endpoints
@@ -22,7 +35,8 @@ export const createMessageLimiter = rateLimit({
 export const embeddingLimiter = rateLimit({
     windowMs: 1 * 60 * 1000,
     max: process.env.NODE_ENV !== 'production' ? 15 : 3,
-    message: 'Too many requests, please slow down'
+    message: 'Too many requests, please slow down',
+    skip: skipForK6
 })
 
 // CORS configuration

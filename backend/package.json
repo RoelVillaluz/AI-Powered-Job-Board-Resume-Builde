@@ -5,7 +5,9 @@
   "scripts": {
     "dev": "tsx src/server.js",
     "start": "tsx src/server.js",
-    "test": "cross-env NODE_ENV=test node --experimental-vm-modules node_modules/jest/bin/jest.js"
+    "test": "cross-env NODE_ENV=test node --experimental-vm-modules node_modules/jest/bin/jest.js",
+    "k6:seed":  "node k6/seed.js",
+    "k6:run":   "cd k6 && run.bat"
   },
   "dependencies": {
     "@opentelemetry/auto-instrumentations-node": "^0.76.0",
@@ -49,6 +51,7 @@
   "devDependencies": {
     "@babel/preset-env": "^7.29.2",
     "@types/express": "^5.0.6",
+    "@types/k6": "^2.0.0",
     "@types/node-cron": "^3.0.11",
     "cross-env": "^10.1.0",
     "jest": "^30.3.0",

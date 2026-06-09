@@ -36,7 +36,6 @@ const shutdown = async () => {
     // Close HTTP server — stop accepting new requests
     await new Promise(resolve => server.close(resolve));
     logger.info('✅ HTTP server closed');
-
     // Shut down BullMQ workers — let in-flight jobs complete
     await shutdownWorkersV2();
 

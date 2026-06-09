@@ -16,4 +16,5 @@ backend/src/observability/prometheus/prometheus.exe
 backend/src/observability/prometheus/data/
 backend/src/observability/prometheus/tsdb/
 start-prometheus.bat
+run.bat
 data/

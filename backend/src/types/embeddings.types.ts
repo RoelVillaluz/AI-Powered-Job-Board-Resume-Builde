@@ -61,3 +61,9 @@ export type JobTitleEmbeddingUpdate = MarketEmbeddingUpdate & {
 export type IndustryEmbeddingUpdate = MarketEmbeddingUpdate & {
     lastAnalyzed: Date;
 }
+
+export interface MarketDoc {
+    _id:       Types.ObjectId;
+    name:      string;
+    embedding: number[] | null;
+}

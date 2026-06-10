@@ -37,8 +37,9 @@ def score_resume(resume_body: dict, scoring_payload: dict) -> dict:
             scoring_payload=scoring_payload,
         )
         market_skill_names = [
-            s["skillName"]
-            for s in scoring_payload.get("currentTitle", {}).get("topSkills", [])
+            s.get("name") or s.get("skillName")
+            for s in scoring_payload.get("skillMarketData", [])
+            if s.get("name") or s.get("skillName")
         ]
         insights = AnalyticsService.analyze_resume(
             resume=resume_body,

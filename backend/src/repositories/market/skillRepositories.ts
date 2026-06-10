@@ -4,6 +4,7 @@ import type { SkillDocument } from "../../models/market/skillModel.js";
 import { MarketEmbeddingUpdate } from "../../types/embeddings.types.js";
 import { SkillInterface, CreateSkillPayload, UpdateSkillPayload } from "../../types/skill.types.js";
 import { Types } from "mongoose";
+import { MarketDoc } from "../../types/embeddings.types.js";
 
 /**
  * Fetch a single skill by ObjectId with all market fields.
@@ -86,6 +87,28 @@ export const getSkillsByNameRepository = (
 export const getSkillsByBulkNameRepository = (names: string[]) => {
     return Skill.find({ name: { $in: names } })
         .select('_id name demandScore growthRate seniorityMultiplier salaryData')
+}
+
+export const getSkillEmbeddingsByBulkNameRepository = async (names: string[]) => {
+    const docs = await Skill.find(
+        { name: { $in: names } },
+        { _id: 1, name: 1, embedding: 1 }
+    ).lean();
+
+    const marketMap = new Map(
+        docs.map(d => [
+            (d.name as string).toLowerCase(),
+            { _id: d._id as Types.ObjectId, embedding: (d as any).embedding ?? null },
+        ])
+    );
+
+    return names
+        .map(name => {
+            const market = marketMap.get(name.toLowerCase());
+            if (!market) return null;
+            return { _id: market._id, name, embedding: market.embedding };
+        })
+        .filter((d): d is MarketDoc => d !== null);
 }
 
 /**

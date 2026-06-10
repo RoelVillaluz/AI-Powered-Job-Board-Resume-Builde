@@ -111,6 +111,20 @@ export const getJobTitleEmbeddingsByIdRepository = (id: Types.ObjectId) => {
         .select('_id title normalizedTitle embedding embeddingGeneratedAt')
 }
 
+export const getJobTitleEmbeddingsByBulkIdRepository = async (ids: Types.ObjectId[]) => {
+    return await JobTitle.find(
+        { _id: { $in: ids } },
+        { _id: 1, title: 1, embedding: 1 }
+    ).lean();
+}
+
+export const getJobTitleEmbeddingsByBulkNameRepository = async (names: string[]) => {
+    return await JobTitle.find(
+        { title: { $in: names } },
+        { _id: 1, title: 1, embedding: 1 }
+    ).lean();
+}
+
 export const prepareJobTitleEmbeddingComputationRepository = async (
     id: string | Types.ObjectId
 ) => {

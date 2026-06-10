@@ -117,25 +117,16 @@ class ScoringService:
         Returns:
             "junior" | "mid" | "senior"
         """
-        level = (
-            scoring_payload
-            .get("currentTitle", {})
-            .get("seniorityLevel", "")
-            .lower()
-        )
+        current_title = scoring_payload.get("currentTitle") or {}  # handles None explicitly
+        
+        level = current_title.get("seniorityLevel", "").lower()
 
         if any(kw in level for kw in _JUNIOR_KEYWORDS):
             return "junior"
         if any(kw in level for kw in _SENIOR_KEYWORDS):
             return "senior"
 
-        # Fallback: keyword-match on the title string itself
-        title = (
-            scoring_payload
-            .get("currentTitle", {})
-            .get("title", "")
-            .lower()
-        )
+        title = current_title.get("title", "").lower()
         if any(kw in title for kw in _SENIOR_KEYWORDS):
             return "senior"
         if any(kw in title for kw in _JUNIOR_KEYWORDS):
@@ -147,7 +138,7 @@ class ScoringService:
     def _resolve_weights(scoring_payload: dict) -> dict:
         """Return the weight profile for this resume's seniority level."""
         return _WEIGHTS_BY_SENIORITY[ScoringService._resolve_seniority(scoring_payload)]
-
+    
     # ── Completeness ──────────────────────────────────────────────────────
 
     @staticmethod
@@ -213,9 +204,8 @@ class ScoringService:
 
         top_skills: list = (
             scoring_payload
-            .get("currentTitle", {})
-            .get("topSkills", [])
-        )
+            .get("currentTitle") or {}  # ← add `or {}`
+        ).get("topSkills", [])
 
         if not top_skills:
             return min(100.0, (len(resume_skill_names) / 5) * 100)
@@ -280,8 +270,9 @@ class ScoringService:
             for s in resume.get("skills", [])
         }
 
-        current_title_data = scoring_payload.get("currentTitle", {})
-        higher_paying      = scoring_payload.get("higherPayingTitles", [])
+        current_title_data = scoring_payload.get("currentTitle") or {}
+
+        higher_paying      = scoring_payload.get("higherPayingTitles", []) or []
         current_salary     = current_title_data.get("medianSalary", 0)
 
         baseline_skills = {

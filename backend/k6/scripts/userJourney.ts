@@ -1,34 +1,38 @@
-import http from 'k6/http';
-import { sleep } from 'k6';
+import http         from 'k6/http';
+import { sleep }    from 'k6';
 import { authHeaders } from '../helpers/auth.ts';
 import { SetupData }   from '../helpers/types.ts';
 import {
-    // POST rates + error counters
-    embeddingPostRate,  embeddingErrors,
-    scoringPostRate,    scoringErrors,
-    matchingPostRate,   matchingErrors,
-    salaryPostRate,     salaryErrors,
-    // Poll outcome rates
-    embeddingPollRate,  scoringPollRate,
-    matchingPollRate,   salaryPollRate,
-    // Poll miss counters (expected 404s)
+    embeddingPostRate,   embeddingErrors,
+    scoringPostRate,     scoringErrors,
+    matchingPostRate,    matchingErrors,
+    salaryPostRate,      salaryErrors,
+    embeddingPollRate,   scoringPollRate,
+    matchingPollRate,    salaryPollRate,
     embeddingPollMisses, scoringPollMisses,
     matchingPollMisses,  salaryPollMisses,
-    // Timeout counters
-    embeddingTimeouts,  scoringTimeouts,
-    matchingTimeouts,   salaryTimeouts,
-    // Helpers
+    embeddingTimeouts,   scoringTimeouts,
+    matchingTimeouts,    salaryTimeouts,
+    embeddingWorkerDuration,
+    scoringWorkerDuration,
+    matchingWorkerDuration,
+    salaryWorkerDuration,
     checkQueued,
     checkPollResponse,
     recordPollOutcome,
 } from '../helpers/checks.ts';
 
-const BASE_URL  = __ENV.BASE_URL  || 'http://localhost:5000';
-const RESUME_ID = __ENV.RESUME_ID;
+const BASE_URL   = __ENV.BASE_URL || 'http://localhost:5000';
+const RESUME_IDS = (__ENV.RESUME_IDS || '').split(',').filter(Boolean);
 
 export function userJourneyScenario(data: SetupData): void {
-    const base    = `${BASE_URL}/api/resumes/${RESUME_ID}`;
-    const headers = authHeaders(data.token);
+    // Each VU picks its own resume + token — no shared cache warming
+    const idx      = (__VU - 1) % data.resumeIds.length;
+    const resumeId = data.resumeIds[idx];
+    const token    = data.tokens[idx];
+
+    const base    = `${BASE_URL}/api/resumes/${resumeId}`;
+    const headers = authHeaders(token);
 
     const embeddingHeaders = { ...headers, tags: { step: 'embedding' } };
     const scoringHeaders   = { ...headers, tags: { step: 'scoring'   } };
@@ -36,10 +40,11 @@ export function userJourneyScenario(data: SetupData): void {
     const salaryHeaders    = { ...headers, tags: { step: 'salary'    } };
 
     // ── Step 1: Trigger embedding ─────────────────────────────────────────────
-    const embedPost = http.post(`${base}/embeddings`, null, embeddingHeaders);
+    const embedStart = Date.now();
+    const embedPost  = http.post(`${base}/embeddings`, null, embeddingHeaders);
 
     if (embedPost.status === 0) {
-        console.error(`[FATAL] Cannot reach server — aborting iteration`);
+        console.error('[FATAL] Cannot reach server');
         sleep(10);
         return;
     }
@@ -62,16 +67,14 @@ export function userJourneyScenario(data: SetupData): void {
         }
     }
 
-    recordPollOutcome(embeddingReady, 'embedding', embeddingPollRate, embeddingTimeouts);
-    if (!embeddingReady) {
-        sleep(5);
-        return;
-    }
+    recordPollOutcome(embeddingReady, 'embedding', embeddingPollRate, embeddingTimeouts, embeddingWorkerDuration, embedStart);
+    if (!embeddingReady) { sleep(5); return; }
 
-    sleep(1);
+    sleep(1 + Math.random() * 2); // think time variation
 
     // ── Step 2: Trigger scoring ───────────────────────────────────────────────
-    const scorePost = http.post(`${base}/score`, null, scoringHeaders);
+    const scoreStart = Date.now();
+    const scorePost  = http.post(`${base}/score`, null, scoringHeaders);
     checkQueued(scorePost, 'score POST', scoringPostRate, scoringErrors);
 
     if (scorePost.status !== 202) {
@@ -90,15 +93,15 @@ export function userJourneyScenario(data: SetupData): void {
         }
     }
 
-    recordPollOutcome(scoreReady, 'score', scoringPollRate, scoringTimeouts);
-    if (!scoreReady) {
-        sleep(5);
-        return;
-    }
+    recordPollOutcome(scoreReady, 'score', scoringPollRate, scoringTimeouts, scoringWorkerDuration, scoreStart);
+    if (!scoreReady) { sleep(5); return; }
 
-    sleep(1);
+    sleep(1 + Math.random() * 2);
 
     // ── Step 3: Trigger matching + salary in parallel ─────────────────────────
+    const matchStart  = Date.now();
+    const salaryStart = Date.now();
+
     const [matchPost, salaryPost] = http.batch([
         ['POST', `${base}/job-matches`,       null, matchingHeaders],
         ['POST', `${base}/salary-prediction`, null, salaryHeaders  ],
@@ -114,6 +117,8 @@ export function userJourneyScenario(data: SetupData): void {
 
     let matchDone  = matchPost.status  !== 202;
     let salaryDone = salaryPost.status !== 202;
+    let matchReady  = false;
+    let salaryReady = false;
 
     for (let i = 0; i < 15; i++) {
         if (matchDone && salaryDone) break;
@@ -127,16 +132,18 @@ export function userJourneyScenario(data: SetupData): void {
         let ri = 0;
 
         if (!matchDone) {
-            matchDone = checkPollResponse(results[ri], 'matching GET', matchingPollMisses, matchingErrors);
+            const ready = checkPollResponse(results[ri], 'matching GET', matchingPollMisses, matchingErrors);
+            if (ready) { matchDone = true; matchReady = true; }
             ri++;
         }
         if (!salaryDone) {
-            salaryDone = checkPollResponse(results[ri], 'salary GET', salaryPollMisses, salaryErrors);
+            const ready = checkPollResponse(results[ri], 'salary GET', salaryPollMisses, salaryErrors);
+            if (ready) { salaryDone = true; salaryReady = true; }
         }
     }
 
-    if (matchPost.status  === 202) recordPollOutcome(matchDone,  'matching', matchingPollRate, matchingTimeouts);
-    if (salaryPost.status === 202) recordPollOutcome(salaryDone, 'salary',   salaryPollRate,   salaryTimeouts);
+    if (matchPost.status  === 202) recordPollOutcome(matchReady,  'matching', matchingPollRate, matchingTimeouts, matchingWorkerDuration,  matchStart);
+    if (salaryPost.status === 202) recordPollOutcome(salaryReady, 'salary',   salaryPollRate,   salaryTimeouts,   salaryWorkerDuration,    salaryStart);
 
-    sleep(2);
+    sleep(2 + Math.random() * 3);
 }

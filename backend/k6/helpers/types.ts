@@ -1,3 +1,4 @@
 export interface SetupData {
-    token: string;
+    resumeIds: string[];
+    tokens:    string[];
 }

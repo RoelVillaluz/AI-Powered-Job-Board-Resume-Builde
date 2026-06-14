@@ -55,6 +55,7 @@ export const executeComputePipelineV2 = async ({
         }
 
         // ── AI call ───────────────────────────────────────────────────────────
+        const startTime = Date.now(); // ← capture before AI call
         await progress(30, 'Calling AI service');
         const aiOutput = await aiClient(config.aiEndpoint, raw);
         await progress(70, 'Building payload');
@@ -77,7 +78,7 @@ export const executeComputePipelineV2 = async ({
         // ── afterSave hook ────────────────────────────────────────────────────
         const userId = (job as any)?.data?.userId ?? null;
         if (config.afterSave) {
-            await config.afterSave(saved, emitSocket, { userId });
+            await config.afterSave(saved, emitSocket, { userId, startTime });
         }
 
         await progress(100, 'Complete');

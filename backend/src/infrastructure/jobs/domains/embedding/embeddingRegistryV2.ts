@@ -25,6 +25,7 @@ import { prepareLocationEmbeddingComputationRepository } from "../../../../repos
 import { prepareIndustryEmbeddingComputationRepository } from "../../../../repositories/market/industryRepositories.js";
 import { mapJobPostingEmbeddingResult } from "../../../../mappers/embeddings/mapJobPostingEmbeddingResult.js";
 import { embeddingJobsTotal } from '../../../../config/metrics.js';
+import { workerProcessingDurationSeconds } from "../../../../config/metrics.js";
 
 const isProd = process.env.NODE_ENV === "production";
 
@@ -65,6 +66,12 @@ export const embeddingRegistryV2: Record<string, ComputeConfigV2<any, any>> = {
         }),
         afterSave: async (saved, emitSocket, ctx) => {
             logger.info(`[REGISTRY V2] Resume afterSave: ${saved.resume}`);
+            
+            // ── Prometheus ────────────────────────────────────────────────────────
+            const durationSeconds = (Date.now() - ctx.startTime) / 1000;
+            workerProcessingDurationSeconds.observe({ step: 'embedding' }, durationSeconds);
+            embeddingJobsTotal.inc({ entity: 'resume', status: 'success' }); // ← keep only this one
+
 
             await Promise.allSettled([
                 // Offload resume scoring to queue and assign worker
@@ -95,9 +102,6 @@ export const embeddingRegistryV2: Record<string, ComputeConfigV2<any, any>> = {
                     await enqueueMatchingService(saved.resume.toString(), ctx.userId ?? '');
                 })(),
             ]);
-
-            // ── Prometheus ────────────────────────────────────────────────────────
-            embeddingJobsTotal.inc({ entity: 'resume', status: 'success' })
         },
     } as ComputeConfigV2<ResumeEmbeddingsDocument, { resumeId: string; userId: string }>,
 
@@ -142,6 +146,12 @@ export const embeddingRegistryV2: Record<string, ComputeConfigV2<any, any>> = {
         }),
 
         afterSave: async (saved, emitSocket, ctx) => {
+
+            // ── Prometheus ────────────────────────────────────────────────────────
+            const durationSeconds = (Date.now() - ctx.startTime) / 1000;
+            workerProcessingDurationSeconds.observe({ step: 'embedding' }, durationSeconds);
+            embeddingJobsTotal.inc({ entity: 'job', status: 'success' });
+
             logger.info(`[REGISTRY V2] JobPosting afterSave: ${saved.jobPosting}`);
 
             const { handleJobVectorUpsert } = await import(
@@ -149,8 +159,6 @@ export const embeddingRegistryV2: Record<string, ComputeConfigV2<any, any>> = {
             );
             await handleJobVectorUpsert(saved);
 
-            // ── Prometheus ────────────────────────────────────────────────────────
-            embeddingJobsTotal.inc({ entity: 'job', status: 'success' });
 
         },
     } as ComputeConfigV2<JobPostingEmbeddingsDocument, { jobPostingId: string }>,

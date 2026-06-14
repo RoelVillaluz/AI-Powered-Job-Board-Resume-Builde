@@ -144,7 +144,7 @@
       "targets": [
         {
           "datasource": "Prometheus",
-          "expr": "sum(aiservice_embedding_cache_hits_total) / (sum(aiservice_embedding_cache_hits_total) + sum(aiservice_embedding_cache_misses_total) + sum(aiservice_embedding_null_backfills_total)) or vector(0)",
+          "expr": "sum(aiservice_embedding_cache_hits_total) / clamp_min(sum(aiservice_embedding_cache_hits_total) + sum(aiservice_embedding_cache_misses_total) + sum(aiservice_embedding_null_backfills_total), 1)",
           "legendFormat": "Hit Rate"
         }
       ]
@@ -450,8 +450,198 @@
           "legendFormat": "{{entity}}/{{section}}"
         }
       ]
-    }
+    },
 
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 57 },
+      "id": 20,
+      "title": "Worker Processing Time",
+      "type": "row"
+    },
+
+    {
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "color": { "mode": "palette-classic" }
+        }
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 58 },
+      "id": 21,
+      "title": "Worker Processing Duration — p50 and p95 by Step",
+      "type": "timeseries",
+      "targets": [
+        {
+          "datasource": "Prometheus",
+          "expr": "histogram_quantile(0.50, sum(rate(jobboard_worker_processing_duration_seconds_bucket[5m])) by (le, step))",
+          "legendFormat": "p50 — {{step}}"
+        },
+        {
+          "datasource": "Prometheus",
+          "expr": "histogram_quantile(0.95, sum(rate(jobboard_worker_processing_duration_seconds_bucket[5m])) by (le, step))",
+          "legendFormat": "p95 — {{step}}"
+        }
+      ]
+    },
+
+    {
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "color": { "mode": "palette-classic" }
+        }
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 58 },
+      "id": 22,
+      "title": "Worker Processing Duration — Avg by Step",
+      "type": "timeseries",
+      "targets": [
+        {
+          "datasource": "Prometheus",
+          "expr": "sum(rate(jobboard_worker_processing_duration_seconds_sum[5m])) by (step) / sum(rate(jobboard_worker_processing_duration_seconds_count[5m])) by (step)",
+          "legendFormat": "avg — {{step}}"
+        }
+      ]
+    },
+
+    {
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green",  "value": null },
+              { "color": "yellow", "value": 10   },
+              { "color": "red",    "value": 20   }
+            ]
+          },
+          "unit": "s"
+        }
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 66 },
+      "id": 23,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "reduceOptions": { "calcs": ["lastNotNull"] }
+      },
+      "title": "Embedding Worker p95",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": "Prometheus",
+          "expr": "histogram_quantile(0.95, sum(rate(jobboard_worker_processing_duration_seconds_bucket{step=\"embedding\"}[5m])) by (le)) or vector(0)",
+          "legendFormat": "p95"
+        }
+      ]
+    },
+
+    {
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green",  "value": null },
+              { "color": "yellow", "value": 5    },
+              { "color": "red",    "value": 10   }
+            ]
+          },
+          "unit": "s"
+        }
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 66 },
+      "id": 24,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "reduceOptions": { "calcs": ["lastNotNull"] }
+      },
+      "title": "Scoring Worker p95",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": "Prometheus",
+          "expr": "histogram_quantile(0.95, sum(rate(jobboard_worker_processing_duration_seconds_bucket{step=\"scoring\"}[5m])) by (le)) or vector(0)",
+          "legendFormat": "p95"
+        }
+      ]
+    },
+
+    {
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green",  "value": null },
+              { "color": "yellow", "value": 8    },
+              { "color": "red",    "value": 15   }
+            ]
+          },
+          "unit": "s"
+        }
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 66 },
+      "id": 25,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "reduceOptions": { "calcs": ["lastNotNull"] }
+      },
+      "title": "Matching Worker p95",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": "Prometheus",
+          "expr": "histogram_quantile(0.95, sum(rate(jobboard_worker_processing_duration_seconds_bucket{step=\"matching\"}[5m])) by (le)) or vector(0)",
+          "legendFormat": "p95"
+        }
+      ]
+    },
+
+    {
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green",  "value": null },
+              { "color": "yellow", "value": 5    },
+              { "color": "red",    "value": 10   }
+            ]
+          },
+          "unit": "s"
+        }
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 66 },
+      "id": 26,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "reduceOptions": { "calcs": ["lastNotNull"] }
+      },
+      "title": "Salary Worker p95",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": "Prometheus",
+          "expr": "histogram_quantile(0.95, sum(rate(jobboard_worker_processing_duration_seconds_bucket{step=\"salary\"}[5m])) by (le)) or vector(0)",
+          "legendFormat": "p95"
+        }
+      ]
+    }
   ],
   "refresh": "30s",
   "schemaVersion": 38,

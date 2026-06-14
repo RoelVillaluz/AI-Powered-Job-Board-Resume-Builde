@@ -204,6 +204,14 @@ export const embeddingQueueDepth = new Gauge({
     registers:  [register],
 });
 
+export const workerProcessingDurationSeconds = new Histogram({
+    name:       'jobboard_worker_processing_duration_seconds',
+    help:       'Time from job enqueue to worker completion per pipeline step',
+    labelNames: ['step'],   // embedding | scoring | matching | salary
+    buckets:    [1, 2, 5, 10, 15, 20, 30, 45, 60],
+    registers:  [register],
+});
+
 // ── Reconciliation metrics ────────────────────────────────────────────────────
 
 /**

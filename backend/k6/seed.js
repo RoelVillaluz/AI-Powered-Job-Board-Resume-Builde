@@ -1,82 +1,67 @@
 import mongoose from 'mongoose';
-import bcrypt from 'bcrypt';
 import * as dotenv from 'dotenv';
 import { readFileSync, writeFileSync } from 'fs';
+import jwt from 'jsonwebtoken';
 
 dotenv.config({ path: '.env.k6' });
 
 await mongoose.connect(process.env.MONGO_URI);
 
-// Check if k6 user already exists
-const existing = await mongoose.connection.collection('users').findOne({
-    email: 'k6user@example.com',
-});
+const resumes = await mongoose.connection
+    .collection('resumes')
+    .aggregate([
+        { $match: { 'skills.0': { $exists: true } } },
+        { $sample: { size: 10 } },
+        { $lookup: {
+            from:         'users',
+            localField:   'user',
+            foreignField: '_id',
+            as:           'userDoc',
+        }},
+        { $unwind: '$userDoc' },
+        { $match: { 'userDoc.isVerified': true, 'userDoc.role': 'jobseeker' } },
+        { $project: { _id: 1, userId: '$userDoc._id' } },
+    ]).toArray();
 
-let userId = existing?._id;
-
-if (!existing) {
-    const user = await mongoose.connection.collection('users').insertOne({
-        email:      'k6user@example.com',
-        firstName:  'K6',
-        lastName:   'Test',
-        password:   await bcrypt.hash('TestPassword123!', 10),
-        role:       'jobseeker',
-        isVerified: true,
-        createdAt:  new Date(),
-    });
-    userId = user.insertedId;
-    console.log('✅ K6 user created');
-} else {
-    console.log('ℹ️  K6 user already exists, skipping');
+if (!resumes.length) {
+    console.error('❌ No eligible resumes found in dev DB');
+    process.exit(1);
 }
 
-// Check if resume already exists for this user
-const existingResume = await mongoose.connection.collection('resumes').findOne({
-    user: userId,
-});
+console.log(`✅ Found ${resumes.length} resumes`);
 
-let resumeId = existingResume?._id;
-
-if (!existingResume) {
-    const resume = await mongoose.connection.collection('resumes').insertOne({
-        user:      userId,
-        firstName: 'K6',
-        lastName:  'Test',
-        jobTitle:  { name: 'Full Stack Developer' },
-        location:  { name: 'San Francisco, CA' },
-        skills: [
-            { name: 'JavaScript', level: 'Advanced' },
-            { name: 'Node.js',    level: 'Intermediate' },
-            { name: 'MongoDB',    level: 'Intermediate' },
-        ],
-        workExperience: [
-            {
-                jobTitle:  'Junior Developer',
-                company:   'Previous Corp',
-                startDate: new Date('2021-01-01'),
-                endDate:   new Date('2023-01-01'),
-            },
-        ],
-        certifications: [
-            { name: 'AWS Certified Developer', year: '2022' },
-        ],
-        createdAt: new Date(),
-    });
-    resumeId = resume.insertedId;
-    console.log('✅ K6 resume created');
-} else {
-    console.log('ℹ️  K6 resume already exists, skipping');
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+    console.error('❌ JWT_SECRET not set in .env.k6');
+    process.exit(1);
 }
 
-// Write RESUME_ID back into .env.k6 automatically
-const envPath = '.env.k6';
+const resumeIds = resumes.map(r => r._id.toString()).join(',');
+const tokens    = resumes.map(r =>
+    jwt.sign(
+        { id: r.userId.toString(), role: 'jobseeker' },
+        JWT_SECRET,
+        { expiresIn: '1d' },
+    )
+).join(',');
+
+resumes.forEach((r, i) => console.log(`  [${i}] resumeId=${r._id}`));
+
+const envPath    = '.env.k6';
 const envContent = readFileSync(envPath, 'utf-8');
-const updated = envContent.replace(
-    /^RESUME_ID=.*$/m,
-    `RESUME_ID=${resumeId}`,
-);
-writeFileSync(envPath, updated);
 
-console.log(`✅ K6 seed complete — RESUME_ID=${resumeId} written to .env.k6`);
+const replace = (content, key, value) => {
+    const regex = new RegExp(`^${key}=.*$`, 'm');
+    return regex.test(content)
+        ? content.replace(regex, `${key}=${value}`)
+        : content + `\n${key}=${value}`;
+};
+
+let updated = envContent;
+updated = replace(updated, 'RESUME_IDS',  resumeIds);
+updated = replace(updated, 'USER_TOKENS', tokens);
+
+writeFileSync(envPath, updated);
+console.log(`✅ Written ${resumes.length} resume IDs and tokens to .env.k6`);
 
 await mongoose.disconnect();

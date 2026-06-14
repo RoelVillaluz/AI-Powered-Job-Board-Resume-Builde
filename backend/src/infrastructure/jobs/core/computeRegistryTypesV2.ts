@@ -59,7 +59,7 @@ export interface ComputeConfigV2<T, TAIResult = any> {
     afterSave?: (
         saved:      T,
         emitSocket: (event: string, data: any) => void,
-        ctx:        { userId: string | null },
+        ctx:        { userId: string | null; startTime: number },
     ) => Promise<void>;
 }
 

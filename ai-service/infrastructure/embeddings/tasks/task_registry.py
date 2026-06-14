@@ -36,6 +36,9 @@ from utils.embedding_utils import (
     extract_experience_level_embedding,
 )
 
+import logging
+
+logger = logging.getLogger(__name__)
 
 # ── Task config ───────────────────────────────────────────────────────────────
 
@@ -187,9 +190,11 @@ def run_task(section_key: str, doc: dict, run: PipelineRun, **kwargs) -> Any:
         }
 
         if outcome == CacheOutcome.HIT:
+            logger.info(f"[task_registry] incrementing cache hit: entity={run.entity_type} section={section_key}")  
             embedding_cache_hits_total.labels(**labels).inc()
 
         elif outcome == CacheOutcome.MISS:
+            logger.info(f"[task_registry] incrementing cache miss: entity={run.entity_type} section={section_key}")
             embedding_cache_misses_total.labels(**labels).inc()
 
         elif outcome == CacheOutcome.NULL_BACKFILL:

@@ -501,6 +501,8 @@ npm run test:watch
 ## 📊 Grafana Dashboards
 
 Dashboards are available at `http://localhost:3000` after starting the observability stack.
+<img width="1823" height="895" alt="image" src="https://github.com/user-attachments/assets/59a35a91-82a5-4455-9315-9a8e16325a27" />
+*Pipeline Health under k6 stress load — 575 requests, 100% cache hit rate, p95 831ms*
 
 ### Job Board — Embedding Pipeline
 
@@ -531,39 +533,42 @@ Dashboards are available at `http://localhost:3000` after starting the observabi
 
 ---
 
-## 🧪 Load Testing
+## 🧪 Load/Stress Testing
 
-Load tests are written with [k6](https://k6.io) and cover the full async pipeline: embed → score → match → salary.
+Load and/or stress tests are written with [k6](https://k6.io) and cover the full async pipeline: embed → score → match → salary.
+<img width="855" height="909" alt="image" src="https://github.com/user-attachments/assets/61ca3d2a-dec0-4643-80ab-6381d30eaf69" />
 
 ```bash
 k6 run --env-file .env.k6 tests/load/pipeline.js
 ```
 
-### Latest Results — June 10, 2026
+### Latest Results — June 13, 2026 (Stress — 30 VUs)
+![Uploading image.png…]()
 
 **Configuration:** 10 VUs · 5-minute ramp · 98 complete iterations · 0 interrupted
 
-All thresholds passed ✅
+### Latest Results — June 13, 2026 (Stress — 30 VUs · 471 iterations)
 
 | Metric | p95 | Threshold | Status |
 |---|---|---|---|
-| HTTP request duration | 385.83 ms | < 5,000 ms | ✅ |
-| — Embedding step | 300.04 ms | < 5,000 ms | ✅ |
-| — Matching step | 373.37 ms | < 8,000 ms | ✅ |
-| — Salary step | 352.55 ms | < 5,000 ms | ✅ |
-| — Scoring step | 487.80 ms | < 3,000 ms | ✅ |
-| Embedding worker duration | 4.46 s | < 30,000 ms | ✅ |
-| Matching worker duration | 4.95 s | < 20,000 ms | ✅ |
-| Salary worker duration | 4.95 s | < 15,000 ms | ✅ |
-| Scoring worker duration | 3.91 s | < 15,000 ms | ✅ |
-| Full iteration duration | 21.01 s | < 120,000 ms | ✅ |
+| HTTP request duration | 443ms | < 5,000ms | ✅ |
+| — Embedding step | 498ms | < 5,000ms | ✅ |
+| — Matching step | 381ms | < 8,000ms | ✅ |
+| — Salary step | 381ms | < 5,000ms | ✅ |
+| — Scoring step | 492ms | < 3,000ms | ✅ |
+| Embedding worker duration | 3.89s | < 30,000ms | ✅ |
+| Matching worker duration | 3.71s | < 20,000ms | ✅ |
+| Salary worker duration | 3.71s | < 15,000ms | ✅ |
+| Scoring worker duration | 3.83s | < 15,000ms | ✅ |
+| Full iteration duration | 19.81s | < 120,000ms | ✅ |
 | HTTP failure rate | 0.00% | < 10% | ✅ |
 | Check success rate | 100.00% | > 80% | ✅ |
 
-- 784 total HTTP requests at 2.60 req/s
-- 6.5 MB received · 326 kB sent
-- 100% poll success across all pipeline steps (embedding, matching, salary, scoring)
+- 3,768 total HTTP requests · 6.15 req/s
+- 31MB received · 1.6MB sent
+- 100% poll success across all steps
 - Average worker duration across all steps: ~3.5s
+- **100% cache hit rate under 30 concurrent users**
 
 ---
 

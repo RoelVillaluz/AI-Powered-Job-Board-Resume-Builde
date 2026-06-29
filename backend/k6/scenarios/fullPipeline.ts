@@ -20,7 +20,7 @@ export function setup(): SetupData {
 
 type ScenarioName = 'smoke' | 'load' | 'stress';
 
-const SCENARIO = (__ENV.SCENARIO || 'load') as ScenarioName;
+const SCENARIO = (__ENV.SCENARIO || 'stress') as ScenarioName;
 
 const smokeScenario: ConstantVUsScenario = {
     executor: 'constant-vus',
@@ -42,16 +42,18 @@ const loadScenario: RampingVUsScenario = {
 };
 
 const stressScenario: RampingVUsScenario = {
-    executor: 'ramping-vus',
-    startVUs: 0,
-    stages: [
-        { duration: '1m', target: 2 },
-        { duration: '2m', target: 10 },
-        { duration: '3m', target: 20 },
-        { duration: '2m', target: 30 },
-        { duration: '2m', target: 0  },
-    ],
-    exec: 'userJourneyScenario',
+  executor: 'ramping-vus',
+  startVUs: 0,
+  stages: [
+    { duration: '2m', target: 25 },
+    { duration: '3m', target: 50 },
+    { duration: '3m', target: 100 },
+    { duration: '5m', target: 200 },
+    { duration: '5m', target: 300 },
+    { duration: '5m', target: 400 },
+    { duration: '2m', target: 0 },
+  ],
+  exec: 'userJourneyScenario',
 };
 
 const scenarios: Record<ScenarioName, ConstantVUsScenario | RampingVUsScenario> = {

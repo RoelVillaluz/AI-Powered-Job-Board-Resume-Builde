@@ -59,7 +59,7 @@ def run_pipeline(
         {section_key: result | None} — None means the task raised.
     """
     run = PipelineRun(entity_type=entity_type, entity_id=entity_id)
-    t0  = time.perf_counter()
+    t0 = time.perf_counter()
 
     with ThreadPoolExecutor(max_workers=len(tasks)) as pool:
         raw = _collect({pool.submit(fn): key for key, fn in tasks.items()})

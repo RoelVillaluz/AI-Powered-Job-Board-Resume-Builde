@@ -50,12 +50,13 @@ logger = logging.getLogger(__name__)
 
 COL_INDEX_BASELINE: float = 100.0
 
-CONFIDENCE_PENALTY_NO_LOCATION:        float = 20.0
+CONFIDENCE_PENALTY_NO_LOCATION: float = 20.0
 CONFIDENCE_PENALTY_NO_BASELINE_FACTOR: float = 10.0
-CONFIDENCE_PENALTY_NO_COL_INDEX:       float = 5.0
+CONFIDENCE_PENALTY_NO_COL_INDEX: float = 5.0
 
 
 # ── Result type ───────────────────────────────────────────────────────────────
+
 
 class LocationAdjustment(NamedTuple):
     """
@@ -91,21 +92,23 @@ class LocationAdjustment(NamedTuple):
     data_gaps
         Human-readable warnings for missing fields.
     """
-    nominal_yearly:        float
-    nominal_monthly:       float
-    real_value_yearly:     float
-    real_value_monthly:    float
-    location_delta:        float
-    col_delta:             float
-    baseline_factor:       float
-    col_index:             float
-    location_name:         str
-    salary_data:           Optional[dict]   # passed through to TalentDeviation
+
+    nominal_yearly: float
+    nominal_monthly: float
+    real_value_yearly: float
+    real_value_monthly: float
+    location_delta: float
+    col_delta: float
+    baseline_factor: float
+    col_index: float
+    location_name: str
+    salary_data: Optional[dict]  # passed through to TalentDeviation
     confidence_adjustment: float
-    data_gaps:             list[str]
+    data_gaps: list[str]
 
 
 # ── Location factor application ───────────────────────────────────────────────
+
 
 class LocationFactorApplicator:
     """
@@ -115,8 +118,8 @@ class LocationFactorApplicator:
 
     @staticmethod
     def apply(
-        anchor_yearly:  float,
-        location_data:  Optional[dict],
+        anchor_yearly: float,
+        location_data: Optional[dict],
         exchange_rates: Optional[dict[str, float]] = None,
     ) -> LocationAdjustment:
         """
@@ -141,8 +144,8 @@ class LocationFactorApplicator:
         Returns:
             LocationAdjustment. salaryData is passed through for downstream use.
         """
-        data_gaps:             list[str] = []
-        confidence_adjustment: float     = 0.0
+        data_gaps: list[str] = []
+        confidence_adjustment: float = 0.0
 
         # ── No location data ──────────────────────────────────────────────
         if not location_data:
@@ -155,14 +158,16 @@ class LocationFactorApplicator:
             )
             confidence_adjustment -= CONFIDENCE_PENALTY_NO_LOCATION
             return LocationFactorApplicator._passthrough(
-                anchor_yearly, confidence_adjustment, data_gaps,
+                anchor_yearly,
+                confidence_adjustment,
+                data_gaps,
                 location_name="Unknown",
             )
 
-        location_name   = location_data.get("name", "Unknown")
+        location_name = location_data.get("name", "Unknown")
         baseline_factor = location_data.get("baselineFactor")
-        col_index       = location_data.get("costOfLivingIndex")
-        salary_data     = location_data.get("salaryData")
+        col_index = location_data.get("costOfLivingIndex")
+        salary_data = location_data.get("salaryData")
 
         # ── Missing baselineFactor ────────────────────────────────────────
         if baseline_factor is None:
@@ -191,14 +196,14 @@ class LocationFactorApplicator:
             col_index = COL_INDEX_BASELINE
 
         # ── Nominal and real value ────────────────────────────────────────
-        nominal_yearly  = round(anchor_yearly * (1.0 + baseline_factor), 2)
+        nominal_yearly = round(anchor_yearly * (1.0 + baseline_factor), 2)
         nominal_monthly = round(nominal_yearly / 12, 2)
 
-        real_value_yearly  = round(nominal_yearly * (COL_INDEX_BASELINE / col_index), 2)
+        real_value_yearly = round(nominal_yearly * (COL_INDEX_BASELINE / col_index), 2)
         real_value_monthly = round(real_value_yearly / 12, 2)
 
-        location_delta = round(nominal_yearly  - anchor_yearly,   2)
-        col_delta      = round(real_value_yearly - nominal_yearly, 2)
+        location_delta = round(nominal_yearly - anchor_yearly, 2)
+        col_delta = round(real_value_yearly - nominal_yearly, 2)
 
         logger.info(
             f"[LocationFactorApplicator] '{location_name}' "
@@ -210,43 +215,43 @@ class LocationFactorApplicator:
         )
 
         return LocationAdjustment(
-            nominal_yearly=        nominal_yearly,
-            nominal_monthly=       nominal_monthly,
-            real_value_yearly=     real_value_yearly,
-            real_value_monthly=    real_value_monthly,
-            location_delta=        location_delta,
-            col_delta=             col_delta,
-            baseline_factor=       baseline_factor,
-            col_index=             col_index,
-            location_name=         location_name,
-            salary_data=           salary_data,
-            confidence_adjustment= confidence_adjustment,
-            data_gaps=             data_gaps,
+            nominal_yearly=nominal_yearly,
+            nominal_monthly=nominal_monthly,
+            real_value_yearly=real_value_yearly,
+            real_value_monthly=real_value_monthly,
+            location_delta=location_delta,
+            col_delta=col_delta,
+            baseline_factor=baseline_factor,
+            col_index=col_index,
+            location_name=location_name,
+            salary_data=salary_data,
+            confidence_adjustment=confidence_adjustment,
+            data_gaps=data_gaps,
         )
 
     # ── Internal helpers ──────────────────────────────────────────────────
 
     @staticmethod
     def _passthrough(
-        anchor_yearly:         float,
+        anchor_yearly: float,
         confidence_adjustment: float,
-        data_gaps:             list[str],
-        location_name:         str,
+        data_gaps: list[str],
+        location_name: str,
     ) -> LocationAdjustment:
         monthly = round(anchor_yearly / 12, 2)
         return LocationAdjustment(
-            nominal_yearly=        anchor_yearly,
-            nominal_monthly=       monthly,
-            real_value_yearly=     anchor_yearly,
-            real_value_monthly=    monthly,
-            location_delta=        0.0,
-            col_delta=             0.0,
-            baseline_factor=       0.0,
-            col_index=             COL_INDEX_BASELINE,
-            location_name=         location_name,
-            salary_data=           None,
-            confidence_adjustment= confidence_adjustment,
-            data_gaps=             data_gaps,
+            nominal_yearly=anchor_yearly,
+            nominal_monthly=monthly,
+            real_value_yearly=anchor_yearly,
+            real_value_monthly=monthly,
+            location_delta=0.0,
+            col_delta=0.0,
+            baseline_factor=0.0,
+            col_index=COL_INDEX_BASELINE,
+            location_name=location_name,
+            salary_data=None,
+            confidence_adjustment=confidence_adjustment,
+            data_gaps=data_gaps,
         )
 
     # ── Explanation helpers ───────────────────────────────────────────────

@@ -16,6 +16,7 @@ logger = logging.getLogger(__name__)
 
 class JobEmbeddings(NamedTuple):
     """Container for job posting embeddings."""
+
     skills: Optional[torch.Tensor]
     requirements: Optional[torch.Tensor]
     experience_level: Optional[torch.Tensor]
@@ -26,6 +27,7 @@ class JobEmbeddings(NamedTuple):
     skill_embeddings_to_backfill: list[torch.Tensor]
     job_title_id_to_backfill: Optional[str]
     location_id_to_backfill: Optional[str]
+
 
 class JobService:
     """Handles job posting embedding extraction."""
@@ -55,24 +57,24 @@ class JobService:
             JobEmbeddings with all computed tensors.
         """
         result = extract_embeddings_parallel(
-            entity_type   = "job_posting",
-            entity_id     = job.get("_id"),
-            job           = job,
-            skill_docs    = skill_docs,
-            job_title_doc = job_title_doc,
-            location_doc  = location_doc,
+            entity_type="job_posting",
+            entity_id=job.get("_id"),
+            job=job,
+            skill_docs=skill_docs,
+            job_title_doc=job_title_doc,
+            location_doc=location_doc,
         )
 
         return JobEmbeddings(
-            skills=                      result["skills"],
-            requirements=                result["requirements"],
-            experience_level=            result["experience_level"],
-            job_title=                   result["job_title"],
-            location=                    result["location"],
-            skill_ids_to_backfill=       result.get("skill_ids_to_backfill", []),
+            skills=result["skills"],
+            requirements=result["requirements"],
+            experience_level=result["experience_level"],
+            job_title=result["job_title"],
+            location=result["location"],
+            skill_ids_to_backfill=result.get("skill_ids_to_backfill", []),
             skill_embeddings_to_backfill=result.get("skill_embeddings_to_backfill", []),
-            job_title_id_to_backfill=    result.get("job_title_id_to_backfill"),
-            location_id_to_backfill=     result.get("location_id_to_backfill"),
+            job_title_id_to_backfill=result.get("job_title_id_to_backfill"),
+            location_id_to_backfill=result.get("location_id_to_backfill"),
         )
 
     @staticmethod
@@ -86,4 +88,6 @@ class JobService:
         Alias for extract_embeddings — kept for backwards compatibility.
         Prefer calling extract_embeddings directly in new code.
         """
-        return JobService.extract_embeddings(job, skill_docs, job_title_doc, location_doc)
+        return JobService.extract_embeddings(
+            job, skill_docs, job_title_doc, location_doc
+        )

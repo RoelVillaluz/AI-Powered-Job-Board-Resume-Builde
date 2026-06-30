@@ -9,12 +9,13 @@ from utils import extract_job_embeddings, extract_resume_embeddings, get_resume_
 
 load_dotenv()
 
-mongo_uri = os.getenv('MONGO_DEV_URI')
+mongo_uri = os.getenv("MONGO_DEV_URI")
 client = pymongo.MongoClient(mongo_uri)
 db = client["database"]
 
+
 def predict_salary(resume, job_postings):
-    """ 
+    """
     Predicts the estimated salary for a given resume based on similar job postings.
     """
     # Unpack all four values that extract_resume_embeddings returns
@@ -27,7 +28,9 @@ def predict_salary(resume, job_postings):
     if mean_skill_embedding is None:
         return json.dumps({"error": "Not enough data to predict salary."})
 
-    valid_embeddings = [emb for emb in [mean_skill_embedding, mean_work_embedding] if emb is not None]
+    valid_embeddings = [
+        emb for emb in [mean_skill_embedding, mean_work_embedding] if emb is not None
+    ]
     if not valid_embeddings:
         return json.dumps({"error": "Not enough valid embeddings."})
 
@@ -38,29 +41,33 @@ def predict_salary(resume, job_postings):
 
     for job in job_postings:
         job_embedding_result = extract_job_embeddings(job)
-        
+
         # Check if any embeddings are None
         if job_embedding_result is None:
             continue
-            
-        mean_skill_emb, mean_req_emb, exp_emb, job_title_emb, loc_emb = job_embedding_result
-        
+
+        mean_skill_emb, mean_req_emb, exp_emb, job_title_emb, loc_emb = (
+            job_embedding_result
+        )
+
         # Create a list of valid embeddings
-        valid_job_embeddings = [emb for emb in [mean_skill_emb, mean_req_emb, exp_emb] 
-                               if emb is not None and emb.numel() > 0]
-        
+        valid_job_embeddings = [
+            emb
+            for emb in [mean_skill_emb, mean_req_emb, exp_emb]
+            if emb is not None and emb.numel() > 0
+        ]
+
         # Skip if no valid embeddings
         if not valid_job_embeddings:
             continue
-            
+
         job_embedding = torch.mean(torch.stack(valid_job_embeddings), dim=0)
 
         if resume_embedding.dim() == 0 or job_embedding.dim() == 0:
             continue  # Skip instead of returning an error
 
         similarity = torch.nn.functional.cosine_similarity(
-            resume_embedding.unsqueeze(0), 
-            job_embedding.unsqueeze(0)
+            resume_embedding.unsqueeze(0), job_embedding.unsqueeze(0)
         ).item()
 
         # Only add to calculations if job has a valid salary
@@ -78,7 +85,7 @@ def predict_salary(resume, job_postings):
         return json.dumps({"error": "No valid similarity scores found."})
 
     weighted_salary = np.dot(similarities, salaries) / np.sum(similarities)
-    
+
     return json.dumps({"predictedSalary": weighted_salary})
 
 

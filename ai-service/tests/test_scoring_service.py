@@ -12,26 +12,31 @@ logger = logging.getLogger(__name__)
 
 # ── Log helpers ───────────────────────────────────────────────────────────────
 
+
 def log_header(title: str) -> None:
     bar = "─" * 52
     logger.info(f"\n  ┌{bar}┐")
     logger.info(f"  │  {title:<50}│")
     logger.info(f"  └{bar}┘")
 
+
 def log_score(label: str, score: float, expected: str = "") -> None:
     note = f"  (expected: {expected})" if expected else ""
     logger.info(f"  {'·'} {label:<38} {score:>6.2f}{note}")
+
 
 def log_compare(label_a: str, score_a: float, label_b: str, score_b: float) -> None:
     winner = "✓ correct" if score_a > score_b else "✗ wrong order"
     logger.info(f"  {'·'} {label_a:<28} {score_a:>6.2f}")
     logger.info(f"  {'·'} {label_b:<28} {score_b:>6.2f}  ← {winner}")
 
+
 def log_assert(label: str, value) -> None:
     logger.info(f"  {'·'} {label:<38} {value}")
 
 
 # ── Completeness ──────────────────────────────────────────────────────────────
+
 
 class TestCompleteness:
     """Score how many of the 8 resume sections are filled (0–100)."""
@@ -59,19 +64,23 @@ class TestCompleteness:
 
 # ── Experience ────────────────────────────────────────────────────────────────
 
+
 class TestExperience:
     """Linear scale from 0 to target_years (default 5), capped at 100."""
 
-    @pytest.mark.parametrize("years,expected", [
-        (0.0,   0.0),
-        (2.5,  50.0),
-        (5.0, 100.0),
-        (9.0, 100.0),
-    ])
+    @pytest.mark.parametrize(
+        "years,expected",
+        [
+            (0.0, 0.0),
+            (2.5, 50.0),
+            (5.0, 100.0),
+            (9.0, 100.0),
+        ],
+    )
     def test_experience_score(self, years, expected):
         note_map = {
-            0.0:  "0.00   (0 yrs → no experience)",
-            2.5:  "50.00  (2.5 / 5.0 yrs → halfway)",
+            0.0: "0.00   (0 yrs → no experience)",
+            2.5: "50.00  (2.5 / 5.0 yrs → halfway)",
             5.0: "100.00  (5.0 yrs → hits target)",
             9.0: "100.00  (9.0 yrs → above target, capped)",
         }
@@ -83,6 +92,7 @@ class TestExperience:
 
 # ── Skills ────────────────────────────────────────────────────────────────────
 
+
 class TestSkills:
     """Score resume skills against currentTitle.topSkills only — not the whole industry."""
 
@@ -90,10 +100,18 @@ class TestSkills:
         self, resume_full, scoring_payload_full_stack
     ):
         log_header("Skills — full stack resume vs full stack title")
-        score = ScoringService.calculate_skills_score(resume_full, scoring_payload_full_stack)
-        logger.info("  Resume skills:  JS, TS, React, Node, PostgreSQL, Docker, AWS, PyTorch")
-        logger.info("  Title requires: JS, React, Node, REST API, SQL, HTML, CSS  (Required ×1.0)")
-        logger.info("  Title prefers:  TS, PostgreSQL, Docker                     (Preferred ×0.7)")
+        score = ScoringService.calculate_skills_score(
+            resume_full, scoring_payload_full_stack
+        )
+        logger.info(
+            "  Resume skills:  JS, TS, React, Node, PostgreSQL, Docker, AWS, PyTorch"
+        )
+        logger.info(
+            "  Title requires: JS, React, Node, REST API, SQL, HTML, CSS  (Required ×1.0)"
+        )
+        logger.info(
+            "  Title prefers:  TS, PostgreSQL, Docker                     (Preferred ×0.7)"
+        )
         logger.info("  Matched Required: JS, React, Node  →  3 × 1.0 = 3.0")
         logger.info("  Matched Preferred: TS, PostgreSQL, Docker  →  3 × 0.7 = 2.1")
         logger.info("  Total weight: 7×1.0 + 3×0.7 = 9.1  |  Matched: 5.1")
@@ -104,30 +122,44 @@ class TestSkills:
         self, resume_full, scoring_payload_full_stack, skill_market_data
     ):
         log_header("Skills — role specificity check (core regression)")
-        logger.info("  Confirms CI/CD + GitHub Actions don't inflate a Full Stack score.")
+        logger.info(
+            "  Confirms CI/CD + GitHub Actions don't inflate a Full Stack score."
+        )
         devops_resume = {
             **resume_full,
             "skills": [
-                {"name": "AWS"}, {"name": "Docker"}, {"name": "CI/CD"},
-                {"name": "GitHub Actions"}, {"name": "Python"},
+                {"name": "AWS"},
+                {"name": "Docker"},
+                {"name": "CI/CD"},
+                {"name": "GitHub Actions"},
+                {"name": "Python"},
             ],
         }
-        frontend_score = ScoringService.calculate_skills_score(resume_full, scoring_payload_full_stack)
-        devops_score   = ScoringService.calculate_skills_score(devops_resume, scoring_payload_full_stack)
+        frontend_score = ScoringService.calculate_skills_score(
+            resume_full, scoring_payload_full_stack
+        )
+        devops_score = ScoringService.calculate_skills_score(
+            devops_resume, scoring_payload_full_stack
+        )
         log_compare(
-            "frontend resume (JS/React/Node...)", frontend_score,
-            "devops resume   (AWS/CI-CD/GHA...)", devops_score,
+            "frontend resume (JS/React/Node...)",
+            frontend_score,
+            "devops resume   (AWS/CI-CD/GHA...)",
+            devops_score,
         )
         assert devops_score < frontend_score
 
     def test_no_skills_is_0(self, resume_no_skills, scoring_payload_full_stack):
         log_header("Skills — empty skills list (edge case)")
-        score = ScoringService.calculate_skills_score(resume_no_skills, scoring_payload_full_stack)
+        score = ScoringService.calculate_skills_score(
+            resume_no_skills, scoring_payload_full_stack
+        )
         log_score("weighted match score", score, "0.00  (no skills to match)")
         assert score == 0.0
 
 
 # ── Career progression ────────────────────────────────────────────────────────
+
 
 class TestCareerProgression:
     """
@@ -139,20 +171,34 @@ class TestCareerProgression:
         self, resume_full, scoring_payload_full_stack
     ):
         log_header("Career progression — niche skills detected")
-        logger.info("  AWS   → in Cloud Engineer topSkills  (not in Full Stack baseline)")
-        logger.info("  PyTorch → in ML Engineer topSkills   (not in Full Stack baseline)")
-        score = ScoringService.calculate_career_progression_score(resume_full, scoring_payload_full_stack)
+        logger.info(
+            "  AWS   → in Cloud Engineer topSkills  (not in Full Stack baseline)"
+        )
+        logger.info(
+            "  PyTorch → in ML Engineer topSkills   (not in Full Stack baseline)"
+        )
+        score = ScoringService.calculate_career_progression_score(
+            resume_full, scoring_payload_full_stack
+        )
         log_score("progression bonus", score, "> 0.00  (bonus triggered)")
         assert score > 0.0
 
     def test_baseline_only_skills_give_no_bonus(self, scoring_payload_full_stack):
         log_header("Career progression — baseline skills give no bonus")
         logger.info("  JS, React, Node.js are already in Full Stack topSkills.")
-        logger.info("  Having expected skills should not count as a progression signal.")
-        baseline_resume = {"skills": [
-            {"name": "JavaScript"}, {"name": "React"}, {"name": "Node.js"},
-        ]}
-        score = ScoringService.calculate_career_progression_score(baseline_resume, scoring_payload_full_stack)
+        logger.info(
+            "  Having expected skills should not count as a progression signal."
+        )
+        baseline_resume = {
+            "skills": [
+                {"name": "JavaScript"},
+                {"name": "React"},
+                {"name": "Node.js"},
+            ]
+        }
+        score = ScoringService.calculate_career_progression_score(
+            baseline_resume, scoring_payload_full_stack
+        )
         log_score("progression bonus", score, "0.00  (no niche skills)")
         assert score == 0.0
 
@@ -181,46 +227,77 @@ class TestCareerProgression:
                 },
             ],
         }
-        ml_score    = ScoringService.calculate_career_progression_score({"skills": [{"name": "PyTorch"}]}, payload)
-        cloud_score = ScoringService.calculate_career_progression_score({"skills": [{"name": "CI/CD"}]},   payload)
+        ml_score = ScoringService.calculate_career_progression_score(
+            {"skills": [{"name": "PyTorch"}]}, payload
+        )
+        cloud_score = ScoringService.calculate_career_progression_score(
+            {"skills": [{"name": "CI/CD"}]}, payload
+        )
         log_compare(
-            "PyTorch → ML Engineer (+$50k)", ml_score,
-            "CI/CD → Cloud Engineer (+$20k)", cloud_score,
+            "PyTorch → ML Engineer (+$50k)",
+            ml_score,
+            "CI/CD → Cloud Engineer (+$20k)",
+            cloud_score,
         )
         assert ml_score > cloud_score
 
     def test_bonus_never_exceeds_cap(self, scoring_payload_full_stack):
         log_header("Career progression — bonus cap enforced")
-        all_skills = {"skills": [
-            {"name": s["skillName"]}
-            for t in scoring_payload_full_stack["higherPayingTitles"]
-            for s in t["topSkills"]
-        ]}
-        score = ScoringService.calculate_career_progression_score(all_skills, scoring_payload_full_stack)
-        log_score("progression bonus", score, f"≤ {_CAREER_PROGRESSION_MAX_BONUS:.2f}  (cap)")
+        all_skills = {
+            "skills": [
+                {"name": s["skillName"]}
+                for t in scoring_payload_full_stack["higherPayingTitles"]
+                for s in t["topSkills"]
+            ]
+        }
+        score = ScoringService.calculate_career_progression_score(
+            all_skills, scoring_payload_full_stack
+        )
+        log_score(
+            "progression bonus", score, f"≤ {_CAREER_PROGRESSION_MAX_BONUS:.2f}  (cap)"
+        )
         log_assert("cap value", f"{_CAREER_PROGRESSION_MAX_BONUS}")
         assert score <= _CAREER_PROGRESSION_MAX_BONUS
 
 
 # ── Full integration ──────────────────────────────────────────────────────────
 
+
 class TestResumeScore:
     """End-to-end: all components combined into a single overall score."""
 
-    def test_full_resume_scores_above_70(
-        self, resume_full, scoring_payload_full_stack
-    ):
+    def test_full_resume_scores_above_70(self, resume_full, scoring_payload_full_stack):
         log_header("Integration — full resume overall score")
-        score = ScoringService.calculate_resume_score(resume_full, 4.6, scoring_payload_full_stack)
+        score = ScoringService.calculate_resume_score(
+            resume_full, 4.6, scoring_payload_full_stack
+        )
         logger.info("  Score breakdown:")
-        log_score("  completeness  (weight 20%)", score.completeness_score,       "100.00")
-        log_score("  experience    (weight 20%)", score.experience_score,          "~92.00  (4.6 / 5.0 yrs)")
-        log_score("  skills        (weight 35%)", score.skills_score,             "~56.04  (vs Full Stack topSkills)")
-        log_score("  market demand (weight 15%)", score.certification_score,       "")
-        log_score("  certifications(weight 10%)", score.certification_score,       "~40.00  (2 certs / 5)")
-        log_score("  career prog   (bonus +10)", score.career_progression_score,  "> 0.00")
-        logger.info(f"  {'·'} {'overall score':<38} {score.overall_score:>6.2f}  (expected: ≥ 70.00)")
-        log_assert("grade", f"{score.grade}  (A+=95 A=90 B+=85 B=80 C+=75 C=65 D=50 F=0)")
+        log_score("  completeness  (weight 20%)", score.completeness_score, "100.00")
+        log_score(
+            "  experience    (weight 20%)",
+            score.experience_score,
+            "~92.00  (4.6 / 5.0 yrs)",
+        )
+        log_score(
+            "  skills        (weight 35%)",
+            score.skills_score,
+            "~56.04  (vs Full Stack topSkills)",
+        )
+        log_score("  market demand (weight 15%)", score.certification_score, "")
+        log_score(
+            "  certifications(weight 10%)",
+            score.certification_score,
+            "~40.00  (2 certs / 5)",
+        )
+        log_score(
+            "  career prog   (bonus +10)", score.career_progression_score, "> 0.00"
+        )
+        logger.info(
+            f"  {'·'} {'overall score':<38} {score.overall_score:>6.2f}  (expected: ≥ 70.00)"
+        )
+        log_assert(
+            "grade", f"{score.grade}  (A+=95 A=90 B+=85 B=80 C+=75 C=65 D=50 F=0)"
+        )
         assert score.overall_score >= 70.0
 
     def test_progression_skills_lift_overall_score(
@@ -230,7 +307,9 @@ class TestResumeScore:
         logger.info("  Removing AWS + PyTorch should reduce the overall score.")
         resume_no_prog = {
             **resume_full,
-            "skills": [s for s in resume_full["skills"] if s["name"] not in ("AWS", "PyTorch")],
+            "skills": [
+                s for s in resume_full["skills"] if s["name"] not in ("AWS", "PyTorch")
+            ],
         }
         payload_no_prog = {
             **scoring_payload_full_stack,
@@ -238,32 +317,44 @@ class TestResumeScore:
                 s for s in skill_market_data if s["name"] not in ("AWS", "PyTorch")
             ],
         }
-        with_prog    = ScoringService.calculate_resume_score(resume_full,    4.6, scoring_payload_full_stack)
-        without_prog = ScoringService.calculate_resume_score(resume_no_prog, 4.6, payload_no_prog)
+        with_prog = ScoringService.calculate_resume_score(
+            resume_full, 4.6, scoring_payload_full_stack
+        )
+        without_prog = ScoringService.calculate_resume_score(
+            resume_no_prog, 4.6, payload_no_prog
+        )
         log_compare(
-            "with AWS + PyTorch    ", with_prog.overall_score,
-            "without AWS + PyTorch", without_prog.overall_score,
+            "with AWS + PyTorch    ",
+            with_prog.overall_score,
+            "without AWS + PyTorch",
+            without_prog.overall_score,
         )
         assert with_prog.overall_score > without_prog.overall_score
 
-    def test_overall_never_exceeds_100(
-        self, resume_full, scoring_payload_full_stack
-    ):
+    def test_overall_never_exceeds_100(self, resume_full, scoring_payload_full_stack):
         log_header("Integration — overall score ceiling (20 yrs experience)")
-        score = ScoringService.calculate_resume_score(resume_full, 20.0, scoring_payload_full_stack)
+        score = ScoringService.calculate_resume_score(
+            resume_full, 20.0, scoring_payload_full_stack
+        )
         log_score("overall score", score.overall_score, "≤ 100.00  (ceiling enforced)")
         assert score.overall_score <= 100.0
 
     def test_grade_is_valid(self, resume_full, scoring_payload_full_stack):
         log_header("Integration — grade is a valid letter grade")
         valid_grades = ("A+", "A", "B+", "B", "C+", "C", "D", "F")
-        score = ScoringService.calculate_resume_score(resume_full, 4.6, scoring_payload_full_stack)
+        score = ScoringService.calculate_resume_score(
+            resume_full, 4.6, scoring_payload_full_stack
+        )
         log_assert("grade returned", score.grade)
         log_assert("valid grades  ", "  ".join(valid_grades))
         assert score.grade in valid_grades
 
     def test_excellent_resume_scores_a_plus(
-        self, full_stack_title, ml_engineer_title, cloud_engineer_title, skill_market_data
+        self,
+        full_stack_title,
+        ml_engineer_title,
+        cloud_engineer_title,
+        skill_market_data,
     ):
         log_header("Integration — excellent resume scores A+  (≥ 95)")
         logger.info("  Profile: 10 yrs exp, all Required + Preferred skills covered,")
@@ -271,12 +362,12 @@ class TestResumeScore:
 
         resume = {
             "firstName": "Alex",
-            "lastName":  "Chen",
-            "email":     "alex@example.com",
-            "phone":     "+1-555-0200",
-            "summary":   "Senior full stack engineer with 10 years building distributed systems.",
-            "jobTitle":  {"name": "Full Stack Engineer"},
-            "location":  {"name": "San Francisco, CA"},
+            "lastName": "Chen",
+            "email": "alex@example.com",
+            "phone": "+1-555-0200",
+            "summary": "Senior full stack engineer with 10 years building distributed systems.",
+            "jobTitle": {"name": "Full Stack Engineer"},
+            "location": {"name": "San Francisco, CA"},
             "skills": [
                 # All Required full stack skills
                 {"name": "JavaScript"},
@@ -303,19 +394,25 @@ class TestResumeScore:
                     "jobTitle": "Senior Full Stack Engineer",
                     "company": "BigTech Inc",
                     "startDate": "2019-01-01",
-                    "endDate":   "2024-01-01",
-                    "responsibilities": ["Led platform architecture", "Managed 8 engineers"],
+                    "endDate": "2024-01-01",
+                    "responsibilities": [
+                        "Led platform architecture",
+                        "Managed 8 engineers",
+                    ],
                 },
                 {
                     "jobTitle": "Full Stack Engineer",
                     "company": "ScaleUp Co",
                     "startDate": "2014-06-01",
-                    "endDate":   "2019-01-01",
-                    "responsibilities": ["Built core API layer", "Owned React frontend"],
+                    "endDate": "2019-01-01",
+                    "responsibilities": [
+                        "Built core API layer",
+                        "Owned React frontend",
+                    ],
                 },
             ],
-            "education":       [{"degree": "Bachelor", "field": "Computer Science"}],
-            "certifications":  [
+            "education": [{"degree": "Bachelor", "field": "Computer Science"}],
+            "certifications": [
                 {"name": "AWS Solutions Architect"},
                 {"name": "Docker Certified Associate"},
                 {"name": "Google Cloud Professional"},
@@ -327,21 +424,21 @@ class TestResumeScore:
         payload = {
             "resumeSkills": [s["name"] for s in resume["skills"]],
             "currentTitle": {
-                "title":          full_stack_title["title"],
-                "medianSalary":   full_stack_title["salaryData"]["medianSalary"],
+                "title": full_stack_title["title"],
+                "medianSalary": full_stack_title["salaryData"]["medianSalary"],
                 "seniorityLevel": full_stack_title["seniorityLevel"],
-                "topSkills":      full_stack_title["topSkills"],
+                "topSkills": full_stack_title["topSkills"],
             },
             "higherPayingTitles": [
                 {
-                    "title":        ml_engineer_title["title"],
+                    "title": ml_engineer_title["title"],
                     "medianSalary": ml_engineer_title["salaryData"]["medianSalary"],
-                    "topSkills":    ml_engineer_title["topSkills"],
+                    "topSkills": ml_engineer_title["topSkills"],
                 },
                 {
-                    "title":        cloud_engineer_title["title"],
+                    "title": cloud_engineer_title["title"],
                     "medianSalary": cloud_engineer_title["salaryData"]["medianSalary"],
-                    "topSkills":    cloud_engineer_title["topSkills"],
+                    "topSkills": cloud_engineer_title["topSkills"],
                 },
             ],
             "skillMarketData": skill_market_data,
@@ -354,16 +451,39 @@ class TestResumeScore:
         )
 
         logger.info("  Score breakdown:")
-        log_score("  completeness  (weight 20%)", score.completeness_score,       "100.00  (8/8 sections)")
-        log_score("  experience    (weight 20%)", score.experience_score,          "100.00  (10 yrs → capped)")
-        log_score("  skills        (weight 35%)", score.skills_score,             "100.00  (all Required + Preferred)")
-        log_score("  certifications(weight 10%)", score.certification_score,       "100.00  (5 certs → capped)")
-        log_score("  career prog   (bonus +10)", score.career_progression_score,  "> 0.00  (ML + Cloud skills)")
-        logger.info(f"  {'·'} {'overall score':<38} {score.overall_score:>6.2f}  (expected: ≥ 95.00)")
+        log_score(
+            "  completeness  (weight 20%)",
+            score.completeness_score,
+            "100.00  (8/8 sections)",
+        )
+        log_score(
+            "  experience    (weight 20%)",
+            score.experience_score,
+            "100.00  (10 yrs → capped)",
+        )
+        log_score(
+            "  skills        (weight 35%)",
+            score.skills_score,
+            "100.00  (all Required + Preferred)",
+        )
+        log_score(
+            "  certifications(weight 10%)",
+            score.certification_score,
+            "100.00  (5 certs → capped)",
+        )
+        log_score(
+            "  career prog   (bonus +10)",
+            score.career_progression_score,
+            "> 0.00  (ML + Cloud skills)",
+        )
+        logger.info(
+            f"  {'·'} {'overall score':<38} {score.overall_score:>6.2f}  (expected: ≥ 95.00)"
+        )
         log_assert("grade", f"{score.grade}  (expected: A+)")
 
         assert score.overall_score >= 95.0
         assert score.grade == "A+"
+
 
 class TestIndustryCoherence:
     """Extreme adversarial tests for completely unrelated industries."""
@@ -439,6 +559,10 @@ class TestIndustryCoherence:
 
         # ── HARD ASSERTIONS ─────────────────────────────────────────────
 
-        assert score.skills_score < 10, "Skills should be nearly zero for unrelated domain"
-        assert score.career_progression_score == 0, "No progression possible across industries"
+        assert score.skills_score < 10, (
+            "Skills should be nearly zero for unrelated domain"
+        )
+        assert score.career_progression_score == 0, (
+            "No progression possible across industries"
+        )
         assert score.overall_score < 40, "Completely unrelated resume should score low"

@@ -5,18 +5,19 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix='/compute')
+router = APIRouter(prefix="/compute")
 
-@router.post('/score_resume')
+
+@router.post("/score_resume")
 async def calculate_score(body: ComputeRequest) -> dict:
     data = body.model_dump()
-    
-    resume_body     = data.get("resume", {})
+
+    resume_body = data.get("resume", {})
     scoring_payload = {
-        "resumeSkills":       data.get("resumeSkills", []),
-        "currentTitle":       data.get("currentTitle"),
+        "resumeSkills": data.get("resumeSkills", []),
+        "currentTitle": data.get("currentTitle"),
         "higherPayingTitles": data.get("higherPayingTitles", []),
-        "skillMarketData":    data.get("skillMarketData", []),
+        "skillMarketData": data.get("skillMarketData", []),
     }
-    
+
     return wrap(score_resume(resume_body, scoring_payload))

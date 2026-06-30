@@ -21,15 +21,17 @@ logger = logging.getLogger(__name__)
 
 class SimilarityScore(NamedTuple):
     """Scores returned by calculate_similarity()."""
-    skill_similarity:       float
-    experience_similarity:  float
+
+    skill_similarity: float
+    experience_similarity: float
     requirement_similarity: float
-    total_score:            float
+    total_score: float
 
 
 class SimilarityWeights(NamedTuple):
     """Relative weights for the weighted total score."""
-    skills:     float = 0.65
+
+    skills: float = 0.65
     experience: float = 0.35
     # requirements: float = 0.25  — add once user preferences are implemented
     # location:     float = 0.15  — add once location API is implemented
@@ -122,8 +124,8 @@ class SimilarityService:
         )
 
         total_score = (
-            skill_similarity       * weights.skills +
-            experience_similarity  * weights.experience
+            skill_similarity * weights.skills
+            + experience_similarity * weights.experience
         )
 
         return SimilarityScore(
@@ -151,6 +153,8 @@ class SimilarityService:
             One SimilarityScore per job, in the same order as job_embeddings_list.
         """
         return [
-            SimilarityService.calculate_similarity(resume_embeddings, job_embeddings, weights)
+            SimilarityService.calculate_similarity(
+                resume_embeddings, job_embeddings, weights
+            )
             for job_embeddings in job_embeddings_list
         ]

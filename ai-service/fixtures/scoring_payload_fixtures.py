@@ -2,7 +2,13 @@ import pytest
 
 
 @pytest.fixture
-def scoring_payload_full_stack(full_stack_title, ml_engineer_title, cloud_engineer_title, skill_market_data, resume_full):
+def scoring_payload_full_stack(
+    full_stack_title,
+    ml_engineer_title,
+    cloud_engineer_title,
+    skill_market_data,
+    resume_full,
+):
     """
     Complete ScoringPayload as built by Node's scoringPayloadService.
     Higher-paying titles are pre-filtered (>15% above Full Stack's $132k median).

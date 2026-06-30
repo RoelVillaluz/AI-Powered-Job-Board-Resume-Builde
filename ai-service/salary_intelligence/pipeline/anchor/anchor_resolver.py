@@ -62,9 +62,9 @@ class SalaryAnchorResolver:
 
     @staticmethod
     def _normalize_pair(
-        amount:         float,
-        frequency:      str,
-        currency:       str,
+        amount: float,
+        frequency: str,
+        currency: str,
         exchange_rates: dict[str, float],
     ) -> tuple[float, float]:
         """Normalize and return (yearly, monthly)."""
@@ -73,18 +73,18 @@ class SalaryAnchorResolver:
 
     @staticmethod
     def _make_result(
-        yearly:         float,
-        monthly:        float,
+        yearly: float,
+        monthly: float,
         fallback_level: str,
-        confidence:     float,
-        source_label:   str,
+        confidence: float,
+        source_label: str,
     ) -> AnchorResult:
         return AnchorResult(
-            yearly=         yearly,
-            monthly=        monthly,
-            fallback_level= fallback_level,
-            confidence=     confidence,
-            source_label=   source_label,
+            yearly=yearly,
+            monthly=monthly,
+            fallback_level=fallback_level,
+            confidence=confidence,
+            source_label=source_label,
         )
 
     # ── Job title anchor ──────────────────────────────────────────────────
@@ -92,29 +92,30 @@ class SalaryAnchorResolver:
     @staticmethod
     def _resolve_job_title_anchor(
         seniority_level: str,
-        job_title_data:  dict,
-        exchange_rates:  dict[str, float],
-        frequency:       str,
+        job_title_data: dict,
+        exchange_rates: dict[str, float],
+        frequency: str,
     ) -> Optional[AnchorResult]:
         """
         Resolve the anchor from job title data only (L1 and L2).
         Returns None when no usable salary data is found.
         """
         salary_data = job_title_data.get("salaryData", {})
-        currency    = salary_data.get("currency", BASE_CURRENCY)
+        currency = salary_data.get("currency", BASE_CURRENCY)
 
         # L1 — bySeniority median
-        level_data   = salary_data.get("bySeniority", {}).get(seniority_level, {})
+        level_data = salary_data.get("bySeniority", {}).get(seniority_level, {})
         level_median = level_data.get("median", 0) if level_data else 0
         if level_median > 0:
             yearly, monthly = SalaryAnchorResolver._normalize_pair(
                 level_median, frequency, currency, exchange_rates
             )
             return SalaryAnchorResolver._make_result(
-                yearly, monthly,
-                fallback_level= "job_title_by_seniority",
-                confidence=     CONFIDENCE_JOB_TITLE_BY_SENIORITY,
-                source_label=   f"Market median for {seniority_level} level in this role",
+                yearly,
+                monthly,
+                fallback_level="job_title_by_seniority",
+                confidence=CONFIDENCE_JOB_TITLE_BY_SENIORITY,
+                source_label=f"Market median for {seniority_level} level in this role",
             )
 
         # L2 — overall median
@@ -124,10 +125,11 @@ class SalaryAnchorResolver:
                 overall_median, frequency, currency, exchange_rates
             )
             return SalaryAnchorResolver._make_result(
-                yearly, monthly,
-                fallback_level= "job_title_overall",
-                confidence=     CONFIDENCE_JOB_TITLE_OVERALL,
-                source_label=   "Overall market median for this role (seniority data unavailable)",
+                yearly,
+                monthly,
+                fallback_level="job_title_overall",
+                confidence=CONFIDENCE_JOB_TITLE_OVERALL,
+                source_label="Overall market median for this role (seniority data unavailable)",
             )
 
         return None
@@ -137,29 +139,30 @@ class SalaryAnchorResolver:
     @staticmethod
     def _resolve_industry_anchor(
         seniority_level: str,
-        industry_data:   dict,
-        exchange_rates:  dict[str, float],
-        frequency:       str,
+        industry_data: dict,
+        exchange_rates: dict[str, float],
+        frequency: str,
     ) -> Optional[AnchorResult]:
         """
         Resolve the anchor from industry data only (L3 and L4).
         Returns None when no usable salary data is found.
         """
         benchmarks = industry_data.get("salaryBenchmarks", {})
-        currency   = benchmarks.get("currency", BASE_CURRENCY)
+        currency = benchmarks.get("currency", BASE_CURRENCY)
 
         # L3 — industry bySeniority median
-        level_data   = benchmarks.get("bySeniority", {}).get(seniority_level, {})
+        level_data = benchmarks.get("bySeniority", {}).get(seniority_level, {})
         level_median = level_data.get("median", 0) if level_data else 0
         if level_median > 0:
             yearly, monthly = SalaryAnchorResolver._normalize_pair(
                 level_median, frequency, currency, exchange_rates
             )
             return SalaryAnchorResolver._make_result(
-                yearly, monthly,
-                fallback_level= "industry_by_seniority",
-                confidence=     CONFIDENCE_INDUSTRY_BY_SENIORITY,
-                source_label=   f"Industry median for {seniority_level} level (role-specific data unavailable)",
+                yearly,
+                monthly,
+                fallback_level="industry_by_seniority",
+                confidence=CONFIDENCE_INDUSTRY_BY_SENIORITY,
+                source_label=f"Industry median for {seniority_level} level (role-specific data unavailable)",
             )
 
         # L4 — industry overall median
@@ -169,10 +172,11 @@ class SalaryAnchorResolver:
                 overall_median, frequency, currency, exchange_rates
             )
             return SalaryAnchorResolver._make_result(
-                yearly, monthly,
-                fallback_level= "industry_overall",
-                confidence=     CONFIDENCE_INDUSTRY_OVERALL,
-                source_label=   "Industry-wide median (insufficient role-specific data)",
+                yearly,
+                monthly,
+                fallback_level="industry_overall",
+                confidence=CONFIDENCE_INDUSTRY_OVERALL,
+                source_label="Industry-wide median (insufficient role-specific data)",
             )
 
         return None
@@ -183,21 +187,18 @@ class SalaryAnchorResolver:
         ind_yearly: float,
         blend_weight: float,
     ) -> float:
-        return round(
-            jt_yearly * blend_weight + ind_yearly * (1.0 - blend_weight),
-            2
-        )
+        return round(jt_yearly * blend_weight + ind_yearly * (1.0 - blend_weight), 2)
 
     # ── Main entry point ──────────────────────────────────────────────────
 
     @staticmethod
     def resolve(
-        seniority_level:  str,
-        job_title_data:   Optional[dict],
-        industry_data:    Optional[dict],
-        exchange_rates:   dict[str, float],
-        frequency:        str = FREQUENCY_YEAR,
-        blend_weight:     float = 1.0,
+        seniority_level: str,
+        job_title_data: Optional[dict],
+        industry_data: Optional[dict],
+        exchange_rates: dict[str, float],
+        frequency: str = FREQUENCY_YEAR,
+        blend_weight: float = 1.0,
     ) -> AnchorResult:
         """
         Walk the fallback chain and return the best available anchor,
@@ -266,10 +267,11 @@ class SalaryAnchorResolver:
                 "Ensure job_title_data or industry_data is populated."
             )
             return SalaryAnchorResolver._make_result(
-                0.0, 0.0,
-                fallback_level= "no_data",
-                confidence=     CONFIDENCE_NO_DATA,
-                source_label=   "No salary data available for this role or industry",
+                0.0,
+                0.0,
+                fallback_level="no_data",
+                confidence=CONFIDENCE_NO_DATA,
+                source_label="No salary data available for this role or industry",
             )
 
         # blend_weight = 0.0 → skills don't match title at all, use industry only
@@ -279,25 +281,23 @@ class SalaryAnchorResolver:
             if jt_anchor:
                 return jt_anchor
             return SalaryAnchorResolver._make_result(
-                0.0, 0.0,
-                fallback_level= "no_data",
-                confidence=     CONFIDENCE_NO_DATA,
-                source_label=   "No salary data available for this role or industry",
+                0.0,
+                0.0,
+                fallback_level="no_data",
+                confidence=CONFIDENCE_NO_DATA,
+                source_label="No salary data available for this role or industry",
             )
 
         # Partial blend — linear interpolation between both anchors
         blended_yearly = SalaryAnchorResolver._blend_anchors(
-            jt_anchor.yearly,
-            ind_anchor.yearly,
-            blend_weight
+            jt_anchor.yearly, ind_anchor.yearly, blend_weight
         )
         blended_monthly = round(blended_yearly / 12, 2)
 
         # Confidence: weighted average of both, then penalised for uncertainty
-        blended_confidence = (
-            jt_anchor.confidence * (blend_weight ** 1.5) +
-            ind_anchor.confidence * ((1 - blend_weight) ** 1.5)
-        )
+        blended_confidence = jt_anchor.confidence * (
+            blend_weight**1.5
+        ) + ind_anchor.confidence * ((1 - blend_weight) ** 1.5)
 
         logger.info(
             f"[AnchorResolver] Blended anchor — "
@@ -311,11 +311,11 @@ class SalaryAnchorResolver:
         return SalaryAnchorResolver._make_result(
             blended_yearly,
             blended_monthly,
-            fallback_level= "blended",
-            confidence=     blended_confidence,
-            source_label=   (
-                f"Blended estimate: {blend_weight*100:.0f}% role benchmark + "
-                f"{(1-blend_weight)*100:.0f}% industry baseline "
+            fallback_level="blended",
+            confidence=blended_confidence,
+            source_label=(
+                f"Blended estimate: {blend_weight * 100:.0f}% role benchmark + "
+                f"{(1 - blend_weight) * 100:.0f}% industry baseline "
                 f"(partial skill match for this role)"
             ),
         )

@@ -30,6 +30,7 @@ logger = logging.getLogger(__name__)
 # Skills
 # ──────────────────────────────────────────────────────────────────────────────
 
+
 def extract_skills_embeddings(
     skills: list[dict],
     skill_docs: list[dict],
@@ -58,9 +59,7 @@ def extract_skills_embeddings(
     # surviving entry is a non-empty str, but mypy can't infer that through
     # a list comprehension over dict.get(). cast() documents the invariant
     # we just enforced rather than weakening it with type: ignore.
-    skill_names: list[str] = [
-        cast(str, s.get("name")) for s in skills if s.get("name")
-    ]
+    skill_names: list[str] = [cast(str, s.get("name")) for s in skills if s.get("name")]
     if not skill_names:
         return None, [], []
 
@@ -68,8 +67,8 @@ def extract_skills_embeddings(
     skill_map = {doc.get("name"): doc for doc in skill_docs}
 
     all_embeddings: list[torch.Tensor] = []
-    missing_skills: list[str] = []   # need model fallback
-    needs_backfill: list[str] = []   # have a DB _id but embedding was null
+    missing_skills: list[str] = []  # need model fallback
+    needs_backfill: list[str] = []  # have a DB _id but embedding was null
 
     for skill_name in skill_names:
         doc = skill_map.get(skill_name)
@@ -78,12 +77,16 @@ def extract_skills_embeddings(
             all_embeddings.append(torch.tensor(doc["embedding"]))
         elif doc and not doc.get("embedding"):
             # In DB but null — regenerate and flag for backfill
-            logger.warning(f"Skill '{skill_name}' has null embedding — falling back to model")
+            logger.warning(
+                f"Skill '{skill_name}' has null embedding — falling back to model"
+            )
             missing_skills.append(skill_name)
             needs_backfill.append(str(doc["_id"]))
         else:
             # Not in DB at all — generate but nothing to backfill
-            logger.warning(f"Skill '{skill_name}' not in pre-fetched docs — falling back to model")
+            logger.warning(
+                f"Skill '{skill_name}' not in pre-fetched docs — falling back to model"
+            )
             missing_skills.append(skill_name)
 
     backfill_embeddings: list[torch.Tensor] = []
@@ -118,6 +121,7 @@ def extract_skills_embeddings(
 # Job title
 # ──────────────────────────────────────────────────────────────────────────────
 
+
 def extract_job_title_embedding(
     job_title: str,
     job_title_doc: Optional[dict],
@@ -144,10 +148,14 @@ def extract_job_title_embedding(
         return torch.tensor(job_title_doc["embedding"]), None
 
     if job_title_doc and not job_title_doc.get("embedding"):
-        logger.warning(f"Job title '{job_title}' has null embedding — falling back to model")
+        logger.warning(
+            f"Job title '{job_title}' has null embedding — falling back to model"
+        )
         needs_backfill = str(job_title_doc["_id"])
     else:
-        logger.warning(f"Job title '{job_title}' not in pre-fetched doc — falling back to model")
+        logger.warning(
+            f"Job title '{job_title}' not in pre-fetched doc — falling back to model"
+        )
 
     embedding = embedding_model.encode(job_title)
     if embedding is None:
@@ -159,6 +167,7 @@ def extract_job_title_embedding(
 # ──────────────────────────────────────────────────────────────────────────────
 # Location
 # ──────────────────────────────────────────────────────────────────────────────
+
 
 def extract_location_embedding(
     location_name: str,
@@ -186,10 +195,14 @@ def extract_location_embedding(
         return torch.tensor(location_doc["embedding"]), None
 
     if location_doc and not location_doc.get("embedding"):
-        logger.warning(f"Location '{location_name}' has null embedding — falling back to model")
+        logger.warning(
+            f"Location '{location_name}' has null embedding — falling back to model"
+        )
         needs_backfill = str(location_doc["_id"])
     else:
-        logger.warning(f"Location '{location_name}' not in pre-fetched doc — falling back to model")
+        logger.warning(
+            f"Location '{location_name}' not in pre-fetched doc — falling back to model"
+        )
 
     embedding = embedding_model.encode(location_name)
     if embedding is None:
@@ -201,6 +214,7 @@ def extract_location_embedding(
 # ──────────────────────────────────────────────────────────────────────────────
 # Work experience
 # ──────────────────────────────────────────────────────────────────────────────
+
 
 def extract_work_experience_embeddings(
     work_experiences: list[dict],
@@ -226,10 +240,7 @@ def extract_work_experience_embeddings(
         return None
 
     # Build lookup — docs may use 'title' or 'name' depending on collection
-    title_map = {
-        (doc.get("title") or doc.get("name")): doc
-        for doc in job_title_docs
-    }
+    title_map = {(doc.get("title") or doc.get("name")): doc for doc in job_title_docs}
 
     embeddings: list[torch.Tensor] = []
     fallback_texts: list[str] = []
@@ -255,7 +266,11 @@ def extract_work_experience_embeddings(
             else:
                 fallback_texts.append(job_title)
 
-            reason = "null embedding" if (doc and not doc.get("embedding")) else "not in pre-fetched docs"
+            reason = (
+                "null embedding"
+                if (doc and not doc.get("embedding"))
+                else "not in pre-fetched docs"
+            )
             logger.warning(f"Job title '{job_title}' {reason} — falling back to model")
 
     if fallback_texts:
@@ -280,7 +295,10 @@ def extract_work_experience_embeddings(
 # These three never touched the DB — no changes needed beyond keeping them here
 # ──────────────────────────────────────────────────────────────────────────────
 
-def extract_certification_embeddings(certifications: list[dict]) -> Optional[torch.Tensor]:
+
+def extract_certification_embeddings(
+    certifications: list[dict],
+) -> Optional[torch.Tensor]:
     """
     Extract and compute mean embedding for certifications.
     Pure model inference — no DB access, no pre-fetched docs needed.
@@ -314,20 +332,28 @@ def extract_requirement_embeddings(requirements) -> Optional[torch.Tensor]:
         Mean requirements embedding or None.
     """
     if isinstance(requirements, dict):
-        extracted = [requirements["description"]] if requirements.get("description") else []
+        extracted = (
+            [requirements["description"]] if requirements.get("description") else []
+        )
 
         if isinstance(requirements.get("education"), str):
             extracted.append(requirements["education"])
         if isinstance(requirements.get("yearsOfExperience"), (int, float)):
-            extracted.append(f"Years of Experience: {requirements['yearsOfExperience']}")
+            extracted.append(
+                f"Years of Experience: {requirements['yearsOfExperience']}"
+            )
         if isinstance(requirements.get("certifications"), list):
-            extracted.extend(c for c in requirements["certifications"] if isinstance(c, str))
+            extracted.extend(
+                c for c in requirements["certifications"] if isinstance(c, str)
+            )
 
         if extracted:
             embeddings = embedding_model.encode_batch(extracted)
             return safe_mean_embedding(embeddings)
 
-    elif isinstance(requirements, list) and all(isinstance(r, str) for r in requirements):
+    elif isinstance(requirements, list) and all(
+        isinstance(r, str) for r in requirements
+    ):
         embeddings = embedding_model.encode_batch(requirements)
         return safe_mean_embedding(embeddings)
 

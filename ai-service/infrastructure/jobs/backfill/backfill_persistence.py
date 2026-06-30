@@ -7,10 +7,12 @@ import torch
 
 logger = logging.getLogger(__name__)
 
+
 class BackfillStatus(NamedTuple):
     matched: int
     modified: int
     failed: int
+
 
 def _backfill_single(
     collection,
@@ -30,8 +32,7 @@ def _backfill_single(
             embedding_payload = embedding.detach().cpu().tolist()
 
         result = collection.update_one(
-            { "_id": ObjectId(doc_id) },
-            { "$set": { "embedding": embedding_payload } }
+            {"_id": ObjectId(doc_id)}, {"$set": {"embedding": embedding_payload}}
         )
 
         logger.info(
@@ -48,6 +49,7 @@ def _backfill_single(
     except Exception as e:
         logger.error(f"Backfill {entity_name} failed for {doc_id}: {e}")
         return BackfillStatus(0, 0, 1)
+
 
 def _backfill_batch(
     collection,

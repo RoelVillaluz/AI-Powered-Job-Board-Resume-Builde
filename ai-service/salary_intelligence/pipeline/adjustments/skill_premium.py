@@ -30,16 +30,17 @@ logger = logging.getLogger(__name__)
 
 # ── Seniority profiles ────────────────────────────────────────────────────────
 
+
 class _SkillProfile(NamedTuple):
-    max_premium:   float
-    acceleration:  float
+    max_premium: float
+    acceleration: float
 
 
 _PROFILES: dict[str, _SkillProfile] = {
-    "Intern":    _SkillProfile(max_premium=0.12, acceleration=1.00),
-    "Entry":     _SkillProfile(max_premium=0.25, acceleration=0.85),
+    "Intern": _SkillProfile(max_premium=0.12, acceleration=1.00),
+    "Entry": _SkillProfile(max_premium=0.25, acceleration=0.85),
     "Mid-Level": _SkillProfile(max_premium=0.45, acceleration=0.70),
-    "Senior":    _SkillProfile(max_premium=0.60, acceleration=0.55),
+    "Senior": _SkillProfile(max_premium=0.60, acceleration=0.55),
 }
 
 _DEFAULT_PROFILE = _SkillProfile(max_premium=0.45, acceleration=0.70)
@@ -60,17 +61,18 @@ _GROWTH_WEIGHT: float = 0.4
 # is correctly discounted. 17 Beginner skills ≠ 5 Intermediate skills.
 
 _SKILL_LEVEL_WEIGHT: dict[str, float] = {
-    "Beginner":     0.40,
+    "Beginner": 0.40,
     "Intermediate": 0.75,
-    "Expert":       1.00,
+    "Expert": 1.00,
 }
-_DEFAULT_LEVEL_WEIGHT: float = 0.40   # Beginner — assume least when unknown
+_DEFAULT_LEVEL_WEIGHT: float = 0.40  # Beginner — assume least when unknown
 
-CONFIDENCE_PENALTY_NO_SKILLS:     float = 20.0
+CONFIDENCE_PENALTY_NO_SKILLS: float = 20.0
 CONFIDENCE_PENALTY_SPARSE_SKILLS: float = 10.0
-MIN_SKILLS_FOR_FULL_CONFIDENCE:   int   = 6
+MIN_SKILLS_FOR_FULL_CONFIDENCE: int = 6
 
 # ── Result types ──────────────────────────────────────────────────────────────
+
 
 class SkillScore(NamedTuple):
     """
@@ -100,32 +102,33 @@ class SkillScore(NamedTuple):
         The multiplier applied for this level (0.40 / 0.75 / 1.00).
         Preserved so explanation layer can show: "React (Beginner, 0.40×)".
     """
-    name:                 str
-    demand_score:         float
-    weighted_score:       float
+
+    name: str
+    demand_score: float
+    weighted_score: float
     seniority_multiplier: float
-    level:                str
-    level_weight:         float
+    level: str
+    level_weight: float
 
 
 class SkillPremiumAdjustment(NamedTuple):
-    skill_yearly:          float
-    skill_monthly:         float
-    skill_delta:           float
-    multiplier:            float
-    portfolio_score:       float
-    skill_scores:          list[SkillScore]
-    top_skills:            list[SkillScore]
-    seniority_level:       str
-    max_premium:           float
+    skill_yearly: float
+    skill_monthly: float
+    skill_delta: float
+    multiplier: float
+    portfolio_score: float
+    skill_scores: list[SkillScore]
+    top_skills: list[SkillScore]
+    seniority_level: str
+    max_premium: float
     confidence_adjustment: float
-    data_gaps:             list[str]
+    data_gaps: list[str]
 
 
 # ── Skill premium calculation ─────────────────────────────────────────────────
 
-class SkillPremium:
 
+class SkillPremium:
     @staticmethod
     def get_profile(seniority_level: str) -> _SkillProfile:
         profile = _PROFILES.get(seniority_level)
@@ -151,24 +154,24 @@ class SkillPremium:
         nearly the same portfolio score as 17 Expert skills. Now Beginner
         skills contribute 40% of their demand signal.
         """
-        demand_raw  = skill.get("demandScore", 0) / 100
-        growth_raw  = skill.get("growthRate",  0) / 100
+        demand_raw = skill.get("demandScore", 0) / 100
+        growth_raw = skill.get("growthRate", 0) / 100
         seniority_m = skill.get("seniorityMultiplier", 1.0)
-        level       = skill.get("level", "Beginner")
+        level = skill.get("level", "Beginner")
 
-        demand_score  = (demand_raw * _DEMAND_WEIGHT) + (growth_raw * _GROWTH_WEIGHT)
-        level_weight  = _SKILL_LEVEL_WEIGHT.get(level, _DEFAULT_LEVEL_WEIGHT)
+        demand_score = (demand_raw * _DEMAND_WEIGHT) + (growth_raw * _GROWTH_WEIGHT)
+        level_weight = _SKILL_LEVEL_WEIGHT.get(level, _DEFAULT_LEVEL_WEIGHT)
 
         # Level weight applied here — the key change
         weighted_score = demand_score * seniority_m * level_weight
 
         return SkillScore(
-            name=                 skill.get("name", "Unknown"),
-            demand_score=         round(demand_score,   4),
-            weighted_score=       round(weighted_score, 4),
-            seniority_multiplier= seniority_m,
-            level=                level,
-            level_weight=         level_weight,
+            name=skill.get("name", "Unknown"),
+            demand_score=round(demand_score, 4),
+            weighted_score=round(weighted_score, 4),
+            seniority_multiplier=seniority_m,
+            level=level,
+            level_weight=level_weight,
         )
 
     @staticmethod
@@ -184,7 +187,9 @@ class SkillPremium:
         if not skill_scores:
             return 0.0
 
-        total_weight = sum(s.seniority_multiplier * s.level_weight for s in skill_scores)
+        total_weight = sum(
+            s.seniority_multiplier * s.level_weight for s in skill_scores
+        )
         weighted_sum = sum(s.weighted_score for s in skill_scores)
 
         if total_weight == 0:
@@ -195,8 +200,8 @@ class SkillPremium:
     @staticmethod
     def compute_multiplier(
         portfolio_score: float,
-        max_premium:     float,
-        acceleration:    float,
+        max_premium: float,
+        acceleration: float,
     ) -> float:
         """
         Convert portfolio score → salary multiplier using a power curve.
@@ -210,16 +215,16 @@ class SkillPremium:
             return 1.0
 
         score_clamped = min(1.0, portfolio_score)
-        exponent      = 1.0 / acceleration
-        raw_premium   = max_premium * (score_clamped ** exponent)
-        multiplier    = 1.0 + raw_premium
+        exponent = 1.0 / acceleration
+        raw_premium = max_premium * (score_clamped**exponent)
+        multiplier = 1.0 + raw_premium
 
         return round(min(multiplier, 1.0 + max_premium), 6)
 
     @staticmethod
     def apply(
-        input_salary:      float,
-        seniority_level:   str,
+        input_salary: float,
+        seniority_level: str,
         skill_market_data: Optional[list[dict]],
     ) -> SkillPremiumAdjustment:
         """
@@ -229,17 +234,22 @@ class SkillPremium:
             { name, demandScore, growthRate, seniorityMultiplier, level }
         Falls back to 'Beginner' when level is absent.
         """
-        data_gaps:             list[str] = []
-        confidence_adjustment: float     = 0.0
+        data_gaps: list[str] = []
+        confidence_adjustment: float = 0.0
         profile = SkillPremium.get_profile(seniority_level)
 
         if not skill_market_data:
             logger.warning("[SkillPremium] No skill market data.")
-            data_gaps.append("Skill market data unavailable — skill premium not applied")
+            data_gaps.append(
+                "Skill market data unavailable — skill premium not applied"
+            )
             confidence_adjustment -= CONFIDENCE_PENALTY_NO_SKILLS
             return SkillPremium._passthrough(
-                input_salary, profile, seniority_level,
-                confidence_adjustment, data_gaps,
+                input_salary,
+                profile,
+                seniority_level,
+                confidence_adjustment,
+                data_gaps,
             )
 
         skill_scores = [SkillPremium.score_skill(s) for s in skill_market_data]
@@ -256,14 +266,16 @@ class SkillPremium:
             confidence_adjustment -= CONFIDENCE_PENALTY_SPARSE_SKILLS
 
         portfolio_score = SkillPremium.compute_portfolio_score(skill_scores)
-        multiplier      = SkillPremium.compute_multiplier(
+        multiplier = SkillPremium.compute_multiplier(
             portfolio_score, profile.max_premium, profile.acceleration
         )
 
-        skill_yearly  = round(input_salary * multiplier, 2)
+        skill_yearly = round(input_salary * multiplier, 2)
         skill_monthly = round(skill_yearly / 12, 2)
-        skill_delta   = round(skill_yearly - input_salary, 2)
-        top_skills    = sorted(skill_scores, key=lambda s: s.weighted_score, reverse=True)[:3]
+        skill_delta = round(skill_yearly - input_salary, 2)
+        top_skills = sorted(skill_scores, key=lambda s: s.weighted_score, reverse=True)[
+            :3
+        ]
 
         logger.info(
             f"[SkillPremium] seniority={seniority_level} "
@@ -277,40 +289,40 @@ class SkillPremium:
         )
 
         return SkillPremiumAdjustment(
-            skill_yearly=          skill_yearly,
-            skill_monthly=         skill_monthly,
-            skill_delta=           skill_delta,
-            multiplier=            multiplier,
-            portfolio_score=       portfolio_score,
-            skill_scores=          skill_scores,
-            top_skills=            top_skills,
-            seniority_level=       seniority_level,
-            max_premium=           profile.max_premium,
-            confidence_adjustment= confidence_adjustment,
-            data_gaps=             data_gaps,
+            skill_yearly=skill_yearly,
+            skill_monthly=skill_monthly,
+            skill_delta=skill_delta,
+            multiplier=multiplier,
+            portfolio_score=portfolio_score,
+            skill_scores=skill_scores,
+            top_skills=top_skills,
+            seniority_level=seniority_level,
+            max_premium=profile.max_premium,
+            confidence_adjustment=confidence_adjustment,
+            data_gaps=data_gaps,
         )
 
     @staticmethod
     def _passthrough(
-        input_salary:          float,
-        profile:               _SkillProfile,
-        seniority_level:       str,
+        input_salary: float,
+        profile: _SkillProfile,
+        seniority_level: str,
         confidence_adjustment: float,
-        data_gaps:             list[str],
+        data_gaps: list[str],
     ) -> SkillPremiumAdjustment:
         monthly = round(input_salary / 12, 2)
         return SkillPremiumAdjustment(
-            skill_yearly=          input_salary,
-            skill_monthly=         monthly,
-            skill_delta=           0.0,
-            multiplier=            1.0,
-            portfolio_score=       0.0,
-            skill_scores=          [],
-            top_skills=            [],
-            seniority_level=       seniority_level,
-            max_premium=           profile.max_premium,
-            confidence_adjustment= confidence_adjustment,
-            data_gaps=             data_gaps,
+            skill_yearly=input_salary,
+            skill_monthly=monthly,
+            skill_delta=0.0,
+            multiplier=1.0,
+            portfolio_score=0.0,
+            skill_scores=[],
+            top_skills=[],
+            seniority_level=seniority_level,
+            max_premium=profile.max_premium,
+            confidence_adjustment=confidence_adjustment,
+            data_gaps=data_gaps,
         )
 
     @staticmethod
@@ -320,7 +332,7 @@ class SkillPremium:
         if adjustment.skill_delta == 0.0:
             return lines
 
-        pct_uplift    = (adjustment.multiplier - 1.0) * 100
+        pct_uplift = (adjustment.multiplier - 1.0) * 100
         portfolio_pct = adjustment.portfolio_score * 100
 
         lines.append(
@@ -353,6 +365,6 @@ class SkillPremium:
 
     @staticmethod
     def premium_remaining(adjustment: SkillPremiumAdjustment) -> float:
-        input_salary      = adjustment.skill_yearly - adjustment.skill_delta
+        input_salary = adjustment.skill_yearly - adjustment.skill_delta
         salary_at_ceiling = input_salary * (1.0 + adjustment.max_premium)
         return round(max(0.0, salary_at_ceiling - adjustment.skill_yearly), 2)

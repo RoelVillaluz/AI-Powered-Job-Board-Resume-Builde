@@ -10,5 +10,5 @@
 # Node's aiClient.ts checks for res.data.error and throws if present.
 def wrap(result: dict) -> dict:
     if "error" in result:
-        return { "data": None, "error": result["error"] }
-    return { "data": result, "error": None }
+        return {"data": None, "error": result["error"]}
+    return {"data": result, "error": None}

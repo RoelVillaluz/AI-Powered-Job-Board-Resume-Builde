@@ -41,16 +41,16 @@ logger = logging.getLogger(__name__)
 
 # ── Thresholds ────────────────────────────────────────────────────────────────
 
-_SENIOR_FULL_THRESHOLD    = (6.0, 12)   # meets both → Senior
-_SENIOR_PARTIAL_THRESHOLD = (3.0, 8)   # meets both → Mid-Level; below → Entry
+_SENIOR_FULL_THRESHOLD = (6.0, 12)  # meets both → Senior
+_SENIOR_PARTIAL_THRESHOLD = (3.0, 8)  # meets both → Mid-Level; below → Entry
 
-_MID_LEVEL_THRESHOLD = (1.0, 6)        # meets both → Mid-Level; below → Entry
+_MID_LEVEL_THRESHOLD = (1.0, 6)  # meets both → Mid-Level; below → Entry
 
 
 def resolve_effective_seniority(
-    claimed_seniority:      str,
+    claimed_seniority: str,
     total_experience_years: Optional[float],
-    skill_count:            int,
+    skill_count: int,
 ) -> tuple[str, bool]:
     """
     Derive the effective seniority the pipeline should use.
@@ -68,10 +68,16 @@ def resolve_effective_seniority(
     years = total_experience_years if total_experience_years is not None else 0.0
 
     if claimed_seniority == "Senior":
-        if years >= _SENIOR_FULL_THRESHOLD[0] and skill_count >= _SENIOR_FULL_THRESHOLD[1]:
+        if (
+            years >= _SENIOR_FULL_THRESHOLD[0]
+            and skill_count >= _SENIOR_FULL_THRESHOLD[1]
+        ):
             return "Senior", False
 
-        if years >= _SENIOR_PARTIAL_THRESHOLD[0] and skill_count >= _SENIOR_PARTIAL_THRESHOLD[1]:
+        if (
+            years >= _SENIOR_PARTIAL_THRESHOLD[0]
+            and skill_count >= _SENIOR_PARTIAL_THRESHOLD[1]
+        ):
             logger.info(
                 f"[EffectiveSeniority] Senior → Mid-Level "
                 f"(years={years:.1f} need {_SENIOR_FULL_THRESHOLD[0]}, "

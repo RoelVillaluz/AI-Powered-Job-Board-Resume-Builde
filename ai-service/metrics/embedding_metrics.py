@@ -8,6 +8,7 @@ completed run record to MongoDB + stderr.
 Nothing in here knows about threads or how embeddings are computed.
 It only knows how to measure and store what happened.
 """
+
 from __future__ import annotations
 
 import logging
@@ -26,6 +27,7 @@ CacheOutcome = Literal["hit", "miss", "null_backfill", "skipped"]
 @dataclass
 class SectionMetrics:
     """Timing and cache result for one embedding section."""
+
     section: str
     duration_ms: float
     cache_outcome: CacheOutcome
@@ -38,6 +40,7 @@ class PipelineRun:
     Full record for one resume or job embedding pipeline execution.
     Written to MongoDB as a single document.
     """
+
     entity_type: Literal["resume", "job"]
     entity_id: str
     sections: list[SectionMetrics] = field(default_factory=list)
@@ -57,10 +60,14 @@ class PipelineRun:
         self.completed_at = datetime.now(timezone.utc)
         self.cache_hits = sum(1 for s in self.sections if s.cache_outcome == "hit")
         self.cache_misses = sum(1 for s in self.sections if s.cache_outcome == "miss")
-        self.null_backfills = sum(1 for s in self.sections if s.cache_outcome == "null_backfill")
+        self.null_backfills = sum(
+            1 for s in self.sections if s.cache_outcome == "null_backfill"
+        )
         self.had_errors = any(s.error for s in self.sections)
         if self.sections:
-            self.slowest_section = max(self.sections, key=lambda s: s.duration_ms).section
+            self.slowest_section = max(
+                self.sections, key=lambda s: s.duration_ms
+            ).section
 
     def to_doc(self) -> dict:
         return {
@@ -148,7 +155,13 @@ def _log_summary(run: PipelineRun) -> None:
         + (" ERRORS" if run.had_errors else "")
     ]
     for s in sorted(run.sections, key=lambda x: x.duration_ms, reverse=True):
-        marker = "✓" if s.cache_outcome == "hit" else "~" if s.cache_outcome == "null_backfill" else "✗"
+        marker = (
+            "✓"
+            if s.cache_outcome == "hit"
+            else "~"
+            if s.cache_outcome == "null_backfill"
+            else "✗"
+        )
         lines.append(
             f"  {marker} {s.section:<20} {s.duration_ms:>7.1f}ms  [{s.cache_outcome}]"
             + (f"  ERROR: {s.error}" if s.error else "")

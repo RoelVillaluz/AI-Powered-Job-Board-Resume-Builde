@@ -9,7 +9,9 @@ def score_matches(
     skill_market_data: list[dict],
 ) -> dict:
     def _run():
-        matches = JobMatchingService.score_matches(resume, job_matches, skill_market_data)
+        matches = JobMatchingService.score_matches(
+            resume, job_matches, skill_market_data
+        )
         return {"matches": matches, "totalScored": len(matches)}
 
     return safe_call(_run, label="score_matches")

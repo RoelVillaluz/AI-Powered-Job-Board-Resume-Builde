@@ -25,10 +25,10 @@ def _task_factory(
     run: PipelineRun,
 ) -> dict:
     return {
-        "skills":          lambda: run_skills(job, run, skill_docs=skill_docs),
-        "requirements":    lambda: run_requirements(job, run),
-        "jobTitle":        lambda: run_job_title(job, run, job_title_doc=job_title_doc),
-        "location":        lambda: run_location(job, run, location_doc=location_doc),
+        "skills": lambda: run_skills(job, run, skill_docs=skill_docs),
+        "requirements": lambda: run_requirements(job, run),
+        "jobTitle": lambda: run_job_title(job, run, job_title_doc=job_title_doc),
+        "location": lambda: run_location(job, run, location_doc=location_doc),
         "experienceLevel": lambda: run_experience_level(job, run),
     }
 
@@ -36,10 +36,10 @@ def _task_factory(
 _PIPELINE = EmbeddingPipeline(
     task_factory=_task_factory,
     result_keys={
-        "skills":           "skills",
-        "requirements":     "requirements",
-        "job_title":        ("jobTitle",  "single"),
-        "location":         ("location",  "single"),
+        "skills": "skills",
+        "requirements": "requirements",
+        "job_title": ("jobTitle", "single"),
+        "location": ("location", "single"),
         "experience_level": "experienceLevel",
     },
 )

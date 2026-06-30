@@ -7,9 +7,7 @@ from fastapi import APIRouter
 # ── Router ─────────────────────────────────────────────────────────────────────
 router = APIRouter()
 
-@router.get('/health')
+
+@router.get("/health")
 async def health():
-    return {
-        'status': 'ok',
-        'embedding_model': 'all-mpnet-base-v2'
-    }
+    return {"status": "ok", "embedding_model": "all-mpnet-base-v2"}

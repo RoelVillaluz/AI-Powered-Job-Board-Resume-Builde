@@ -12,15 +12,21 @@ from bson import ObjectId
 load_dotenv()
 
 # MongoDB Connection
-mongo_uri = os.getenv('MONGO_DEV_URI')
+mongo_uri = os.getenv("MONGO_DEV_URI")
 client = pymongo.MongoClient(mongo_uri)
 db = client["database"]
 
-def get_resume_skills(user_id):
-    """ Extracts skills from user's resumes """
-    resume = db.resumes.find_one({"user": ObjectId(user_id)}, {"skills.name": 1, "_id": 0})
-    return {skill["name"] for skill in resume["skills"]} if resume and "skills" in resume else set()
 
+def get_resume_skills(user_id):
+    """Extracts skills from user's resumes"""
+    resume = db.resumes.find_one(
+        {"user": ObjectId(user_id)}, {"skills.name": 1, "_id": 0}
+    )
+    return (
+        {skill["name"] for skill in resume["skills"]}
+        if resume and "skills" in resume
+        else set()
+    )
 
 
 def get_user_saved_job_skills(user_id):
@@ -41,16 +47,17 @@ def get_user_saved_job_skills(user_id):
                 "from": "jobpostings",
                 "localField": "savedJobs",
                 "foreignField": "_id",
-                "as": "savedJobDetails"
+                "as": "savedJobDetails",
             }
         },
         {"$unwind": "$savedJobDetails"},
-        {"$project": {"_id": 0, "savedJobDetails.skills": 1}}
+        {"$project": {"_id": 0, "savedJobDetails.skills": 1}},
     ]
 
     saved_jobs = list(db.users.aggregate(pipeline))
     job_skills = [
-        skill["name"] for job in saved_jobs
+        skill["name"]
+        for job in saved_jobs
         for skill in job.get("savedJobDetails", {}).get("skills", [])
         if isinstance(skill, dict) and "name" in skill
     ]
@@ -59,7 +66,7 @@ def get_user_saved_job_skills(user_id):
 
 
 def recommend_skills(user_id):
-    """ Recommends jobseekers on what skills they might want to learn based on their saved job postings """
+    """Recommends jobseekers on what skills they might want to learn based on their saved job postings"""
     resume_skills = get_resume_skills(user_id)
     job_skills = get_user_saved_job_skills(user_id)
 
@@ -68,13 +75,16 @@ def recommend_skills(user_id):
 
     # Combine all unique skills
     all_skills = list(set(resume_skills).union(set(job_skills)))
-    
+
     # Convert skills to numerical representation
     vectorizer = TfidfVectorizer()
     skill_vectors = vectorizer.fit_transform(all_skills).toarray()
 
     # Generate labels (1 if missing in resume but present in job postings)
-    labels = torch.tensor([1 if skill not in resume_skills else 0 for skill in all_skills], dtype=torch.float32)
+    labels = torch.tensor(
+        [1 if skill not in resume_skills else 0 for skill in all_skills],
+        dtype=torch.float32,
+    )
 
     # Neural network model
     class SkillRecommender(nn.Module):
@@ -91,7 +101,7 @@ def recommend_skills(user_id):
             x = self.relu(self.fc2(x))
             x = self.fc3(x)
             return self.sigmoid(x)
-        
+
     # Initialize Model
     input_dim = skill_vectors.shape[1]
     model = SkillRecommender(input_dim)
@@ -113,9 +123,12 @@ def recommend_skills(user_id):
     # Predict missing skills
     with torch.no_grad():
         predictions = model(X_train).squeeze()
-        recommended_skills = [all_skills[i] for i, pred in enumerate(predictions) if pred > 0.5]
+        recommended_skills = [
+            all_skills[i] for i, pred in enumerate(predictions) if pred > 0.5
+        ]
 
     return json.dumps({"recommended_skills": recommended_skills})
+
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:

@@ -1,4 +1,4 @@
-""" Service for location-related operations """
+"""Service for location-related operations"""
 
 from typing import Dict, Optional
 from config.database import db
@@ -7,46 +7,46 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-class LocationService:
 
+class LocationService:
     @staticmethod
     def get_location_by_id(location_id: str) -> Optional[dict]:
-        """ Single location fetch """
+        """Single location fetch"""
         try:
             location = db.locations.find_one(
-                {'_id': ObjectId(location_id)},
+                {"_id": ObjectId(location_id)},
                 {
-                    'name': 1,
-                    'salaryData': 1,
-                    'baselineFactor': 1,
-                    'costOfLivingIndex': 1,
-                    'demandMetrics': 1,
-                }
+                    "name": 1,
+                    "salaryData": 1,
+                    "baselineFactor": 1,
+                    "costOfLivingIndex": 1,
+                    "demandMetrics": 1,
+                },
             )
 
             return location
         except Exception as e:
-            logger.error(f'Error fetching location: {location_id}: {e}')
+            logger.error(f"Error fetching location: {location_id}: {e}")
             return None
-    
+
     @staticmethod
     def get_location_by_name(location_name: str) -> Optional[dict]:
-        """ Fallback method if no ObjectId reference exists yet. """
+        """Fallback method if no ObjectId reference exists yet."""
         try:
             location = db.locations.find_one(
-                {'name': location_name},
+                {"name": location_name},
                 {
-                    'name': 1,
-                    'salaryData': 1,
-                    'baselineFactor': 1,
-                    'costOfLivingIndex': 1,
-                    'demandMetrics': 1,
-                }
+                    "name": 1,
+                    "salaryData": 1,
+                    "baselineFactor": 1,
+                    "costOfLivingIndex": 1,
+                    "demandMetrics": 1,
+                },
             )
 
             return location
         except Exception as e:
-            logger.error(f'Error fetching location: {location_name}: {e}')
+            logger.error(f"Error fetching location: {location_name}: {e}")
             return None
 
     @staticmethod
@@ -56,33 +56,30 @@ class LocationService:
         if not location_doc:
             return {}
 
-        salary = location_doc.get('salaryData', {})
-        salary_range = salary.get('salaryRange', {})
-        demand = location_doc.get('demandMetrics', {})
+        salary = location_doc.get("salaryData", {})
+        salary_range = salary.get("salaryRange", {})
+        demand = location_doc.get("demandMetrics", {})
 
         return {
             # Identity
-            'name': location_doc.get('name'),
-
+            "name": location_doc.get("name"),
             # Salary signals
-            'averageSalary': salary.get('averageSalary', 0),
-            'medianSalary': salary.get('medianSalary', 0),
-            'currency': salary.get('currency', '$'),
-            'salaryRange': {
-                'min': salary_range.get('min', 0),
-                'max': salary_range.get('max', 0),
-                'p25': salary_range.get('p25', 0),
-                'p75': salary_range.get('p75', 0),
+            "averageSalary": salary.get("averageSalary", 0),
+            "medianSalary": salary.get("medianSalary", 0),
+            "currency": salary.get("currency", "$"),
+            "salaryRange": {
+                "min": salary_range.get("min", 0),
+                "max": salary_range.get("max", 0),
+                "p25": salary_range.get("p25", 0),
+                "p75": salary_range.get("p75", 0),
             },
-
             # Location normalization factor
-            'baselineFactor': location_doc.get('baselineFactor', 0),
-
+            "baselineFactor": location_doc.get("baselineFactor", 0),
             # Demand signals
-            'totalPostings': demand.get('totalPostings', 0),
-            'growthRate': demand.get('growthRate', 0),
+            "totalPostings": demand.get("totalPostings", 0),
+            "growthRate": demand.get("growthRate", 0),
         }
-    
+
     @staticmethod
     def get_location_metrics_by_id(location_id: str) -> Dict:
         if not location_id:
@@ -96,7 +93,7 @@ class LocationService:
                     "salaryData": 1,
                     "baselineFactor": 1,
                     "demandMetrics": 1,
-                }
+                },
             )
 
             return LocationService.extract_metrics(doc)
@@ -104,33 +101,29 @@ class LocationService:
         except Exception as e:
             logger.error(f"[LocationMetrics] Failed fetch: {e}")
             return []
-    
+
     @staticmethod
     def get_with_embedding_by_id(location_id: str) -> Optional[dict]:
         try:
             return db.locations.find_one(
                 {"_id": ObjectId(location_id)},
-                {
-                    "name": 1,
-                    "embedding": 1
-                },
-                collation={"locale": "en", "strength": 2}  # ✅ passed as parameter
+                {"name": 1, "embedding": 1},
+                collation={"locale": "en", "strength": 2},  # ✅ passed as parameter
             )
         except Exception as e:
             logger.error(f"Error fetching location embedding by id {location_id}: {e}")
             return None
-        
+
     @staticmethod
     def get_with_embedding_by_name(location_name: str) -> Optional[dict]:
         try:
             return db.locations.find_one(
                 {"name": location_name},
-                {
-                    "name": 1,
-                    "embedding": 1
-                },
-                collation={"locale": "en", "strength": 2}  # ✅ passed as parameter
+                {"name": 1, "embedding": 1},
+                collation={"locale": "en", "strength": 2},  # ✅ passed as parameter
             )
         except Exception as e:
-            logger.error(f"Error fetching location embedding by name {location_name}: {e}")
+            logger.error(
+                f"Error fetching location embedding by name {location_name}: {e}"
+            )
             return None

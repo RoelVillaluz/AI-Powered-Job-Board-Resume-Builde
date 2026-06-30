@@ -43,16 +43,19 @@ class EmbeddingPipeline:
                         ...
                     }
     """
+
     task_factory: Callable
-    result_keys:  dict
+    result_keys: dict
 
 
 # ── Unpack helpers ────────────────────────────────────────────────────────────
+
 
 def _unpack_skills(raw) -> tuple:
     if raw is None:
         return None, [], []
     return raw
+
 
 def _unpack_single(raw) -> tuple:
     if raw is None:
@@ -61,6 +64,7 @@ def _unpack_single(raw) -> tuple:
 
 
 # ── Generic build / unpack ────────────────────────────────────────────────────
+
 
 def _build_tasks(pipeline: EmbeddingPipeline, run: PipelineRun, **kwargs) -> dict:
     return pipeline.task_factory(**kwargs, run=run)
@@ -80,15 +84,15 @@ def _unpack_results(pipeline: EmbeddingPipeline, raw: dict) -> dict:
     for output_key, spec in pipeline.result_keys.items():
         if spec == "skills":
             emb, ids, embeddings = _unpack_skills(raw.get("skills"))
-            out["skills"]                        = emb
-            out["skill_ids_to_backfill"]         = ids
-            out["skill_embeddings_to_backfill"]  = embeddings
+            out["skills"] = emb
+            out["skill_ids_to_backfill"] = ids
+            out["skill_embeddings_to_backfill"] = embeddings
 
         elif isinstance(spec, tuple):
             section_key, marker = spec
             emb, backfill_id = _unpack_single(raw.get(section_key))
-            out[output_key]                      = emb
-            out[f"{output_key}_id_to_backfill"]  = backfill_id
+            out[output_key] = emb
+            out[f"{output_key}_id_to_backfill"] = backfill_id
 
         else:
             out[output_key] = raw.get(spec)
@@ -98,11 +102,13 @@ def _unpack_results(pipeline: EmbeddingPipeline, raw: dict) -> dict:
 
 # ── Factory ───────────────────────────────────────────────────────────────────
 
+
 def make_pipeline(pipeline: EmbeddingPipeline) -> tuple[Callable, Callable]:
     """
     Return a (build_fn, unpack_fn) pair bound to the given pipeline definition.
     Pass directly to pipeline_registry.register().
     """
+
     def build_fn(**kwargs) -> dict:
         run = kwargs.pop("run")
         return _build_tasks(pipeline, run, **kwargs)

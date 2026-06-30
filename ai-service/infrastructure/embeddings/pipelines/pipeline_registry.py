@@ -20,6 +20,7 @@ from typing import Callable
 
 _REGISTRY: dict[str, tuple[Callable, Callable]] = {}
 
+
 def normalize_entity_type(entity_type: str) -> str:
     """
     Converts:
@@ -33,12 +34,13 @@ def normalize_entity_type(entity_type: str) -> str:
         return entity_type
 
     # camelCase / PascalCase -> snake_case
-    entity_type = re.sub(r'([a-z0-9])([A-Z])', r'\1_\2', entity_type)
+    entity_type = re.sub(r"([a-z0-9])([A-Z])", r"\1_\2", entity_type)
 
     # hyphens/spaces -> underscores
-    entity_type = re.sub(r'[\s\-]+', '_', entity_type)
+    entity_type = re.sub(r"[\s\-]+", "_", entity_type)
 
     return entity_type.lower()
+
 
 def register(entity_type: str, build_fn: Callable, unpack_fn: Callable) -> None:
     """Register a (build_fn, unpack_fn) pair for a given entity type."""

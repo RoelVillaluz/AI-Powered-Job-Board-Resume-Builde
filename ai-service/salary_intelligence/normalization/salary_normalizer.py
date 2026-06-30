@@ -37,9 +37,9 @@ class SalaryNormalizer:
 
     @staticmethod
     def normalize(
-        amount:         float,
-        frequency:      str,
-        currency:       str,
+        amount: float,
+        frequency: str,
+        currency: str,
         exchange_rates: dict[str, float],
     ) -> NormalizedSalary:
         """
@@ -71,9 +71,9 @@ class SalaryNormalizer:
 
     @staticmethod
     def normalize_range(
-        salary_data:    dict,
-        frequency:      str,
-        currency:       str,
+        salary_data: dict,
+        frequency: str,
+        currency: str,
         exchange_rates: dict[str, float],
     ) -> NormalizedSalaryRange:
         """
@@ -91,41 +91,42 @@ class SalaryNormalizer:
 
         All fields default to 0 when missing — sparse data never crashes.
         """
+
         def _n(val: float) -> NormalizedSalary:
             return SalaryNormalizer.normalize(val, frequency, currency, exchange_rates)
 
         exchange_rate = CurrencyNormalizer.resolve_rate(currency, exchange_rates)
-        salary_range  = salary_data.get("salaryRange", {})
+        salary_range = salary_data.get("salaryRange", {})
 
-        median = _n(salary_data.get("medianSalary",  0))
-        avg    = _n(salary_data.get("averageSalary", 0))
-        low    = _n(salary_range.get("min", 0))
-        high   = _n(salary_range.get("max", 0))
-        p25    = _n(salary_range.get("p25", 0))
-        p75    = _n(salary_range.get("p75", 0))
+        median = _n(salary_data.get("medianSalary", 0))
+        avg = _n(salary_data.get("averageSalary", 0))
+        low = _n(salary_range.get("min", 0))
+        high = _n(salary_range.get("max", 0))
+        p25 = _n(salary_range.get("p25", 0))
+        p75 = _n(salary_range.get("p75", 0))
 
         return NormalizedSalaryRange(
-            median_yearly=  median.yearly,
-            median_monthly= median.monthly,
-            avg_yearly=     avg.yearly,
-            avg_monthly=    avg.monthly,
-            min_yearly=     low.yearly,
-            min_monthly=    low.monthly,
-            max_yearly=     high.yearly,
-            max_monthly=    high.monthly,
-            p25_yearly=     p25.yearly,
-            p25_monthly=    p25.monthly,
-            p75_yearly=     p75.yearly,
-            p75_monthly=    p75.monthly,
-            currency=       BASE_CURRENCY,
-            exchange_rate=  exchange_rate,
+            median_yearly=median.yearly,
+            median_monthly=median.monthly,
+            avg_yearly=avg.yearly,
+            avg_monthly=avg.monthly,
+            min_yearly=low.yearly,
+            min_monthly=low.monthly,
+            max_yearly=high.yearly,
+            max_monthly=high.monthly,
+            p25_yearly=p25.yearly,
+            p25_monthly=p25.monthly,
+            p75_yearly=p75.yearly,
+            p75_monthly=p75.monthly,
+            currency=BASE_CURRENCY,
+            exchange_rate=exchange_rate,
         )
 
     # ── Batch ─────────────────────────────────────────────────────────────
 
     @staticmethod
     def normalize_batch(
-        entries:        list[dict],
+        entries: list[dict],
         exchange_rates: dict[str, float],
     ) -> list[NormalizedSalary]:
         """
@@ -139,10 +140,10 @@ class SalaryNormalizer:
         """
         return [
             SalaryNormalizer.normalize(
-                amount=         entry.get("amount",    0),
-                frequency=      entry.get("frequency", FREQUENCY_YEAR),
-                currency=       entry.get("currency",  BASE_CURRENCY),
-                exchange_rates= exchange_rates,
+                amount=entry.get("amount", 0),
+                frequency=entry.get("frequency", FREQUENCY_YEAR),
+                currency=entry.get("currency", BASE_CURRENCY),
+                exchange_rates=exchange_rates,
             )
             for entry in entries
         ]

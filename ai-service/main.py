@@ -7,8 +7,8 @@ import torch
 # Configure logging to stderr so stdout stays clean for JSON output
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[logging.StreamHandler(sys.stderr)]
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    handlers=[logging.StreamHandler(sys.stderr)],
 )
 
 logger = logging.getLogger(__name__)
@@ -29,7 +29,10 @@ hf_logging.set_verbosity_error()
 logging.getLogger("httpx").setLevel(logging.WARNING)
 logging.getLogger("sentence_transformers").setLevel(logging.WARNING)
 
-logger.info(f"HF_HUB_OFFLINE={os.environ.get('HF_HUB_OFFLINE')} TRANSFORMERS_OFFLINE={os.environ.get('TRANSFORMERS_OFFLINE')}")
+logger.info(
+    f"HF_HUB_OFFLINE={os.environ.get('HF_HUB_OFFLINE')} TRANSFORMERS_OFFLINE={os.environ.get('TRANSFORMERS_OFFLINE')}"
+)
+
 
 def generate_resume_embeddings(resume_id: str) -> dict:
     """
@@ -75,16 +78,14 @@ def generate_resume_embeddings(resume_id: str) -> dict:
             "resume_id": resume_id,
             "embeddings": {
                 "jobTitle": tensor_to_list(embeddings.job_title),
-                "location": tensor_to_list(embeddings.location)
+                "location": tensor_to_list(embeddings.location),
             },
             "meanEmbeddings": {
-                "skills":         tensor_to_list(embeddings.skills),
+                "skills": tensor_to_list(embeddings.skills),
                 "workExperience": tensor_to_list(embeddings.work_experience),
-                "certifications": tensor_to_list(embeddings.certifications)
+                "certifications": tensor_to_list(embeddings.certifications),
             },
-            "metrics": {
-                "totalExperienceYears": embeddings.total_experience_years
-            },
+            "metrics": {"totalExperienceYears": embeddings.total_experience_years},
         }
 
     except Exception as e:
@@ -105,7 +106,7 @@ def generate_job_embeddings(job_id: str) -> dict:
             "embeddings": {
                 "jobTitle": list[float],
                 "location": list[float],
-            },           
+            },
             "meanEmbeddings": {
                 "skills": list[float],
                 "requirements": list[float],
@@ -121,11 +122,15 @@ def generate_job_embeddings(job_id: str) -> dict:
         if not job:
             return {"error": f"Job not found: {job_id}"}
 
-        emit_progress("embedding:progress", 30, "Analyzing job title and requirements...")
+        emit_progress(
+            "embedding:progress", 30, "Analyzing job title and requirements..."
+        )
 
         embeddings = JobService.extract_embeddings(job)
 
-        emit_progress("embedding:progress", 50, "Processing skills and experience level...")
+        emit_progress(
+            "embedding:progress", 50, "Processing skills and experience level..."
+        )
 
         emit_progress("embedding:progress", 58, "Finalizing job embedding vectors...")
 
@@ -134,13 +139,12 @@ def generate_job_embeddings(job_id: str) -> dict:
             "embeddings": {
                 "jobTitle": tensor_to_list(embeddings.title),
                 "experienceLevel": tensor_to_list(embeddings.experience_level),
-                "location": tensor_to_list(embeddings.location)
+                "location": tensor_to_list(embeddings.location),
             },
             "meanEmbeddings": {
                 "skills": tensor_to_list(embeddings.skills),
                 "requirements": tensor_to_list(embeddings.requirements),
-                
-            }
+            },
         }
 
         return result
@@ -148,6 +152,7 @@ def generate_job_embeddings(job_id: str) -> dict:
     except Exception as e:
         logger.error(f"Error generating job embeddings: {e}", exc_info=True)
         return {"error": str(e)}
+
 
 def generate_skill_embeddings(skill_id: str) -> dict:
     """
@@ -165,10 +170,7 @@ def generate_skill_embeddings(skill_id: str) -> dict:
         On error: { "error": str }
     """
     try:
-        skill = db.skills.find_one(
-            {"_id": ObjectId(skill_id)},
-            {"name": 1}
-        )
+        skill = db.skills.find_one({"_id": ObjectId(skill_id)}, {"name": 1})
 
         if not skill:
             return {"error": f"Skill not found: {skill_id}"}
@@ -182,14 +184,12 @@ def generate_skill_embeddings(skill_id: str) -> dict:
         if embedding is None:
             return {"error": f"Embedding model returned None for skill: {skill_id}"}
 
-        return {
-            "skill_id": skill_id,
-            "embedding": embedding.detach().cpu().tolist()
-        }
+        return {"skill_id": skill_id, "embedding": embedding.detach().cpu().tolist()}
 
     except Exception as e:
         logger.error(f"Error generating embedding for skill {skill_id}: {e}")
         return {"error": str(e)}
+
 
 def generate_job_title_embeddings(title_id: str) -> dict:
     """
@@ -210,8 +210,7 @@ def generate_job_title_embeddings(title_id: str) -> dict:
     """
     try:
         title_doc = db.jobtitles.find_one(
-            {"_id": ObjectId(title_id)},
-            {"normalizedTitle": 1, "title": 1}
+            {"_id": ObjectId(title_id)}, {"normalizedTitle": 1, "title": 1}
         )
 
         if not title_doc:
@@ -228,14 +227,12 @@ def generate_job_title_embeddings(title_id: str) -> dict:
         if embedding is None:
             return {"error": f"Embedding model returned None for job title: {title_id}"}
 
-        return {
-            "title_id": title_id,
-            "embedding": embedding.detach().cpu().tolist()
-        }
+        return {"title_id": title_id, "embedding": embedding.detach().cpu().tolist()}
 
     except Exception as e:
         logger.error(f"Error generating embedding for job title {title_id}: {e}")
         return {"error": str(e)}
+
 
 def generate_location_embeddings(location_id: str) -> dict:
     """
@@ -256,8 +253,7 @@ def generate_location_embeddings(location_id: str) -> dict:
     """
     try:
         location_doc = db.locations.find_one(
-            {"_id": ObjectId(location_id)},
-            {"name": 1}
+            {"_id": ObjectId(location_id)}, {"name": 1}
         )
 
         if not location_doc:
@@ -270,43 +266,48 @@ def generate_location_embeddings(location_id: str) -> dict:
         embedding = embedding_model.encode(name)
 
         if embedding is None:
-            return {"error": f"Embedding model returned None for location: {location_id}"}
+            return {
+                "error": f"Embedding model returned None for location: {location_id}"
+            }
 
         return {
             "location_id": location_id,
-            "embedding": embedding.detach().cpu().tolist()
+            "embedding": embedding.detach().cpu().tolist(),
         }
 
     except Exception as e:
         logger.error(f"Error generating embedding for location {location_id}: {e}")
         return {"error": str(e)}
 
+
 def generate_industry_embeddings(industry_id: str) -> dict:
     try:
         industry_doc = db.industries.find_one(
-            {'_id': ObjectId(industry_id)},
-            {'name': 1}
+            {"_id": ObjectId(industry_id)}, {"name": 1}
         )
 
         if not industry_doc:
-            return {'error': f'Industry not found: {industry_id}'}
-        
-        name = industry_doc.get('name', '')
+            return {"error": f"Industry not found: {industry_id}"}
+
+        name = industry_doc.get("name", "")
         if not name:
-            return {'error': f'Industry has no name to encode: {industry_id}'}
-        
+            return {"error": f"Industry has no name to encode: {industry_id}"}
+
         embedding = embedding_model.encode(name)
 
         if embedding is None:
-            return {'error': f'Embedding model returned None for industry: {industry_id}'}
-        
+            return {
+                "error": f"Embedding model returned None for industry: {industry_id}"
+            }
+
         return {
-            'industry_id': industry_id,
-            'embedding': embedding.detach().cpu().tolist()
+            "industry_id": industry_id,
+            "embedding": embedding.detach().cpu().tolist(),
         }
     except Exception as e:
-        logger.error(f'Error generating embedding for industry: {industry_id}: {e}')
-        return {'error': str(e)}
+        logger.error(f"Error generating embedding for industry: {industry_id}: {e}")
+        return {"error": str(e)}
+
 
 def score_resume(resume_id: str) -> dict:
     """
@@ -340,35 +341,47 @@ def score_resume(resume_id: str) -> dict:
         resume = ResumeService.get_full_resume(resume_id)
         if not resume:
             return {"error": f"Resume not found: {resume_id}"}
-        
+
         existing_embeddings = db.resumeEmbeddings.find_one(
-            {'resume': ObjectId(resume_id)},
+            {"resume": ObjectId(resume_id)},
             {
-                'embeddings.jobTitle': 1,
-                'embeddings.location': 1,
-                'meanEmbeddings.skills': 1,
-                'meanEmbeddings.workExperience': 1,
-                'meanEmbeddings.certifications': 1,
-                'metrics.totalYears': 1,
-                '_id': 0
-            }
+                "embeddings.jobTitle": 1,
+                "embeddings.location": 1,
+                "meanEmbeddings.skills": 1,
+                "meanEmbeddings.workExperience": 1,
+                "meanEmbeddings.certifications": 1,
+                "metrics.totalYears": 1,
+                "_id": 0,
+            },
         )
 
         if not existing_embeddings:
             embeddings = ResumeService.extract_embeddings(resume)
         else:
             # Reconstruct NamedTuple from stored doc so .total_experience_years works
-            mean = existing_embeddings.get('meanEmbeddings', {})
+            mean = existing_embeddings.get("meanEmbeddings", {})
             embeddings = ResumeEmbeddings(
-                skills=torch.tensor(mean["skills"], dtype=torch.float32) if mean.get("skills") else None,
-                work_experience=torch.tensor(mean["workExperience"], dtype=torch.float32) if mean.get("workExperience") else None,
-                certifications=torch.tensor(mean["certifications"], dtype=torch.float32) if mean.get("certifications") else None,
-                total_experience_years=existing_embeddings.get("totalExperienceYears", 0.0)
+                skills=torch.tensor(mean["skills"], dtype=torch.float32)
+                if mean.get("skills")
+                else None,
+                work_experience=torch.tensor(
+                    mean["workExperience"], dtype=torch.float32
+                )
+                if mean.get("workExperience")
+                else None,
+                certifications=torch.tensor(mean["certifications"], dtype=torch.float32)
+                if mean.get("certifications")
+                else None,
+                total_experience_years=existing_embeddings.get(
+                    "totalExperienceYears", 0.0
+                ),
             )
 
         emit_progress("score:progress", 76, "Scoring your experience depth...")
 
-        score = ScoringService.calculate_resume_score(resume, embeddings.total_experience_years)
+        score = ScoringService.calculate_resume_score(
+            resume, embeddings.total_experience_years
+        )
 
         emit_progress("score:progress", 83, "Evaluating your skill coverage...")
 
@@ -388,13 +401,13 @@ def score_resume(resume_id: str) -> dict:
                 "completeness": score.completeness_score,
                 "experience": score.experience_score,
                 "skills": score.skills_score,
-                "certifications": score.certification_score
+                "certifications": score.certification_score,
             },
             "total_experience_years": embeddings.total_experience_years,
             "strengths": insights.strengths if insights else [],
             "improvements": insights.improvement_suggestions if insights else [],
             "recommendations": insights.skill_gaps if insights else [],
-            "overall_message": overall_message
+            "overall_message": overall_message,
         }
 
         return result
@@ -425,43 +438,45 @@ def main():
     result = None
 
     try:
-        if command == 'generate_resume_embeddings':
+        if command == "generate_resume_embeddings":
             if len(sys.argv) < 3:
-                print(json.dumps({"error": "Resume ID required for embedding generation"}))
+                print(
+                    json.dumps({"error": "Resume ID required for embedding generation"})
+                )
                 sys.exit(1)
             result = generate_resume_embeddings(sys.argv[2])
 
-        elif command == 'generate_job_embeddings':
+        elif command == "generate_job_embeddings":
             if len(sys.argv) < 3:
                 print(json.dumps({"error": "Job ID required for embedding generation"}))
                 sys.exit(1)
             result = generate_job_embeddings(sys.argv[2])
 
-        elif command == 'generate_skill_embeddings':
+        elif command == "generate_skill_embeddings":
             if len(sys.argv) < 3:
-                print(json.dumps({'error': 'Skill ID required'}))
+                print(json.dumps({"error": "Skill ID required"}))
                 sys.exit(1)
             result = generate_skill_embeddings(sys.argv[2])
 
-        elif command == 'generate_job_title_embeddings':
+        elif command == "generate_job_title_embeddings":
             if len(sys.argv) < 3:
-                print(json.dumps({'error': 'Job Title ID required'}))
+                print(json.dumps({"error": "Job Title ID required"}))
                 sys.exit(1)
             result = generate_job_title_embeddings(sys.argv[2])
 
-        elif command == 'generate_location_embeddings':
+        elif command == "generate_location_embeddings":
             if len(sys.argv) < 3:
-                print(json.dumps({'error': 'Location ID required'}))
+                print(json.dumps({"error": "Location ID required"}))
                 sys.exit(1)
             result = generate_location_embeddings(sys.argv[2])
 
-        elif command == 'generate_industry_embeddings':
+        elif command == "generate_industry_embeddings":
             if len(sys.argv) < 3:
-                print(json.dumps({'error': 'Industry ID required'}))
+                print(json.dumps({"error": "Industry ID required"}))
                 sys.exit(1)
             result = generate_industry_embeddings(sys.argv[2])
 
-        elif command == 'score_resume':
+        elif command == "score_resume":
             if len(sys.argv) < 3:
                 print(json.dumps({"error": "Resume ID required"}))
                 sys.exit(1)
@@ -479,5 +494,5 @@ def main():
         sys.exit(1)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

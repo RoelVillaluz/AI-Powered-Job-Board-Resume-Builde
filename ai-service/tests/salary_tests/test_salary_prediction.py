@@ -2,21 +2,27 @@
 Salary Prediction Smoke Test — Legazpi City, Albay (PH)
 """
 
-from salary_intelligence.pipeline.salary_prediction_orchestrator import SalaryPredictionOrchestrator
+from salary_intelligence.pipeline.salary_prediction_orchestrator import (
+    SalaryPredictionOrchestrator,
+)
 
 
-EXCHANGE_RATES = {
-    "$": 1.0,
-    "₱": 0.017,
-    "€": 1.08,
-    "¥": 0.0065,
-    "£": 1.27
-}
+EXCHANGE_RATES = {"$": 1.0, "₱": 0.017, "€": 1.08, "¥": 0.0065, "£": 1.27}
 
 SKILLS_FULLSTACK = [
     {"name": "React", "demandScore": 88, "growthRate": 22, "seniorityMultiplier": 1.4},
-    {"name": "Node.js", "demandScore": 80, "growthRate": 25, "seniorityMultiplier": 1.3},
-    {"name": "TypeScript", "demandScore": 82, "growthRate": 28, "seniorityMultiplier": 1.3},
+    {
+        "name": "Node.js",
+        "demandScore": 80,
+        "growthRate": 25,
+        "seniorityMultiplier": 1.3,
+    },
+    {
+        "name": "TypeScript",
+        "demandScore": 82,
+        "growthRate": 28,
+        "seniorityMultiplier": 1.3,
+    },
 ]
 
 JOB_TITLE_DEV = {
@@ -46,16 +52,26 @@ INDUSTRY_TECH_PH = {
 LOCATION_LEGAZPI = {
     "name": "Legazpi City, Albay",
     "baselineFactor": -0.18,
-    "costOfLivingIndex": 82.0
+    "costOfLivingIndex": 82.0,
 }
 
 
 def test_salary_predictions_smoke():
     cases = [
         ("Senior Full-Stack", "Senior", 8, SKILLS_FULLSTACK),
-        ("Entry IT", "Entry", 1, [
-            {"name": "Excel", "demandScore": 55, "growthRate": 10, "seniorityMultiplier": 0.9}
-        ]),
+        (
+            "Entry IT",
+            "Entry",
+            1,
+            [
+                {
+                    "name": "Excel",
+                    "demandScore": 55,
+                    "growthRate": 10,
+                    "seniorityMultiplier": 0.9,
+                }
+            ],
+        ),
         ("No Skills", "Mid-Level", 0, None),
     ]
 
@@ -81,4 +97,3 @@ def test_salary_predictions_smoke():
         # tiny sanity checks so pytest actually “does something”
         assert result.predicted_yearly > 0
         assert result.predicted_monthly > 0
-        

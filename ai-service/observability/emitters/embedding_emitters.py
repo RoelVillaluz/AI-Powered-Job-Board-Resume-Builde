@@ -13,6 +13,7 @@ WHAT THIS MODULE DOES NOT DO:
     - No pipeline logic (orchestrator.py)
     - No handler logic (handlers/)
 """
+
 from metrics.embedding_metrics import PipelineRun
 from metrics.prometheus_metrics import (
     embedding_requests_total,
@@ -23,6 +24,7 @@ from metrics.prometheus_metrics import (
 import logging
 
 logger = logging.getLogger(__name__)
+
 
 def emit_pipeline_run(run: PipelineRun, entity: str, status: str = "success") -> None:
     """
@@ -46,10 +48,12 @@ def emit_pipeline_run(run: PipelineRun, entity: str, status: str = "success") ->
 
 
 def _emit_section(section, entity: str) -> None:
-    logger.info(f"[emit_section] section={section.section} outcome={section.cache_outcome!r}")
+    logger.info(
+        f"[emit_section] section={section.section} outcome={section.cache_outcome!r}"
+    )
 
     s = section.section
 
-    embedding_section_duration_seconds.labels(
-        entity=entity, section=s
-    ).observe(section.duration_ms / 1000)
+    embedding_section_duration_seconds.labels(entity=entity, section=s).observe(
+        section.duration_ms / 1000
+    )

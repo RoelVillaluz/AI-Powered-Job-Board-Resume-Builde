@@ -17,56 +17,64 @@ logger = logging.getLogger(__name__)
 
 # ── Result types ──────────────────────────────────────────────────────────────
 
+
 class ResumeInsights(NamedTuple):
-    overall_score:            float
-    grade:                    str
-    strengths:                List[str]
-    weaknesses:               List[str]
-    improvement_suggestions:  List[str]
-    skill_gaps:               List[str]
-    overall_message:          str
+    overall_score: float
+    grade: str
+    strengths: List[str]
+    weaknesses: List[str]
+    improvement_suggestions: List[str]
+    skill_gaps: List[str]
+    overall_message: str
 
 
 class MarketInsights(NamedTuple):
     # ── Volume ────────────────────────────────────────────────────────────────
-    total_jobs:              int
-    top_skills:              List[tuple]          # (skill_name, count)
-    top_locations:           List[tuple]          # (location, count)
-    experience_levels:       Dict[str, int]       # { level: count }
-    trending_roles:          List[str]            # top 5 job titles by frequency
+    total_jobs: int
+    top_skills: List[tuple]  # (skill_name, count)
+    top_locations: List[tuple]  # (location, count)
+    experience_levels: Dict[str, int]  # { level: count }
+    trending_roles: List[str]  # top 5 job titles by frequency
 
     # ── Demand signals ────────────────────────────────────────────────────────
-    skill_demand_rate:       Dict[str, float]     # { skill: jobs_pct_requiring_it }
-    saturated_skills:        List[str]            # high frequency, low salary potential
-    emerging_skills:         List[str]            # low frequency but fast-growing roles
+    skill_demand_rate: Dict[str, float]  # { skill: jobs_pct_requiring_it }
+    saturated_skills: List[str]  # high frequency, low salary potential
+    emerging_skills: List[str]  # low frequency but fast-growing roles
 
     # ── Role signals ─────────────────────────────────────────────────────────
-    competitive_roles:       List[dict]           # roles with most required skills
-    avg_requirements_count:  float
-    roles_by_seniority:      Dict[str, List[str]] # { seniority: [role_names] }
+    competitive_roles: List[dict]  # roles with most required skills
+    avg_requirements_count: float
+    roles_by_seniority: Dict[str, List[str]]  # { seniority: [role_names] }
 
     # ── Salary signals ────────────────────────────────────────────────────────
-    salary_by_role:          Dict[str, float]     # { role: median_salary }
-    highest_paying_roles:    List[tuple]          # (role, median_salary) top 5
-    salary_range:            Dict[str, float]     # { min, max, avg }
+    salary_by_role: Dict[str, float]  # { role: median_salary }
+    highest_paying_roles: List[tuple]  # (role, median_salary) top 5
+    salary_range: Dict[str, float]  # { min, max, avg }
 
 
 # ── Constants ─────────────────────────────────────────────────────────────────
 
 _SENIORITY_KEYWORDS = {
-    "Senior":    ["senior", "sr.", "lead", "principal", "staff"],
+    "Senior": ["senior", "sr.", "lead", "principal", "staff"],
     "Mid-Level": ["mid", "ii", "2", "intermediate"],
-    "Junior":    ["junior", "jr.", "entry", "associate", "i", "1"],
-    "Intern":    ["intern", "trainee", "apprentice"],
+    "Junior": ["junior", "jr.", "entry", "associate", "i", "1"],
+    "Intern": ["intern", "trainee", "apprentice"],
 }
 
 _SOFT_SKILLS = {
-    "communication", "leadership", "problem solving", "teamwork",
-    "critical thinking", "collaboration", "time management", "creativity",
+    "communication",
+    "leadership",
+    "problem solving",
+    "teamwork",
+    "critical thinking",
+    "collaboration",
+    "time management",
+    "creativity",
 }
 
 
 # ── Service ───────────────────────────────────────────────────────────────────
+
 
 class AnalyticsService:
     """Handles analytics and insights generation. Pure compute — no DB access."""
@@ -104,8 +112,8 @@ class AnalyticsService:
                 scoring_payload=scoring_payload,
             )
 
-            strengths   = []
-            weaknesses  = []
+            strengths = []
+            weaknesses = []
             suggestions = []
 
             # Completeness
@@ -117,7 +125,9 @@ class AnalyticsService:
 
             # Experience
             if resume_score.experience_score >= 80:
-                strengths.append(f"Strong work experience ({total_experience_years:.1f} years)")
+                strengths.append(
+                    f"Strong work experience ({total_experience_years:.1f} years)"
+                )
             elif resume_score.experience_score < 50:
                 weaknesses.append("Limited work experience")
                 suggestions.append("Highlight internships, projects, or volunteer work")
@@ -132,28 +142,38 @@ class AnalyticsService:
 
             # Career progression bonus
             if resume_score.career_progression_score > 5.0:
-                strengths.append("Strong cross-domain skills that unlock higher-paying roles")
+                strengths.append(
+                    "Strong cross-domain skills that unlock higher-paying roles"
+                )
             elif resume_score.career_progression_score > 0:
-                strengths.append("Has some skills valued in higher-paying adjacent roles")
+                strengths.append(
+                    "Has some skills valued in higher-paying adjacent roles"
+                )
 
             # Certifications
             num_certs = len(resume.get("certifications", []))
             if num_certs >= 3:
                 strengths.append(f"Strong certifications ({num_certs} listed)")
             elif num_certs == 0:
-                suggestions.append("Consider adding relevant certifications to strengthen your profile")
+                suggestions.append(
+                    "Consider adding relevant certifications to strengthen your profile"
+                )
 
-            skill_gaps      = AnalyticsService._identify_skill_gaps(resume, market_skill_names)
-            overall_message = AnalyticsService._get_overall_message(resume_score.overall_score)
+            skill_gaps = AnalyticsService._identify_skill_gaps(
+                resume, market_skill_names
+            )
+            overall_message = AnalyticsService._get_overall_message(
+                resume_score.overall_score
+            )
 
             return ResumeInsights(
-                overall_score=           resume_score.overall_score,
-                grade=                   resume_score.grade,
-                strengths=               strengths,
-                weaknesses=              weaknesses,
-                improvement_suggestions= suggestions,
-                skill_gaps=              skill_gaps[:5],
-                overall_message=         overall_message,
+                overall_score=resume_score.overall_score,
+                grade=resume_score.grade,
+                strengths=strengths,
+                weaknesses=weaknesses,
+                improvement_suggestions=suggestions,
+                skill_gaps=skill_gaps[:5],
+                overall_message=overall_message,
             )
 
         except Exception as e:
@@ -179,9 +199,7 @@ class AnalyticsService:
             List of missing in-demand skill names (title-cased).
         """
         user_skills = {
-            s["name"].lower()
-            for s in resume.get("skills", [])
-            if s.get("name")
+            s["name"].lower() for s in resume.get("skills", []) if s.get("name")
         }
         return [
             skill_name.title()
@@ -221,24 +239,24 @@ class AnalyticsService:
         try:
             total = len(jobs)
 
-            all_skill_names:     List[str]       = []
-            all_locations:       List[str]       = []
-            experience_levels:   List[str]       = []
-            requirements_counts: List[int]       = []
-            job_titles:          List[str]       = []
-            skill_job_presence:  Dict[str, int]  = {}
-            salary_by_role:      Dict[str, list] = {}
-            role_required_count: Dict[str, int]  = {}
-            skill_salary_map:    Dict[str, list] = {}
-            roles_by_seniority:  Dict[str, list] = {k: [] for k in _SENIORITY_KEYWORDS}
+            all_skill_names: List[str] = []
+            all_locations: List[str] = []
+            experience_levels: List[str] = []
+            requirements_counts: List[int] = []
+            job_titles: List[str] = []
+            skill_job_presence: Dict[str, int] = {}
+            salary_by_role: Dict[str, list] = {}
+            role_required_count: Dict[str, int] = {}
+            skill_salary_map: Dict[str, list] = {}
+            roles_by_seniority: Dict[str, list] = {k: [] for k in _SENIORITY_KEYWORDS}
 
             for job in jobs:
-                title    = job.get("title", "")
-                skills   = job.get("skills", [])
+                title = job.get("title", "")
+                skills = job.get("skills", [])
                 location = job.get("location")
-                level    = job.get("experienceLevel")
-                reqs     = job.get("requirements", [])
-                salary   = _extract_median_salary(job)
+                level = job.get("experienceLevel")
+                reqs = job.get("requirements", [])
+                salary = _extract_median_salary(job)
 
                 # Titles
                 if title:
@@ -248,7 +266,8 @@ class AnalyticsService:
                         salary_by_role.setdefault(title, []).append(salary)
 
                     required_count = sum(
-                        1 for s in skills
+                        1
+                        for s in skills
                         if isinstance(s, dict) and s.get("importance") == "Required"
                     )
                     role_required_count[title] = (
@@ -280,7 +299,11 @@ class AnalyticsService:
 
                 # Location
                 if location:
-                    loc = location.get("name") if isinstance(location, dict) else str(location)
+                    loc = (
+                        location.get("name")
+                        if isinstance(location, dict)
+                        else str(location)
+                    )
                     if loc:
                         all_locations.append(loc)
 
@@ -305,7 +328,8 @@ class AnalyticsService:
             # Emerging: appear in <20% of jobs, avg salary > $150k
             emerging_skills = sorted(
                 [
-                    s for s, rate in skill_demand_rate.items()
+                    s
+                    for s, rate in skill_demand_rate.items()
                     if rate < 20
                     and skill_salary_map.get(s)
                     and (sum(skill_salary_map[s]) / len(skill_salary_map[s])) > 150_000
@@ -329,8 +353,8 @@ class AnalyticsService:
 
             all_salaries = [s for salaries in salary_by_role.values() for s in salaries]
             salary_range = {
-                "min": round(float(np.min(all_salaries)),  0) if all_salaries else 0.0,
-                "max": round(float(np.max(all_salaries)),  0) if all_salaries else 0.0,
+                "min": round(float(np.min(all_salaries)), 0) if all_salaries else 0.0,
+                "max": round(float(np.max(all_salaries)), 0) if all_salaries else 0.0,
                 "avg": round(float(np.mean(all_salaries)), 0) if all_salaries else 0.0,
             }
 
@@ -345,20 +369,22 @@ class AnalyticsService:
             )[:5]
 
             return MarketInsights(
-                total_jobs=             total,
-                top_skills=             Counter(all_skill_names).most_common(10),
-                top_locations=          Counter(all_locations).most_common(10),
-                experience_levels=      dict(Counter(experience_levels)),
-                trending_roles=         [t for t, _ in Counter(job_titles).most_common(5)],
-                skill_demand_rate=      skill_demand_rate,
-                saturated_skills=       saturated_skills[:10],
-                emerging_skills=        emerging_skills[:10],
-                competitive_roles=      competitive_roles,
-                avg_requirements_count= round(float(np.mean(requirements_counts)), 2) if requirements_counts else 0.0,
-                roles_by_seniority=     {k: v for k, v in roles_by_seniority.items() if v},
-                salary_by_role=         salary_by_role_median,
-                highest_paying_roles=   highest_paying,
-                salary_range=           salary_range,
+                total_jobs=total,
+                top_skills=Counter(all_skill_names).most_common(10),
+                top_locations=Counter(all_locations).most_common(10),
+                experience_levels=dict(Counter(experience_levels)),
+                trending_roles=[t for t, _ in Counter(job_titles).most_common(5)],
+                skill_demand_rate=skill_demand_rate,
+                saturated_skills=saturated_skills[:10],
+                emerging_skills=emerging_skills[:10],
+                competitive_roles=competitive_roles,
+                avg_requirements_count=round(float(np.mean(requirements_counts)), 2)
+                if requirements_counts
+                else 0.0,
+                roles_by_seniority={k: v for k, v in roles_by_seniority.items() if v},
+                salary_by_role=salary_by_role_median,
+                highest_paying_roles=highest_paying,
+                salary_range=salary_range,
             )
 
         except Exception as e:
@@ -388,6 +414,7 @@ class AnalyticsService:
 
 
 # ── Module-level helpers ──────────────────────────────────────────────────────
+
 
 def _extract_median_salary(job: dict) -> Optional[float]:
     """

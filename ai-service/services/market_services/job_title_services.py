@@ -1,4 +1,4 @@
-""" Service for job title-related operations """
+"""Service for job title-related operations"""
 
 from typing import Dict, Optional
 from config.database import db
@@ -7,8 +7,8 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-class JobTitleService:
 
+class JobTitleService:
     @staticmethod
     def get_by_id(title_id: str) -> Optional[dict]:
         """Single job title fetch — all market fields in one shot."""
@@ -27,7 +27,7 @@ class JobTitleService:
                     "commonEducation": 1,
                     "experienceDistribution": 1,
                     "isActive": 1,
-                }
+                },
             )
         except Exception as e:
             logger.error(f"Error fetching job title {title_id}: {e}")
@@ -55,10 +55,12 @@ class JobTitleService:
                     "commonEducation": 1,
                     "experienceDistribution": 1,
                     "isActive": 1,
-                }
+                },
             )
         except Exception as e:
-            logger.error(f"Error fetching job title by normalized title {normalized_title}: {e}")
+            logger.error(
+                f"Error fetching job title by normalized title {normalized_title}: {e}"
+            )
             return None
 
     @staticmethod
@@ -73,7 +75,7 @@ class JobTitleService:
 
         demand = title_doc.get("demandMetrics", {})
         salary = title_doc.get("salaryData", {})
-        trend  = title_doc.get("trendData", {})
+        trend = title_doc.get("trendData", {})
 
         return {
             # Identity
@@ -128,7 +130,7 @@ class JobTitleService:
                     "commonEducation": 1,
                     "experienceDistribution": 1,
                     "topSkills": 1,
-                }
+                },
             )
 
             return JobTitleService.extract_metrics(doc)
@@ -136,21 +138,19 @@ class JobTitleService:
         except Exception as e:
             logger.error(f"[TitleMetrics] Failed fetch: {e}")
             return []
-    
+
     @staticmethod
     def get_with_embedding_by_id(job_title_id: str) -> Optional[dict]:
         try:
             return db.jobtitles.find_one(
-                {"_id": ObjectId(job_title_id)},
-                {
-                    "title": 1,
-                    "embedding": 1
-                }
+                {"_id": ObjectId(job_title_id)}, {"title": 1, "embedding": 1}
             )
         except Exception as e:
-            logger.error(f"Error fetching job title embedding by id {job_title_id}: {e}")
+            logger.error(
+                f"Error fetching job title embedding by id {job_title_id}: {e}"
+            )
             return None
-        
+
     @staticmethod
     def get_with_embedding_by_name(job_title_name: str) -> Optional[dict]:
         """
@@ -186,19 +186,17 @@ class JobTitleService:
                 {
                     "$or": [
                         {"title": job_title_name},
-                        {"normalizedTitle": job_title_name.lower().strip()}
+                        {"normalizedTitle": job_title_name.lower().strip()},
                     ]
                 },
-                {
-                    "title": 1,
-                    "normalizedTitle": 1,
-                    "embedding": 1
-                },
-                collation={"locale": "en", "strength": 2}  # ✅ passed as parameter
+                {"title": 1, "normalizedTitle": 1, "embedding": 1},
+                collation={"locale": "en", "strength": 2},  # ✅ passed as parameter
             )
 
             return doc
 
         except Exception as e:
-            logger.error(f"Error fetching jobtitle embedding by name {job_title_name}: {e}")
+            logger.error(
+                f"Error fetching jobtitle embedding by name {job_title_name}: {e}"
+            )
             return None

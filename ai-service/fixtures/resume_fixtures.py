@@ -19,8 +19,8 @@ def resume_full():
             {"name": "Node.js"},
             {"name": "PostgreSQL"},
             {"name": "Docker"},
-            {"name": "AWS"},           # career progression skill
-            {"name": "PyTorch"},       # career progression skill
+            {"name": "AWS"},  # career progression skill
+            {"name": "PyTorch"},  # career progression skill
         ],
         "workExperience": [
             {
@@ -45,6 +45,7 @@ def resume_full():
         ],
     }
 
+
 @pytest.fixture
 def resume_sparse():
     """Minimal resume — only required fields. Tests low-score paths."""
@@ -57,6 +58,7 @@ def resume_sparse():
         "workExperience": [],
         "certifications": [],
     }
+
 
 @pytest.fixture
 def resume_no_skills():

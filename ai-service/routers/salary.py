@@ -51,13 +51,17 @@ router = APIRouter(prefix="/compute")
 async def predict_salary_endpoint(body: ComputeRequest):
     data = body.model_dump()
 
-    return wrap(predict_salary(
-        seniority_level=        data.get("seniority_level"),
-        resume_score=           data.get("resume_score"),
-        total_experience_years= data.get("total_experience_years"),   # None-safe — pipeline handles it
-        job_title_data=         data.get("job_title_data"),
-        industry_data=          data.get("industry_data"),
-        location_data=          data.get("location_data"),
-        skill_market_data=      data.get("skill_market_data"),
-        # exchange_rates not in payload — defaults to BASE_EXCHANGE_RATES in predict_salary
-    ))
+    return wrap(
+        predict_salary(
+            seniority_level=data.get("seniority_level"),
+            resume_score=data.get("resume_score"),
+            total_experience_years=data.get(
+                "total_experience_years"
+            ),  # None-safe — pipeline handles it
+            job_title_data=data.get("job_title_data"),
+            industry_data=data.get("industry_data"),
+            location_data=data.get("location_data"),
+            skill_market_data=data.get("skill_market_data"),
+            # exchange_rates not in payload — defaults to BASE_EXCHANGE_RATES in predict_salary
+        )
+    )

@@ -41,16 +41,34 @@ from __future__ import annotations
 import logging
 from typing import NamedTuple, Optional
 
-from salary_intelligence.pipeline.anchor.anchor_resolver       import SalaryAnchorResolver, AnchorResult
-from salary_intelligence.pipeline.adjustments.location_factor       import LocationFactorApplicator, LocationAdjustment
-from salary_intelligence.pipeline.adjustments.experience_multiplier import ExperienceMultiplier, ExperienceAdjustment
-from salary_intelligence.pipeline.adjustments.skill_premium         import SkillPremium, SkillPremiumAdjustment
-from salary_intelligence.pipeline.distribution.talent_deviation      import TalentDeviation, TalentDeviationResult
-from salary_intelligence.pipeline.identity.effective_seniority   import resolve_effective_seniority
-from salary_intelligence.pipeline.identity.skill_title_alignment import SkillTitleAlignment, AlignmentResult
-from metrics.prometheus_metrics import (
-    salary_prediction_requests_total
+from salary_intelligence.pipeline.anchor.anchor_resolver import (
+    SalaryAnchorResolver,
+    AnchorResult,
 )
+from salary_intelligence.pipeline.adjustments.location_factor import (
+    LocationFactorApplicator,
+    LocationAdjustment,
+)
+from salary_intelligence.pipeline.adjustments.experience_multiplier import (
+    ExperienceMultiplier,
+    ExperienceAdjustment,
+)
+from salary_intelligence.pipeline.adjustments.skill_premium import (
+    SkillPremium,
+    SkillPremiumAdjustment,
+)
+from salary_intelligence.pipeline.distribution.talent_deviation import (
+    TalentDeviation,
+    TalentDeviationResult,
+)
+from salary_intelligence.pipeline.identity.effective_seniority import (
+    resolve_effective_seniority,
+)
+from salary_intelligence.pipeline.identity.skill_title_alignment import (
+    SkillTitleAlignment,
+    AlignmentResult,
+)
+from metrics.prometheus_metrics import salary_prediction_requests_total
 
 logger = logging.getLogger(__name__)
 
@@ -61,11 +79,12 @@ _RANGE_BANDS: list[tuple[float, float]] = [
     (90.0, 0.05),
     (70.0, 0.10),
     (50.0, 0.15),
-    ( 0.0, 0.25),
+    (0.0, 0.25),
 ]
 
 
 # ── Result type ───────────────────────────────────────────────────────────────
+
 
 class SalaryPrediction(NamedTuple):
     """
@@ -94,27 +113,29 @@ class SalaryPrediction(NamedTuple):
     total_experience_years
         Passed through from ResumeEmbedding.metrics.
     """
-    predicted_yearly:            float
-    predicted_monthly:           float
-    range_min:                   float
-    range_max:                   float
-    confidence_score:            float
 
-    anchor:                      AnchorResult
-    alignment:                   AlignmentResult
-    location:                    LocationAdjustment
-    experience:                  ExperienceAdjustment
-    skill_premium:               SkillPremiumAdjustment
-    talent_deviation:            TalentDeviationResult
+    predicted_yearly: float
+    predicted_monthly: float
+    range_min: float
+    range_max: float
+    confidence_score: float
 
-    claimed_seniority:           str
-    effective_seniority:         str
-    seniority_downgraded:        bool
+    anchor: AnchorResult
+    alignment: AlignmentResult
+    location: LocationAdjustment
+    experience: ExperienceAdjustment
+    skill_premium: SkillPremiumAdjustment
+    talent_deviation: TalentDeviationResult
+
+    claimed_seniority: str
+    effective_seniority: str
+    seniority_downgraded: bool
     skill_title_alignment_score: float
-    total_experience_years:      Optional[float]
+    total_experience_years: Optional[float]
 
 
 # ── Service ───────────────────────────────────────────────────────────────────
+
 
 class SalaryPredictionOrchestrator:
     """
@@ -139,11 +160,11 @@ class SalaryPredictionOrchestrator:
 
     @staticmethod
     def _accumulate_confidence(
-        anchor:     AnchorResult,
-        alignment:  AlignmentResult,
-        location:   LocationAdjustment,
+        anchor: AnchorResult,
+        alignment: AlignmentResult,
+        location: LocationAdjustment,
         experience: ExperienceAdjustment,
-        skill:      SkillPremiumAdjustment,
+        skill: SkillPremiumAdjustment,
     ) -> float:
         score = (
             anchor.confidence
@@ -156,14 +177,14 @@ class SalaryPredictionOrchestrator:
 
     @staticmethod
     def predict(
-        seniority_level:        str,
-        resume_score:           int,
+        seniority_level: str,
+        resume_score: int,
         total_experience_years: Optional[float],
-        job_title_data:         Optional[dict],
-        industry_data:          Optional[dict],
-        location_data:          Optional[dict],
-        skill_market_data:      Optional[list[dict]],
-        exchange_rates:         dict[str, float],
+        job_title_data: Optional[dict],
+        industry_data: Optional[dict],
+        location_data: Optional[dict],
+        skill_market_data: Optional[list[dict]],
+        exchange_rates: dict[str, float],
     ) -> SalaryPrediction:
 
         try:
@@ -171,9 +192,9 @@ class SalaryPredictionOrchestrator:
 
             # ── Step 0: Effective seniority ───────────────────────────────────
             effective_seniority, seniority_downgraded = resolve_effective_seniority(
-                claimed_seniority=      seniority_level,
-                total_experience_years= total_experience_years,
-                skill_count=            skill_count,
+                claimed_seniority=seniority_level,
+                total_experience_years=total_experience_years,
+                skill_count=skill_count,
             )
             if seniority_downgraded:
                 logger.info(
@@ -187,8 +208,8 @@ class SalaryPredictionOrchestrator:
                 job_title_data.get("topSkills", []) if job_title_data else []
             )
             alignment = SkillTitleAlignment.compute(
-                resume_skill_market_data= skill_market_data,
-                job_title_top_skills=     job_title_top_skills,
+                resume_skill_market_data=skill_market_data,
+                job_title_top_skills=job_title_top_skills,
             )
             logger.info(
                 f"[SalaryPredictionOrchestrator] Step 0.5 — Alignment: "
@@ -199,11 +220,11 @@ class SalaryPredictionOrchestrator:
 
             # ── Step 1: Anchor (blended) ──────────────────────────────────────
             anchor = SalaryAnchorResolver.resolve(
-                seniority_level= effective_seniority,
-                job_title_data=  job_title_data,
-                industry_data=   industry_data,
-                exchange_rates=  exchange_rates,
-                blend_weight=    alignment.blend_weight,
+                seniority_level=effective_seniority,
+                job_title_data=job_title_data,
+                industry_data=industry_data,
+                exchange_rates=exchange_rates,
+                blend_weight=alignment.blend_weight,
             )
             logger.info(
                 f"[SalaryPredictionOrchestrator] Step 1 — Anchor: "
@@ -216,9 +237,9 @@ class SalaryPredictionOrchestrator:
             # salary_data is passed through on LocationAdjustment for TalentDeviation.
             # No hard cap applied here — compression bug removed.
             location = LocationFactorApplicator.apply(
-                anchor_yearly=  anchor.yearly,
-                location_data=  location_data,
-                exchange_rates= exchange_rates,
+                anchor_yearly=anchor.yearly,
+                location_data=location_data,
+                exchange_rates=exchange_rates,
             )
             logger.info(
                 f"[SalaryPredictionOrchestrator] Step 2 — Location: "
@@ -231,9 +252,9 @@ class SalaryPredictionOrchestrator:
             # pct_of_ceiling feeds into TalentDeviation signal.
             # Dollar output used only in fallback mode.
             experience = ExperienceMultiplier.apply(
-                input_salary=     location.nominal_yearly,
-                seniority_level=  effective_seniority,
-                experience_years= total_experience_years,
+                input_salary=location.nominal_yearly,
+                seniority_level=effective_seniority,
+                experience_years=total_experience_years,
             )
             logger.info(
                 f"[SalaryPredictionOrchestrator] Step 3 — Experience: "
@@ -246,9 +267,9 @@ class SalaryPredictionOrchestrator:
             # portfolio_score feeds into TalentDeviation signal.
             # Dollar output used only in fallback mode.
             skill = SkillPremium.apply(
-                input_salary=      experience.experience_yearly,
-                seniority_level=   effective_seniority,
-                skill_market_data= skill_market_data,
+                input_salary=experience.experience_yearly,
+                seniority_level=effective_seniority,
+                skill_market_data=skill_market_data,
             )
             logger.info(
                 f"[SalaryPredictionOrchestrator] Step 4 — Skill premium: "
@@ -260,14 +281,14 @@ class SalaryPredictionOrchestrator:
             # Primary path: places candidate within location p25→p75 range.
             # Fallback: applies ±15% modifier on skill.skill_yearly.
             talent = TalentDeviation.apply(
-                alignment_score=      alignment.alignment_score,
-                portfolio_score=      skill.portfolio_score,
-                exp_pct_of_ceiling=   experience.pct_of_ceiling,
-                resume_score=         resume_score,
-                skill_count=          len(skill_market_data),
-                pre_deviation_salary= skill.skill_yearly,
-                location_data=        location_data,
-                exchange_rates=       exchange_rates,
+                alignment_score=alignment.alignment_score,
+                portfolio_score=skill.portfolio_score,
+                exp_pct_of_ceiling=experience.pct_of_ceiling,
+                resume_score=resume_score,
+                skill_count=len(skill_market_data),
+                pre_deviation_salary=skill.skill_yearly,
+                location_data=location_data,
+                exchange_rates=exchange_rates,
             )
             logger.info(
                 f"[SalaryPredictionOrchestrator] Step 5 — TalentDeviation: "
@@ -282,7 +303,7 @@ class SalaryPredictionOrchestrator:
                 anchor, alignment, location, experience, skill
             )
 
-            predicted_yearly  = talent.predicted_yearly
+            predicted_yearly = talent.predicted_yearly
             predicted_monthly = talent.predicted_monthly
             range_min, range_max = SalaryPredictionOrchestrator._compute_range(
                 predicted_yearly, confidence_score
@@ -299,22 +320,22 @@ class SalaryPredictionOrchestrator:
             salary_prediction_requests_total.labels(status="success").inc()
 
             return SalaryPrediction(
-                predicted_yearly=            predicted_yearly,
-                predicted_monthly=           predicted_monthly,
-                range_min=                   range_min,
-                range_max=                   range_max,
-                confidence_score=            confidence_score,
-                anchor=                      anchor,
-                alignment=                   alignment,
-                location=                    location,
-                experience=                  experience,
-                skill_premium=               skill,
-                talent_deviation=            talent,
-                claimed_seniority=           seniority_level,
-                effective_seniority=         effective_seniority,
-                seniority_downgraded=        seniority_downgraded,
-                skill_title_alignment_score= alignment.alignment_score,
-                total_experience_years=      total_experience_years,
+                predicted_yearly=predicted_yearly,
+                predicted_monthly=predicted_monthly,
+                range_min=range_min,
+                range_max=range_max,
+                confidence_score=confidence_score,
+                anchor=anchor,
+                alignment=alignment,
+                location=location,
+                experience=experience,
+                skill_premium=skill,
+                talent_deviation=talent,
+                claimed_seniority=seniority_level,
+                effective_seniority=effective_seniority,
+                seniority_downgraded=seniority_downgraded,
+                skill_title_alignment_score=alignment.alignment_score,
+                total_experience_years=total_experience_years,
             )
         except Exception:
             salary_prediction_requests_total.labels(status="failed").inc()

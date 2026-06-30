@@ -18,6 +18,7 @@ Why These Checks Matter:
 - ndim != 2 check: KMeans requires 2D matrix [num_jobs, embedding_dim]
 - len(job_embeddings) < num_clusters: Can't have more clusters than data points
 """
+
 import numpy as np
 from sklearn.cluster import KMeans
 from typing import Optional, NamedTuple
@@ -25,15 +26,18 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 class ClusterResult(NamedTuple):
     """Container for clustering results."""
+
     labels: np.ndarray
     cluster_centers: np.ndarray
     inertia: float
 
+
 class JobClusteringService:
     """Handles job posting clustering operations."""
-    
+
     @staticmethod
     def cluster_jobs(
         job_embeddings: list[np.ndarray],
@@ -42,12 +46,12 @@ class JobClusteringService:
     ) -> Optional[ClusterResult]:
         """
         Perform K-Means clustering on job posting embeddings.
-        
+
         Args:
             job_embeddings: List of numpy arrays representing job embeddings
             num_clusters: Number of clusters to form
             random_state: Random seed for reproducibility
-            
+
         Returns:
             ClusterResult containing labels, centers, and inertia, or None if clustering fails
 
@@ -79,7 +83,7 @@ class JobClusteringService:
         if not job_embeddings:
             logger.error("No job embeddings provider for cluster")
             return None
-        
+
         if len(job_embeddings) < num_clusters:
             logger.warning(
                 f"Number of jobs {len(job_embeddings)} is less than "
@@ -95,20 +99,18 @@ class JobClusteringService:
             if job_matrix.ndim != 2:
                 logger.error(f"Invalid embedding dimensions: {job_matrix.shape}")
                 return None
-            
+
             # Perform K-Means clustering
             kmeans = KMeans(
-                n_clusters=num_clusters,
-                random_state=random_state,
-                n_init=10
+                n_clusters=num_clusters, random_state=random_state, n_init=10
             )
             kmeans.fit(job_matrix)
 
             return ClusterResult(
                 labels=kmeans.labels_,
                 cluster_centers=kmeans.cluster_centers_,
-                inertia=kmeans.inertia_
-            )   
+                inertia=kmeans.inertia_,
+            )
         except Exception as e:
             logger.error(f"Error during clustering: {e}")
             return None

@@ -11,7 +11,9 @@ def generate_job_posting_embeddings(
     location_doc: dict | None,
 ) -> dict:
     def _run():
-        emb = JobService.extract_embeddings(job_body, skill_docs, job_title_doc, location_doc)
+        emb = JobService.extract_embeddings(
+            job_body, skill_docs, job_title_doc, location_doc
+        )
         return serialize_job_embeddings(job_body.get("_id"), emb)
 
     return safe_call(_run, label="generate_job_posting_embeddings")

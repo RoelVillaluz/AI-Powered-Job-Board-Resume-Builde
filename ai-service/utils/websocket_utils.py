@@ -1,7 +1,6 @@
 import json
 
 
-
 def emit_progress(event: str, progress: int, message: str) -> None:
     """
     Write a real-time progress event to stdout for the Node.js pythonRunner to consume.
@@ -22,10 +21,7 @@ def emit_progress(event: str, progress: int, message: str) -> None:
         emit_progress("embedding:progress", 38, "Analyzing your skills...")
         # Writes: {"type": "progress", "event": "embedding:progress", "progress": 38, "message": "Analyzing your skills..."}
     """
-    line = json.dumps({
-        "type": "progress",
-        "event": event,
-        "progress": progress,
-        "message": message
-    })
+    line = json.dumps(
+        {"type": "progress", "event": event, "progress": progress, "message": message}
+    )
     print(line, flush=True)

@@ -11,7 +11,7 @@ ARCHITECTURE NOTE:
 from typing import Optional, NamedTuple
 import torch
 import logging
-from infrastructure.embeddings.embedding_orchestrator import extract_embeddings_parallel 
+from infrastructure.embeddings.embedding_orchestrator import extract_embeddings_parallel
 from utils.date_utils import calculate_total_experience
 
 logger = logging.getLogger(__name__)
@@ -19,6 +19,7 @@ logger = logging.getLogger(__name__)
 
 class ResumeEmbeddings(NamedTuple):
     """Container for resume embeddings."""
+
     skills: Optional[torch.Tensor]
     job_title: Optional[torch.Tensor]
     work_experience: Optional[torch.Tensor]
@@ -69,13 +70,13 @@ class ResumeService:
             ResumeEmbeddings with all tensors and backfill candidates.
         """
         result = extract_embeddings_parallel(
-            entity_type                = "resume",
-            entity_id                  = resume.get("_id"),
-            resume                     = resume,
-            skill_docs                 = skill_docs,
-            job_title_doc              = job_title_doc,
-            location_doc               = location_doc,
-            work_experience_title_docs = work_experience_title_docs,
+            entity_type="resume",
+            entity_id=resume.get("_id"),
+            resume=resume,
+            skill_docs=skill_docs,
+            job_title_doc=job_title_doc,
+            location_doc=location_doc,
+            work_experience_title_docs=work_experience_title_docs,
         )
 
         total_exp = calculate_total_experience(resume.get("workExperience", []))

@@ -1,4 +1,5 @@
 """Database configuration and connection management."""
+
 import os
 from pathlib import Path
 from typing import Optional
@@ -15,6 +16,7 @@ if env_path.exists():
 
 class DatabaseConfig:
     """Handles database connection and configuration."""
+
     _instance: Optional["DatabaseConfig"] = None
     _client: Optional[MongoClient] = None
     _db = None

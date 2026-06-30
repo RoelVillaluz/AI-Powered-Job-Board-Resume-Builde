@@ -1,4 +1,4 @@
-""" Service for skill-related operations """
+"""Service for skill-related operations"""
 
 from typing import Optional
 from config.database import db
@@ -7,16 +7,22 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-class SkillService:
 
+class SkillService:
     @staticmethod
     def get_by_id(skill_id: str) -> Optional[dict]:
         """Single skill — for admin, skill detail pages, etc."""
         try:
             return db.skills.find_one(
                 {"_id": ObjectId(skill_id)},
-                {"name": 1, "type": 1, "demandScore": 1, "growthRate": 1,
-                 "seniorityMultiplier": 1, "salaryData": 1}
+                {
+                    "name": 1,
+                    "type": 1,
+                    "demandScore": 1,
+                    "growthRate": 1,
+                    "seniorityMultiplier": 1,
+                    "salaryData": 1,
+                },
             )
         except Exception as e:
             logger.error(f"Error fetching skill {skill_id}: {e}")
@@ -31,11 +37,19 @@ class SkillService:
         if not skill_names:
             return []
         try:
-            return list(db.skills.find(
-                {"name": {"$in": skill_names}},
-                {"name": 1, "type": 1, "demandScore": 1, "growthRate": 1,
-                 "seniorityMultiplier": 1, "salaryData": 1}
-            ))
+            return list(
+                db.skills.find(
+                    {"name": {"$in": skill_names}},
+                    {
+                        "name": 1,
+                        "type": 1,
+                        "demandScore": 1,
+                        "growthRate": 1,
+                        "seniorityMultiplier": 1,
+                        "salaryData": 1,
+                    },
+                )
+            )
         except Exception as e:
             logger.error(f"Error fetching skills by names: {e}")
             return []
@@ -64,13 +78,13 @@ class SkillService:
                     "demandScore": 1,
                     "growthRate": 1,
                     "seniorityMultiplier": 1,
-                    "salaryData": 1
-                }
+                    "salaryData": 1,
+                },
             )
         except Exception as e:
             logger.error(f"Error fetching skill embedding by id {skill_id}: {e}")
             return None
-        
+
     @staticmethod
     def get_with_embedding_by_name(skill_name: str) -> Optional[dict]:
         """
@@ -94,20 +108,15 @@ class SkillService:
             normalized = skill_name.lower().strip()
 
             return db.skills.find_one(
-                {
-                    "$or": [
-                        {"name": skill_name},
-                        {"name": normalized}
-                    ]
-                },
+                {"$or": [{"name": skill_name}, {"name": normalized}]},
                 {
                     "name": 1,
                     "embedding": 1,
                     "demandScore": 1,
                     "growthRate": 1,
                     "seniorityMultiplier": 1,
-                    "salaryData": 1
-                }
+                    "salaryData": 1,
+                },
             ).collation({"locale": "en", "strength": 2})
 
         except Exception as e:
@@ -119,38 +128,40 @@ class SkillService:
         """
         Bulk fetch skills WITH embeddings by name.
         Used for resume/job similarity calculations.
-        
+
         Single round-trip for all skills - optimized for embedding extraction.
-        
+
         Args:
             skill_names: List of skill names to fetch
-            
+
         Returns:
             List of skill documents with embeddings and metrics
         """
         if not skill_names:
             return []
-        
+
         try:
             # Normalize names for better matching
             normalized_names = [name.lower().strip() for name in skill_names]
-            
-            return list(db.skills.find(
-                {
-                    "$or": [
-                        {"name": {"$in": skill_names}},
-                        {"name": {"$in": normalized_names}}
-                    ]
-                },
-                {
-                    "name": 1,
-                    "embedding": 1,
-                    "demandScore": 1,
-                    "growthRate": 1,
-                    "seniorityMultiplier": 1,
-                    "salaryData": 1
-                }
-            ).collation({"locale": "en", "strength": 2}))
+
+            return list(
+                db.skills.find(
+                    {
+                        "$or": [
+                            {"name": {"$in": skill_names}},
+                            {"name": {"$in": normalized_names}},
+                        ]
+                    },
+                    {
+                        "name": 1,
+                        "embedding": 1,
+                        "demandScore": 1,
+                        "growthRate": 1,
+                        "seniorityMultiplier": 1,
+                        "salaryData": 1,
+                    },
+                ).collation({"locale": "en", "strength": 2})
+            )
         except Exception as e:
             logger.error(f"Error fetching skills with embeddings by names: {e}")
             return []
@@ -169,44 +180,45 @@ class SkillService:
                 continue
 
             salary = doc.get("salaryData", {})
-            metrics_list.append({
-                # Identity
-                "name": doc.get("name"),
-                "type": doc.get("type"),  # technical / soft
-
-                # Demand & growth
-                "demandScore": doc.get("demandScore", 0),
-                "growthRate": doc.get("growthRate", 0),
-                "seniorityMultiplier": doc.get("seniorityMultiplier", 1),
-
-                # Salary signals
-                "salaryData": {
-                    "averageSalary": salary.get("averageSalary", 0),
-                    "medianSalary": salary.get("medianSalary", 0),
-                    "salaryRange": salary.get("salaryRange", {}),
-                    "currency": salary.get("currency", "$"),
-                    "lastCalculated": salary.get("lastCalculated"),
-                },
-
-                # Optional embedding (if precomputed)
-                "embedding": doc.get("embedding", None),
-            })
+            metrics_list.append(
+                {
+                    # Identity
+                    "name": doc.get("name"),
+                    "type": doc.get("type"),  # technical / soft
+                    # Demand & growth
+                    "demandScore": doc.get("demandScore", 0),
+                    "growthRate": doc.get("growthRate", 0),
+                    "seniorityMultiplier": doc.get("seniorityMultiplier", 1),
+                    # Salary signals
+                    "salaryData": {
+                        "averageSalary": salary.get("averageSalary", 0),
+                        "medianSalary": salary.get("medianSalary", 0),
+                        "salaryRange": salary.get("salaryRange", {}),
+                        "currency": salary.get("currency", "$"),
+                        "lastCalculated": salary.get("lastCalculated"),
+                    },
+                    # Optional embedding (if precomputed)
+                    "embedding": doc.get("embedding", None),
+                }
+            )
 
         return metrics_list
 
     @staticmethod
     def extract_metrics_from_ids(skill_ids: list[str]) -> list[dict]:
-        docs = list(db.skills.find(
-            {"_id": {"$in": [ObjectId(id) for id in skill_ids]}},
-            {
-                "name": 1,
-                "type": 1,
-                "demandScore": 1,
-                "growthRate": 1,
-                "seniorityMultiplier": 1,
-                "salaryData": 1,
-                "embedding": 1,
-            }
-        ))
+        docs = list(
+            db.skills.find(
+                {"_id": {"$in": [ObjectId(id) for id in skill_ids]}},
+                {
+                    "name": 1,
+                    "type": 1,
+                    "demandScore": 1,
+                    "growthRate": 1,
+                    "seniorityMultiplier": 1,
+                    "salaryData": 1,
+                    "embedding": 1,
+                },
+            )
+        )
 
         return SkillService.extract_metrics(docs)

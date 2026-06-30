@@ -12,7 +12,7 @@ from routers.metrics import router as metrics_router
 from dotenv import load_dotenv
 from metrics.prometheus_metrics import model_loaded as model_loaded_prometheus_metric
 
-load_dotenv('.env.dev')  # load before anything else imports config
+load_dotenv(".env.dev")  # load before anything else imports config
 
 # ── Logging setup ──────────────────────────────────────────────────────────────
 # Same as main.py — stderr so it doesn't pollute HTTP responses
@@ -40,12 +40,12 @@ logger = logging.getLogger(__name__)
 # startup (above yield) and shutdown (below yield).
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    logger.info('[FASTAPI] Starting up - loading embedding model')
+    logger.info("[FASTAPI] Starting up - loading embedding model")
     try:
-        logger.info('[FASTAPI] Model loaded and warm - ready to serve')
+        logger.info("[FASTAPI] Model loaded and warm - ready to serve")
         model_loaded_prometheus_metric.set(1)
     except Exception:
-        logger.exception('[FASTAPI] Model failed to load')
+        logger.exception("[FASTAPI] Model failed to load")
         model_loaded_prometheus_metric.set(0)
         raise
 
@@ -53,6 +53,7 @@ async def lifespan(app: FastAPI):
 
     logger.info("[FASTAPI] Shutting down")
     model_loaded_prometheus_metric.set(0)  # accurate on graceful shutdown too
+
 
 # ── App instance ───────────────────────────────────────────────────────────────
 # FastAPI() is like express() in Node.

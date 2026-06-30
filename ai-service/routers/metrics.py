@@ -3,7 +3,8 @@ from fastapi import APIRouter, Response
 
 router = APIRouter()
 
-@router.get('/metrics')
+
+@router.get("/metrics")
 async def metrics():
     """Prometheus metrics endpoint — scraped every 15s by Prometheus."""
     return Response(

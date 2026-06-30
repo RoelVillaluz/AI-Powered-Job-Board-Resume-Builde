@@ -1,9 +1,11 @@
 """Utilities for tensor operations."""
+
 import torch
 from typing import Optional
 import logging
 
 logger = logging.getLogger(__name__)
+
 
 def safe_mean_embedding(embeddings: Optional[torch.Tensor]) -> Optional[torch.Tensor]:
     """
@@ -34,17 +36,17 @@ def safe_mean_embedding(embeddings: Optional[torch.Tensor]) -> Optional[torch.Te
     """
     if embeddings is None:
         return None
-    
+
     try:
         if embeddings.numel() == 0:
             return None
-        
+
         mean_emb = torch.mean(embeddings, dim=0)
         return mean_emb.detach().cpu()
     except Exception as e:
         logger.error(f"Error computing mean embedding: {e}")
         return None
-    
+
 
 def stack_embeddings(embedding_list: list[torch.Tensor]) -> Optional[torch.Tensor]:
     """
@@ -78,23 +80,23 @@ def stack_embeddings(embedding_list: list[torch.Tensor]) -> Optional[torch.Tenso
     """
     if not embedding_list:
         return None
-    
+
     try:
         valid_embeddings = [emb for emb in embedding_list if emb is not None]
 
         if not valid_embeddings:
             return None
-        
+
         # ✅ Should validate shapes match
         if not all(emb.shape == valid_embeddings[0].shape for emb in valid_embeddings):
             logger.error("Embedding shapes don't match")
             return None
-        
+
         return torch.stack(valid_embeddings)
     except Exception as e:
         logger.error(f"Error stacking embeddings: {e}")
         return None
-    
+
 
 def tensor_to_list(tensor: Optional[torch.Tensor]) -> Optional[list]:
     """
@@ -123,12 +125,13 @@ def tensor_to_list(tensor: Optional[torch.Tensor]) -> Optional[list]:
     """
     if tensor is None:
         return None
-    
+
     try:
         return tensor.detach().cpu().numpy().tolist()
     except Exception as e:
         logger.error(f"Error converting tensor to list: {e}")
         return None
+
 
 def list_to_tensor(data) -> Optional[torch.Tensor]:
     """

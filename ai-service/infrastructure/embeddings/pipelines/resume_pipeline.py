@@ -26,22 +26,24 @@ def _task_factory(
     run: PipelineRun,
 ) -> dict:
     return {
-        "skills":         lambda: run_skills(resume, run, skill_docs=skill_docs),
-        "workExperience": lambda: run_work_experience(resume, run, work_experience_title_docs=work_experience_title_docs),
+        "skills": lambda: run_skills(resume, run, skill_docs=skill_docs),
+        "workExperience": lambda: run_work_experience(
+            resume, run, work_experience_title_docs=work_experience_title_docs
+        ),
         "certifications": lambda: run_certifications(resume, run),
-        "jobTitle":       lambda: run_job_title(resume, run, job_title_doc=job_title_doc),
-        "location":       lambda: run_location(resume, run, location_doc=location_doc),
+        "jobTitle": lambda: run_job_title(resume, run, job_title_doc=job_title_doc),
+        "location": lambda: run_location(resume, run, location_doc=location_doc),
     }
 
 
 _PIPELINE = EmbeddingPipeline(
     task_factory=_task_factory,
     result_keys={
-        "skills":           "skills",
-        "work_experience":  "workExperience",
-        "certifications":   "certifications",
-        "job_title":        ("jobTitle",  "single"),
-        "location":         ("location",  "single"),
+        "skills": "skills",
+        "work_experience": "workExperience",
+        "certifications": "certifications",
+        "job_title": ("jobTitle", "single"),
+        "location": ("location", "single"),
     },
 )
 

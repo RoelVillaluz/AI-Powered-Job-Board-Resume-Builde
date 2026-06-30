@@ -1,4 +1,4 @@
-""" Service for industry-related operations """
+"""Service for industry-related operations"""
 
 from typing import Dict, Optional
 from config.database import db
@@ -11,7 +11,6 @@ INDUSTRY_COLLECTION = db.industrys  # mongo pluralization noted
 
 
 class IndustryService:
-
     @staticmethod
     def get_by_id(industry_id: str) -> Optional[dict]:
         """
@@ -31,13 +30,12 @@ class IndustryService:
                     "topJobTitles": 1,
                     "emergingSkills": 1,
                     "decliningSkills": 1,
-                    "dataQuality": 1
-                }
+                    "dataQuality": 1,
+                },
             )
         except Exception as e:
             logger.error(f"Error fetching industry {industry_id}: {e}")
             return None
-
 
     @staticmethod
     def get_by_name(industry_name: str) -> Optional[dict]:
@@ -58,13 +56,12 @@ class IndustryService:
                     "topJobTitles": 1,
                     "emergingSkills": 1,
                     "decliningSkills": 1,
-                    "dataQuality": 1
-                }
+                    "dataQuality": 1,
+                },
             )
         except Exception as e:
             logger.error(f"Error fetching industry by name {industry_name}: {e}")
             return None
-
 
     @staticmethod
     def get_with_embedding_by_id(industry_id: str) -> Optional[dict]:
@@ -80,17 +77,11 @@ class IndustryService:
         try:
             return INDUSTRY_COLLECTION.find_one(
                 {"_id": ObjectId(industry_id)},
-                {
-                    "name": 1,
-                    "embedding": 1,
-                    "marketMetrics": 1,
-                    "salaryBenchmarks": 1
-                }
+                {"name": 1, "embedding": 1, "marketMetrics": 1, "salaryBenchmarks": 1},
             )
         except Exception as e:
             logger.error(f"Error fetching industry embedding by id {industry_id}: {e}")
             return None
-
 
     @staticmethod
     def get_with_embedding_by_name(industry_name: str) -> Optional[dict]:
@@ -111,24 +102,15 @@ class IndustryService:
             normalized = industry_name.lower().strip()
 
             return INDUSTRY_COLLECTION.find_one(
-                {
-                    "$or": [
-                        {"name": industry_name},
-                        {"name": normalized}
-                    ]
-                },
-                {
-                    "name": 1,
-                    "embedding": 1,
-                    "marketMetrics": 1,
-                    "salaryBenchmarks": 1
-                }
+                {"$or": [{"name": industry_name}, {"name": normalized}]},
+                {"name": 1, "embedding": 1, "marketMetrics": 1, "salaryBenchmarks": 1},
             )
 
         except Exception as e:
-            logger.error(f"Error fetching industry embedding by name {industry_name}: {e}")
+            logger.error(
+                f"Error fetching industry embedding by name {industry_name}: {e}"
+            )
             return None
-
 
     @staticmethod
     def extract_metrics(industry_doc: dict) -> dict:
@@ -150,18 +132,15 @@ class IndustryService:
         return {
             # Identity
             "name": industry_doc.get("name"),
-
             # Market signals
             "totalCompanies": market.get("totalCompanies", 0),
             "activeJobPostings": market.get("activeJobPostings", 0),
             "monthlyJobGrowth": market.get("monthlyJobGrowth", 0),
             "competitionLevel": market.get("competitionLevel", "Medium"),
-
             # Salary signals
             "overallMedianSalary": salary.get("overallMedian", 0),
             "salaryGrowthRate": salary.get("salaryGrowthRate", 0),
             "salaryBySeniority": salary.get("bySeniority", {}),
-
             # Skill demand signals
             "topSkills": [
                 {
@@ -172,22 +151,20 @@ class IndustryService:
                 }
                 for s in industry_doc.get("topSkills", [])
             ],
-
             # Trend indicators
             "emergingSkills": industry_doc.get("emergingSkills", []),
             "decliningSkills": industry_doc.get("decliningSkills", []),
-
             # Data reliability indicator
             "dataQuality": industry_doc.get("dataQuality", 0),
         }
-    
+
     @staticmethod
     def get_industry_metrics_by_id(industry_id: str) -> Dict:
         if not industry_id:
             return {}
 
         try:
-            doc = INDUSTRY_COLLECTION.find_one( 
+            doc = INDUSTRY_COLLECTION.find_one(
                 {"_id": ObjectId(industry_id)},
                 {
                     "name": 1,
@@ -197,7 +174,7 @@ class IndustryService:
                     "emergingSkills": 1,
                     "decliningSkills": 1,
                     "dataQuality": 1,
-                }
+                },
             )
 
             return IndustryService.extract_metrics(doc)

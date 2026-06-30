@@ -8,10 +8,7 @@ All data is pre-fetched by Node and passed in via ScoringPayload.
 from typing import NamedTuple, Optional
 import logging
 import time
-from metrics.prometheus_metrics import (
-    scoring_duration_seconds,
-    scoring_requests_total
-)
+from metrics.prometheus_metrics import scoring_duration_seconds, scoring_requests_total
 
 # ── Result types ──────────────────────────────────────────────────────────────
 
@@ -21,34 +18,41 @@ logger = logging.getLogger(__name__)
 
 # ── Result types ──────────────────────────────────────────────────────────────
 
+
 class ResumeScore(NamedTuple):
-    completeness_score:       float
-    experience_score:         float
-    skills_score:             float
-    certification_score:      float
-    career_progression_score: float   # bonus — skills unlocking higher-paying titles
-    overall_score:            float
-    grade:                    str     # A+, A, B+, B, C+, C, D, F
-    seniority_profile:        str     # "junior" | "mid" | "senior" — weights applied
+    completeness_score: float
+    experience_score: float
+    skills_score: float
+    certification_score: float
+    career_progression_score: float  # bonus — skills unlocking higher-paying titles
+    overall_score: float
+    grade: str  # A+, A, B+, B, C+, C, D, F
+    seniority_profile: str  # "junior" | "mid" | "senior" — weights applied
 
 
 class MatchScore(NamedTuple):
-    match_percentage:     float
-    skill_match:          float
-    experience_match:     float
-    requirement_match:    float
+    match_percentage: float
+    skill_match: float
+    experience_match: float
+    requirement_match: float
     recommendation_level: str
-    matched_skills:       list
-    missing_skills:       list
-    strengths:            list
-    improvements:         list
+    matched_skills: list
+    missing_skills: list
+    strengths: list
+    improvements: list
 
 
 # ── Grade thresholds ──────────────────────────────────────────────────────────
 
 _GRADE_THRESHOLDS = [
-    (95, "A+"), (90, "A"), (85, "B+"), (80, "B"),
-    (75, "C+"), (65, "C"), (50, "D"),  (0,  "F"),
+    (95, "A+"),
+    (90, "A"),
+    (85, "B+"),
+    (80, "B"),
+    (75, "C+"),
+    (65, "C"),
+    (50, "D"),
+    (0, "F"),
 ]
 
 
@@ -68,24 +72,24 @@ _GRADE_THRESHOLDS = [
 
 _WEIGHTS_BY_SENIORITY = {
     "junior": {
-        "completeness":   0.25,
-        "experience":     0.05,   # near-zero — fresh grads are expected to have none
-        "skills":         0.40,
-        "market_demand":  0.25,
+        "completeness": 0.25,
+        "experience": 0.05,  # near-zero — fresh grads are expected to have none
+        "skills": 0.40,
+        "market_demand": 0.25,
         "certifications": 0.05,
     },
     "mid": {
-        "completeness":   0.20,
-        "experience":     0.20,
-        "skills":         0.35,
-        "market_demand":  0.15,
+        "completeness": 0.20,
+        "experience": 0.20,
+        "skills": 0.35,
+        "market_demand": 0.15,
         "certifications": 0.10,
     },
     "senior": {
-        "completeness":   0.15,
-        "experience":     0.35,   # experience is the primary signal at senior level
-        "skills":         0.25,
-        "market_demand":  0.10,
+        "completeness": 0.15,
+        "experience": 0.35,  # experience is the primary signal at senior level
+        "skills": 0.25,
+        "market_demand": 0.10,
         "certifications": 0.15,
     },
 }
@@ -95,8 +99,26 @@ _CAREER_PROGRESSION_MAX_BONUS = 10.0
 
 # ── Seniority keywords ────────────────────────────────────────────────────────
 
-_JUNIOR_KEYWORDS  = {"junior", "jr", "entry", "associate", "intern", "trainee", "graduate", "apprentice"}
-_SENIOR_KEYWORDS  = {"senior", "sr", "lead", "principal", "staff", "head", "director", "architect"}
+_JUNIOR_KEYWORDS = {
+    "junior",
+    "jr",
+    "entry",
+    "associate",
+    "intern",
+    "trainee",
+    "graduate",
+    "apprentice",
+}
+_SENIOR_KEYWORDS = {
+    "senior",
+    "sr",
+    "lead",
+    "principal",
+    "staff",
+    "head",
+    "director",
+    "architect",
+}
 
 
 class ScoringService:
@@ -115,8 +137,10 @@ class ScoringService:
         Returns:
             "junior" | "mid" | "senior"
         """
-        current_title = scoring_payload.get("currentTitle") or {}  # handles None explicitly
-        
+        current_title = (
+            scoring_payload.get("currentTitle") or {}
+        )  # handles None explicitly
+
         level = current_title.get("seniorityLevel", "").lower()
 
         if any(kw in level for kw in _JUNIOR_KEYWORDS):
@@ -136,7 +160,7 @@ class ScoringService:
     def _resolve_weights(scoring_payload: dict) -> dict:
         """Return the weight profile for this resume's seniority level."""
         return _WEIGHTS_BY_SENIORITY[ScoringService._resolve_seniority(scoring_payload)]
-    
+
     # ── Completeness ──────────────────────────────────────────────────────
 
     @staticmethod
@@ -196,20 +220,18 @@ class ScoringService:
             Nice-to-Have → 0.4
         """
         resume_skill_names = {
-            s.get("name", "").lower()
-            for s in resume.get("skills", [])
+            s.get("name", "").lower() for s in resume.get("skills", [])
         }
 
         top_skills: list = (
-            scoring_payload
-            .get("currentTitle") or {}  # ← add `or {}`
+            scoring_payload.get("currentTitle") or {}  # ← add `or {}`
         ).get("topSkills", [])
 
         if not top_skills:
             return min(100.0, (len(resume_skill_names) / 5) * 100)
 
         importance_weight = {"Required": 1.0, "Preferred": 0.7, "Nice-to-Have": 0.4}
-        total_weight   = 0.0
+        total_weight = 0.0
         matched_weight = 0.0
 
         for skill in top_skills:
@@ -242,8 +264,8 @@ class ScoringService:
 
         total = 0.0
         for skill in market_data:
-            demand    = skill.get("demandScore", 0) / 100
-            growth    = skill.get("growthRate",  0) / 100
+            demand = skill.get("demandScore", 0) / 100
+            growth = skill.get("growthRate", 0) / 100
             seniority = skill.get("seniorityMultiplier", 1.0)
             total += ((demand * 0.6) + (growth * 0.4)) * seniority
 
@@ -264,14 +286,13 @@ class ScoringService:
         more than one unlocking a 16% jump.
         """
         resume_skill_names = {
-            s.get("name", "").lower()
-            for s in resume.get("skills", [])
+            s.get("name", "").lower() for s in resume.get("skills", [])
         }
 
         current_title_data = scoring_payload.get("currentTitle") or {}
 
-        higher_paying      = scoring_payload.get("higherPayingTitles", []) or []
-        current_salary     = current_title_data.get("medianSalary", 0)
+        higher_paying = scoring_payload.get("higherPayingTitles", []) or []
+        current_salary = current_title_data.get("medianSalary", 0)
 
         baseline_skills = {
             s.get("skillName", "").lower()
@@ -281,7 +302,7 @@ class ScoringService:
         if not higher_paying or not current_salary:
             return 0.0
 
-        total_bonus  = 0.0
+        total_bonus = 0.0
         max_possible = 0.0
 
         for title in higher_paying:
@@ -292,7 +313,8 @@ class ScoringService:
             salary_weight = min(1.0, salary_delta / current_salary)
 
             progression_skills = [
-                s for s in title.get("topSkills", [])
+                s
+                for s in title.get("topSkills", [])
                 if s.get("skillName", "").lower() not in baseline_skills
             ]
 
@@ -300,19 +322,22 @@ class ScoringService:
                 continue
 
             matched = sum(
-                1 for s in progression_skills
+                1
+                for s in progression_skills
                 if s.get("skillName", "").lower() in resume_skill_names
             )
 
-            total_bonus  += (matched / len(progression_skills)) * salary_weight
+            total_bonus += (matched / len(progression_skills)) * salary_weight
             max_possible += salary_weight
 
         if max_possible == 0:
             return 0.0
 
         return round(
-            min(_CAREER_PROGRESSION_MAX_BONUS,
-                (total_bonus / max_possible) * _CAREER_PROGRESSION_MAX_BONUS),
+            min(
+                _CAREER_PROGRESSION_MAX_BONUS,
+                (total_bonus / max_possible) * _CAREER_PROGRESSION_MAX_BONUS,
+            ),
             2,
         )
 
@@ -346,51 +371,57 @@ class ScoringService:
     ) -> ResumeScore:
         """
         Calculate the full resume score using seniority-aware weights.
- 
+
         Seniority profiles:
             junior  → skills 40%, market_demand 25%, experience 5%
                       Fresh grads are not penalised for having no work history.
             mid     → skills 35%, experience 20%, market_demand 15%
             senior  → experience 35%, skills 25%, certifications 15%
- 
+
         Career progression bonus (additive, max +10):
             Skills on the resume that appear in higher-paying title skill sets
             but NOT in currentTitle.topSkills. Weighted by salary delta.
- 
+
         Args:
             resume:                 Resume dict.
             total_experience_years: Pre-computed by Node or from workExperience.
             scoring_payload:        ScoringPayload dict from Node.
         """
-        start     = time.perf_counter()
+        start = time.perf_counter()
         seniority = ScoringService._resolve_seniority(scoring_payload)
-        weights   = _WEIGHTS_BY_SENIORITY[seniority]
- 
+        weights = _WEIGHTS_BY_SENIORITY[seniority]
+
         try:
-            completeness   = ScoringService.calculate_completeness_score(resume)
-            experience     = ScoringService.calculate_experience_score(total_experience_years)
-            skills         = ScoringService.calculate_skills_score(resume, scoring_payload)
-            market_demand  = ScoringService.calculate_market_demand_score(scoring_payload)
-            certifications = ScoringService.calculate_certification_score(resume)
-            career_prog    = ScoringService.calculate_career_progression_score(resume, scoring_payload)
- 
-            base_score = (
-                completeness   * weights["completeness"]   +
-                experience     * weights["experience"]     +
-                skills         * weights["skills"]         +
-                market_demand  * weights["market_demand"]  +
-                certifications * weights["certifications"]
+            completeness = ScoringService.calculate_completeness_score(resume)
+            experience = ScoringService.calculate_experience_score(
+                total_experience_years
             )
- 
+            skills = ScoringService.calculate_skills_score(resume, scoring_payload)
+            market_demand = ScoringService.calculate_market_demand_score(
+                scoring_payload
+            )
+            certifications = ScoringService.calculate_certification_score(resume)
+            career_prog = ScoringService.calculate_career_progression_score(
+                resume, scoring_payload
+            )
+
+            base_score = (
+                completeness * weights["completeness"]
+                + experience * weights["experience"]
+                + skills * weights["skills"]
+                + market_demand * weights["market_demand"]
+                + certifications * weights["certifications"]
+            )
+
             overall = round(min(100.0, base_score + career_prog), 2)
- 
+
             scoring_requests_total.labels(status="success").inc()
             scoring_duration_seconds.observe(time.perf_counter() - start)
- 
+
         except Exception:
             scoring_requests_total.labels(status="failed").inc()
             raise
- 
+
         logger.info(
             f"[ScoringService] seniority={seniority} "
             f"completeness={completeness:.1f} experience={experience:.1f} "
@@ -398,32 +429,35 @@ class ScoringService:
             f"certs={certifications:.1f} progression={career_prog:.1f} "
             f"overall={overall:.1f}"
         )
- 
+
         return ResumeScore(
-            completeness_score=       round(completeness,   2),
-            experience_score=         round(experience,     2),
-            skills_score=             round(skills,         2),
-            certification_score=      round(certifications, 2),
-            career_progression_score= career_prog,
-            overall_score=            overall,
-            grade=                    ScoringService.get_grade(overall),
-            seniority_profile=        seniority,
+            completeness_score=round(completeness, 2),
+            experience_score=round(experience, 2),
+            skills_score=round(skills, 2),
+            certification_score=round(certifications, 2),
+            career_progression_score=career_prog,
+            overall_score=overall,
+            grade=ScoringService.get_grade(overall),
+            seniority_profile=seniority,
         )
 
     # ── Match score ───────────────────────────────────────────────────────
 
     @staticmethod
     def get_recommendation_level(match_percentage: float) -> str:
-        if match_percentage >= 80: return "Excellent Match"
-        if match_percentage >= 65: return "Good Match"
-        if match_percentage >= 50: return "Fair Match"
+        if match_percentage >= 80:
+            return "Excellent Match"
+        if match_percentage >= 65:
+            return "Good Match"
+        if match_percentage >= 50:
+            return "Fair Match"
         return "Poor Match"
 
     @staticmethod
     def calculate_match_score(
         similarity_score,
         resume: Optional[dict] = None,
-        job:    Optional[dict] = None,
+        job: Optional[dict] = None,
     ) -> MatchScore:
         """
         Convert similarity scores to match percentages.
@@ -435,40 +469,49 @@ class ScoringService:
             resume:           Optional resume dict for detailed skill analysis.
             job:              Optional job dict for detailed skill analysis.
         """
-        skill_match       = similarity_score.skill_similarity      * 100
-        experience_match  = similarity_score.experience_similarity  * 100
+        skill_match = similarity_score.skill_similarity * 100
+        experience_match = similarity_score.experience_similarity * 100
         requirement_match = similarity_score.requirement_similarity * 100
-        overall_match     = similarity_score.total_score            * 100
+        overall_match = similarity_score.total_score * 100
 
         matched_skills: list = []
         missing_skills: list = []
-        strengths:      list = []
-        improvements:   list = []
+        strengths: list = []
+        improvements: list = []
 
         if resume and job:
-            resume_skills = {s.get("name", "").lower() for s in resume.get("skills", [])}
-            job_skills    = {s.get("name", "").lower() for s in job.get("skills",    [])}
+            resume_skills = {
+                s.get("name", "").lower() for s in resume.get("skills", [])
+            }
+            job_skills = {s.get("name", "").lower() for s in job.get("skills", [])}
 
             matched_skills = list(resume_skills & job_skills)
             missing_skills = list(job_skills - resume_skills)
 
-            if skill_match       >= 70: strengths.append("Strong skills alignment")
-            if experience_match  >= 70: strengths.append("Relevant work experience")
-            if requirement_match >= 70: strengths.append("Meets certification requirements")
+            if skill_match >= 70:
+                strengths.append("Strong skills alignment")
+            if experience_match >= 70:
+                strengths.append("Relevant work experience")
+            if requirement_match >= 70:
+                strengths.append("Meets certification requirements")
 
-            if skill_match      < 50: improvements.append("Develop more relevant technical skills")
-            if experience_match < 50: improvements.append("Gain more experience in similar roles")
+            if skill_match < 50:
+                improvements.append("Develop more relevant technical skills")
+            if experience_match < 50:
+                improvements.append("Gain more experience in similar roles")
             if missing_skills:
-                improvements.append(f"Consider learning: {', '.join(missing_skills[:3])}")
+                improvements.append(
+                    f"Consider learning: {', '.join(missing_skills[:3])}"
+                )
 
         return MatchScore(
-            match_percentage=     round(overall_match,     2),
-            skill_match=          round(skill_match,       2),
-            experience_match=     round(experience_match,  2),
-            requirement_match=    round(requirement_match, 2),
-            recommendation_level= ScoringService.get_recommendation_level(overall_match),
-            matched_skills=       matched_skills,
-            missing_skills=       missing_skills,
-            strengths=            strengths,
-            improvements=         improvements,
+            match_percentage=round(overall_match, 2),
+            skill_match=round(skill_match, 2),
+            experience_match=round(experience_match, 2),
+            requirement_match=round(requirement_match, 2),
+            recommendation_level=ScoringService.get_recommendation_level(overall_match),
+            matched_skills=matched_skills,
+            missing_skills=missing_skills,
+            strengths=strengths,
+            improvements=improvements,
         )

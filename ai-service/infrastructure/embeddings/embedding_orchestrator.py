@@ -68,8 +68,8 @@ def extract_embeddings_parallel(
     start = time.perf_counter()
 
     try:
-        tasks  = build_fn(**kwargs, run=run)
-        raw    = run_pipeline(tasks, entity_type=normalized_entity, entity_id=entity_id)
+        tasks = build_fn(**kwargs, run=run)
+        raw = run_pipeline(tasks, entity_type=normalized_entity, entity_id=entity_id)
         result = unpack_fn(raw)
 
         run.finish((time.perf_counter() - start) * 1000)

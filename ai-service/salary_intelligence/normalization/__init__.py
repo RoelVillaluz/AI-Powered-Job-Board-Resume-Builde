@@ -48,11 +48,9 @@ __all__ = [
     "VALID_FREQUENCIES",
     "SUPPORTED_CURRENCIES",
     "BASE_CURRENCY",
-
     # types
     "NormalizedSalary",
     "NormalizedSalaryRange",
-
     # normalizers
     "FrequencyNormalizer",
     "CurrencyNormalizer",

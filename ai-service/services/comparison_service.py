@@ -98,31 +98,37 @@ class ComparisonService:
         to_t = ComparisonService._to_tensor
 
         resume_skills_t = to_t(resume_embeddings.get("skills"))
-        resume_work_t   = to_t(resume_embeddings.get("workExperience"))
-        resume_certs_t  = to_t(resume_embeddings.get("certifications"))
+        resume_work_t = to_t(resume_embeddings.get("workExperience"))
+        resume_certs_t = to_t(resume_embeddings.get("certifications"))
 
-        job_skills_t    = to_t(job_embeddings.get("skills"))
-        job_reqs_t      = to_t(job_embeddings.get("requirements"))
-        job_title_t     = to_t(job_embeddings.get("title"))
+        job_skills_t = to_t(job_embeddings.get("skills"))
+        job_reqs_t = to_t(job_embeddings.get("requirements"))
+        job_title_t = to_t(job_embeddings.get("title"))
 
         if weights is None:
             weights = SimilarityWeights()
 
-        skill_sim   = SimilarityService.cosine_similarity(resume_skills_t, job_skills_t)
-        exp_sim     = SimilarityService.cosine_similarity(resume_work_t, job_title_t)
-        req_sim     = SimilarityService.cosine_similarity(resume_certs_t, job_reqs_t)
+        skill_sim = SimilarityService.cosine_similarity(resume_skills_t, job_skills_t)
+        exp_sim = SimilarityService.cosine_similarity(resume_work_t, job_title_t)
+        req_sim = SimilarityService.cosine_similarity(resume_certs_t, job_reqs_t)
 
         total_score = skill_sim * weights.skills + exp_sim * weights.experience
 
         result: Dict = {
-            "skillSimilarity":       float(skill_sim)  if skill_sim  is not None else None,
-            "experienceSimilarity":  float(exp_sim)    if exp_sim    is not None else None,
-            "requirementSimilarity": float(req_sim)    if req_sim    is not None else None,
-            "totalScore":            float(total_score),
-            "matchPercentage":       round(float(total_score) * 100, 2),
-            "skillMatchPercentage":  round(float(skill_sim)  * 100, 2) if skill_sim  is not None else None,
-            "experienceMatchPercentage": round(float(exp_sim) * 100, 2) if exp_sim   is not None else None,
-            "requirementMatchPercentage": round(float(req_sim) * 100, 2) if req_sim  is not None else None,
+            "skillSimilarity": float(skill_sim) if skill_sim is not None else None,
+            "experienceSimilarity": float(exp_sim) if exp_sim is not None else None,
+            "requirementSimilarity": float(req_sim) if req_sim is not None else None,
+            "totalScore": float(total_score),
+            "matchPercentage": round(float(total_score) * 100, 2),
+            "skillMatchPercentage": round(float(skill_sim) * 100, 2)
+            if skill_sim is not None
+            else None,
+            "experienceMatchPercentage": round(float(exp_sim) * 100, 2)
+            if exp_sim is not None
+            else None,
+            "requirementMatchPercentage": round(float(req_sim) * 100, 2)
+            if req_sim is not None
+            else None,
         }
 
         # Recommendation level
@@ -139,25 +145,32 @@ class ComparisonService:
         # Skill gap analysis — only if both resume and job skill lists are provided
         result["matchedSkills"] = []
         result["missingSkills"] = []
-        result["strengths"]     = []
-        result["improvements"]  = []
+        result["strengths"] = []
+        result["improvements"] = []
 
         if resume and job:
-            resume_skill_names = {s.get("name", "").lower() for s in resume.get("skills", [])}
-            job_skill_names    = {s.get("name", "").lower() for s in job.get("skills", [])}
+            resume_skill_names = {
+                s.get("name", "").lower() for s in resume.get("skills", [])
+            }
+            job_skill_names = {s.get("name", "").lower() for s in job.get("skills", [])}
 
-            matched  = list(resume_skill_names & job_skill_names)
-            missing  = list(job_skill_names - resume_skill_names)
+            matched = list(resume_skill_names & job_skill_names)
+            missing = list(job_skill_names - resume_skill_names)
 
-            strengths    = []
+            strengths = []
             improvements = []
 
-            if skill_sim  is not None and skill_sim  >= 0.7: strengths.append("Strong skills alignment")
-            if exp_sim    is not None and exp_sim    >= 0.7: strengths.append("Relevant work experience")
-            if req_sim    is not None and req_sim    >= 0.7: strengths.append("Meets certification requirements")
+            if skill_sim is not None and skill_sim >= 0.7:
+                strengths.append("Strong skills alignment")
+            if exp_sim is not None and exp_sim >= 0.7:
+                strengths.append("Relevant work experience")
+            if req_sim is not None and req_sim >= 0.7:
+                strengths.append("Meets certification requirements")
             if matched and job_skill_names:
                 if len(matched) > len(job_skill_names) * 0.7:
-                    strengths.append(f"Matches {len(matched)} of {len(job_skill_names)} required skills")
+                    strengths.append(
+                        f"Matches {len(matched)} of {len(job_skill_names)} required skills"
+                    )
 
             if skill_sim is not None and skill_sim < 0.5:
                 improvements.append("Develop more relevant technical skills")
@@ -166,12 +179,14 @@ class ComparisonService:
             if missing:
                 improvements.append(f"Consider learning: {', '.join(missing[:3])}")
             if job_skill_names and len(matched) < len(job_skill_names) * 0.5:
-                improvements.append(f"Only {len(matched)} of {len(job_skill_names)} required skills match")
+                improvements.append(
+                    f"Only {len(matched)} of {len(job_skill_names)} required skills match"
+                )
 
             result["matchedSkills"] = matched
             result["missingSkills"] = missing
-            result["strengths"]     = strengths
-            result["improvements"]  = improvements
+            result["strengths"] = strengths
+            result["improvements"] = improvements
 
         return result
 

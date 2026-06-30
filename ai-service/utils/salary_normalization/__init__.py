@@ -44,13 +44,25 @@ from ...salary_intelligence.normalization.types import (
     AnchorResult,
 )
 
-from ...salary_intelligence.normalization.frequency_normalizer import FrequencyNormalizer
+from ...salary_intelligence.normalization.frequency_normalizer import (
+    FrequencyNormalizer,
+)
 from ...salary_intelligence.normalization.currency_normalizer import CurrencyNormalizer
 from ...salary_intelligence.normalization.salary_normalizer import SalaryNormalizer
 from ...salary_intelligence.pipeline.anchor.anchor_resolver import SalaryAnchorResolver
-from ...salary_intelligence.pipeline.adjustments.location_factor import LocationFactorApplicator, LocationAdjustment
-from ...salary_intelligence.pipeline.adjustments.experience_multiplier import ExperienceMultiplier, ExperienceAdjustment
-from ...salary_intelligence.pipeline.adjustments.skill_premium import SkillScore, SkillPremium, SkillPremiumAdjustment
+from ...salary_intelligence.pipeline.adjustments.location_factor import (
+    LocationFactorApplicator,
+    LocationAdjustment,
+)
+from ...salary_intelligence.pipeline.adjustments.experience_multiplier import (
+    ExperienceMultiplier,
+    ExperienceAdjustment,
+)
+from ...salary_intelligence.pipeline.adjustments.skill_premium import (
+    SkillScore,
+    SkillPremium,
+    SkillPremiumAdjustment,
+)
 
 __all__ = [
     # Constants

@@ -49,18 +49,19 @@ logger = logging.getLogger(__name__)
 
 # ── Seniority profiles ────────────────────────────────────────────────────────
 
+
 class _ExperienceProfile(NamedTuple):
-    target_years: float   # years at which multiplier reaches max_premium
-    max_premium:  float   # maximum fractional uplift (0.35 = up to 35% above input)
+    target_years: float  # years at which multiplier reaches max_premium
+    max_premium: float  # maximum fractional uplift (0.35 = up to 35% above input)
 
 
 # Matches the seniority enum across your schemas:
 # 'Intern' | 'Entry' | 'Mid-Level' | 'Senior'
 _PROFILES: dict[str, _ExperienceProfile] = {
-    "Intern":    _ExperienceProfile(target_years=1.0,  max_premium=0.10),
-    "Entry":     _ExperienceProfile(target_years=2.0,  max_premium=0.20),
-    "Mid-Level": _ExperienceProfile(target_years=5.0,  max_premium=0.35),
-    "Senior":    _ExperienceProfile(target_years=10.0, max_premium=0.45),
+    "Intern": _ExperienceProfile(target_years=1.0, max_premium=0.10),
+    "Entry": _ExperienceProfile(target_years=2.0, max_premium=0.20),
+    "Mid-Level": _ExperienceProfile(target_years=5.0, max_premium=0.35),
+    "Senior": _ExperienceProfile(target_years=10.0, max_premium=0.45),
 }
 
 # Fallback when seniority is unrecognised — conservative mid-level values
@@ -71,6 +72,7 @@ CONFIDENCE_PENALTY_NO_EXPERIENCE: float = 15.0
 
 
 # ── Result type ───────────────────────────────────────────────────────────────
+
 
 class ExperienceAdjustment(NamedTuple):
     """
@@ -114,20 +116,22 @@ class ExperienceAdjustment(NamedTuple):
     data_gaps
         Human-readable warnings for missing fields.
     """
-    experience_yearly:     float
-    experience_monthly:    float
-    experience_delta:      float
-    multiplier:            float
-    years_used:            float
-    target_years:          float
-    max_premium:           float
-    seniority_level:       str
-    pct_of_ceiling:        float   # 0.0–1.0
+
+    experience_yearly: float
+    experience_monthly: float
+    experience_delta: float
+    multiplier: float
+    years_used: float
+    target_years: float
+    max_premium: float
+    seniority_level: str
+    pct_of_ceiling: float  # 0.0–1.0
     confidence_adjustment: float
-    data_gaps:             list[str]
+    data_gaps: list[str]
 
 
 # ── Multiplier calculation ────────────────────────────────────────────────────
+
 
 class ExperienceMultiplier:
     """
@@ -159,9 +163,9 @@ class ExperienceMultiplier:
 
     @staticmethod
     def compute_multiplier(
-        years:          float,
-        target_years:   float,
-        max_premium:    float,
+        years: float,
+        target_years: float,
+        max_premium: float,
     ) -> float:
         """
         Compute the experience multiplier for a given years / profile pair.
@@ -197,8 +201,8 @@ class ExperienceMultiplier:
 
     @staticmethod
     def apply(
-        input_salary:     float,
-        seniority_level:  str,
+        input_salary: float,
+        seniority_level: str,
         experience_years: Optional[float],
     ) -> ExperienceAdjustment:
         """
@@ -218,8 +222,8 @@ class ExperienceMultiplier:
         Returns:
             ExperienceAdjustment with adjusted salary, delta, and metadata.
         """
-        data_gaps:             list[str] = []
-        confidence_adjustment: float     = 0.0
+        data_gaps: list[str] = []
+        confidence_adjustment: float = 0.0
         profile = ExperienceMultiplier.get_profile(seniority_level)
 
         # ── Missing experience data ───────────────────────────────────────
@@ -229,27 +233,29 @@ class ExperienceMultiplier:
                 "returning input salary unchanged."
             )
             data_gaps.append(
-                "Work experience data unavailable — "
-                "experience premium not applied"
+                "Work experience data unavailable — experience premium not applied"
             )
             confidence_adjustment -= CONFIDENCE_PENALTY_NO_EXPERIENCE
 
             return ExperienceMultiplier._passthrough(
-                input_salary, profile, seniority_level,
-                confidence_adjustment, data_gaps,
+                input_salary,
+                profile,
+                seniority_level,
+                confidence_adjustment,
+                data_gaps,
             )
 
-        years = max(0.0, experience_years)   # guard against negative input
+        years = max(0.0, experience_years)  # guard against negative input
 
         # ── Compute multiplier and adjusted salary ────────────────────────
         multiplier = ExperienceMultiplier.compute_multiplier(
             years, profile.target_years, profile.max_premium
         )
 
-        experience_yearly  = round(input_salary * multiplier, 2)
+        experience_yearly = round(input_salary * multiplier, 2)
         experience_monthly = round(experience_yearly / 12, 2)
-        experience_delta   = round(experience_yearly - input_salary, 2)
-        pct_of_ceiling     = round(min(1.0, years / profile.target_years), 4)
+        experience_delta = round(experience_yearly - input_salary, 2)
+        pct_of_ceiling = round(min(1.0, years / profile.target_years), 4)
 
         logger.info(
             f"[ExperienceMultiplier] seniority={seniority_level} "
@@ -263,43 +269,43 @@ class ExperienceMultiplier:
         )
 
         return ExperienceAdjustment(
-            experience_yearly=     experience_yearly,
-            experience_monthly=    experience_monthly,
-            experience_delta=      experience_delta,
-            multiplier=            multiplier,
-            years_used=            years,
-            target_years=          profile.target_years,
-            max_premium=           profile.max_premium,
-            seniority_level=       seniority_level,
-            pct_of_ceiling=        pct_of_ceiling,
-            confidence_adjustment= confidence_adjustment,
-            data_gaps=             data_gaps,
+            experience_yearly=experience_yearly,
+            experience_monthly=experience_monthly,
+            experience_delta=experience_delta,
+            multiplier=multiplier,
+            years_used=years,
+            target_years=profile.target_years,
+            max_premium=profile.max_premium,
+            seniority_level=seniority_level,
+            pct_of_ceiling=pct_of_ceiling,
+            confidence_adjustment=confidence_adjustment,
+            data_gaps=data_gaps,
         )
 
     # ── Internal helpers ──────────────────────────────────────────────────
 
     @staticmethod
     def _passthrough(
-        input_salary:          float,
-        profile:               _ExperienceProfile,
-        seniority_level:       str,
+        input_salary: float,
+        profile: _ExperienceProfile,
+        seniority_level: str,
         confidence_adjustment: float,
-        data_gaps:             list[str],
+        data_gaps: list[str],
     ) -> ExperienceAdjustment:
         """Return input salary unchanged — used when years data is missing."""
         monthly = round(input_salary / 12, 2)
         return ExperienceAdjustment(
-            experience_yearly=     input_salary,
-            experience_monthly=    monthly,
-            experience_delta=      0.0,
-            multiplier=            1.0,
-            years_used=            0.0,
-            target_years=          profile.target_years,
-            max_premium=           profile.max_premium,
-            seniority_level=       seniority_level,
-            pct_of_ceiling=        0.0,
-            confidence_adjustment= confidence_adjustment,
-            data_gaps=             data_gaps,
+            experience_yearly=input_salary,
+            experience_monthly=monthly,
+            experience_delta=0.0,
+            multiplier=1.0,
+            years_used=0.0,
+            target_years=profile.target_years,
+            max_premium=profile.max_premium,
+            seniority_level=seniority_level,
+            pct_of_ceiling=0.0,
+            confidence_adjustment=confidence_adjustment,
+            data_gaps=data_gaps,
         )
 
     # ── Explanation helpers ───────────────────────────────────────────────
@@ -316,8 +322,8 @@ class ExperienceMultiplier:
         if adjustment.experience_delta == 0.0:
             return lines
 
-        pct_uplift    = (adjustment.multiplier - 1.0) * 100
-        pct_ceiling   = adjustment.pct_of_ceiling * 100
+        pct_uplift = (adjustment.multiplier - 1.0) * 100
+        pct_ceiling = adjustment.pct_of_ceiling * 100
         years_display = (
             f"{adjustment.years_used:.0f} year"
             if adjustment.years_used == 1
@@ -355,6 +361,6 @@ class ExperienceMultiplier:
         """
         # Salary at ceiling = input × (1 + max_premium)
         # Remaining         = salary_at_ceiling - experience_yearly
-        input_salary       = adjustment.experience_yearly - adjustment.experience_delta
-        salary_at_ceiling  = input_salary * (1.0 + adjustment.max_premium)
+        input_salary = adjustment.experience_yearly - adjustment.experience_delta
+        salary_at_ceiling = input_salary * (1.0 + adjustment.max_premium)
         return round(max(0.0, salary_at_ceiling - adjustment.experience_yearly), 2)

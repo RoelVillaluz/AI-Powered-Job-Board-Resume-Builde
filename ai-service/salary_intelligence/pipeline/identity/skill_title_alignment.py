@@ -69,35 +69,36 @@ logger = logging.getLogger(__name__)
 ALIGNMENT_HIGH_THRESHOLD: float = 0.60
 
 # At or below LOW_THRESHOLD: industry anchor used entirely (title bypassed)
-ALIGNMENT_LOW_THRESHOLD:  float = 0.25
+ALIGNMENT_LOW_THRESHOLD: float = 0.25
 
 # Confidence penalties applied to the accumulated confidence score
-CONFIDENCE_PENALTY_LOW_ALIGNMENT:      float = 30.0   # alignment < LOW_THRESHOLD
-CONFIDENCE_PENALTY_PARTIAL_ALIGNMENT:  float = 15.0   # LOW < alignment < HIGH
-CONFIDENCE_PENALTY_NO_TOP_SKILLS:      float = 10.0   # job_title_data has no topSkills
+CONFIDENCE_PENALTY_LOW_ALIGNMENT: float = 30.0  # alignment < LOW_THRESHOLD
+CONFIDENCE_PENALTY_PARTIAL_ALIGNMENT: float = 15.0  # LOW < alignment < HIGH
+CONFIDENCE_PENALTY_NO_TOP_SKILLS: float = 10.0  # job_title_data has no topSkills
 
 
 # ── Importance and level weights ──────────────────────────────────────────────
 
 # Matches JobTitle.topSkills[].importance schema enum
 _IMPORTANCE_WEIGHT: dict[str, float] = {
-    "Required":     1.0,
-    "Preferred":    0.7,
+    "Required": 1.0,
+    "Preferred": 0.7,
     "Nice-to-Have": 0.4,
 }
 
 # Matches Resume.skills[].level enum (passed through skill_market_data)
 _LEVEL_WEIGHT: dict[str, float] = {
-    "Expert":       1.0,
+    "Expert": 1.0,
     "Intermediate": 0.7,
-    "Beginner":     0.4,
+    "Beginner": 0.4,
 }
 
-_DEFAULT_IMPORTANCE_WEIGHT: float = 0.7   # Preferred — conservative default
-_DEFAULT_LEVEL_WEIGHT:      float = 0.4   # Beginner  — assume least when unknown
+_DEFAULT_IMPORTANCE_WEIGHT: float = 0.7  # Preferred — conservative default
+_DEFAULT_LEVEL_WEIGHT: float = 0.4  # Beginner  — assume least when unknown
 
 
 # ── Result type ───────────────────────────────────────────────────────────────
+
 
 class AlignmentResult(NamedTuple):
     """
@@ -133,16 +134,18 @@ class AlignmentResult(NamedTuple):
     alignment_label
         Human-readable label for the UI: 'Strong' | 'Partial' | 'Weak'
     """
-    alignment_score:          float
-    blend_weight:             float
-    matched_skills:           list[str]
-    missing_required_skills:  list[str]
-    confidence_adjustment:    float
-    data_gaps:                list[str]
-    alignment_label:          str
+
+    alignment_score: float
+    blend_weight: float
+    matched_skills: list[str]
+    missing_required_skills: list[str]
+    confidence_adjustment: float
+    data_gaps: list[str]
+    alignment_label: str
 
 
 # ── Alignment calculator ──────────────────────────────────────────────────────
+
 
 class SkillTitleAlignment:
     """
@@ -156,7 +159,7 @@ class SkillTitleAlignment:
     @staticmethod
     def compute(
         resume_skill_market_data: Optional[list[dict]],
-        job_title_top_skills:     Optional[list[dict]],
+        job_title_top_skills: Optional[list[dict]],
     ) -> AlignmentResult:
         """
         Compute the weighted skill-title alignment score.
@@ -175,8 +178,8 @@ class SkillTitleAlignment:
         Returns:
             AlignmentResult with score, blend weight, gaps, and metadata.
         """
-        data_gaps:             list[str] = []
-        confidence_adjustment: float     = 0.0
+        data_gaps: list[str] = []
+        confidence_adjustment: float = 0.0
 
         # ── No job title top skills — can't measure alignment ─────────────
         if not job_title_top_skills:
@@ -216,21 +219,21 @@ class SkillTitleAlignment:
         }
 
         # ── Score each job title skill ────────────────────────────────────
-        total_importance_weight: float    = 0.0
-        matched_weight:          float    = 0.0
-        matched_skills:          list[str] = []
-        missing_required:        list[str] = []
+        total_importance_weight: float = 0.0
+        matched_weight: float = 0.0
+        matched_skills: list[str] = []
+        missing_required: list[str] = []
 
         for top_skill in job_title_top_skills:
-            skill_name  = top_skill.get("skillName", "").lower()
-            importance  = top_skill.get("importance", "Preferred")
-            imp_weight  = _IMPORTANCE_WEIGHT.get(importance, _DEFAULT_IMPORTANCE_WEIGHT)
+            skill_name = top_skill.get("skillName", "").lower()
+            importance = top_skill.get("importance", "Preferred")
+            imp_weight = _IMPORTANCE_WEIGHT.get(importance, _DEFAULT_IMPORTANCE_WEIGHT)
 
             total_importance_weight += imp_weight
 
             if skill_name in resume_level_map:
-                level       = resume_level_map[skill_name]
-                lvl_weight  = _LEVEL_WEIGHT.get(level, _DEFAULT_LEVEL_WEIGHT)
+                level = resume_level_map[skill_name]
+                lvl_weight = _LEVEL_WEIGHT.get(level, _DEFAULT_LEVEL_WEIGHT)
                 contribution = imp_weight * lvl_weight
 
                 matched_weight += contribution
@@ -247,8 +250,7 @@ class SkillTitleAlignment:
                     missing_required.append(top_skill.get("skillName", skill_name))
 
                 logger.debug(
-                    f"[SkillTitleAlignment] MISS '{skill_name}' "
-                    f"importance={importance}"
+                    f"[SkillTitleAlignment] MISS '{skill_name}' importance={importance}"
                 )
 
         # ── Compute alignment score ───────────────────────────────────────
@@ -296,22 +298,22 @@ class SkillTitleAlignment:
         )
 
         return AlignmentResult(
-            alignment_score=         alignment_score,
-            blend_weight=            blend_weight,
-            matched_skills=          matched_skills,
-            missing_required_skills= missing_required,
-            confidence_adjustment=   confidence_adjustment,
-            data_gaps=               data_gaps,
-            alignment_label=         alignment_label,
+            alignment_score=alignment_score,
+            blend_weight=blend_weight,
+            matched_skills=matched_skills,
+            missing_required_skills=missing_required,
+            confidence_adjustment=confidence_adjustment,
+            data_gaps=data_gaps,
+            alignment_label=alignment_label,
         )
 
     # ── Anchor blending ───────────────────────────────────────────────────
 
     @staticmethod
     def blend_anchors(
-        job_title_yearly:  float,
-        industry_yearly:   float,
-        blend_weight:      float,
+        job_title_yearly: float,
+        industry_yearly: float,
+        blend_weight: float,
     ) -> float:
         """
         Blend job title and industry anchors by alignment weight.
@@ -334,7 +336,9 @@ class SkillTitleAlignment:
         if blend_weight <= 0.0:
             return industry_yearly
 
-        blended = (job_title_yearly * blend_weight) + (industry_yearly * (1.0 - blend_weight))
+        blended = (job_title_yearly * blend_weight) + (
+            industry_yearly * (1.0 - blend_weight)
+        )
 
         logger.info(
             f"[SkillTitleAlignment] Blend — "
@@ -370,20 +374,20 @@ class SkillTitleAlignment:
     ) -> AlignmentResult:
         """No topSkills data — can't penalise, treat as neutral blend."""
         return AlignmentResult(
-            alignment_score=         0.5,
-            blend_weight=            1.0,   # no evidence to downgrade
-            matched_skills=          [],
-            missing_required_skills= [],
-            confidence_adjustment=   confidence_adjustment,
-            data_gaps=               data_gaps,
-            alignment_label=         "Unknown",
+            alignment_score=0.5,
+            blend_weight=1.0,  # no evidence to downgrade
+            matched_skills=[],
+            missing_required_skills=[],
+            confidence_adjustment=confidence_adjustment,
+            data_gaps=data_gaps,
+            alignment_label="Unknown",
         )
 
     @staticmethod
     def _zero_alignment(
-        job_title_top_skills:  list[dict],
+        job_title_top_skills: list[dict],
         confidence_adjustment: float,
-        data_gaps:             list[str],
+        data_gaps: list[str],
     ) -> AlignmentResult:
         """No resume skills — alignment is 0.0, full industry anchor."""
         missing_required = [
@@ -392,13 +396,13 @@ class SkillTitleAlignment:
             if s.get("importance") == "Required"
         ]
         return AlignmentResult(
-            alignment_score=         0.0,
-            blend_weight=            0.0,
-            matched_skills=          [],
-            missing_required_skills= missing_required,
-            confidence_adjustment=   confidence_adjustment,
-            data_gaps=               data_gaps,
-            alignment_label=         "Weak",
+            alignment_score=0.0,
+            blend_weight=0.0,
+            matched_skills=[],
+            missing_required_skills=missing_required,
+            confidence_adjustment=confidence_adjustment,
+            data_gaps=data_gaps,
+            alignment_label="Weak",
         )
 
     # ── Explanation helpers ───────────────────────────────────────────────

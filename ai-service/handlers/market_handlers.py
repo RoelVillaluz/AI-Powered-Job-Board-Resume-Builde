@@ -31,7 +31,9 @@ def generate_location_embeddings(payload: dict) -> dict:
     def _run() -> dict:
         name = payload.get("name")
         if not name:
-            raise ValueError("payload.name is required for location embedding generation")
+            raise ValueError(
+                "payload.name is required for location embedding generation"
+            )
         return {"location_id": payload.get("_id"), "embedding": embed_text(name)}
 
     return safe_call(_run, label="generate_location_embeddings")

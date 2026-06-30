@@ -3,6 +3,7 @@ V2 entry point.
 All handler logic lives in handlers/. Import them here so their
 @register decorators fire and REGISTRY is fully populated.
 """
+
 import logging
 import sys
 

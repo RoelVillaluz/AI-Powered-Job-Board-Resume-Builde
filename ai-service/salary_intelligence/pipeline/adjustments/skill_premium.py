@@ -209,7 +209,6 @@ class SkillPremium:
         if portfolio_score <= 0 or max_premium <= 0:
             return 1.0
 
-        import math
         score_clamped = min(1.0, portfolio_score)
         exponent      = 1.0 / acceleration
         raw_premium   = max_premium * (score_clamped ** exponent)

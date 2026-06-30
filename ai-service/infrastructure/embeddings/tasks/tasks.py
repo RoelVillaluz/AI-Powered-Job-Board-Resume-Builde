@@ -9,7 +9,6 @@ Adding a new section = add a TaskConfig to task_registry._TASKS.
 No new function needed here.
 """
 
-from functools import partial
 from metrics.embedding_metrics import PipelineRun
 from infrastructure.embeddings.tasks.task_registry import run_task
 

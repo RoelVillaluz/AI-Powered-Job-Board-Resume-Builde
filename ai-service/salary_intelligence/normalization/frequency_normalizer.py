@@ -16,7 +16,7 @@ from __future__ import annotations
 import logging
  
 from .base import BaseNormalizer
-from .constants import VALID_FREQUENCIES, FREQUENCY_YEAR
+from .constants import VALID_FREQUENCIES
 from .types import NormalizedSalary
  
 logger = logging.getLogger(__name__)

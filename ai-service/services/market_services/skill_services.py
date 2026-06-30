@@ -3,7 +3,6 @@
 from typing import Optional
 from config.database import db
 from bson import ObjectId
-import torch
 import logging
 
 logger = logging.getLogger(__name__)

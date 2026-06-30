@@ -77,7 +77,7 @@ class JobClusteringService:
             )
         """
         if not job_embeddings:
-            logger.error(f"No job embeddings provider for cluster")
+            logger.error("No job embeddings provider for cluster")
             return None
         
         if len(job_embeddings) < num_clusters:

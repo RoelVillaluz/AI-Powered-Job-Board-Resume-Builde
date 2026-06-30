@@ -1,15 +1,11 @@
 import json
 import os
 import sys
-from bson import ObjectId
 from dotenv import load_dotenv
 import numpy as np
 import pymongo
-from scipy.spatial.distance import cosine
-from sentence_transformers import SentenceTransformer
-from torch import cosine_similarity
 import torch
-from utils import cluster_job_postings, extract_job_embeddings, extract_resume_embeddings, get_embedding, get_resume_by_id
+from utils import extract_job_embeddings, extract_resume_embeddings, get_resume_by_id
 
 load_dotenv()
 

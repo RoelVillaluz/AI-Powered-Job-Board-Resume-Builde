@@ -36,7 +36,7 @@ def check_existing_embeddings(resume_id):
     try:
         existing = db.resumeEmbeddings.find_one({ "resume": ObjectId(resume_id) })
         return existing
-    except Exception as e:
+    except Exception:
         return None
     
 def generate_embeddings(resume_id, force_regenerate=False):

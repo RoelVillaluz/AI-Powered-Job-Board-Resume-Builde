@@ -2,14 +2,11 @@ import json
 import sys
 import pymongo
 import os
-import numpy as np
 import torch
 import torch.nn as nn
 import torch.optim as optim
 from dotenv import load_dotenv
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
-from sklearn.preprocessing import OneHotEncoder
 from bson import ObjectId
 
 load_dotenv()

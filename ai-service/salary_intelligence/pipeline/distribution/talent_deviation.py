@@ -255,8 +255,8 @@ class TalentDeviation:
             )
             if result.percentile >= 0.80:
                 lines.append(
-                    f"Your profile places you in the top 20% of candidates "
-                    f"in this market — near the upper end of the local salary range."
+                    "Your profile places you in the top 20% of candidates "
+                    "in this market — near the upper end of the local salary range."
                 )
             elif result.percentile <= 0.20:
                 lines.append(

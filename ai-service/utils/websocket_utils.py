@@ -1,8 +1,5 @@
-import sys
 import json
 
-import sys
-import json
 
 
 def emit_progress(event: str, progress: int, message: str) -> None:

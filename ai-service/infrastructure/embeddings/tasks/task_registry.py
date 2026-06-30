@@ -17,7 +17,6 @@ WHAT THIS MODULE DOES NOT DO:
 
 from dataclasses import dataclass, field
 from typing import Callable, Optional, Any
-import torch
 
 from metrics.embedding_metrics import PipelineRun, measure_section
 from metrics.prometheus_metrics import (

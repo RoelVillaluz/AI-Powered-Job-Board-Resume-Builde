@@ -17,7 +17,6 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Generator, Literal, Optional
 
-from config.database import db
 
 logger = logging.getLogger(__name__)
 

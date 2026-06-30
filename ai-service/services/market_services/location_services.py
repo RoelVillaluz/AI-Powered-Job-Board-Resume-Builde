@@ -1,9 +1,8 @@
 """ Service for location-related operations """
 
-from typing import Dict, List, Optional
+from typing import Dict, Optional
 from config.database import db
 from bson import ObjectId
-import torch
 import logging
 
 logger = logging.getLogger(__name__)

@@ -18,7 +18,7 @@ WHAT THIS MODULE DOES NOT DO:
 """
 
 from dataclasses import dataclass
-from typing import Callable, Optional
+from typing import Callable
 
 from metrics.embedding_metrics import PipelineRun
 

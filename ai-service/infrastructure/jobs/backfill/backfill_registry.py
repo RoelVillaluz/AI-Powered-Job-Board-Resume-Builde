@@ -1,4 +1,4 @@
-from typing import Callable, Any, TypedDict, Optional
+from typing import Callable, TypedDict, Optional
 from infrastructure.jobs.backfill.job_title_backfill import backfill_job_title
 from infrastructure.jobs.backfill.location_backfill import backfill_location
 from infrastructure.jobs.backfill.skill_backfill import backfill_skills

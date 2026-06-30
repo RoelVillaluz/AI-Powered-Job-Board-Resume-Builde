@@ -3,7 +3,8 @@ V2 entry point.
 All handler logic lives in handlers/. Import them here so their
 @register decorators fire and REGISTRY is fully populated.
 """
-import logging, sys
+import logging
+import sys
 
 logging.basicConfig(
     level=logging.INFO,
@@ -12,4 +13,3 @@ logging.basicConfig(
 )
 
 import handlers  # noqa: F401 — side-effect: populates REGISTRY
-from handlers.base_handler import REGISTRY  # re-export for routers

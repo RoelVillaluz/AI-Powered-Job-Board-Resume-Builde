@@ -7,7 +7,6 @@ import pymongo
 from bson import ObjectId
 from sentence_transformers import SentenceTransformer
 from sklearn.cluster import KMeans
-from sklearn.feature_extraction.text import TfidfVectorizer
 import torch
 
 load_dotenv()
@@ -121,7 +120,7 @@ def extract_resume_embeddings(resume):
             years = (end_date - start_date).days / 365.25
             total_experience_years += max(0, years)
 
-        except Exception as e:
+        except Exception:
             # Skip if any parsing error occurs
             continue
 

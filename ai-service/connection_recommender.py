@@ -1,6 +1,4 @@
-import json
 import os
-import sys
 from bson import ObjectId
 from dotenv import load_dotenv
 import pymongo

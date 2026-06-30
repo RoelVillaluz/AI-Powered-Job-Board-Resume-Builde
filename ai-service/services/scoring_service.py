@@ -15,8 +15,6 @@ from metrics.prometheus_metrics import (
 
 # ── Result types ──────────────────────────────────────────────────────────────
 
-from bson import ObjectId
-from config.database import db
 
 logger = logging.getLogger(__name__)
 

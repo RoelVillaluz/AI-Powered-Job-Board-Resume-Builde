@@ -9,7 +9,6 @@ from routers.health import router as health_router
 from routers.salary import router as salary_router
 from routers.matching import router as matching_router
 from routers.metrics import router as metrics_router
-from metrics import model_loaded
 from dotenv import load_dotenv
 from metrics.prometheus_metrics import model_loaded as model_loaded_prometheus_metric
 
@@ -43,7 +42,6 @@ logger = logging.getLogger(__name__)
 async def lifespan(app: FastAPI):
     logger.info('[FASTAPI] Starting up - loading embedding model')
     try:
-        from models.embeddings import embedding_model
         logger.info('[FASTAPI] Model loaded and warm - ready to serve')
         model_loaded_prometheus_metric.set(1)
     except Exception:

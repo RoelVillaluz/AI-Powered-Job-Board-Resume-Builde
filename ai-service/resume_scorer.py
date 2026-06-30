@@ -5,8 +5,6 @@ import traceback
 from bson import ObjectId
 from dotenv import load_dotenv
 import pymongo
-from scipy.spatial.distance import cosine
-from sentence_transformers import SentenceTransformer
 from torch import cosine_similarity
 import torch
 from utils import extract_job_embeddings, extract_resume_embeddings, get_embedding, get_resume_by_id

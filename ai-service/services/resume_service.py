@@ -10,9 +10,7 @@ ARCHITECTURE NOTE:
 
 from typing import Optional, NamedTuple
 import torch
-from bson import ObjectId
 import logging
-from config.database import db
 from infrastructure.embeddings.embedding_orchestrator import extract_embeddings_parallel 
 from utils.date_utils import calculate_total_experience
 

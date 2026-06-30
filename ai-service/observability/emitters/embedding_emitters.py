@@ -14,7 +14,6 @@ WHAT THIS MODULE DOES NOT DO:
     - No handler logic (handlers/)
 """
 from metrics.embedding_metrics import PipelineRun
-from infrastructure.embeddings.cache_outcome import CacheOutcome
 from metrics.prometheus_metrics import (
     embedding_requests_total,
     embedding_duration_seconds,

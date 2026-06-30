@@ -1,5 +1,5 @@
 """Service for user-related operations."""
-from typing import Optional, NamedTuple
+from typing import NamedTuple
 from bson import ObjectId
 import logging
 from config.database import db

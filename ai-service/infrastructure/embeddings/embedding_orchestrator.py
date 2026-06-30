@@ -20,7 +20,6 @@ WHAT THIS MODULE DOES NOT DO:
 
 import logging
 import time
-from typing import Optional
 
 from metrics.embedding_metrics import PipelineRun
 from infrastructure.jobs.parallelization.parallel_utils import run_pipeline

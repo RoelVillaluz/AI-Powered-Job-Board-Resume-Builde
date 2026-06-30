@@ -4,7 +4,6 @@ from typing import NamedTuple
 from bson import ObjectId
 from pymongo import UpdateOne
 import torch
-from config.database import db
 
 logger = logging.getLogger(__name__)
 

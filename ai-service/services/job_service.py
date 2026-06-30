@@ -8,9 +8,7 @@ ARCHITECTURE NOTE:
 
 from typing import Optional, NamedTuple
 import torch
-from bson import ObjectId
 import logging
-from config.database import db
 from infrastructure.embeddings.embedding_orchestrator import extract_embeddings_parallel
 
 logger = logging.getLogger(__name__)

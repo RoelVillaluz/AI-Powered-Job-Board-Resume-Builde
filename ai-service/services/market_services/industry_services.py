@@ -1,6 +1,6 @@
 """ Service for industry-related operations """
 
-from typing import Dict, List, Optional
+from typing import Dict, Optional
 from config.database import db
 from bson import ObjectId
 import logging

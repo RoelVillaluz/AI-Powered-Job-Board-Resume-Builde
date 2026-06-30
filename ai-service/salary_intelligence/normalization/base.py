@@ -37,6 +37,7 @@ class BaseNormalizer(ABC):
     """
 
     # ── Zero / negative guard ─────────────────────────────────────────────
+    @staticmethod
     def _zero_result(
         original_amount: float,
         original_freq: str,
@@ -59,6 +60,7 @@ class BaseNormalizer(ABC):
         )
     
     # ── Frequency → yearly ────────────────────────────────────────────────
+    @staticmethod
     def _to_yearly(amount: float, frequency: str) -> float:
         """
         Multiply amount by the correct yearly conversion factor.
@@ -80,5 +82,6 @@ class BaseNormalizer(ABC):
         
         return amount * multiplier
     
+    @staticmethod
     def _to_monthly(yearly: float) -> float:
         return round((yearly) / MONTHS_PER_YEAR, 2)

@@ -1,5 +1,5 @@
 import logging
-from typing import NamedTuple
+from typing import NamedTuple, Union
 
 from bson import ObjectId
 from pymongo import UpdateOne
@@ -20,14 +20,18 @@ def _backfill_single(
 ) -> BackfillStatus:
     if not doc_id or embedding is None:
         return BackfillStatus(0, 0, 0)
-    
+
     try:
+        # embedding_payload holds the Mongo-serializable form — kept as a
+        # separate variable rather than reassigning `embedding` so its type
+        # stays Tensor throughout (the function signature promises Tensor).
+        embedding_payload: Union[torch.Tensor, list] = embedding
         if isinstance(embedding, torch.Tensor):
-            embedding = embedding.detach().cpu().tolist()
+            embedding_payload = embedding.detach().cpu().tolist()
 
         result = collection.update_one(
             { "_id": ObjectId(doc_id) },
-            { "$set": { "embedding": embedding } }
+            { "$set": { "embedding": embedding_payload } }
         )
 
         logger.info(
@@ -44,7 +48,7 @@ def _backfill_single(
     except Exception as e:
         logger.error(f"Backfill {entity_name} failed for {doc_id}: {e}")
         return BackfillStatus(0, 0, 1)
-    
+
 def _backfill_batch(
     collection,
     ids: list[str],
@@ -65,13 +69,14 @@ def _backfill_batch(
 
     for doc_id, emb in zip(ids, embeddings):
         try:
+            emb_payload: Union[torch.Tensor, list] = emb
             if isinstance(emb, torch.Tensor):
-                emb = emb.detach().cpu().tolist()
+                emb_payload = emb.detach().cpu().tolist()
 
             operations.append(
                 UpdateOne(
                     {"_id": ObjectId(doc_id)},
-                    {"$set": {"embedding": emb}},
+                    {"$set": {"embedding": emb_payload}},
                 )
             )
         except Exception as e:

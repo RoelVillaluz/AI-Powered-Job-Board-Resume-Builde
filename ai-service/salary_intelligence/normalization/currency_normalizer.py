@@ -32,6 +32,7 @@ class CurrencyNormalizer(BaseNormalizer):
     """
 
     # ── Rate resolution ───────────────────────────────────────────────────
+    @staticmethod
     def resolve_rate(
         currency: str,
         exchange_rates: dict[str, float]

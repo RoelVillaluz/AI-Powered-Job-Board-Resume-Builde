@@ -9,14 +9,14 @@ logger = logging.getLogger(__name__)
 class EmbeddingModel:
     """Manages sentence embedding model as a singleton."""
 
-    _instance: Optional['EmbeddingModel'] = None  # type hint only``
+    _instance: Optional['EmbeddingModel'] = None  # type hint only
     _model: Optional[SentenceTransformer] = None
 
     def __new__(cls):
         if cls._instance is None:
             cls._instance = super().__new__(cls)
         return cls._instance
-    
+
     def __init__(self, model_name: str = 'all-mpnet-base-v2'):
         if self._model is None:
             logger.info(f"Loading embedding model: {model_name}")
@@ -27,17 +27,28 @@ class EmbeddingModel:
             logger.warning(f"Invalid text input: {text}")
             return None
 
+        if self._model is None:
+            # Should never happen post-__init__, but mypy can't prove that
+            # across instance boundaries, and a stale singleton reference
+            # during a failed reload is a real (if rare) failure mode.
+            logger.error("Embedding model is not loaded — cannot encode")
+            return None
+
         try:
             embedding = self._model.encode(text, convert_to_numpy=True)
             return torch.tensor(embedding, dtype=torch.float32)
         except Exception as e:
             logger.error(f"Error generating embedding for text: {e}")
             return None
-        
+
     def encode_batch(self, texts: List[str]) -> Optional[torch.Tensor]:
         if not texts:
             return None
-        
+
+        if self._model is None:
+            logger.error("Embedding model is not loaded — cannot encode batch")
+            return None
+
         try:
             embeddings = self._model.encode(
                 texts,

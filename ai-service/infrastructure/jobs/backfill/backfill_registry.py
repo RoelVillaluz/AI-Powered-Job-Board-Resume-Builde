@@ -1,4 +1,4 @@
-from typing import Callable, TypedDict, Optional
+from typing import Callable, TypedDict
 from infrastructure.jobs.backfill.job_title_backfill import backfill_job_title
 from infrastructure.jobs.backfill.location_backfill import backfill_location
 from infrastructure.jobs.backfill.skill_backfill import backfill_skills
@@ -7,7 +7,11 @@ from infrastructure.jobs.backfill.backfill_persistence import BackfillStatus
 
 class BackfillConfig(TypedDict):
     handler:   Callable[..., BackfillStatus]
-    validator: Callable[[Optional[dict]], bool]
+    # Validators always receive a dict in practice — orchestrate_backfills
+    # only calls them on values present in the BackfillInput TypedDict,
+    # never on a missing/None key. Typed as dict, not Optional[dict],
+    # to match actual call sites.
+    validator: Callable[[dict], bool]
     extractor: Callable[[dict], tuple]   # pulls args from data dict for handler
     error_msg: str
 

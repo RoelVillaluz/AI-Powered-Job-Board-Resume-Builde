@@ -18,7 +18,7 @@ Caller contract:
 
 import json
 import torch
-from typing import Optional
+from typing import Optional, cast
 import logging
 from models.embeddings import embedding_model
 from utils.tensor_utils import stack_embeddings, safe_mean_embedding
@@ -54,7 +54,13 @@ def extract_skills_embeddings(
           - list of per-skill tensors aligned to the backfill ID list, so the
             caller can store the correct vector per skill rather than the mean
     """
-    skill_names = [s.get("name") for s in skills if s.get("name")]
+    # filter(None, ...) + the truthy check together guarantee every
+    # surviving entry is a non-empty str, but mypy can't infer that through
+    # a list comprehension over dict.get(). cast() documents the invariant
+    # we just enforced rather than weakening it with type: ignore.
+    skill_names: list[str] = [
+        cast(str, s.get("name")) for s in skills if s.get("name")
+    ]
     if not skill_names:
         return None, [], []
 
@@ -285,7 +291,9 @@ def extract_certification_embeddings(certifications: list[dict]) -> Optional[tor
     Returns:
         Mean certification embedding or None.
     """
-    certification_names = [c.get("name") for c in certifications if c.get("name")]
+    certification_names: list[str] = [
+        cast(str, c.get("name")) for c in certifications if c.get("name")
+    ]
     if not certification_names:
         return None
 

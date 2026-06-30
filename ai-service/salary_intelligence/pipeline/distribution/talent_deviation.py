@@ -66,7 +66,6 @@ logger = logging.getLogger(__name__)
 _ALIGNMENT_WEIGHT:   float = 0.45
 _PORTFOLIO_WEIGHT:   float = 0.40
 _EXPERIENCE_WEIGHT:  float = 0.15
-_PERCENTILE_EXPONENT: float = 0.75  # only applied in fallback signal mode
 
 # Nonlinear exponent — rewards top performers disproportionately.
 # 0.75 means the curve is convex: easy to get from 0→0.5, harder from 0.5→1.0.

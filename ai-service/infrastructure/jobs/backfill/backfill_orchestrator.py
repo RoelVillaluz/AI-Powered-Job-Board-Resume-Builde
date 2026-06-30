@@ -1,42 +1,50 @@
-from typing import Any, Dict, List, NamedTuple, TypedDict
+from typing import Any, Dict, List, TypedDict
 import logging
-import torch
 from infrastructure.jobs.backfill.backfill_registry import BACKFILL_REGISTRY
 
 logger = logging.getLogger(__name__)
 
-class SkillBackfill(NamedTuple):
-    skill_ids:        List[str]
-    skill_embeddings: List[torch.Tensor]
+
+class SkillBackfillData(TypedDict):
+    skill_ids: List[str]
+    skill_embeddings: List[Any]  # list[torch.Tensor] at runtime
 
 
-class JobTitleBackfill(NamedTuple):
-    title_id:        str
-    title_embedding: torch.Tensor
+class JobTitleBackfillData(TypedDict):
+    title_id: str
+    title_embedding: Any  # torch.Tensor at runtime
 
 
-class LocationBackfill(NamedTuple):
-    location_id:       str
-    location_embedding: torch.Tensor
+class LocationBackfillData(TypedDict):
+    location_id: str
+    location_embedding: Any  # torch.Tensor at runtime
+
 
 class BackfillInput(TypedDict, total=False):
-    skills: SkillBackfill
-    job_title: JobTitleBackfill
-    location: LocationBackfill
+    # Each key maps to the dict-shaped payload its validator/extractor
+    # expects — NOT the NamedTuple of the same name. The registry's
+    # validators call data.get(...) on plain dicts, so this must match.
+    skills: SkillBackfillData
+    job_title: JobTitleBackfillData
+    location: LocationBackfillData
+
 
 class BackfillResult(TypedDict):
     results: Dict[str, Any]
     errors: List[str]
 
+
 def orchestrate_backfills(backfills: BackfillInput) -> BackfillResult:
     """
-    backfills: { "skills": SkillBackfill, "job_title": JobTitleBackfill, ... }
+    backfills: { "skills": {...}, "job_title": {...}, "location": {...} }
+    Each value is a plain dict matching the shape its registry validator
+    and extractor expect (see backfill_registry.py).
     """
     if not any(backfills.values()):
         return BackfillResult(results={}, errors=[])
 
-    results = {}
-    errors  = []
+    results: Dict[str, Any] = {}
+    errors: List[str] = []
 
     for key, data in backfills.items():
         config = BACKFILL_REGISTRY.get(key)

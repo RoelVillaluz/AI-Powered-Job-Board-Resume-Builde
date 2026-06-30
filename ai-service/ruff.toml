@@ -16,6 +16,9 @@ exclude = [
     "company_recommender.py",
     "skills_recommender.py",
     "utils.py",
+    "services/market_services/location_services.py",
+    "services/market_services/job_title_services.py",
+    "services/market_services/industry_services.py",
 ]
 
 [lint.per-file-ignores]

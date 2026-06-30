@@ -341,7 +341,7 @@ class ExperienceMultiplier:
                 f"You're at {pct_ceiling:.0f}% of the {adjustment.seniority_level} "
                 f"experience ceiling ({adjustment.target_years:.0f} years). "
                 f"Additional experience can add up to "
-                f"${adjustment.input_premium_remaining(adjustment):,.0f}/year more."
+                f"${ExperienceMultiplier.input_premium_remaining(adjustment):,.0f}/year more."
             )
 
         return lines

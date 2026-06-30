@@ -24,7 +24,7 @@ concurrency:
 #           ├──▶ test (needs: lint, typecheck)
 #   typecheck ──┘
 #
-# security runs independently — no reason to block on lint/types
+# security runs independently — never blocks tests
 # ──────────────────────────────────────────────
 
 jobs:
@@ -58,7 +58,8 @@ jobs:
 
   # ────────────────────────────────────────────
   # JOB 2: Type check (mypy)
-  # Runs in parallel with lint — independent failure surface
+  # V1 files excluded — they are dead code from the subprocess
+  # architecture and are not part of the active v2 FastAPI service.
   # ────────────────────────────────────────────
   typecheck:
     name: Type Check
@@ -85,11 +86,23 @@ jobs:
 
       - name: Type check (mypy)
         working-directory: ai-service
-        run: mypy . --ignore-missing-imports --exclude tests/
+        run: |
+          mypy . --ignore-missing-imports \
+            --exclude tests/ \
+            --exclude main\.py \
+            --exclude resume_embeddings\.py \
+            --exclude resume_scorer\.py \
+            --exclude salary_predictor\.py \
+            --exclude connection_recommender\.py \
+            --exclude company_recommender\.py \
+            --exclude skills_recommender\.py \
+            --exclude utils\.py
 
   # ────────────────────────────────────────────
-  # JOB 3: Security audit
-  # Independent — runs in parallel, never blocks test job
+  # JOB 3: Security audit (pip-audit)
+  # Independent — runs in parallel, never blocks test job.
+  # CVE-2025-3000: torch.jit.script memory corruption — local execution
+  # only, not exploitable in our inference pipeline. Ignored.
   # ────────────────────────────────────────────
   security:
     name: Security Audit
@@ -104,19 +117,24 @@ jobs:
           cache: pip
           cache-dependency-path: ai-service/requirements.txt
 
+      - name: Install app dependencies
+        working-directory: ai-service
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
       - name: Install pip-audit
         run: pip install pip-audit
 
       - name: Audit production dependencies
         working-directory: ai-service
-        # Only audit production deps — dev tools like ruff/pytest
-        # don't run on EC2, so their vulnerabilities don't matter
-        run: pip-audit -r requirements.txt --desc
+        run: |
+          pip-audit -r requirements.txt --desc \
+            --ignore-vuln CVE-2025-3000
 
   # ────────────────────────────────────────────
-  # JOB 4: Tests
-  # Waits for lint + typecheck — no point running tests
-  # against code that doesn't type-check
+  # JOB 4: Tests + coverage
+  # Waits for lint + typecheck before running.
   # ────────────────────────────────────────────
   test:
     name: Tests & Coverage
@@ -143,17 +161,15 @@ jobs:
         run: pip install -r requirements-dev.txt
 
       # Cache the sentence-transformers model between runs.
-      # all-mpnet-base-v2 is ~420MB — without this it downloads
+      # all-mpnet-base-v2 is ~420MB — without this it re-downloads
       # on every push, adding ~2-3 minutes to every CI run.
-      # Cache key is static: the model doesn't change between runs.
+      # No restore-keys fallback: a partial model cache causes
+      # sentence-transformers to fail on load.
       - name: Cache HuggingFace model
         uses: actions/cache@v4
         with:
           path: ~/.cache/huggingface
           key: hf-all-mpnet-base-v2-v1
-          # No restore-keys fallback — a partial model cache causes
-          # sentence-transformers to error on load, so we want
-          # either a full hit or a clean download.
 
       - name: Run tests with coverage
         id: tests

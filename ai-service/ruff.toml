@@ -1,0 +1,28 @@
+[lint]
+# E402: module-level import not at top of file
+# Intentional in main.py and main_v2.py — dotenv must load before app imports
+ignore = ["E402"]
+
+# V1 entrypoints and legacy files — excluded from linting entirely.
+# These are dead code from the subprocess-based v1 architecture.
+# v2 (FastAPI microservice) is the active codebase.
+exclude = [
+    "main.py",
+    "resume_embeddings.py",
+    "resume_scorer.py",
+    "salary_predictor.py",
+    "connection_recommender.py",
+    "company_recommender.py",
+    "skills_recommender.py",
+    "utils.py",
+]
+
+[lint.per-file-ignores]
+# These __init__.py files are intentional public re-export modules.
+# Ruff flags them as unused imports but they exist to define the public API
+# of each package — consumers import from the package, not the submodule.
+"metrics/__init__.py" = ["F401"]
+"routers/shared/__init__.py" = ["F401"]
+"infrastructure/embeddings/pipelines/__init__.py" = ["F401"]
+"infrastructure/embeddings/tasks/__init__.py" = ["F401"]
+"utils/salary_normalization/__init__.py" = ["F401"]

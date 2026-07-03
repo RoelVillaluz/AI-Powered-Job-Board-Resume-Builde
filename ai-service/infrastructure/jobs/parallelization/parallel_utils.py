@@ -67,7 +67,7 @@ def run_pipeline(
     typed_entity = cast(EntityType, entity_type)
 
     run = PipelineRun(entity_type=typed_entity, entity_id=entity_id)
-    t0  = time.perf_counter()
+    t0 = time.perf_counter()
 
     with ThreadPoolExecutor(max_workers=len(tasks)) as pool:
         raw = _collect({pool.submit(fn): key for key, fn in tasks.items()})

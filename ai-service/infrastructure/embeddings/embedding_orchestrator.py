@@ -32,6 +32,7 @@ logger = logging.getLogger(__name__)
 
 EntityType = Literal["resume", "job"]
 
+
 def extract_embeddings_parallel(
     entity_type: str,
     entity_id: str,
@@ -67,7 +68,7 @@ def extract_embeddings_parallel(
     normalized_entity = pipeline_registry.normalize_entity_type(entity_type)
 
     typed_entity = cast(EntityType, normalized_entity)
-    
+
     build_fn, unpack_fn = pipeline_registry.get(entity_type)
     run = PipelineRun(entity_type=typed_entity, entity_id=entity_id)
 

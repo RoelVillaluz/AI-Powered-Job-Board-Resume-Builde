@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, TypedDict
+from typing import Any, Dict, List, TypedDict, cast
 import logging
 from infrastructure.jobs.backfill.backfill_registry import BACKFILL_REGISTRY
 
@@ -53,12 +53,14 @@ def orchestrate_backfills(backfills: BackfillInput) -> BackfillResult:
             errors.append(f"{key}: no handler registered")
             continue
 
-        if not config["validator"](data):
+        data_dict = cast(Dict[str, Any], data)
+
+        if not config["validator"](data_dict):
             errors.append(f"{key}: {config['error_msg']}")
             continue
 
         try:
-            args = config["extractor"](data)
+            args = config["extractor"](data_dict)
             results[key] = config["handler"](*args)
         except Exception as e:
             logger.error(f"Backfill '{key}' failed: {e}")

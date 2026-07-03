@@ -175,20 +175,22 @@ Enables direct communication between candidates and employers without leaving th
 
 ### How It Works (for Recruiters)
 
-1. **Resume Creation** — Candidates build their resume directly in the web app (no file upload or parsing — everything is entered through the resume builder UI). The Embedding Worker then splits it into sections (skills, work experience, certifications, job title, location) and sends each to FastAPI, which converts them into 768-dimensional vectors using `all-mpnet-base-v2`. All 5 sections run in parallel — total embedding time is ~500ms.
+1. **Resume Creation** — Candidates build their resume directly in the web app. The Embedding Worker splits it into sections (skills, work experience, certifications, job title, location) and sends each to FastAPI, which converts them into 768-dimensional vectors using `all-mpnet-base-v2`. All 5 sections run in parallel — total embedding time is ~500ms.
 2. **Job Ingestion** — Job postings go through the same pipeline and land in Pinecone's `jobs` namespace with filterable metadata (required skills, experience level, salary range, location).
 3. **Semantic Matching** — When a match is requested, Pinecone returns the top 20 most semantically similar jobs. This goes far beyond keyword search — "software engineer with React experience" will surface "frontend developer" and "UI engineer" roles even without exact wording.
 4. **Scoring & Ranking** — The Scoring Worker applies a weighted formula (skills 40%, experience 25%, semantic similarity 15%, seniority 10%, location 7%, certs 3%) and applies experience/seniority penalties where applicable.
-5. **Salary Estimation** — The Salary Worker estimates an expected salary range based on the resume and comparable job postings, helping candidates benchmark and negotiate.
+5. **Salary Estimation** — The Salary Worker estimates an expected salary range based on the resume and comparable job postings.
 6. **Poll for Results** — All pipeline steps are async. The client polls `GET /{step}/:jobId` until results are ready — typically under 5 seconds per step end-to-end.
 
 ---
 
 ## 🤖 AI Service — FastAPI Microservice
 
-The AI service is a Python FastAPI microservice responsible for all ML compute. The model loads **once at startup** and stays warm in memory for every subsequent request — eliminating the cold start problem that plagued the original subprocess architecture.
+The AI service is a Python FastAPI microservice responsible for all ML compute. The model loads **once at startup** and stays warm in memory for every subsequent request.
 
 ### Why FastAPI (V2) vs subprocess (V1)
+
+V1 spawned a new Python subprocess per request, loading the 420MB model from disk (10–20s) every single call, then discarding it. V2 loads the model once at startup and reuses it across all requests.
 
 | | V1 — subprocess | V2 — FastAPI |
 |---|---|---|
@@ -198,19 +200,6 @@ The AI service is a Python FastAPI microservice responsible for all ML compute. 
 | Full pipeline (first run) | 20,000–40,000ms | ~1,300ms |
 | DB coupling | Python fetched from MongoDB | Node owns DB; Python receives prepared payload |
 | Scalability | Coupled to Node process | Independent service, scales separately |
-
-**V1 subprocess architecture:**
-```
-Node request → spawn python → import sentence_transformers
-→ load 420MB model from disk (10–20s) → compute → exit → model unloaded
-```
-
-**V2 FastAPI architecture:**
-```
-FastAPI starts → model loads once → stays warm
-
-Node request → POST /compute/... → model already in memory → compute (~500ms) → return
-```
 
 ### Parallel Embedding Execution
 
@@ -292,8 +281,6 @@ If Pinecone throws at any point:
 ```
 
 ### Backfill
-
-Run when first deploying, after bulk job imports, or after recovering from a Pinecone outage:
 
 ```bash
 npx tsx --env-file=.env.dev src/scripts/backfillPinecone.ts
@@ -380,17 +367,13 @@ pip install -r requirements.txt
 > There are **two separate env files** — `.env` for the app, `.env.k6` for load testing.
 > If you just want to run the web app, you only need `.env`.
 
-#### `.env` — Web App (all developers)
-
-```bash
-cp .env.example .env
-```
+#### `.env` — Web App
 
 ```env
 # MongoDB
 MONGO_URI=mongodb://localhost:27017/job_board
 
-# Email (for notifications)
+# Email
 EMAIL_USER=your_email@example.com
 EMAIL_PASS=your_email_password
 
@@ -422,12 +405,6 @@ HF_HUB_OFFLINE=1
 
 #### `.env.k6` — Load Testing only (optional)
 
-> Skip this entirely if you're just building or exploring the app. Only needed for running k6 performance tests.
-
-```bash
-cp .env.k6.example .env.k6
-```
-
 ```env
 # Target
 K6_BASE_URL=http://localhost:5000
@@ -436,7 +413,7 @@ K6_BASE_URL=http://localhost:5000
 K6_VUS=10
 K6_DURATION=5m
 
-# Thresholds (ms) — override defaults if needed
+# Thresholds (ms)
 K6_THRESHOLD_HTTP_P95=5000
 K6_THRESHOLD_EMBEDDING_P95=30000
 K6_THRESHOLD_MATCHING_P95=20000
@@ -451,8 +428,7 @@ K6_THRESHOLD_SCORING_P95=15000
 redis-server
 
 # Verify
-redis-cli
-ping   # → PONG
+redis-cli ping   # → PONG
 ```
 
 ### 5. Run the App
@@ -463,8 +439,6 @@ ping   # → PONG
 cd backend
 npm run dev
 ```
-
-This uses `concurrently` to start the Node.js backend and the FastAPI AI service in parallel.
 
 **Option B — individually:**
 
@@ -489,18 +463,15 @@ cd frontend && npm run dev
 ### 6. Running Tests
 
 ```bash
-# Run once
-npm test
-
-# Watch mode
-npm run test:watch
+npm test          # run once
+npm run test:watch  # watch mode
 ```
 
 ---
 
 ## 📊 Grafana Dashboards
 
-Dashboards are available at `http://localhost:3000` after starting the observability stack.
+Dashboards available at `http://localhost:3000` after starting the observability stack.
 
 ### Job Board — Embedding Pipeline
 
@@ -521,8 +492,8 @@ Dashboards are available at `http://localhost:3000` after starting the observabi
 |---|---|
 | Total Match Requests | Matching jobs submitted |
 | Failed Match Requests | Matching errors |
-| p95 Match Latency | 95th percentile match duration (currently 1.95s) |
-| Pinecone Queries | Total ANN queries fired (196 at last run) |
+| p95 Match Latency | 95th percentile match duration |
+| Pinecone Queries | Total ANN queries fired |
 | Fallback Triggers | Times system fell back from Pinecone to MongoDB |
 | Match Latency Percentiles | p50 / p95 / p99 breakdown |
 | Match Request Rate | Success/s vs Failed/s |
@@ -533,7 +504,7 @@ Dashboards are available at `http://localhost:3000` after starting the observabi
 
 ## 🧪 Load Testing
 
-Load tests are written with [k6](https://k6.io) and cover the full async pipeline: embed → score → match → salary.
+Load tests cover the full async pipeline: embed → score → match → salary.
 
 ```bash
 k6 run --env-file .env.k6 tests/load/pipeline.js
@@ -541,9 +512,7 @@ k6 run --env-file .env.k6 tests/load/pipeline.js
 
 ### Latest Results — June 10, 2026
 
-**Configuration:** 10 VUs · 5-minute ramp · 98 complete iterations · 0 interrupted
-
-All thresholds passed ✅
+**Configuration:** 10 VUs · 5-minute ramp · 98 complete iterations · 0 interrupted · all thresholds passed ✅
 
 | Metric | p95 | Threshold | Status |
 |---|---|---|---|
@@ -562,8 +531,109 @@ All thresholds passed ✅
 
 - 784 total HTTP requests at 2.60 req/s
 - 6.5 MB received · 326 kB sent
-- 100% poll success across all pipeline steps (embedding, matching, salary, scoring)
-- Average worker duration across all steps: ~3.5s
+- 100% poll success across all pipeline steps
+
+---
+
+## ⚡ Performance Optimization History
+
+The pipeline went from ~2 minutes end-to-end to a p95 of ~21s for a full 4-step iteration, with API response times under 400ms.
+
+### What Changed (in order of impact)
+
+**1. Persistent AI Service (biggest win)**
+Every request used to spawn a new Python subprocess, load the 420MB model from disk (10–20s), run computation, then exit. Replaced with a FastAPI microservice that loads the model once at startup. Cold start cost dropped from 10–20s per request to 0ms.
+
+**2. Moved heavy work off the request path**
+Introduced BullMQ background workers: the API now returns `202 Accepted` with a `jobId` immediately, and the client polls for results. API response time dropped from pipeline duration (~minutes) to queue enqueue time (~50ms).
+
+**3. Parallelized embedding generation**
+Resume sections were previously embedded sequentially. Switched to `ThreadPoolExecutor` — all 5 sections now run concurrently. Total embedding time is bounded by the slowest section, not the sum.
+
+**4. Eliminated redundant embedding generation**
+Embeddings used to be regenerated on every matching request. Added embedding fields directly to Resume and Job documents — generated once on save, reused as a cheap DB read on subsequent requests.
+
+**5. Composite document vectors**
+Matching previously compared individual field embeddings one-by-one. Replaced with weighted composite 768-d vectors per document — one Pinecone query replaces many field-level comparisons.
+
+**6. Separated queues per pipeline step**
+Split into five independent queues: `resume`, `job`, `matching`, `salary`, `scoring`. Each scales independently and failures in one don't block others.
+
+**7. Embedding TTLs and smart refreshes**
+Added TTLs: resume embeddings expire after 30 days, job embeddings after 90 days. Only stale embeddings are regenerated.
+
+**8. Cached match scores**
+Resume–job score pairs are cached for 30 days. Repeat scoring requests return instantly without recomputation.
+
+**9. Metadata pre-filtering before Pinecone queries**
+Added role, location, and experience level filters that run before the vector search, reducing the candidate pool and lowering Read Unit consumption.
+
+**10. Observability-driven iteration**
+After adding Prometheus + Grafana, optimization became data-driven. p50/p95/p99 latency, cache hit rates, fallback triggers, and per-worker durations are all tracked in real time.
+
+---
+
+## 💰 Infrastructure Cost Analysis
+
+> **Framing:** The Node.js backend is deployed on Render. The FastAPI AI service is planned for AWS EC2. Scale projections below are architectural exercises derived from real k6 load test measurements and published cloud pricing — not invoiced costs. AWS CloudWatch cost monitoring is planned and will replace these projections with measured actuals once deployed.
+
+### Measured Baseline — k6 Load Test (June 10, 2026)
+
+98 complete pipeline iterations, 10 VUs, 5 minutes. Zero failures.
+
+| Step | Avg worker duration | p95 worker duration |
+|---|---|---|
+| Embedding | 3.48s | 4.46s |
+| Matching | 3.47s | 4.95s |
+| Salary | 3.47s | 4.95s |
+| Scoring | 3.45s | 3.91s |
+| **Total AI compute / iteration** | **~13.87s avg** | **~18.27s p95** |
+
+### Design Tradeoff: Space vs Compute
+
+Pre-generating and storing embeddings trades storage for compute. Each resume/job stores ~23KB of embedding data (5 field vectors + composite). At 10,000 resumes + 10,000 jobs that's ~460MB — well within MongoDB Atlas paid tier limits (~$57/mo for M10 at 10GB).
+
+The alternative is re-running 17 `model.encode()` calls on every matching request. At 10,000 DAU, that's ~170,000 avoidable model inference calls per day. Storing 460MB of vectors to eliminate those calls is the correct tradeoff.
+
+### Throughput & Scale Projections
+
+From the k6 baseline: ~19.6 iterations/min at 10 VUs. Assumes 1 full pipeline run per DAU per day. Returning users often hit the 30-day match cache, so real compute per user is lower over time.
+
+| Scale | Pipeline runs/day | V2 AI compute/day | V1 AI compute/day |
+|---|---|---|---|
+| k6 baseline | ~98 / 5 min | ~0.38 hrs | ~2.48 hrs |
+| 1,000 DAU | ~10,000 | ~38.5 hrs | ~159 hrs |
+| 10,000 DAU | ~100,000 | ~385 hrs | ~1,590 hrs |
+
+### Render — Node.js Backend
+
+Currently on free tier (development). V2's async BullMQ architecture returns `202 Accepted` in ~50ms and offloads compute to workers, keeping the web process free and enabling low-tier hosting during early usage.
+
+| Scale | V1 projected/mo | V2 projected/mo |
+|---|---|---|
+| Current (dev) | ~$110 | ~$0–20 |
+| 1,000 DAU | ~$100 | ~$57 |
+| 10,000 DAU | ~$300 | ~$150 |
+
+### AWS EC2 — AI Microservice (Planned)
+
+Not yet deployed. The model loads once at startup and stays warm, avoiding repeated initialization.
+
+| Scale | Instance | Est. cost/mo |
+|---|---|---|
+| Baseline | t3.small (2 vCPU, 2GB) | ~$15 |
+| 1,000 DAU | t3.medium (2 vCPU, 4GB) | ~$30 |
+| 10,000 DAU | t3.large × 2 | ~$120 |
+
+### Combined Projection
+
+| Scale | V1 projected/mo | V2 projected/mo | Monthly saving |
+|---|---|---|---|
+| Current (dev) | ~$110 | ~$0–20 | N/A |
+| 1,000 DAU | ~$220 | ~$87 | ~$133 |
+| 10,000 DAU | ~$780 | ~$270 | ~$510 |
+
+The savings come from architectural separation — compute fully decoupled into async workers + reusable model state — not from cheaper infrastructure.
 
 ---
 
@@ -620,248 +690,7 @@ All thresholds passed ✅
 
 ---
 
-## ⚡ Performance Optimization History
-
-The pipeline went from ~2 minutes end-to-end (early version) to a p95 of ~21s for a full 4-step iteration, with API response times under 400ms. Here's what drove that improvement:
-
-### Before vs After
-
-| | Early Version | Current (June 2026) |
-|---|---|---|
-| Full pipeline (cold) | ~1–2 minutes | ~1.3s (warm service) |
-| Embedding generation | ~3,500ms | ~494ms |
-| Score calculation | ~2,000ms | ~380ms |
-| API p95 response time | N/A (sync, blocking) | 385ms |
-| Worker p95 (embedding) | N/A | 4.46s |
-| Worker p95 (matching) | N/A | 4.95s |
-| Worker p95 (salary) | N/A | 4.95s |
-| Worker p95 (scoring) | N/A | 3.91s |
-| Full iteration p95 | ~2 min | 21.01s |
-
-### What Changed (in order of impact)
-
-**1. Persistent AI Service (biggest win)**
-Every request used to spawn a new Python subprocess, load the 420MB `all-mpnet-base-v2` model from disk (10–20s), run computation, then exit — discarding the model. Replaced with a FastAPI microservice that loads the model once at startup and keeps it warm. Cold start cost dropped from 10–20s per request to 0ms.
-
-**2. Moved heavy work off the request path**
-The original design was fully synchronous — users waited while the full pipeline ran inline. Introduced BullMQ background workers: the API now returns a `202 Accepted` with a `jobId` immediately, and the client polls for results. API response time dropped from pipeline duration (~minutes) to queue enqueue time (~50ms).
-
-**3. Parallelized embedding generation**
-Resume sections (skills, experience, certifications, jobTitle, location) were previously embedded sequentially. Switched to `ThreadPoolExecutor` — all 5 sections now run concurrently. Total embedding time is bounded by the slowest section, not the sum of all five.
-
-**4. Eliminated redundant embedding generation**
-Embeddings used to be regenerated on every matching request. Added `skillsEmbedding`, `titleEmbedding`, `locationEmbedding`, and `meanEmbedding` fields directly to Resume and Job documents. Embeddings are now generated once on save and reused — expensive AI compute becomes a cheap DB read on subsequent requests.
-
-**5. Composite document vectors**
-Matching previously compared individual field embeddings one-by-one (resume skills ↔ job skills, resume title ↔ job title, etc.). Replaced with weighted composite 768-d vectors per document. One Pinecone query replaces many field-level comparisons.
-
-**6. Separated queues per pipeline step**
-Originally a single processing flow handled everything. Split into five independent queues: `resume`, `job`, `matching`, `salary`, `scoring`. Each is independently scalable and failures in one don't block others.
-
-**7. Embedding TTLs and smart refreshes**
-Instead of recomputing continuously, added TTLs: resume embeddings expire after 30 days, job embeddings after 90 days. Only stale embeddings are regenerated.
-
-**8. Cached match scores**
-Resume–job score pairs are cached for 30 days. Repeat scoring requests for the same pair return instantly without recomputation.
-
-**9. Metadata pre-filtering before Pinecone queries**
-Added role, location, and experience level filters that run before the vector search, reducing the candidate pool Pinecone has to score and lowering Read Unit consumption.
-
-**10. Observability-driven iteration**
-After adding Prometheus + Grafana, optimization became data-driven rather than guesswork. p50/p95/p99 latency, cache hit rates, fallback triggers, and per-worker durations are all tracked in real time.
-
----
-
-## 💰 Infrastructure Cost Analysis
-
-> **Framing:** The Node.js backend is **deployed on Render**. The FastAPI AI service is **deployed on AWS EC2**. The scale projections below (1,000 DAU, 10,000 DAU) are architectural exercises — deliberate estimates made before scaling up, derived from real k6 load test measurements and published cloud pricing, to validate that the optimizations made during development hold up economically at production scale. AWS CloudWatch cost monitoring is planned (TBA) and will replace these projections with measured actuals once instrumented.
->
-> All compute figures trace back to the k6 load test run on June 10, 2026. Render and AWS pricing use published on-demand rates (us-east-1). Numbers are directional projections, not invoiced costs.
-
----
-
-### Why This Analysis Exists
-
-Most projects stop at "it works." This analysis exists to answer what comes next: **what would it actually cost to keep running at scale, and were the architectural decisions made early the right ones?**
-
-The optimizations in this project — persistent AI service, pre-generated embeddings, async BullMQ workers, composite vectors — each had a performance reason. But they also had a cost reason. This section makes that explicit, traces every number back to a real measurement, and shows where the tradeoffs land.
-
----
-
-### Measured Baseline — k6 Load Test (June 10, 2026)
-
-98 complete pipeline iterations (embed → score → match → salary), 10 VUs, 5 minutes. Zero failures.
-
-**Actual compute per iteration (V2, current):**
-
-| Step | Avg worker duration | p95 worker duration |
-|---|---|---|
-| Embedding | 3.48s | 4.46s |
-| Matching | 3.47s | 4.95s |
-| Salary | 3.47s | 4.95s |
-| Scoring | 3.45s | 3.91s |
-| **Total AI compute / iteration** | **~13.87s avg** | **~18.27s p95** |
-
-The HTTP layer (queue enqueue + client poll) added only 126ms median / 386ms p95. It is not the bottleneck — the Node.js process is free within ~50ms of receiving a request.
-
----
-
-### What V1 Would Have Cost (Same Workload)
-
-V1 spawned a fresh Python subprocess per pipeline step. Each subprocess:
-
-1. Started a new Python process from scratch
-2. Imported `sentence_transformers` and loaded `all-mpnet-base-v2` (420MB) from disk — **10–20 seconds, every single call**
-3. Re-encoded every resume field unconditionally — no pre-generated embeddings existed, so skills, location, job title, certifications, and work experience all went through `model.encode()` from scratch regardless of whether the resume had changed
-4. Printed the result to stdout and exited — model unloaded from memory, ready to pay the full cost again on the next call
-
-**Time comparison per pipeline step:**
-
-| Step | V1 (cold start + full re-encoding) | V2 (warm service + cached embeddings) | Time saved |
-|---|---|---|---|
-| Embedding | ~15,000–23,500ms | ~3,480ms | ~11.5–20s |
-| Scoring | ~12,000–22,000ms | ~3,450ms | ~8.5–18.5s |
-| Matching | ~15,000–23,000ms | ~3,470ms | ~11.5–19.5s |
-| Salary | ~15,000–23,000ms | ~3,470ms | ~11.5–19.5s |
-| **Full iteration** | **~57,000–91,500ms (~1–1.5 min)** | **~13,870ms** | **~43–78s** |
-
-**The redundant encoding tax, broken down:**
-
-V1 called `model.encode()` on every field of every resume on every request, even if that resume was last updated a week ago. V2 generates and stores embeddings at save time. On a typical resume:
-
-| Field | Items | Encode calls | Time each | Wasted per request |
-|---|---|---|---|---|
-| Skills | 10 | 10 | ~50ms | ~500ms |
-| Work experience | 3 | 3 | ~100ms | ~300ms |
-| Certifications | 2 | 2 | ~80ms | ~160ms |
-| Job title | 1 | 1 | ~96ms | ~96ms |
-| Location | 1 | 1 | ~89ms | ~89ms |
-| **Total** | | **17 calls** | | **~1,145ms** |
-
-In V2, those 17 model calls become a single MongoDB read (~5–15ms). Across the 5-minute k6 test (392 pipeline requests), that's roughly **449 seconds of avoidable model inference eliminated** in one test window.
-
----
-
-### Design Tradeoff: Space vs Compute
-
-Pre-generating and storing embeddings is a deliberate space-for-compute tradeoff.
-
-**The cost:**
-- Each resume stores 5 field-level embedding arrays (768 floats each) plus a composite 768-d vector → ~23KB of additional storage per resume
-- Each job posting stores the same → ~23KB per job
-- At 10,000 resumes + 10,000 jobs: ~460MB of additional MongoDB storage
-- MongoDB Atlas free tier: 512MB total. Paid M10 cluster: 10GB at ~$57/mo — storage cost is negligible
-
-**Why it's the right tradeoff:**
-
-The alternative is re-running 17 `model.encode()` calls on every matching request. At 10,000 DAU with ~10,000 pipeline runs/day, that's 170,000 model inference calls per day that V2 eliminates entirely. The compute cost of those redundant calls — in CPU time, memory pressure, request latency, and real money on EC2 — grows linearly with traffic. The storage cost of the cached embeddings is fixed once written and grows only when resumes/jobs are created, not when they're queried.
-
-Storing ~460MB of embedding vectors to avoid hundreds of thousands of daily model inference calls is not a space problem — it's the correct engineering decision, and the cost numbers below show why.
-
----
-
-## Throughput & Scale Projections
-
-From the k6 baseline: **98 iterations / 5 min ≈ 19.6 iterations/min at 10 VUs**.  
-Assumes 1 full pipeline run per DAU per day.
-
-In practice, returning users often hit cache (30-day match cache), so real compute per user can be significantly lower over time.
-
-| Scale | Daily active users | Pipeline runs/day | V2 AI compute/day | V1 AI compute/day (equiv.) |
-|---|---|---|---|---|
-| Current (k6 baseline) | ~10 concurrent test load | ~98 / 5 min test run | ~0.38 hrs | ~2.48 hrs |
-| 1,000 DAU | 1,000 | ~10,000 | ~38.5 hrs | ~159 hrs |
-| 10,000 DAU | 10,000 | ~100,000 | ~385 hrs | ~1,590 hrs |
-
----
-
-## Render — Node.js Backend (Deployed, Free Tier / Dev)
-
-The backend is currently deployed on **Render free tier (development environment)**. There are no production users yet — performance and throughput numbers are derived from k6 load testing.
-
-V1’s synchronous architecture kept the web process blocked during AI execution (up to ~2 minutes per request), requiring a larger instance just to maintain concurrency.
-
-V2 instead returns `202 Accepted` in ~50ms and offloads work to **BullMQ worker processes**, decoupling request handling from compute-heavy execution.
-
-This architectural separation is what enables low-tier hosting during early-stage usage.
-
-| | V1 — sync + subprocess | V2 — async BullMQ (current design) |
-|---|---|---|
-| Web process during AI work | Blocked 1–2 min/request | Free after ~50ms |
-| CPU/RAM pressure | High (inline compute) | Minimal (enqueue only) |
-| Scaling strategy | Upsize single dyno | Scale workers independently |
-| Web tier requirement | Standard 2X (~$50/mo) | Starter / free-tier capable |
-| Worker requirement | N/A | Standard 1X (~$25/mo equivalent) |
-| **Current actual cost** | Not deployed | **$0 (free tier dev usage)** |
-| **Projected cost (production)** | ~$50/mo | ~$30–$32/mo |
-
-### Render cost at scale (projected)
-
-| Scale | V1/mo | V2/mo | Saving |
-|---|---|---|---|
-| 1,000 DAU | ~$100 | ~$57 | ~$43/mo |
-| 10,000 DAU | ~$300 | ~$150 | ~$150/mo |
-
-The key difference is structural: V1 scales by upgrading the web process itself, while V2 isolates compute into workers that scale independently.
-
----
-
-## AWS EC2 — AI Microservice (Planned, Not Yet Deployed)
-
-The FastAPI inference service is designed for **AWS EC2**, but it is currently not deployed. The configuration below reflects intended production architecture and estimated sizing.
-
-The model (~420MB) loads once at startup and remains warm in memory, avoiding repeated initialization overhead.
-
-### Planned EC2 sizing (us-east-1, on-demand estimates)
-
-| Scale | Instance | Reason | Est. cost/mo |
-|---|---|---|---|
-| Current (planned baseline) | t3.small (2 vCPU, 2GB) | Single warm model, low traffic | ~$15 |
-| 1,000 DAU | t3.medium (2 vCPU, 4GB) | Increased concurrency headroom | ~$30 |
-| 10,000 DAU | t3.large × 2 | Horizontal scaling for inference | ~$120 |
-
-> Reserved Instances (~40% savings) not included for conservative estimates.
-
----
-
-### V1 vs V2 on EC2 (architectural comparison)
-
-| | V1 design | V2 design |
-|---|---|---|
-| Model handling | Reload per subprocess/request | Load once, reused in memory |
-| Memory per request | ~420MB each time | Shared single load |
-| Concurrency scaling | Memory-bound | Horizontal or shared-state friendly |
-| Instance requirement (5 concurrent users) | t3.large minimum | t3.small sufficient (baseline) |
-| Cost efficiency | Lower (repeated loads) | Higher (model reuse) |
-
----
-
-## Combined Projection (Render + Planned EC2)
-
-> Note: Render is currently on free-tier development usage. EC2 is not yet deployed. All production values are projections.
-
-| Scale | V1 projected/mo | V2 projected/mo | Monthly saving | Annual saving |
-|---|---|---|---|---|
-| Current (dev / no users) | ~$110 | ~$0–$20 | N/A | N/A |
-| 1,000 DAU | ~$220 | ~$87 | ~$133 | ~$1,596 |
-| 10,000 DAU | ~$780 | ~$270 | ~$510 | ~$6,120 |
-
----
-
-## Key Insight
-
-The savings come not from cheaper infrastructure, but from architectural separation:
-
-- V1: compute executed inside request lifecycle  
-- V2: compute fully decoupled into async workers + reusable model state  
-
-This shifts scaling from “bigger machines” to “more workers only when needed”
-
----
-
 ## 📚 Related Documentation
-
-Detailed technical docs for each subsystem live in the repo:
 
 | Document | Description |
 |---|---|

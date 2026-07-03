@@ -1,4 +1,5 @@
 # AI-Powered Job Board Website with Resume Maker
+# AI-Powered Job Board Website with Resume Maker
 
 ![CI/CD](https://github.com/RoelVillaluz/AI-Powered-Job-Board-Resume-Builde/actions/workflows/ci-cd.yml/badge.svg)
 ![Coverage](https://img.shields.io/badge/coverage-85%25-brightgreen)
@@ -14,13 +15,22 @@
 ![Supertest](https://img.shields.io/badge/Supertest-000000?style=flat&logoColor=white)
 
 A full-stack job board platform that streamlines the entire job application lifecycle — from discovery and matching to resume creation and interviews. The platform combines modern web technologies with AI-driven features to help job seekers make smarter, faster career decisions.
+A full-stack job board platform that streamlines the entire job application lifecycle — from discovery and matching to resume creation and interviews. The platform combines modern web technologies with AI-driven features to help job seekers make smarter, faster career decisions.
 
+At its core, the system lets users search and apply for jobs, automatically generate professional resumes, and communicate directly with employers — all within a single, cohesive application.
 At its core, the system lets users search and apply for jobs, automatically generate professional resumes, and communicate directly with employers — all within a single, cohesive application.
 
 ---
 
 ## ✨ Key Highlights
 
+- End-to-end job application platform (search → match → apply → interview)
+- AI-powered insights for matching, scoring, salary estimation, and skill growth
+- FastAPI microservice with a warm `all-mpnet-base-v2` model — 30–50× faster than subprocess V1
+- 3-stage semantic matching: Pinecone vector retrieval → hybrid scoring → LLM reranking (reranker pending)
+- Registry-driven async embedding pipeline across all entity types
+- Full observability via Grafana dashboards with real-time latency and throughput metrics
+- Pipeline optimized from ~2 minutes (early version) to p95 of 21s full iteration / 385ms API response
 - End-to-end job application platform (search → match → apply → interview)
 - AI-powered insights for matching, scoring, salary estimation, and skill growth
 - FastAPI microservice with a warm `all-mpnet-base-v2` model — 30–50× faster than subprocess V1
@@ -36,7 +46,46 @@ At its core, the system lets users search and apply for jobs, automatically gene
 ### 1. AI Job Matching
 
 Recommends relevant job postings by analyzing a user's resume and saved preferences (job type, salary range, experience level).
+Recommends relevant job postings by analyzing a user's resume and saved preferences (job type, salary range, experience level).
 
+- Uses vector similarity to compare user skills against job requirements
+- Applies preference-based weighting for more personalized results
+- Outputs a transparent match score (0–100%) per job posting
+
+Under the hood this is a 3-stage pipeline:
+
+```
+Stage 1 — Retrieval      Stage 2 — Scoring         Stage 3 — Reranking
+─────────────────────    ──────────────────────     ────────────────────────
+Pinecone vector search   Hybrid formula (0–100)     LLM explains + reorders
+topK=20 candidates   →   skill, exp, seniority  →   Best Fit / Good Fit /
+threshold + fallback     semantic, location          Stretch classification
+```
+
+Scoring formula:
+
+```
+score = (
+  skill_match        × 0.40
+  experience_fit     × 0.25
+  semantic_sim       × 0.15
+  seniority_fit      × 0.10
+  location_fit       × 0.07
+  cert_bonus         × 0.03
+) × penalty_multiplier
+
+Penalties:
+  experience gap > 3yr   → × 0.85
+  experience gap > 5yr   → × 0.70
+  seniority mismatch     → × 0.80
+  missing required skill → −15pts flat
+
+Score tiers:
+  80–100 → Strong Fit
+  60–79  → Good Fit
+  40–59  → Weak Fit
+  0–39   → Poor Fit
+```
 - Uses vector similarity to compare user skills against job requirements
 - Applies preference-based weighting for more personalized results
 - Outputs a transparent match score (0–100%) per job posting
@@ -79,16 +128,24 @@ Score tiers:
 ### 2. AI Resume Scorer
 
 Evaluates resumes across two dimensions:
+Evaluates resumes across two dimensions:
 
 - **Completeness** — how thoroughly each section is filled out
 - **Relevance** — how well experience and content align with listed skills
+- **Completeness** — how thoroughly each section is filled out
+- **Relevance** — how well experience and content align with listed skills
 
+Produces an actionable score with strengths, improvement areas, and recommendations.
 Produces an actionable score with strengths, improvement areas, and recommendations.
 
 ### 3. AI Salary Predictor
 
 Generates an estimated salary range based on the user's resume and similar job postings.
+Generates an estimated salary range based on the user's resume and similar job postings.
 
+- Leverages semantic similarity between resumes and job descriptions
+- Produces personalized, data-driven salary expectations
+- Helps users benchmark offers and negotiate confidently
 - Leverages semantic similarity between resumes and job descriptions
 - Produces personalized, data-driven salary expectations
 - Helps users benchmark offers and negotiate confidently
@@ -96,12 +153,18 @@ Generates an estimated salary range based on the user's resume and similar job p
 ### 4. AI Personalized Skill Recommendations
 
 Identifies skill gaps and suggests high-impact skills to learn based on saved job postings.
+Identifies skill gaps and suggests high-impact skills to learn based on saved job postings.
 
 - Extracts current skills from the user's resume (built in-app)
 - Aggregates required skills from saved job listings
 - Uses a neural network to detect missing but commonly required skills
 - Returns targeted recommendations to improve employability
+- Extracts current skills from the user's resume (built in-app)
+- Aggregates required skills from saved job listings
+- Uses a neural network to detect missing but commonly required skills
+- Returns targeted recommendations to improve employability
 
+### 5. Integrated Video Chat *(Upcoming)*
 ### 5. Integrated Video Chat *(Upcoming)*
 
 Enables direct communication between candidates and employers without leaving the platform — supporting initial screenings, follow-ups, and ongoing discussions.
@@ -321,13 +384,171 @@ The script is idempotent — safe to re-run. Bypasses the 500-job threshold by d
 | Testing | Jest, Supertest |
 | Load Testing | k6 |
 | Observability | Grafana, Prometheus |
+## 🤖 AI Service — FastAPI Microservice
+
+The AI service is a Python FastAPI microservice responsible for all ML compute. The model loads **once at startup** and stays warm in memory for every subsequent request — eliminating the cold start problem that plagued the original subprocess architecture.
+
+### Why FastAPI (V2) vs subprocess (V1)
+
+| | V1 — subprocess | V2 — FastAPI |
+|---|---|---|
+| Cold start | 10,000–20,000ms per request | 0ms (model always warm) |
+| Embedding generation | ~3,500ms | ~494ms |
+| Score calculation | ~2,000ms | ~380ms |
+| Full pipeline (first run) | 20,000–40,000ms | ~1,300ms |
+| DB coupling | Python fetched from MongoDB | Node owns DB; Python receives prepared payload |
+| Scalability | Coupled to Node process | Independent service, scales separately |
+
+**V1 subprocess architecture:**
+```
+Node request → spawn python → import sentence_transformers
+→ load 420MB model from disk (10–20s) → compute → exit → model unloaded
+```
+
+**V2 FastAPI architecture:**
+```
+FastAPI starts → model loads once → stays warm
+
+Node request → POST /compute/... → model already in memory → compute (~500ms) → return
+```
+
+### Parallel Embedding Execution
+
+All 5 resume sections run concurrently via `ThreadPoolExecutor`. Total time is bounded by the slowest section, not the sum of all:
+
+```
+resume payload received
+  ├── Thread: skills embeddings         ~228ms
+  ├── Thread: workExperience embeddings ~200ms
+  ├── Thread: certifications embeddings ~180ms
+  ├── Thread: jobTitle embedding        ~96ms
+  └── Thread: location embedding        ~89ms
+                                        ─────
+  Total (parallel):                     ~494ms  (not ~793ms sum)
+```
+
+PyTorch tensor operations release the GIL, so threads genuinely overlap rather than serialize.
+
+### Setting Up the AI Service
+
+```bash
+cd ai-service
+python -m venv venv
+
+# Windows
+venv\Scripts\activate
+# Mac/Linux
+source venv/bin/activate
+
+pip install -r requirements.txt
+uvicorn app:app --host 0.0.0.0 --port 8000 --reload
+```
+
+Verify:
+```
+GET http://localhost:8000/health   → { "status": "ok", "model": "all-mpnet-base-v2" }
+GET http://localhost:8000/docs     → interactive Swagger UI
+```
+
+Set these env vars after the first model download to skip HuggingFace network checks (~42s → ~3s startup):
+
+```env
+TRANSFORMERS_OFFLINE=1
+HF_HUB_OFFLINE=1
+```
+
+---
+
+## 🔍 Vector Database — Pinecone
+
+**Index:** `resume-job-matching` | **Dimensions:** 768 | **Namespaces:** `resumes`, `jobs`
+
+### Vector Composition
+
+Resume and job vectors are weighted blends of field-level embeddings:
+
+```
+Resume vector weights          Job vector weights
+──────────────────────         ──────────────────────
+skills          × 0.40         skills          × 0.35
+workExperience  × 0.30         requirements    × 0.25
+jobTitle        × 0.15         jobTitle        × 0.20
+certifications  × 0.10         experienceLevel × 0.15
+location        × 0.05         location        × 0.05
+```
+
+Missing fields are excluded automatically and weights are renormalized.
+
+### Cost & Threshold Strategy
+
+```
+Before every Pinecone query:
+  COUNT active JobPostings in MongoDB (cached 5 min)
+  ├── count >= 500 → Pinecone vector search
+  └── count < 500  → MongoDB fallback query (free, equally accurate at small scale)
+
+If Pinecone throws at any point:
+  → catch silently → fall back to MongoDB → log error → user never sees failure
+```
+
+### Backfill
+
+Run when first deploying, after bulk job imports, or after recovering from a Pinecone outage:
+
+```bash
+npx tsx --env-file=.env.dev src/scripts/backfillPinecone.ts
+```
+
+The script is idempotent — safe to re-run. Bypasses the 500-job threshold by design.
+
+---
+
+## 🛠️ Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Frontend | React.js, CSS |
+| Backend API | Node.js, Express.js |
+| Job Queue | BullMQ (Redis-backed) |
+| AI Service | Python, FastAPI |
+| ML Model | Sentence Transformers (`all-mpnet-base-v2`, 768-d) |
+| ML Framework | PyTorch, Scikit-learn |
+| Vector DB | Pinecone |
+| Database | MongoDB |
+| Cache | Redis |
+| Validation | Joi |
+| Auth | JWT, bcrypt |
+| Testing | Jest, Supertest |
+| Load Testing | k6 |
+| Observability | Grafana, Prometheus |
 
 ---
 
 ## 🎯 Project Goal
 
 Traditional job search platforms focus on listing job openings, leaving candidates uncertain about how well they match a role, how to improve their applications, or how to move efficiently through the hiring process.
+Traditional job search platforms focus on listing job openings, leaving candidates uncertain about how well they match a role, how to improve their applications, or how to move efficiently through the hiring process.
 
+This platform transforms that passive browsing experience into an informed, guided, end-to-end workflow:
+
+- Clearly shows how well a candidate matches a specific job through transparent, data-driven match scores
+- Helps users understand *why* they are (or aren't) a good fit for a role
+- Provides actionable guidance on tailoring and improving resumes for specific opportunities
+- Reduces uncertainty around salary expectations and required skills using AI-driven insights
+- Enables direct interview scheduling within the platform, eliminating back-and-forth emails
+- Centralizes the entire job application lifecycle — discovery, application, interview, communication — in one application
+
+---
+
+## ⚙️ Setup and Configuration
+
+### Prerequisites
+
+- Node.js 18+
+- Python 3.9+
+- MongoDB (local or Atlas)
+- Redis
+- Pinecone account
 This platform transforms that passive browsing experience into an informed, guided, end-to-end workflow:
 
 - Clearly shows how well a candidate matches a specific job through transparent, data-driven match scores
@@ -354,18 +575,41 @@ This platform transforms that passive browsing experience into an informed, guid
 ```bash
 git clone https://github.com/RoelVillaluz/AI-Powered-Job-Board-Resume-Builde.git
 cd AI-Powered-Job-Board-Resume-Builde
+git clone https://github.com/RoelVillaluz/AI-Powered-Job-Board-Resume-Builde.git
+cd AI-Powered-Job-Board-Resume-Builde
 ```
 
 ### 2. Install Dependencies
+### 2. Install Dependencies
 
 ```bash
+# Backend
 # Backend
 cd backend
 npm install
 
 # Frontend
 cd ../frontend
+
+# Frontend
+cd ../frontend
 npm install
+
+# AI Service
+cd ../ai-service
+python -m venv venv
+venv\Scripts\activate      # Windows
+# source venv/bin/activate  # Mac/Linux
+pip install -r requirements.txt
+```
+
+### 3. Environment Setup
+
+> There are **two separate env files** — `.env` for the app, `.env.k6` for load testing.
+> If you just want to run the web app, you only need `.env`.
+
+#### `.env` — Web App (all developers)
+
 
 # AI Service
 cd ../ai-service
@@ -388,27 +632,82 @@ cp .env.example .env
 
 ```env
 # MongoDB
+cp .env.example .env
+```
+
+```env
+# MongoDB
 MONGO_URI=mongodb://localhost:27017/job_board
 
 # Email (for notifications)
 EMAIL_USER=your_email@example.com
 EMAIL_PASS=your_email_password
+# Email (for notifications)
+EMAIL_USER=your_email@example.com
+EMAIL_PASS=your_email_password
 
+# Auth
 # Auth
 JWT_SECRET=your_jwt_secret_key
 
+# Environment
 # Environment
 NODE_ENV=development
 LOG_LEVEL=debug
 
 # URLs
+# URLs
 CLIENT_URL=http://localhost:5173
 PORT=5000
 AI_SERVICE_URL=http://localhost:8000
+AI_SERVICE_URL=http://localhost:8000
 
+# Redis
 # Redis
 REDIS_HOST=localhost
 REDIS_PORT=6379
+
+# Pinecone
+PINECONE_API_KEY=your_pinecone_api_key
+PINECONE_INDEX_NAME=resume-job-matching
+PINECONE_ENVIRONMENT=us-east-1-aws
+
+# AI Service — skip HF network checks after first model download
+TRANSFORMERS_OFFLINE=1
+HF_HUB_OFFLINE=1
+```
+
+#### `.env.k6` — Load Testing only (optional)
+
+> Skip this entirely if you're just building or exploring the app. Only needed for running k6 performance tests.
+
+```bash
+cp .env.k6.example .env.k6
+```
+
+```env
+# Target
+K6_BASE_URL=http://localhost:5000
+
+# Load profile
+K6_VUS=10
+K6_DURATION=5m
+
+# Thresholds (ms) — override defaults if needed
+K6_THRESHOLD_HTTP_P95=5000
+K6_THRESHOLD_EMBEDDING_P95=30000
+K6_THRESHOLD_MATCHING_P95=20000
+K6_THRESHOLD_SALARY_P95=15000
+K6_THRESHOLD_SCORING_P95=15000
+```
+
+### 4. Start Redis
+
+```bash
+# In WSL
+redis-server
+
+# Verify
 
 # Pinecone
 PINECONE_API_KEY=your_pinecone_api_key
@@ -460,9 +759,31 @@ ping   # → PONG
 **Option A — all services at once (recommended):**
 
 ```bash
+ping   # → PONG
+```
+
+### 5. Run the App
+
+**Option A — all services at once (recommended):**
+
+```bash
 cd backend
 npm run dev
 ```
+
+This uses `concurrently` to start the Node.js backend and the FastAPI AI service in parallel.
+
+**Option B — individually:**
+
+```bash
+# Backend
+cd backend && npm run server
+
+# AI Service
+cd ai-service && uvicorn app:app --host 0.0.0.0 --port 8000 --reload
+
+# Frontend
+cd frontend && npm run dev
 
 This uses `concurrently` to start the Node.js backend and the FastAPI AI service in parallel.
 
@@ -490,8 +811,21 @@ cd frontend && npm run dev
 
 ```bash
 # Run once
+
+| Service | URL |
+|---|---|
+| Frontend | http://localhost:5173 |
+| Backend API | http://localhost:5000 |
+| AI Service | http://localhost:8000 |
+| AI Service Docs | http://localhost:8000/docs |
+
+### 6. Running Tests
+
+```bash
+# Run once
 npm test
 
+# Watch mode
 # Watch mode
 npm run test:watch
 ```

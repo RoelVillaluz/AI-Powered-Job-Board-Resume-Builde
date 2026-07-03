@@ -285,7 +285,9 @@ class SalaryPredictionOrchestrator:
                 portfolio_score=skill.portfolio_score,
                 exp_pct_of_ceiling=experience.pct_of_ceiling,
                 resume_score=resume_score,
-                skill_count=len(skill_market_data) if skill_market_data is not None else 0,
+                skill_count=len(skill_market_data)
+                if skill_market_data is not None
+                else 0,
                 pre_deviation_salary=skill.skill_yearly,
                 location_data=location_data,
                 exchange_rates=exchange_rates,

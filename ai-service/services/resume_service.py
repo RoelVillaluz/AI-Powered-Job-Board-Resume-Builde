@@ -71,7 +71,7 @@ class ResumeService:
         """
         result = extract_embeddings_parallel(
             entity_type="resume",
-            entity_id=resume.get("_id"),
+            entity_id=str(resume.get("_id") or "unknown"),
             resume=resume,
             skill_docs=skill_docs,
             job_title_doc=job_title_doc,

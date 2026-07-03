@@ -20,6 +20,7 @@ WHAT THIS MODULE DOES NOT DO:
 
 import logging
 import time
+from typing import Literal, cast
 
 from metrics.embedding_metrics import PipelineRun
 from infrastructure.jobs.parallelization.parallel_utils import run_pipeline
@@ -29,6 +30,7 @@ import infrastructure.embeddings.pipelines  # noqa: F401 — triggers registrati
 
 logger = logging.getLogger(__name__)
 
+EntityType = Literal["resume", "job"]
 
 def extract_embeddings_parallel(
     entity_type: str,
@@ -63,8 +65,12 @@ def extract_embeddings_parallel(
         KeyError: if entity_type has no registered pipeline.
     """
     normalized_entity = pipeline_registry.normalize_entity_type(entity_type)
+
+    typed_entity = cast(EntityType, normalized_entity)
+    
     build_fn, unpack_fn = pipeline_registry.get(entity_type)
-    run = PipelineRun(entity_type=normalized_entity, entity_id=entity_id)
+    run = PipelineRun(entity_type=typed_entity, entity_id=entity_id)
+
     start = time.perf_counter()
 
     try:

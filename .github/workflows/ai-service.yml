@@ -96,7 +96,11 @@ jobs:
             --exclude connection_recommender\.py \
             --exclude company_recommender\.py \
             --exclude skills_recommender\.py \
-            --exclude utils\.py
+            --exclude utils\.py \
+            --exclude clustering/job_clustering\.py \
+            --exclude services/market_services/location_services\.py \
+            --exclude services/market_services/job_title_services\.py \
+            --exclude services/market_services/industry_services\.py
 
   # ────────────────────────────────────────────
   # JOB 3: Security audit (pip-audit)

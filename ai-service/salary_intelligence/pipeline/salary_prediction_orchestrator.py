@@ -188,7 +188,7 @@ class SalaryPredictionOrchestrator:
     ) -> SalaryPrediction:
 
         try:
-            skill_count = len(skill_market_data) if skill_market_data else 0
+            skill_count = len(skill_market_data) if skill_market_data is not None else 0
 
             # ── Step 0: Effective seniority ───────────────────────────────────
             effective_seniority, seniority_downgraded = resolve_effective_seniority(

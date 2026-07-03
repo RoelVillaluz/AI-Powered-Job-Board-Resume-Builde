@@ -58,7 +58,7 @@ class JobService:
         """
         result = extract_embeddings_parallel(
             entity_type="job_posting",
-            entity_id=job.get("_id"),
+            entity_id=str(job.get("_id") or "unknown"),
             job=job,
             skill_docs=skill_docs,
             job_title_doc=job_title_doc,

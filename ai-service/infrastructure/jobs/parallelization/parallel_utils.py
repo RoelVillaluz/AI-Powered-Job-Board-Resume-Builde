@@ -18,11 +18,13 @@ WHAT THIS MODULE DOES NOT DO:
 import time
 import logging
 from concurrent.futures import ThreadPoolExecutor, Future
-from typing import Callable
+from typing import Callable, Literal, cast
 
 from metrics.embedding_metrics import PipelineRun, persist_run
 
 logger = logging.getLogger(__name__)
+
+EntityType = Literal["resume", "job"]
 
 
 def _collect(futures: dict[Future, str]) -> dict:
@@ -58,8 +60,14 @@ def run_pipeline(
     Returns:
         {section_key: result | None} — None means the task raised.
     """
-    run = PipelineRun(entity_type=entity_type, entity_id=entity_id)
-    t0 = time.perf_counter()
+    # PipelineRun expects Literal['resume', 'job']. entity_type is validated
+    # upstream by pipeline_registry.normalize_entity_type() before reaching
+    # here — cast() documents that invariant without adding a runtime check
+    # that would duplicate the registry's own validation.
+    typed_entity = cast(EntityType, entity_type)
+
+    run = PipelineRun(entity_type=typed_entity, entity_id=entity_id)
+    t0  = time.perf_counter()
 
     with ThreadPoolExecutor(max_workers=len(tasks)) as pool:
         raw = _collect({pool.submit(fn): key for key, fn in tasks.items()})

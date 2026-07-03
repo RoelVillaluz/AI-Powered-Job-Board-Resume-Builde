@@ -6,7 +6,7 @@ ARCHITECTURE NOTE:
     Node pre-fetches all data and passes it in.
 """
 
-from typing import List, Dict, NamedTuple, Optional
+from typing import List, Dict, NamedTuple, Optional, cast
 from collections import Counter
 import logging
 import numpy as np
@@ -364,7 +364,7 @@ class AnalyticsService:
                     {"role": role, "required_skills": count}
                     for role, count in role_required_count.items()
                 ],
-                key=lambda x: x["required_skills"],
+                key=lambda x: cast(int, x["required_skills"]),
                 reverse=True,
             )[:5]
 

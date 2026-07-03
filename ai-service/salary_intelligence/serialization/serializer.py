@@ -140,6 +140,7 @@ def _serialise_prediction(prediction: SalaryPrediction) -> dict:
 
 def predict_salary(
     seniority_level: str,
+    resume_score: int,
     total_experience_years: Optional[float],
     job_title_data: Optional[dict],
     industry_data: Optional[dict],
@@ -185,6 +186,7 @@ def predict_salary(
     try:
         prediction = SalaryPredictionOrchestrator.predict(
             seniority_level=seniority_level,
+            resume_score=resume_score,
             total_experience_years=total_experience_years,
             job_title_data=job_title_data,
             industry_data=industry_data,

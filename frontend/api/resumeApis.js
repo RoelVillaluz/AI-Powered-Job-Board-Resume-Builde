@@ -105,3 +105,20 @@ export const fetchResumeJobMatch = async (resumeId, jobId, token) => {
   )
   return data
 }
+
+/**
+ * Triggers generation of a RAG-based fit explanation for a resume/job match.
+ * Fire-and-forget from the frontend's perspective — result arrives via the
+ * `matchInsight:complete` socket event, not this response.
+ * @param {string} resumeId
+ * @param {string} jobId
+ * @returns {Promise<{ jobId: string }>} the queue job id, not the insight itself
+ */
+export const generateMatchInsight = async (resumeId, jobId, token) => {
+  const { data } = await axios.post(
+    `${BASE_API_URL}/resumes/${resumeId}/job-matches/${jobId}/insight`,
+    {},
+    { headers: { Authorization: `Bearer ${token}` } }
+  )
+  return data
+}

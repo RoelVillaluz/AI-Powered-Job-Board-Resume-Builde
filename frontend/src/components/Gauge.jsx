@@ -7,7 +7,8 @@ function Gauge({
     loading = false,
     isAnalyzing = false,
     secondsRemaining = null,
-    objectName = null
+    objectName = null,
+    displayName = 'Effectiveness'
 }) {
     const [animatedValue, setAnimatedValue] = useState(0);
     const [animatedJobProgress, setAnimatedJobProgress] = useState(0);
@@ -91,7 +92,7 @@ function Gauge({
                                 {Math.round(animatedValue)}
                                 <span>%</span>
                             </h2>
-                            <p>Effectiveness</p>
+                            <p>{displayName}</p>
                         </>
                     ) : (
                         // ── No score yet ─────────────────────────────────────────────────

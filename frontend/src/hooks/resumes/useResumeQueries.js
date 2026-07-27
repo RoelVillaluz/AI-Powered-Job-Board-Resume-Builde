@@ -1,6 +1,6 @@
-import { useQuery } from "@tanstack/react-query"
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useResumeStore } from "../../stores/resumeStore";
-import { fetchResume, fetchResumeEmbeddingsV2, fetchResumeJobSimilarity, fetchResumeSalaryPrediction, fetchResumeScoreV2, fetchUserResumes, fetchResumeJobMatches } from "../../../api/resumeApis";
+import { fetchResume, fetchResumeEmbeddingsV2, fetchResumeJobSimilarity, fetchResumeSalaryPrediction, fetchResumeScoreV2, fetchUserResumes, fetchResumeJobMatches, fetchResumeJobMatch, generateMatchInsight } from "../../../api/resumeApis";
 import { useEffect } from "react";
 
 /**
@@ -96,7 +96,7 @@ export const useResumeSalaryPredictionQuery = (
   });
 };
 
-export const useResumeJobMatchQuery = (resumeId, token) => {
+export const useResumeJobMatchesQuery = (resumeId, token) => {
   return useQuery({
     queryKey: ['resumeJobMatch', resumeId],
     queryFn: () => fetchResumeJobMatches(resumeId, token),
@@ -120,3 +120,11 @@ export const useResumeJobMatchQuery = (resumeId, jobId, token) => {
     });
 };
 
+export const useGenerateMatchInsightMutation = () => {
+    return useMutation({
+        mutationFn: ({ resumeId, jobId, token }) => generateMatchInsight(resumeId, jobId, token),
+        onError: (err) => {
+            console.error('[useGenerateMatchInsightMutation] Failed to start insight generation', err);
+        },
+    });
+};

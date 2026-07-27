@@ -102,6 +102,8 @@ export interface JobMatch {
 const EXPERIENCE_LADDER = ['Intern', 'Entry', 'Mid-Level', 'Senior'] as const;
 type ExperienceLevel = typeof EXPERIENCE_LADDER[number];
 
+const MIN_POOL_SIZE = 5;
+
 // ─── Query ────────────────────────────────────────────────────────────────────
 
 /**
@@ -143,21 +145,25 @@ export async function queryJobsForResume(
   const filter: Record<string, unknown> = {};
 
   if (filters.experienceLevel) {
-    /**
-     * Widens the experience level filter to include adjacent levels.
-     * Prevents over-filtering: a Mid-Level candidate should still
-     * see some Entry and Senior roles.
-     */
     filter.experienceLevel = { $in: getAdjacentLevels(filters.experienceLevel) };
   }
 
   if (filters.totalExperienceYears !== undefined) {
     /**
-     * +1 year buffer prevents hard cutoffs.
-     * A candidate with 3 years can still see jobs requiring 4 years —
-     * the reranker will score it as a slight stretch rather than exclude it.
+     * Buffer scales with candidate seniority. Junior candidates need a much
+     * wider window than senior ones — most "2-4 yrs" postings are realistically
+     * open to strong entry-level applicants, but that only shows up if we
+     * retrieve them at all. A flat +1 buffer works fine at 5+ years but
+     * silently starves 0-1 year candidates down to almost nothing.
+     *
+     * 0-1 yrs  → +3 buffer (catches the common "2-4 yrs" junior/tech range)
+     * 2-4 yrs  → +2 buffer
+     * 5+ yrs   → +1 buffer (original behavior, unchanged)
      */
-    filter.yearsOfExperience = { $lte: filters.totalExperienceYears + 1 };
+    const years = filters.totalExperienceYears;
+    const buffer = years <= 1 ? 3 : years <= 4 ? 2 : 1;
+
+    filter.yearsOfExperience = { $lte: years + buffer };
   }
 
   if (filters.jobType) {
@@ -184,11 +190,48 @@ export async function queryJobsForResume(
     includeMetadata: true,
   });
 
-  return results.matches.map(match => ({
+  let matches = results.matches.map(match => ({
     jobId:            match.id,
     vectorSimilarity: match.score ?? 0,
     metadata:         match.metadata as unknown as JobMatchMetadata,
   }));
+
+  /**
+   * Safety net: hard filters should never starve the reranker down to a
+   * near-empty pool. If the experience filter leaves us with too few
+   * candidates, retry without it so the scorer has enough breadth to
+   * actually differentiate and rank — instead of "recommending" whatever
+   * the 1-2 survivors happened to be.
+   */
+  if (matches.length < MIN_POOL_SIZE && filter.yearsOfExperience) {
+    logger.warn(
+      `[Pinecone] Only ${matches.length} candidates after experience filter — ` +
+      `retrying without it for resume: ${doc.resume}`
+    );
+
+    const relaxedFilter = { ...filter };
+    delete relaxedFilter.yearsOfExperience;
+
+    const fallbackResults = await index.namespace('jobs').query({
+      vector,
+      topK,
+      filter: Object.keys(relaxedFilter).length > 0 ? relaxedFilter : undefined,
+      includeMetadata: true,
+    });
+
+    const seen = new Set(matches.map(m => m.jobId));
+    const extra = fallbackResults.matches
+      .filter(m => !seen.has(m.id))
+      .map(match => ({
+        jobId:            match.id,
+        vectorSimilarity: match.score ?? 0,
+        metadata:         match.metadata as unknown as JobMatchMetadata,
+      }));
+
+    matches = [...matches, ...extra];
+  }
+
+  return matches;
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────

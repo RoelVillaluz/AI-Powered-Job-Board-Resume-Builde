@@ -3,12 +3,12 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useSocket } from "../../contexts/SocketContext";
 import { useAuthStore } from "../../stores/authStore";
 import { useResumeStore } from "../../stores/resumeStore";
-import { useResumeJobMatchQuery } from "./useResumeQueries";
+import { useResumeJobMatchesQuery } from "./useResumeQueries";
 import { useResumeJobMatchMutation } from "./useResumeMutations";
 import type { AxiosError } from "axios";
 
 /**
- * useResumeJobMatch
+ * useResumeJobMatches
  *
  * Orchestrates the resume-job matching pipeline using React Query + Socket.IO.
  *
@@ -30,7 +30,7 @@ import type { AxiosError } from "axios";
  * @property {string}  statusMessage - Human-readable status
  * @property {boolean} isLoading     - Initial fetch loading
  */
-export const useResumeJobMatch = () => {
+export const useResumeJobMatches = () => {
     const { socket }        = useSocket();
     const token             = useAuthStore(state => state.token);
     const currentResume     = useResumeStore(state => state.currentResume);
@@ -48,7 +48,7 @@ export const useResumeJobMatch = () => {
         setStatusMessage(null);
     }, [resumeId]);
 
-    const { data, isLoading, isFetched, error } = useResumeJobMatchQuery(resumeId, token);
+    const { data, isLoading, isFetched, error } = useResumeJobMatchesQuery(resumeId, token);
 
     const { mutate: triggerGeneration } = useResumeJobMatchMutation(resumeId, token);
     

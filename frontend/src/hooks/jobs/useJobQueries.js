@@ -32,11 +32,11 @@ export const useJobPosting = (id) => {
     })
 }
 
-export const useJobRecommendations = (userId) => {
+export const useJobRecommendations = (resumeId, token) => {
     return useQuery({
-        queryKey: ['jobRecommendations', userId],
-        queryFn: () => fetchJobRecommendations(userId),
-        enabled: !!userId,
+        queryKey: ['jobRecommendations', resumeId],
+        queryFn: () => fetchJobRecommendations(resumeId, token),
+        enabled: !!resumeId && !!token,
         retry: 3,
         staleTime: 1000 * 60 * 5
     })

@@ -106,3 +106,17 @@ export const useResumeJobMatchQuery = (resumeId, token) => {
     refetchOnWindowFocus: false
   })
 }
+
+export const useResumeJobMatchQuery = (resumeId, jobId, token) => {
+    return useQuery({
+        queryKey: ['resumeJobMatch', resumeId, jobId],
+        queryFn: () => fetchResumeJobMatch(resumeId, jobId, token),
+        enabled: !!resumeId && !!jobId && !!token,
+        staleTime: 1000 * 60 * 10,
+        retry: (failureCount, error) => {
+            if (error?.response?.status === 404) return false;
+            return failureCount < 2;
+        },
+    });
+};
+

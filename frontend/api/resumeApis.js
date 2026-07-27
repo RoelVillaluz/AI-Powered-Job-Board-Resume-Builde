@@ -89,3 +89,19 @@ export const fetchResumeJobMatches = async (resumeId, token) => {
 
   return data.data
 }
+
+/**
+ * Fetches the cached match breakdown for a single job from the resume's
+ * ranked match list.
+ * @param {string} resumeId
+ * @param {string} jobId
+ * @param {string} token
+ * @returns {Promise<object|null>} the match entry, or null if not yet ranked
+ */
+export const fetchResumeJobMatch = async (resumeId, jobId, token) => {
+  const { data } = await axios.get(
+    `${BASE_API_URL}/resumes/${resumeId}/job-matches/${jobId}`,
+    { headers: { Authorization: `Bearer ${token}` } } 
+  )
+  return data
+}

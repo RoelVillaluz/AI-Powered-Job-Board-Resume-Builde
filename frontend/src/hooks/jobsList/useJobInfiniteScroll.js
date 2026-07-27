@@ -6,7 +6,7 @@ import { useJobStore } from "../../stores/jobStore";
 import { useResumeStore } from "../../stores/resumeStore";
 import { useResumeJobMatchQuery } from "../resumes/useResumeQueries";
 import { fetchResumeJobMatches } from "../../../api/resumeApis";
-import { useResumeJobMatch } from "../resumes/useResumeJobMatches";
+import { useResumeJobMatches } from "../resumes/useResumeJobMatches";
 
 /**
  * Custom hook for handling infinite scrolling of job listings.
@@ -47,7 +47,7 @@ export const useJobInfiniteScroll = () => {
         matches: recommendations,
         isGenerating: isGeneratingMatches,
         statusMessage: matchStatusMessage,
-    } = useResumeJobMatch();
+    } = useResumeJobMatches();
 
     const loadMoreJobs = useCallback(() => {
         if (hasNextPage && !isFetchingNextPage) fetchNextPage();

@@ -1,8 +1,25 @@
 from fastapi import APIRouter
+from pydantic import BaseModel
 from routers.shared import ComputeRequest, wrap
 from handlers.matching_handler import score_matches
+from handlers.match_insight_handler import generate_match_insight
 
 router = APIRouter(prefix="/compute")
+
+class MatchInsightRequest(BaseModel):
+    resume: dict
+    matches: list[dict]
+    jobId: str
+
+
+@router.post("/generate_match_insight")
+async def generate_match_insight_endpoint(body: MatchInsightRequest) -> dict:
+    result = generate_match_insight(
+        resume=body.resume,
+        matches=body.matches,
+        job_id=body.jobId,
+    )
+    return wrap(result)
 
 
 @router.post("/score_matches")

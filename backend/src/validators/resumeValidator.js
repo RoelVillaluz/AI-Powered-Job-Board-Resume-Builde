@@ -13,6 +13,11 @@ export const resumeIdSchema = Joi.object({
   resumeId: objectIdStrict.required(),
 });
 
+export const resumeJobIdSchema = Joi.object({
+    resumeId: objectIdStrict.required(),
+    jobId:    objectIdStrict.required(),
+});
+
 export const createResumeSchema = new Joi.object({
     jobTitle: Joi.object({
         _id: objectId.optional().messages({

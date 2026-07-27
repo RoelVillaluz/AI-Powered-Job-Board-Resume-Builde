@@ -96,14 +96,38 @@ export const createWorkerV2 = ({
     worker.on('active',    (job)      => logger.info(`[WORKER V2 ACTIVE] ${key}:${job.data.id ?? job.data.resumeId}`));
     worker.on('completed', (job)      => logger.info(`[WORKER V2 COMPLETED] ${key}`, { jobId: job.id }));
     worker.on('failed',    async (job, err) => {
+        // NOTE: this default (1) vs the DLQ check's default (3) below were
+        // already inconsistent before this change — both fall back when
+        // job.opts.attempts is undefined, which in practice it usually
+        // isn't since createQueueJobRunner sets it explicitly. Leaving as-is,
+        // not touching pre-existing behavior beyond what was asked.
+        const isFinalAttempt = job ? job.attemptsMade >= (job.opts.attempts ?? 3) : false;
+
         logger.error(`[WORKER V2 FAILED] ${key}`, {
             jobId:     job?.id,
             attempt:   job?.attemptsMade,
             error:     err.message,
-            willRetry: job && job.attemptsMade < (job.opts.attempts ?? 1),
+            willRetry: !isFinalAttempt,
         });
-        if (dlq && job && job.attemptsMade >= (job.opts.attempts ?? 3)) {
+
+        if (dlq && job && isFinalAttempt) {
             await moveToDLQ(dlq, job, err);
+        }
+
+        // Give configs a chance to clean up per-request side state (e.g. a
+        // Redis pending-entry keyed by resumeId) once no more retries will
+        // happen. Only fires on the terminal attempt, never on retryable
+        // failures — a mid-retry cleanup would delete data attempt N+1
+        // still needs to read.
+        if (isFinalAttempt && job && config.onFinalFailure) {
+            try {
+                await config.onFinalFailure(job);
+            } catch (cleanupErr) {
+                logger.error(`[WORKER V2] onFinalFailure cleanup error for ${key}`, {
+                    jobId: job.id,
+                    error: (cleanupErr as Error).message,
+                });
+            }
         }
     });
     worker.on('error',   (err)    => logger.error(`[WORKER V2 ERROR] ${key}`, { error: err.message }));

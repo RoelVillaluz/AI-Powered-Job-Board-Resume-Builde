@@ -46,14 +46,10 @@ const jobMatchEntrySchema = new mongoose.Schema({
         required: true,
     },
 
-    // ── Scores ────────────────────────────────────────────────────────────────
     finalScore:       { type: Number, min: 0, max: 100, default: 0 },
     vectorSimilarity: { type: Number, min: 0, max: 1,   default: 0 },
-
-    // Replaces legacy: skillSimilarity, experienceSimilarity, requirementSimilarity
     components: { type: matchComponentsSchema, default: () => ({}) },
 
-    // ── Classification ────────────────────────────────────────────────────────
     careerFit: {
         type: String,
         enum: ['Strong', 'Medium', 'Weak'],
@@ -65,23 +61,22 @@ const jobMatchEntrySchema = new mongoose.Schema({
         default: 'Poor Fit',
     },
 
-    // ── Skill analysis ────────────────────────────────────────────────────────
-    // Replaces legacy: matchedSkills, missingSkills
     matchedSkills:         { type: [String], default: [] },
     missingSkills:         { type: [String], default: [] },
     missingRequiredSkills: { type: [String], default: [] },
 
-    // ── Insights ──────────────────────────────────────────────────────────────
-    // Replaces legacy: strengths, improvements
     strengths:    { type: [String], default: [] },
     improvements: { type: [String], default: [] },
 
-    // ── Explainability ────────────────────────────────────────────────────────
     penalties: { type: [String], default: [] },
 
-    // ── Cached job fields ─────────────────────────────────────────────────────
-    // Avoids extra DB lookup when rendering job list page
     metadata: { type: matchMetadataSchema, default: () => ({}) },
+
+    // ── RAG explanation ──────────────────────────────────────────────────────
+    // Generated on-demand when the user visits the job comparison page.
+    // Empty until the async job finishes, then filled in and pushed via socket.
+    explanation: { type: String, default: '' },
+    explanationGeneratedAt: { type: Date, default: null },
 
 }, { _id: false });
 

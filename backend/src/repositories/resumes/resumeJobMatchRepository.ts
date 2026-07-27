@@ -68,3 +68,23 @@ export const getSingleJobMatchRepo = async (
 
     return result?.matches?.[0] ?? null;
 };
+
+// ⚠️ ASSUMPTION: I don't have your existing resumeJobMatchRepository.ts, so
+// I don't know what getMatchResultRepo already looks like — add this
+// function alongside it rather than replacing the file.
+export const setMatchExplanationRepo = async (
+    resumeId: string | Types.ObjectId,
+    jobId: string | Types.ObjectId,
+    explanation: string,
+) => {
+    return ResumeJobMatch.findOneAndUpdate(
+        { resume: resumeId, "matches.jobId": jobId },
+        {
+            $set: {
+                "matches.$.explanation": explanation,
+                "matches.$.explanationGeneratedAt": new Date(),
+            },
+        },
+        { new: true },
+    ).lean();
+};

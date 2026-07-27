@@ -1,4 +1,5 @@
 import { Types } from "mongoose";
+import { Job } from "bullmq";
 import { QueueJob } from "../../../types/queues.types.js";
 
 // ─────────────────────────────────────────────
@@ -61,6 +62,14 @@ export interface ComputeConfigV2<T, TAIResult = any> {
         emitSocket: (event: string, data: any) => void,
         ctx:        { userId: string | null; startTime: number },
     ) => Promise<void>;
+
+    // Optional — runs once a job has exhausted all retry attempts and will
+    // not be retried again. Used for cleaning up per-request side state that
+    // fetcher() reads (e.g. a Redis pending-entry keyed by resumeId) — safe
+    // to delete only once no further attempt will try to read it. Registries
+    // that don't set per-request side state (most of them) can omit this.
+    onFinalFailure?: (job: Job) => Promise<void>;
+
 }
 
 export type EmitFn = (

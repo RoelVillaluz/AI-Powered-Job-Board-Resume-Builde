@@ -13,18 +13,18 @@ const router = express.Router()
 router.get('/:resumeId/salary-prediction', 
     validate(resumeIdSchema, 'params'),
     authenticate,
-    requireRole('jobseeker'),
-    checkIfResumeExistsById,
-    enforceResumeOwnership,
+    // requireRole('jobseeker'),
+    // checkIfResumeExistsById,
+    // enforceResumeOwnership,
     getResumeSalaryPredictionController
 )
 
 router.post('/:resumeId/salary-prediction', 
     validate(resumeIdSchema, 'params'),
     authenticate,
-    requireRole('jobseeker'),
-    checkIfResumeExistsById,
-    enforceResumeOwnership,
+    // requireRole('jobseeker'),
+    // checkIfResumeExistsById,
+    // enforceResumeOwnership,
     generateResumeSalaryPredictionController
 )
 

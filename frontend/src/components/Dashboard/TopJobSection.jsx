@@ -1,130 +1,207 @@
 import { useState, useEffect } from "react"
 import { useJobActions } from "../../hooks/jobs/useJobActions";
 import { Link } from "react-router-dom";
-import { useJobStore } from "../../stores/jobStore"; 
 import { useResumeStore } from "../../stores/resumeStore";
-import { useAuthStore } from "../../stores/authStore"; // Add this import
+import { useAuthStore } from "../../stores/authStore";
 import { formatSalary } from "../utils/chats/salaryUtils";
-import { useJobRecommendations } from "../../hooks/jobs/useJobQueries";
+import { useJobRecommendations, useJobPosting } from "../../hooks/jobs/useJobQueries";
+import { useEnsureJobMatches } from "../../hooks/jobs/useEnsureJobMatches"
 
 function TopJobSection() {
     const { toggleApplyJob, toggleSaveJob } = useJobActions();
-    const user = useAuthStore(state => state.user); // Get user from store
+    const user = useAuthStore(state => state.user);
     const resume = useResumeStore(state => state.currentResume);
+    const token = useAuthStore(state => state.token);
 
-    const { data: jobRecommendations = [], isLoading, error } =
-        useJobRecommendations(user?._id)
-    
-    const topJob = jobRecommendations[0] ?? null;
-    
+    const jobRecommendationsQuery = useJobRecommendations(resume?._id, token);
+    const { data: jobRecommendations = [], isLoading: recommendationsLoading, error } = jobRecommendationsQuery;
+
+    const { isGenerating } = useEnsureJobMatches(resume?._id, token, jobRecommendationsQuery);
+
+    const topMatch = jobRecommendations.matches?.[0] ?? null;
+
+    const {
+        data: topJobData,
+        isLoading: jobLoading
+    } = useJobPosting(topMatch?.jobId);
+
+    const topJob = topJobData
+        ? {
+            ...topJobData,
+            similarity: Math.round((topMatch?.vectorSimilarity ?? 0) * 100),
+            matchedSkills: topMatch?.matchedSkills ?? [],
+            missingSkills: topMatch?.missingSkills ?? [],
+            finalScore: topMatch?.finalScore,
+            recommendationType: topMatch?.recommendationType,
+        }
+        : null;
+
+    const isLoading = recommendationsLoading || jobLoading || isGenerating;
+
     const [shuffledSkills, setShuffledSkills] = useState([]);
 
     useEffect(() => {
         if (resume?.skills?.length) {
-        const skills = [...resume.skills]
-            .sort(() => Math.random() - 0.5)
-            .slice(0, 3)
-            .map(skill => skill.name)
-            .join(', ')
-        setShuffledSkills(skills)
+            const skills = [...resume.skills]
+                .sort(() => Math.random() - 0.5)
+                .slice(0, 3)
+                .map(skill => skill.name)
+                .join(', ');
+
+            setShuffledSkills(skills);
         }
-    }, [resume])
+    }, [resume]);
 
     const formattedSalary = (job) => {
-        return `${job.salary.currency}${job.salary.amount.toLocaleString()}/${job.salary.frequency}`
-    }
-    
+        return `${job.salary.currency}${job.salary.amount.toLocaleString()}/${job.salary.frequency}`;
+    };
+
     return (
-        <>
-            <section className={`grid-item ${!isLoading && topJob ? '' : 'skeleton'}`} id="top-job">
-                {!isLoading && topJob && user && (
-                    <>
-                        <Link to={`job-postings/${topJob._id}`} id="top-job-link">
-                            <header>
-                                <div>
-                                    <h1>{typeof topJob.title === 'string' ? topJob.title : topJob.title.name}</h1>
-                                    <h2>{topJob.company?.name}</h2>
+        <section 
+            className={`grid-item ${!isLoading && topJob ? '' : 'skeleton'}`} 
+            id="top-job"
+        >
+            {!isLoading && topJob && user && (
+                <>
+                    <Link to={`/job-postings/${topJob._id}`} id="top-job-link">
+                        <header>
+                            <div>
+                                <h1>
+                                    {typeof topJob.title === 'string' 
+                                        ? topJob.title 
+                                        : topJob.title?.name}
+                                </h1>
+                                <h2>{topJob.company?.name}</h2>
+                            </div>
+
+                            {topJob.company?.logo && (
+                                <img 
+                                    src={topJob.company.logo} 
+                                    alt={`${topJob.company.name} logo`} 
+                                />
+                            )}
+                        </header>
+
+                        <div className="details">
+
+                            <h4>
+                                {topJob?.salary?.min && topJob?.salary?.max
+                                    ? formatSalary(topJob.salary)
+                                    : formattedSalary(topJob)
+                                }
+                            </h4>
+
+                            <div className="tags-list">
+
+                                <div className="tag-item">
+                                    <i className="fa-solid fa-location-dot" aria-hidden="true"></i>
+                                    <span>
+                                        {
+                                            typeof topJob.location === "string"
+                                                ? topJob.location
+                                                : topJob.location?.name || ""
+                                        }
+                                    </span>
                                 </div>
-                                {topJob.company?.logo && (
-                                    <img src={topJob.company.logo} alt={`${topJob.company.name} logo`} />
+
+                                <div className="tag-item">
+                                    <i className="fa-solid fa-briefcase" aria-hidden="true"></i>
+                                    <span>{topJob.jobType}</span>
+                                </div>
+
+                                <div className="tag-item">
+                                    <i className="fa-solid fa-user-tie" aria-hidden="true"></i>
+                                    <span>{topJob.experienceLevel}</span>
+                                </div>
+
+                                {topJob.matchedSkills?.length > 0 && (
+                                    <div className="tag-item">
+                                        <i className="fa-solid fa-wrench" aria-hidden="true"></i>
+                                        <span>
+                                            {topJob.matchedSkills.length} Matched Skills
+                                        </span>
+                                    </div>
                                 )}
-                            </header>
-                            <div className="details">
 
-                                <h4>
-                                    {topJob?.salary?.min && topJob?.salary?.max
-                                        ? formatSalary(topJob.salary)  // Use the new schema format with min and max
-                                        : formattedSalary(topJob)      // Use the old schema format with amount only
+                            </div>
+
+
+                            <div className="actions">
+
+                                <button 
+                                    className="apply-btn"
+                                    onClick={(e) => toggleApplyJob(e, topJob._id, resume)}
+                                    aria-label="Apply to job"
+                                >
+                                    {
+                                        user.appliedJobs?.includes(topJob._id)
+                                            ? "Unapply"
+                                            : "Apply Now"
                                     }
-                                </h4>
-    
-                                <div className="tags-list">
-                                    <div className="tag-item">
-                                        <i className="fa-solid fa-location-dot" aria-hidden="true"></i>
-                                        <span>{typeof topJob.location === 'string' ? topJob.location : topJob.location.name || ""}</span>
+                                </button>
+
+
+                                <button 
+                                    className="save-btn"
+                                    onClick={(e) => toggleSaveJob(e, topJob._id)}
+                                    aria-label="Save job"
+                                >
+                                    <i 
+                                        className={`fa-${
+                                            user.savedJobs?.includes(topJob._id)
+                                                ? "solid"
+                                                : "regular"
+                                        } fa-bookmark`}
+                                    ></i>
+                                </button>
+
+
+                                {topJob.similarity && (
+                                    <div className="match-score">
+                                        {topJob.similarity}% Match
                                     </div>
-                                    <div className="tag-item">
-                                        <i className="fa-solid fa-briefcase" aria-hidden="true"></i>
-                                        <span>{topJob.jobType}</span>
-                                    </div>
-                                    <div className="tag-item">
-                                        <i className="fa-solid fa-user-tie" aria-hidden="true"></i>
-                                        <span>{topJob.experienceLevel}</span>
-                                    </div>
-                                    {topJob.matchedSkills && topJob.skills && (
-                                        <div className="tag-item">
-                                            <i className="fa-solid fa-wrench" aria-hidden="true"></i>
-                                            <span>{topJob.matchedSkills.length}/{topJob.skills.length} Matched Skills</span>
-                                        </div>
-                                    )}
-                                </div>
+                                )}
 
-                                <div className="actions">
-
-                                    <button 
-                                        className="apply-btn" 
-                                        onClick={(e) => toggleApplyJob(e, topJob._id, resume)} 
-                                        aria-label="Apply to job"
-                                    >
-                                        {user.appliedJobs?.includes(topJob._id) ? 'Unapply': 'Apply Now'}
-                                    </button>
-
-                                    <button 
-                                        className="save-btn" 
-                                        onClick={(e) => toggleSaveJob(e, topJob._id)} 
-                                        aria-label="Save job"
-                                    >
-                                        <i className={`fa-${user.savedJobs?.includes(topJob._id) ? 'solid': 'regular'} fa-bookmark`}></i>
-                                    </button>
-
-                                    {topJob.similarity && (
-                                        <div className="match-score">
-                                            {topJob.similarity}% Match
-                                        </div>
-                                    )}
-
-                                </div>
                             </div>
-                        </Link>
-                        <Link id="recommended-jobs-link" to={'job-postings/'}>
-                            <div className="company-images">
-                                <img src="public/company_logos/apple.jpg" alt="Company logo" />
-                                <img src="public/company_logos/netflix.jpg" alt="Company logo" />
-                                <img src="public/company_logos/meta.jpg" alt="Company logo" />
+
+                        </div>
+                    </Link>
+
+
+                    <Link 
+                        id="recommended-jobs-link" 
+                        to="/job-postings"
+                    >
+                        <div className="company-images">
+                            <img 
+                                src="/company_logos/apple.jpg" 
+                                alt="Apple logo" 
+                            />
+                            <img 
+                                src="/company_logos/netflix.jpg" 
+                                alt="Netflix logo" 
+                            />
+                            <img 
+                                src="/company_logos/meta.jpg" 
+                                alt="Meta logo" 
+                            />
+                        </div>
+
+
+                        <div className="wrapper">
+                            <div>
+                                <h3>Recommended Jobs For You</h3>
+                                <p>{shuffledSkills}</p>
                             </div>
-                            <div className="wrapper">
-                                <div>
-                                    <h3>Recommended Jobs For You</h3>
-                                    <p>{shuffledSkills}</p>
-                                </div>
-                                <i className="fa-solid fa-angle-right"></i>
-                            </div>
-                        </Link>
-                    </>
-                )}
-            </section>
-        </>
-    )
+
+                            <i className="fa-solid fa-angle-right"></i>
+                        </div>
+
+                    </Link>
+                </>
+            )}
+        </section>
+    );
 }
 
-export default TopJobSection
+export default TopJobSection;

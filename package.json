@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-      "dev":         "concurrently \"npm run server\" \"npm run client\" \"npm run ai\"",
+      "dev":         "concurrently \"npm run server\" \"npm run client\"",
       "dev:observe": "concurrently \"npm run server\" \"npm run client\" \"npm run ai\" \"npm run prometheus\" \"npm run grafana\"",
       "k6":          "concurrently \"npm run server\" \"npm run ai\" \"npm run prometheus\" \"npm run grafana\"",
       "server":      "cd backend && npm run dev",

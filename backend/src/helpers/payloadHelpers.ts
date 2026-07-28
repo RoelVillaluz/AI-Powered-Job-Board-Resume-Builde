@@ -115,7 +115,7 @@ export const resolveWorkExperienceDoc = async (
     context: string,
 ): Promise<MarketDoc[]> => {
     if (!workExperienceList?.length) {
-        logger.error(`[${context}] workExperienceList is empty`);
+        logger.warn(`[${context}] workExperienceList is empty`);
         return [];
     }
 

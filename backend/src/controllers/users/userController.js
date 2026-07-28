@@ -4,6 +4,7 @@ import * as UserSetRepo from '../../repositories/users/userSetRepos.js';
 import * as TempUserRepository from "../../repositories/tempUsers/tempUserRepositories.js";
 import { sendResponse, STATUS_MESSAGES } from "../../constants.js";
 import * as UserService from '../../services/users/userServices.js';
+import * as AuthService from '../../services/auth/authServices.js'
 import logger from '../../utils/logger.js'
 
 export const getUsers = catchAsync(async (req, res) => {
@@ -57,9 +58,15 @@ export const completeOnboardingUser = catchAsync(async (req, res) => {
         onboardingData: data.data
     });
 
-    return sendResponse(res, { 
-        ...STATUS_MESSAGES.SUCCESS.UPDATE, 
-        data: updatedUser 
+    // Re-issue the JWT — the original token was signed before the role
+    // existed, and nothing else in this flow rotates it. Without this,
+    // req.user (decoded from the OLD token) keeps failing role checks
+    // even though the DB and the refreshed user object are correct.
+    const token = AuthService.signToken(updatedUser);
+
+    return sendResponse(res, {
+        ...STATUS_MESSAGES.SUCCESS.UPDATE,
+        data: { user: updatedUser, token },
     }, 'User');
 });
 

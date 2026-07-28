@@ -38,13 +38,20 @@ function SignIn() {
 
         try {
             const result = await login(formData.email, formData.password);
-            await refreshUser(); // ← fetches full user with isOnboardingComplete
-            
-            if (result.success) {
-                navigate('/');
+
+            if (!result.success) {
+                setErrorMessage(result.message);
+                return;
             }
+
+            await refreshUser();
+            navigate('/');
         } catch (error) {
-            setErrorMessage(result.message);
+            setErrorMessage(
+                error.response?.data?.message ||
+                error.message ||
+                'An unexpected error occurred'
+            );
         } finally {
             setIsSubmitting(false);
         }

@@ -25,6 +25,10 @@ export const requireRole = (...allowedRoles) => {
             throw new UnauthorizedError('Invalid authentication data');
         }
 
+        if (!user.role) {
+            throw new ForbiddenError('No role received')
+        }
+
         if (!allowedRoles.includes(user.role)) {
             throw new ForbiddenError(
                 `This action requires one of the following roles: ${allowedRoles.join(', ')}`

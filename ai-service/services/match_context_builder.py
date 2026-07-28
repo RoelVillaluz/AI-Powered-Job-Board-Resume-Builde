@@ -27,6 +27,5 @@ def build_match_context(resume: dict, matches: list[dict]) -> str:
         f"CANDIDATE PROFILE\n"
         f"Experience level: {resume_level}\n"
         f"Key skills: {', '.join(resume_skills) or 'none listed'}\n\n"
-        f"JOB MATCH\n"
-        + "\n".join(lines)
+        f"JOB MATCH\n" + "\n".join(lines)
     )

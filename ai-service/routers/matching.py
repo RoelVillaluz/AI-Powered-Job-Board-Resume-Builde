@@ -6,6 +6,7 @@ from handlers.match_insight_handler import generate_match_insight
 
 router = APIRouter(prefix="/compute")
 
+
 class MatchInsightRequest(BaseModel):
     resume: dict
     matches: list[dict]

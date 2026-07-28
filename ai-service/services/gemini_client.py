@@ -40,8 +40,8 @@ def generate(
     system_instruction: str | None = None,
     model: str = GEMINI_MODEL,
     temperature: float = 0.55,
-    max_output_tokens: int = 1500,   # ↑ from 800 — headroom even with thinking off
-    thinking_budget: int = 0,        # 0 disables thinking; this task doesn't need multi-step reasoning
+    max_output_tokens: int = 1500,  # ↑ from 800 — headroom even with thinking off
+    thinking_budget: int = 0,  # 0 disables thinking; this task doesn't need multi-step reasoning
 ) -> str:
     """
     Single-shot generation call. Falls back to the lighter free-tier model
@@ -72,11 +72,21 @@ def generate(
         return response.text or ""
 
     except genai_errors.ClientError as e:
-        is_rate_limit = getattr(e, "code", None) == 429 or "RESOURCE_EXHAUSTED" in str(e)
+        is_rate_limit = getattr(e, "code", None) == 429 or "RESOURCE_EXHAUSTED" in str(
+            e
+        )
         if is_rate_limit and model != GEMINI_MODEL_FALLBACK:
-            logger.warning(f"[Gemini] {model} rate-limited, retrying once with {GEMINI_MODEL_FALLBACK}")
-            return generate(prompt, system_instruction=system_instruction, model=GEMINI_MODEL_FALLBACK,
-                            temperature=temperature, max_output_tokens=max_output_tokens, thinking_budget=thinking_budget)
+            logger.warning(
+                f"[Gemini] {model} rate-limited, retrying once with {GEMINI_MODEL_FALLBACK}"
+            )
+            return generate(
+                prompt,
+                system_instruction=system_instruction,
+                model=GEMINI_MODEL_FALLBACK,
+                temperature=temperature,
+                max_output_tokens=max_output_tokens,
+                thinking_budget=thinking_budget,
+            )
         logger.error(f"[Gemini] Generation failed (ClientError): {e}")
         raise
 
@@ -84,5 +94,7 @@ def generate(
         # Catches SDK-level config/validation errors (e.g. a malformed
         # thinking_config) that aren't genai_errors.ClientError — these were
         # previously escaping as unhandled 500s instead of a diagnosable error.
-        logger.exception(f"[Gemini] Generation failed (unexpected error type: {type(e).__name__})")
+        logger.exception(
+            f"[Gemini] Generation failed (unexpected error type: {type(e).__name__})"
+        )
         raise

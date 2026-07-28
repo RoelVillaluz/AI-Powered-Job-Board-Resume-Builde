@@ -31,12 +31,16 @@ PENALTY_EXP_GAP_LARGE = 0.70
 PENALTY_EXP_GAP_MEDIUM = 0.85
 PENALTY_SENIORITY = 0.80
 PENALTY_MISSING_REQUIRED_SKILL = 15.0
-PENALTY_DOMAIN_MISMATCH = 0.35  # near-zero skill overlap on a skilled role — different field entirely
+PENALTY_DOMAIN_MISMATCH = (
+    0.35  # near-zero skill overlap on a skilled role — different field entirely
+)
 
 SENIORITY_LADDER = ["Intern", "Entry", "Mid-Level", "Senior"]
 SENIORITY_LADDER_NORMALIZED = [level.lower() for level in SENIORITY_LADDER]
 
-DOMAIN_MISMATCH_SKILL_THRESHOLD = 15.0  # below this, treat as wrong-field, not just "weak fit"
+DOMAIN_MISMATCH_SKILL_THRESHOLD = (
+    15.0  # below this, treat as wrong-field, not just "weak fit"
+)
 
 
 class JobMatchingService:

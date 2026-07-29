@@ -1,4 +1,4 @@
-import JobPosting from "src/models/jobPostings/jobPostingModel.js";
+import JobPosting from "../../models/jobPostings/jobPostingModel.js";
 import JobEmbedding from "../../models/jobPostings/jobPostingEmbeddingModel.js"
 import { 
     JOB_EMBEDDING_TTL_DAYS, 

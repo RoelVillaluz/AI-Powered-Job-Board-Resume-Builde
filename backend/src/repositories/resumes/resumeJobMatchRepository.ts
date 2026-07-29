@@ -13,6 +13,22 @@ export const getMatchResultRepo = async (
 };
 
 /**
+ * Fetch the top-ranked match for a resume (matches[0]).
+ * Matches are sorted by finalScore desc in JobMatchingService
+ * (ai-service/services/job_matching_service.py:64), so the first
+ * entry is always the best fit. Returns null if no matches exist.
+ */
+export const getTopMatchRepo = async (
+    resumeId: string | Types.ObjectId,
+) => {
+    const result = await ResumeJobMatch.findOne(
+        { resume: resumeId },
+        { matches: { $slice: 1 } }
+    ).lean();
+    return result?.matches?.[0] ?? null;
+};
+
+/**
  * Upsert match results for a resume.
  * Called by the matching pipeline after HybridScoringService returns ranked matches.
  * Replaces the entire matches array — always a fresh ranked list.

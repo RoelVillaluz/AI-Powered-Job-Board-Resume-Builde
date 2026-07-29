@@ -56,6 +56,14 @@ export const fetchJobPosting = async (id) => {
     return data.data;
 };
 
+export const fetchTopJob = async (resumeId, token) => {
+    const { data } = await axios.get(
+        `${BASE_API_URL}/resumes/${resumeId}/top-job`,
+        { headers: { Authorization: `Bearer ${token}` } }
+    );
+    return data.data;
+};
+
 export const generateJobMatches = async (resumeId, token) => {
     const { data } = await axios.post(
         `${BASE_API_URL}/resumes/${resumeId}/job-matches`,

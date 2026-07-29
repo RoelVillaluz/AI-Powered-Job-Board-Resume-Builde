@@ -15,7 +15,7 @@ export const useEnsureJobMatches = (resumeId, token, matchQuery) => {
     const noMatchesYet =
         matchQuery.isFetched &&
         !matchQuery.isLoading &&
-        (!matchQuery.data || matchQuery.data.matches?.length === 0);
+        !matchQuery.data;
 
     useEffect(() => {
         hasTriggeredRef.current = false;
@@ -34,12 +34,7 @@ export const useEnsureJobMatches = (resumeId, token, matchQuery) => {
         const handleComplete = ({ data }) => {
             if (!data || data.resume?.toString() !== resumeId.toString()) return;
 
-            // Was invalidating ['resumeJobMatch', resumeId] — nothing in
-            // TopJobSection reads that key. useJobRecommendations (which
-            // TopJobSection actually calls) is keyed ['jobRecommendations',
-            // resumeId], so that's what needs invalidating for the UI to
-            // actually pick up the fresh matches.
-            queryClient.invalidateQueries({ queryKey: ['jobRecommendations', resumeId] });
+            queryClient.invalidateQueries({ queryKey: ['topJob', resumeId] });
         };
 
         socket.on('matching:complete', handleComplete);

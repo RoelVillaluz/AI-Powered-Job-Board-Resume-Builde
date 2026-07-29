@@ -5,10 +5,19 @@ import { resumeIdSchema, resumeJobIdSchema } from "../../validators/resumeValida
 import { requireRole } from "../../middleware/authorization/roleAuthorization.js";
 import { checkIfResumeExistsById } from "../../middleware/resourceCheck/resume.js";
 import { enforceResumeOwnership } from "../../middleware/authorization/resumeAuthorization.js";
-import { generateResumeJobMatchController, getResumeJobMatchController, getSingleResumeJobMatchController } from "../../controllers/resumes/resumeJobMatchController.js";
+import { generateResumeJobMatchController, getResumeJobMatchController, getSingleResumeJobMatchController, getTopJobController } from "../../controllers/resumes/resumeJobMatchController.js";
 import { generateMatchInsightController } from "../../controllers/resumes/resumeJobMatchInsightController.js";
 
 const router = express.Router();
+
+router.get('/:resumeId/top-job',
+    validate(resumeIdSchema, 'params'),
+    authenticate,
+    requireRole('jobseeker'),
+    checkIfResumeExistsById,
+    enforceResumeOwnership,
+    getTopJobController
+)
 
 router.get('/:resumeId/job-matches/:jobId',
     validate(resumeJobIdSchema, 'params'), 

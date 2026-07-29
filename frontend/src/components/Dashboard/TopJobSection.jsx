@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { useResumeStore } from "../../stores/resumeStore";
 import { useAuthStore } from "../../stores/authStore";
 import { formatSalary } from "../utils/chats/salaryUtils";
-import { useJobRecommendations, useJobPosting } from "../../hooks/jobs/useJobQueries";
+import { useTopJob } from "../../hooks/jobs/useJobQueries";
 import { useEnsureJobMatches } from "../../hooks/jobs/useEnsureJobMatches"
 
 function TopJobSection() {
@@ -13,30 +13,12 @@ function TopJobSection() {
     const resume = useResumeStore(state => state.currentResume);
     const token = useAuthStore(state => state.token);
 
-    const jobRecommendationsQuery = useJobRecommendations(resume?._id, token);
-    const { data: jobRecommendations = [], isLoading: recommendationsLoading, error } = jobRecommendationsQuery;
+    const topJobQuery = useTopJob(resume?._id, token);
+    const topJob = topJobQuery.data ?? null;
 
-    const { isGenerating } = useEnsureJobMatches(resume?._id, token, jobRecommendationsQuery);
+    const { isGenerating } = useEnsureJobMatches(resume?._id, token, topJobQuery);
 
-    const topMatch = jobRecommendations.matches?.[0] ?? null;
-
-    const {
-        data: topJobData,
-        isLoading: jobLoading
-    } = useJobPosting(topMatch?.jobId);
-
-    const topJob = topJobData
-        ? {
-            ...topJobData,
-            similarity: Math.round((topMatch?.vectorSimilarity ?? 0) * 100),
-            matchedSkills: topMatch?.matchedSkills ?? [],
-            missingSkills: topMatch?.missingSkills ?? [],
-            finalScore: topMatch?.finalScore,
-            recommendationType: topMatch?.recommendationType,
-        }
-        : null;
-
-    const isLoading = recommendationsLoading || jobLoading || isGenerating;
+    const isLoading = topJobQuery.isLoading || isGenerating;
 
     const [shuffledSkills, setShuffledSkills] = useState([]);
 
@@ -156,9 +138,9 @@ function TopJobSection() {
                                 </button>
 
 
-                                {topJob.similarity && (
+                                {topJob.finalScore && (
                                     <div className="match-score">
-                                        {topJob.similarity}% Match
+                                        {Math.round(topJob.finalScore)}% Match
                                     </div>
                                 )}
 

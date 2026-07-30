@@ -1,5 +1,5 @@
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
-import { fetchJobPostings, fetchJobPosting, fetchJobRecommendations, fetchTopJob, fetchInteractedJobs } from "../../../api/jobApis";
+import { fetchJobPostings, fetchJobPosting, fetchJobRecommendations, fetchTopJob, fetchJobCandidates, fetchInteractedJobs } from "../../../api/jobApis";
 import { useJobStore } from "../../stores/jobStore";
 
 export const useJobPostings = () => {
@@ -51,6 +51,16 @@ export const useTopJob = (resumeId, token) => {
         staleTime: 1000 * 60 * 5,
     })
 }
+
+export const useJobCandidates = (jobId, token) => {
+    return useQuery({
+        queryKey: ['jobCandidates', jobId],
+        queryFn: () => fetchJobCandidates(jobId, token),
+        enabled: !!jobId && !!token,
+        retry: 3,
+        staleTime: 1000 * 60 * 5,
+    });
+};
 
 export const useInteractedJobs = (userId, token) => {
     return useQuery({

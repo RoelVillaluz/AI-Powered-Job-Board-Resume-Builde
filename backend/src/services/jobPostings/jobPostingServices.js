@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import * as JobPostingRepository from "../../repositories/jobPostings/jobPostingRepositories.js";
+import { getApplicantsForJobRepo } from "../../repositories/applications/applicationRepository.js";
 import { transformProfilePictureUrl } from "../transformers/urlTransformers.js";
 import { parseFilterParams } from "../../../../frontend/src/utils/jobPostings/filterJobUtils.js";
 import { sanitizeJobData } from "../../utils/sanitizationUtilts";
@@ -74,6 +75,18 @@ export const getJobApplicants = async (id) => {
         ...applicant,
         profilePicture: transformProfilePictureUrl(applicant.profilePicture)
     }));
+};
+
+/**
+ * Get job posting with its candidate list (applicants + resumes).
+ * Returns null if the job posting doesn't exist.
+ */
+export const getJobCandidates = async (jobId) => {
+    const job = await JobPostingRepository.findJobById(jobId);
+    if (!job) return null;
+
+    const applicants = await getApplicantsForJobRepo(jobId);
+    return { job, applicants };
 };
 
 const idempotencyCache = new Map();

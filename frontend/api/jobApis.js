@@ -94,6 +94,14 @@ export const fetchJobRecommendations = async (resumeId, token) => {
  * @param {string} userId - The ID of the user whose interacted jobs to fetch.
  * @returns {Promise<Array>} A promise that resolves to an array of interacted job postings.
  */
+export const fetchJobCandidates = async (jobId, token) => {
+    const { data } = await axios.get(
+        `${BASE_API_URL}/job-postings/${jobId}/candidates`,
+        { headers: { Authorization: `Bearer ${token}` } }
+    );
+    return data.data;
+};
+
 export const fetchInteractedJobs = async (userId) => {
     const { data } = await axios.get(
       `${BASE_API_URL}/users/${userId}/interacted-jobs`

@@ -12,7 +12,7 @@ export const getJobCandidates = catchAsync(async (req, res) => {
         return;
     }
 
-    (sendResponse as any)(res, {
+    sendResponse(res, {
         ...STATUS_MESSAGES.SUCCESS.FETCH,
         data: result,
     }, "Job candidates");

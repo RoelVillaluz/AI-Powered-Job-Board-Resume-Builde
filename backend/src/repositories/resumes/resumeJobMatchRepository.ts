@@ -85,9 +85,21 @@ export const getSingleJobMatchRepo = async (
     return result?.matches?.[0] ?? null;
 };
 
-// ⚠️ ASSUMPTION: I don't have your existing resumeJobMatchRepository.ts, so
-// I don't know what getMatchResultRepo already looks like — add this
-// function alongside it rather than replacing the file.
+/**
+ * Fetch a single match entry with its parent's rankedAt timestamp.
+ * Used by the insight freshness check to decide whether a cached
+ * explanation is still valid.
+ */
+export const getSingleMatchWithRankedAtRepo = async (
+    resumeId: string | Types.ObjectId,
+    jobId:    string | Types.ObjectId,
+) => {
+    return ResumeJobMatch.findOne(
+        { resume: resumeId, "matches.jobId": jobId },
+        { "matches.$": 1, rankedAt: 1 }
+    ).lean();
+};
+
 export const setMatchExplanationRepo = async (
     resumeId: string | Types.ObjectId,
     jobId: string | Types.ObjectId,

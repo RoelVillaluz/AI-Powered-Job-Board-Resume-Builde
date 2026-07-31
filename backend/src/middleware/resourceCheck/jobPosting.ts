@@ -18,3 +18,6 @@ export const checkIfJobPostingExistsById = catchAsync(async (
     req.jobPostingDoc = jobPosting as any;
     next();
 });
+
+// Alias for the older JS route that imports by this name
+export const checkIfJobExists = checkIfJobPostingExistsById;

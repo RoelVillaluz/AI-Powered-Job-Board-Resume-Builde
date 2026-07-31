@@ -71,3 +71,7 @@ Request → Express route → enqueue BullMQ job → Worker picks up →
 5. **Graceful shutdown** — `SIGTERM`/`SIGINT` handlers close BullMQ workers, HTTP server, and cron jobs.
 6. **5-minute stale time** for React Query across the board.
 7. **Auth tokens passed as parameters** through hooks and API functions (not read from store inside API layer).
+8. **Controller split for AI operations** — Every AI-backed endpoint has two controllers: `getXController` (GET, returns cached data or 404) and `generateXController` (POST, enqueues job and returns 202). A single controller must never branch between reading cache and enqueuing.
+9. **Three-layer strict architecture** — Controller (parse + respond, no branching) → Service (business logic, freshness checks, calls repo) → Repository (Mongoose queries only). No layer skips the layer below it. Services never import models directly.
+10. **Naming by service** — `camelCase` in Node.js/TypeScript/Go (variables, functions, filenames, database fields); `snake_case` only in Python (`ai-service/`).
+11. **Testing via factories only** — All test documents created through `Factory('entityName').as('trait').with({ field }).for(Model).create()`. Never use `Model.create()` with inline objects.

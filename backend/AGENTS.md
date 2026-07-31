@@ -162,3 +162,87 @@ Response shape: `{ success: boolean, formattedMessage: string, data: T, cached?:
 | Constants + sendResponse | `src/constants.js` |
 | Logger | `src/utils/logger.js` |
 | Prometheus metrics | `src/config/metrics.ts` |
+
+---
+
+## Conventions (Code-Derived)
+
+### Naming
+
+- **Node.js / TypeScript** — camelCase for all variables, functions, filenames, schema fields.
+  - Database fields: `explanationGeneratedAt`, `rankedAt`, `totalMatches`, `usedPinecone`
+  - Functions: `getMatchInsightIfFresh`, `enqueueMatchInsightService`
+  - Files: `resumeJobMatchRoutes.ts`, `resumeMatchInsightService.ts`
+- **Python service (`ai-service/`)** — snake_case only. Backend code must never use snake_case.
+  - Exception: object property keys received directly from the AI service response may retain original snake_case if mapped immediately.
+
+### Layer Boundaries (Controller → Service → Repository)
+
+Three strict layers. No layer skips the one below it.
+
+| Layer | Responsibility | Allowed to touch Mongoose? | Import rule |
+|---|---|---|---|
+| **Controller** | Parse request params/body, call ONE service function, format response. No branching between read/write paths. | Never | Imports from `services/` only |
+| **Service** | Business logic, orchestration, freshness checks, metric recording. | Never | Imports from `repositories/` only |
+| **Repository** | Data access — Mongoose queries, lean(), projection, aggregation. | Only layer | Imports from `models/` only |
+
+```typescript
+// ✅ Correct
+// controller → service → repository
+controller.getMatchInsight = async (req, res) => {
+  const result = await matchInsightService.getMatchInsightIfFresh(id, jobId);
+  if (!result) { sendResponse(res, 404); return; }
+  sendResponse(res, 200, result);
+};
+
+service.getMatchInsightIfFresh = async (id, jobId) => {
+  const doc = await resumeJobMatchRepo.getSingleMatchWithRankedAtRepo(id, jobId);
+  // freshness logic here — no direct Mongoose call
+};
+
+repository.getSingleMatchWithRankedAtRepo = async (id, jobId) => {
+  return ResumeJobMatch.findOne(...).lean();  // only layer touching Mongoose
+};
+```
+
+```typescript
+// ❌ Never — direct Mongoose query in a service or controller
+service.getMatchInsightIfFresh = async (id, jobId) => {
+  const doc = await ResumeJobMatch.findOne(...);  // WRONG — belongs in repo
+};
+```
+
+### AI / Queue-Backed Operations — Always Split into Two Controllers
+
+Every AI-powered compute operation exposes exactly two endpoints with different HTTP verbs. **A single controller must never branch between read and write.**
+
+| Verb | Controller name | Returns | Example |
+|---|---|---|---|
+| `GET` | `getXController` | Cached result (200) or null/404 | `getResumeJobMatchController`, `getSingleResumeJobMatchController`, `getMatchInsightController` |
+| `POST` | `generateXController` | `202 { jobId, statusUrl }` | `generateResumeJobMatchController`, `generateMatchInsightController` |
+
+The frontend calls `GET` first. If it gets a 404 (no cached data), it calls `POST` to enqueue generation. The decision to read vs. generate belongs to the **client**, not the server controller.
+
+```typescript
+// ✅ Correct — two controllers, no branching
+export const getMatchInsightController = catchAsync(async (req, res) => {
+    const cached = await getMatchInsightIfFresh(resumeId, jobId);
+    if (!cached) { sendResponse(res, { ...NOT_FOUND }); return; }
+    sendResponse(res, { ...FETCH, data: cached });
+});
+
+export const generateMatchInsightController = catchAsync(async (req, res) => {
+    const result = await enqueueMatchInsightService(resumeId, jobId, userId);
+    sendResponse(res, { ...QUEUED, data: { jobId: result.jobId } });
+});
+```
+
+```typescript
+// ❌ Never — one controller branching between cache-hit and enqueue
+export const generateMatchInsightController = catchAsync(async (req, res) => {
+    const cached = await getMatchInsightIfFresh(...);  // WRONG — POST should not read
+    if (cached) { sendResponse(res, { ...FETCH }); return; }  // WRONG
+    const result = await enqueueMatchInsightService(...);
+});
+```
+

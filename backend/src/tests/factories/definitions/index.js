@@ -263,6 +263,54 @@ registry.define('resumeEmbedding', {
     }),
 });
 
+// ─── ResumeJobMatch ───────────────────────────────────────────────────────────
+
+/**
+ * Produces a ResumeJobMatch document.
+ *
+ * ⚠️  `resume` is not set by default — always inject via .with({ resume: resumeId })
+ *
+ * Matches array is empty by default. Use the `withCachedExplanation` trait
+ * to produce a match with a pre-existing AI-generated explanation for
+ * idempotency/caching tests.
+ *
+ * @factory resumeJobMatch
+ * @traits withCachedExplanation | stale
+ *
+ * @example
+ * const resume = (await seedJobseekerWithResume(app, User, Resume)).resume;
+ * await Factory('resumeJobMatch')
+ *   .with({ resume: resume._id })
+ *   .for(ResumeJobMatch)
+ *   .create();
+ */
+registry.define('resumeJobMatch', {
+  defaults: (r) => ({
+    matches: [],
+    totalMatches: 0,
+    usedPinecone: false,
+    rankedAt: new Date(),
+  }),
+  traits: {
+    /** Pre-seeds one match with explanation + explanationGeneratedAt set after
+     *  rankedAt, so the insight endpoint returns the cached explanation instead
+     *  of enqueuing a new Gemini job. Override match fields (jobId, explanation
+     *  text, etc.) via .with() at the call site. */
+    withCachedExplanation: () => ({
+      matches: [{
+        explanation: 'This is a good fit.',
+        explanationGeneratedAt: new Date(),
+      }],
+      totalMatches: 1,
+      rankedAt: new Date(Date.now() - 60000),
+    }),
+    /** rankedAt beyond the 1-day TTL — triggers stale-match regeneration */
+    stale: () => ({
+      rankedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+    }),
+  },
+});
+
 /**
  * Produces a ResumeScore document.
  *

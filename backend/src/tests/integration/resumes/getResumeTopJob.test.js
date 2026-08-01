@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 import app from '../../../app.js';
 import { connectTestDB, disconnectTestDB, TestDataTracker } from '../../helpers/db.js';
 import { createAuthenticatedEmployer, createAuthenticatedJobseeker } from '../../helpers/authHelper.js';
-import { seedFullScenario, seedJobseekerWithResume } from '../../factories/index.js';
+import { Factory, richMatchEntry, seedFullScenario, seedJobseekerWithResume } from '../../factories/index.js';
 import ResumeJobMatch from '../../../models/resumes/resumeJobMatchModel.js';
 import Resume from '../../../models/resumes/resumeModel.js';
 import User from '../../../models/UserModel.js';
@@ -32,47 +32,15 @@ describe('GET /:resumeId/top-job – Get Top Job Match', () => {
     await dataTracker.cleanup();
   });
 
-  const createTopMatchData = async (resumeId, jobId, overrides = {}) => {
-    const doc = await ResumeJobMatch.create({
-      resume: resumeId,
-      matches: [
-        {
-          jobId,
-          finalScore: 92,
-          vectorSimilarity: 0.85,
-          components: {
-            skillMatch: 90,
-            experienceFit: 85,
-            semanticSim: 80,
-            seniorityFit: 75,
-            locationFit: 95,
-            certBonus: 60,
-          },
-          careerFit: 'Strong',
-          recommendationType: 'Best Fit',
-          matchedSkills: ['JavaScript', 'Node.js', 'MongoDB'],
-          missingSkills: ['Python'],
-          missingRequiredSkills: [],
-          strengths: ['Excellent technical alignment'],
-          improvements: ['Consider adding cloud experience'],
-          penalties: [],
-          metadata: {
-            title: 'Senior Engineer',
-            location: 'Remote',
-            experienceLevel: 'Senior',
-            jobType: 'Full-Time',
-            salaryMin: 100000,
-            salaryMax: 150000,
-            salaryCurrency: '$',
-            salaryFrequency: 'year',
-          },
-        },
-      ],
-      totalMatches: 1,
-      usedPinecone: true,
-      rankedAt: new Date(),
-      ...overrides,
-    });
+  const createTopMatchData = async (resumeId, jobId) => {
+    const doc = await Factory('resumeJobMatch')
+      .as('withRichMatches')
+      .with({
+        resume: resumeId,
+        matches: [richMatchEntry({ jobId, finalScore: 92 })],
+      })
+      .for(ResumeJobMatch)
+      .create();
     createdMatchIds.push(doc._id);
     return doc;
   };

@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 import app from '../../../app.js';
 import { connectTestDB, disconnectTestDB, TestDataTracker } from '../../helpers/db.js';
 import { createAuthenticatedEmployer, createAuthenticatedJobseeker } from '../../helpers/authHelper.js';
-import { seedJobseekerWithResume } from '../../factories/index.js';
+import { Factory, seedJobseekerWithResume } from '../../factories/index.js';
 import ResumeJobMatch from '../../../models/resumes/resumeJobMatchModel.js';
 import Resume from '../../../models/resumes/resumeModel.js';
 import User from '../../../models/UserModel.js';
@@ -30,51 +30,6 @@ describe('GET /:resumeId/job-matches – Get Resume Job Matches', () => {
     await dataTracker.cleanup();
   });
 
-  const createMatchData = async (resumeId, overrides = {}) => {
-    const doc = await ResumeJobMatch.create({
-      resume: resumeId,
-      matches: [
-        {
-          jobId: new mongoose.Types.ObjectId(),
-          finalScore: 85,
-          vectorSimilarity: 0.78,
-          components: {
-            skillMatch: 80,
-            experienceFit: 75,
-            semanticSim: 70,
-            seniorityFit: 65,
-            locationFit: 90,
-            certBonus: 50,
-          },
-          careerFit: 'Strong',
-          recommendationType: 'Best Fit',
-          matchedSkills: ['JavaScript', 'Node.js'],
-          missingSkills: ['Python'],
-          missingRequiredSkills: [],
-          strengths: ['Strong technical background'],
-          improvements: ['Add leadership experience'],
-          penalties: [],
-          metadata: {
-            title: 'Senior Engineer',
-            location: 'Remote',
-            experienceLevel: 'Senior',
-            jobType: 'Full-Time',
-            salaryMin: 100000,
-            salaryMax: 150000,
-            salaryCurrency: '$',
-            salaryFrequency: 'year',
-          },
-        },
-      ],
-      totalMatches: 1,
-      usedPinecone: true,
-      rankedAt: new Date(),
-      ...overrides,
-    });
-    createdMatchIds.push(doc._id);
-    return doc;
-  };
-
   // ─── Success Cases ────────────────────────────────────────────────────────
 
   describe('Success Cases', () => {
@@ -83,7 +38,12 @@ describe('GET /:resumeId/job-matches – Get Resume Job Matches', () => {
       dataTracker.trackUser(jobseeker._id);
       dataTracker.trackResume(resume._id);
 
-      await createMatchData(resume._id);
+      const matchDoc = await Factory('resumeJobMatch')
+        .as('withRichMatches')
+        .with({ resume: resume._id })
+        .for(ResumeJobMatch)
+        .create();
+      createdMatchIds.push(matchDoc._id);
 
       const response = await request(app)
         .get(`/api/resumes/${resume._id}/job-matches`)
@@ -120,8 +80,12 @@ describe('GET /:resumeId/job-matches – Get Resume Job Matches', () => {
       dataTracker.trackUser(jobseeker._id);
       dataTracker.trackResume(resume._id);
 
-      const staleDate = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000);
-      await createMatchData(resume._id, { rankedAt: staleDate });
+      const staleMatch = await Factory('resumeJobMatch')
+        .as('withRichMatches', 'stale')
+        .with({ resume: resume._id })
+        .for(ResumeJobMatch)
+        .create();
+      createdMatchIds.push(staleMatch._id);
 
       const response = await request(app)
         .get(`/api/resumes/${resume._id}/job-matches`)

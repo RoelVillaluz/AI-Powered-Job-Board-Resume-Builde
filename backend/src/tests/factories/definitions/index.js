@@ -1,6 +1,7 @@
 import bcrypt from 'bcrypt';
 import { registry } from '../registry';
 import { generateVerificationCode } from '../../../helpers/userHelpers.js';
+import { richMatchEntry } from './entries';
 
 /**
  * Entity factory definitions for the core Ingpo AI collections.
@@ -12,6 +13,7 @@ import { generateVerificationCode } from '../../../helpers/userHelpers.js';
  *
  * @see tests/factories/seeders.js for compound entity creation
  * @see tests/factories/definitions/refs.definition.js for embedded ref factories
+ * @see tests/factories/definitions/entries.js for subdocument-array-entry builders
  */
 
 // ─── TempUser ─────────────────────────────────────────────────────────────────
@@ -270,12 +272,14 @@ registry.define('resumeEmbedding', {
  *
  * ⚠️  `resume` is not set by default — always inject via .with({ resume: resumeId })
  *
- * Matches array is empty by default. Use the `withCachedExplanation` trait
- * to produce a match with a pre-existing AI-generated explanation for
- * idempotency/caching tests.
+ * Matches array is empty by default. Use the `withRichMatches` trait to seed a
+ * full-featured match array (components, career fit, metadata, etc.) built from
+ * {@link richMatchEntry}, and the `withCachedExplanation` trait to produce a
+ * match with a pre-existing AI-generated explanation for idempotency/caching
+ * tests.
  *
  * @factory resumeJobMatch
- * @traits withCachedExplanation | stale
+ * @traits withCachedExplanation | stale | withRichMatches
  *
  * @example
  * const resume = (await seedJobseekerWithResume(app, User, Resume)).resume;
@@ -308,6 +312,15 @@ registry.define('resumeJobMatch', {
     stale: () => ({
       rankedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
     }),
+    /** Seeds a single full-featured match entry via {@link richMatchEntry}.
+     *  Override match fields (jobId, finalScore, components, etc.) via .with()
+     *  at the call site, or replace the whole matches array. */
+    withRichMatches: () => ({
+      matches: [richMatchEntry()],
+      totalMatches: 1,
+      usedPinecone: true,
+      rankedAt: new Date(),
+    }),
   },
 });
 
@@ -324,7 +337,7 @@ registry.define('resumeJobMatch', {
  *   C  (65-74)  | D (50-64) | F  (0-49)
  *
  * @factory resumeScore
- * @traits passing | failing | perfect | gradeA | gradeB | gradeC
+ * @traits failing | average | passing | excellent | perfect | fresh | stale | withSalary
  *
  * @example
  * await Factory('resumeScore').with({ resume: resume._id }).for(ResumeScore).create();

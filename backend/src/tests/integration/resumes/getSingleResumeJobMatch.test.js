@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 import app from '../../../app.js';
 import { connectTestDB, disconnectTestDB, TestDataTracker } from '../../helpers/db.js';
 import { createAuthenticatedEmployer, createAuthenticatedJobseeker } from '../../helpers/authHelper.js';
-import { seedJobseekerWithResume } from '../../factories/index.js';
+import { Factory, richMatchEntry, seedJobseekerWithResume } from '../../factories/index.js';
 import ResumeJobMatch from '../../../models/resumes/resumeJobMatchModel.js';
 import Resume from '../../../models/resumes/resumeModel.js';
 import User from '../../../models/UserModel.js';
@@ -34,76 +34,33 @@ describe('GET /:resumeId/job-matches/:jobId – Get Single Job Match', () => {
   const jobId2 = new mongoose.Types.ObjectId();
 
   const createMatches = async (resumeId) => {
-    const doc = await ResumeJobMatch.create({
-      resume: resumeId,
-      matches: [
-        {
-          jobId: jobId1,
-          finalScore: 92,
-          vectorSimilarity: 0.85,
-          components: {
-            skillMatch: 90,
-            experienceFit: 85,
-            semanticSim: 80,
-            seniorityFit: 75,
-            locationFit: 95,
-            certBonus: 60,
-          },
-          careerFit: 'Strong',
-          recommendationType: 'Best Fit',
-          matchedSkills: ['JavaScript', 'Node.js'],
-          missingSkills: ['Python'],
-          missingRequiredSkills: [],
-          strengths: ['Excellent technical alignment'],
-          improvements: ['Add cloud experience'],
-          penalties: [],
-          metadata: {
-            title: 'Senior Engineer',
-            location: 'Remote',
-            experienceLevel: 'Senior',
-            jobType: 'Full-Time',
-            salaryMin: 100000,
-            salaryMax: 150000,
-            salaryCurrency: '$',
-            salaryFrequency: 'year',
-          },
-        },
-        {
-          jobId: jobId2,
-          finalScore: 65,
-          vectorSimilarity: 0.45,
-          components: {
-            skillMatch: 50,
-            experienceFit: 40,
-            semanticSim: 45,
-            seniorityFit: 30,
-            locationFit: 60,
-            certBonus: 20,
-          },
-          careerFit: 'Weak',
-          recommendationType: 'Stretch',
-          matchedSkills: ['JavaScript'],
-          missingSkills: ['MongoDB', 'Node.js'],
-          missingRequiredSkills: ['Node.js'],
-          strengths: ['Basic JavaScript proficiency'],
-          improvements: ['Learn backend technologies', 'Add Node.js experience'],
-          penalties: [],
-          metadata: {
-            title: 'Junior Developer',
-            location: 'Remote',
-            experienceLevel: 'Entry',
-            jobType: 'Full-Time',
-            salaryMin: 60000,
-            salaryMax: 80000,
-            salaryCurrency: '$',
-            salaryFrequency: 'year',
-          },
-        },
-      ],
-      totalMatches: 2,
-      usedPinecone: true,
-      rankedAt: new Date(),
-    });
+    const doc = await Factory('resumeJobMatch')
+      .as('withRichMatches')
+      .with({
+        resume: resumeId,
+        matches: [
+          richMatchEntry({ jobId: jobId1, finalScore: 92, components: { skillMatch: 90 } }),
+          richMatchEntry({
+            jobId: jobId2,
+            finalScore: 65,
+            vectorSimilarity: 0.45,
+            components: {
+              skillMatch: 50,
+              experienceFit: 40,
+              semanticSim: 45,
+              seniorityFit: 30,
+              locationFit: 60,
+              certBonus: 20,
+            },
+            careerFit: 'Weak',
+            recommendationType: 'Stretch',
+            missingRequiredSkills: ['Node.js'],
+          }),
+        ],
+        totalMatches: 2,
+      })
+      .for(ResumeJobMatch)
+      .create();
     createdMatchIds.push(doc._id);
     return doc;
   };

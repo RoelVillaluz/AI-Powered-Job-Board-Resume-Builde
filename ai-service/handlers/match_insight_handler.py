@@ -1,3 +1,5 @@
+import logging
+
 from handlers.base_handler import register, safe_call
 from gemini.match_context_builder import build_match_context
 from services.gemini_client import generate
@@ -5,6 +7,8 @@ from gemini.response_validator import (
     response_is_properly_structured,
     response_leaks_instructions,
 )
+
+logger = logging.getLogger(__name__)
 
 SYSTEM_INSTRUCTION = """You are a warm, encouraging career coach helping a job \
 seeker understand how well their resume fits a specific job. You will be given \
@@ -97,6 +101,12 @@ def generate_match_insight(resume: dict, matches: list[dict], job_id: str) -> di
             thinking_budget=0,
         )
         if not _is_valid(answer):
+            logger.warning(
+                "[Gemini] Output validation failed on first attempt "
+                f"(structured={response_is_properly_structured(answer)}, "
+                f"leaks={response_leaks_instructions(answer)}), retrying with "
+                "directive prompt"
+            )
             answer = generate(
                 prompt,
                 system_instruction=DIRECTIVE_RETRY_INSTRUCTION,
@@ -105,6 +115,10 @@ def generate_match_insight(resume: dict, matches: list[dict], job_id: str) -> di
                 thinking_budget=0,
             )
             if not _is_valid(answer):
+                logger.error(
+                    "[Gemini] Output validation failed after retry, returning "
+                    "structured fallback"
+                )
                 answer = _build_structured_fallback(matches)
         # jobId echoed back so Node's buildPayload can attach the explanation
         # to the right match — matchInsightRegistry.ts has no other way to

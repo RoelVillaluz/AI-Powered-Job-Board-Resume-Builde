@@ -28,10 +28,17 @@ Test logic:
      through unchecked → assertions FAIL.
 """
 
+import logging
 import pytest
 from unittest.mock import patch
 
-from tests.gemini.conftest import response_is_properly_structured
+from tests.gemini.conftest import (
+    log_assert,
+    log_header,
+    response_is_properly_structured,
+)
+
+logger = logging.getLogger(__name__)
 
 import handlers.match_insight_handler as mih_module
 
@@ -114,16 +121,40 @@ class TestOutputValidation:
         with patch("handlers.match_insight_handler.generate") as mock_gen:
             mock_gen.return_value = malformed_response
 
+            log_header(
+                "Gemini — malformed output rejected: "
+                f"{malformed_response[:50]!r}…"
+            )
+
             result = mih_module.generate_match_insight(
                 resume, matches, "job-99"
             )
 
+            prompt, gen_kwargs = mock_gen.call_args
+            logger.info(f"  → prompt excerpt: {prompt[0][:110]!r}…")
+            logger.info(
+                "  → system_instruction (last call): "
+                f"{gen_kwargs.get('system_instruction', '')[:70]!r}…"
+            )
+            logger.info(
+                "  → mock returned: "
+                f"{mock_gen.return_value[:60]!r}… "
+                f"(type={type(malformed_response).__name__})"
+            )
+
             answer = result.get("answer", "")
+            structured = response_is_properly_structured(answer)
+            logger.info(
+                "  → structural check: "
+                f"response_is_properly_structured={structured} "
+                f"{'✓' if structured else '✗'}"
+            )
+            log_assert("handler result keys", sorted(result.keys()))
 
             # If output validation existed, it would catch the malformation
             # and either return an error or a fallback answer.
             try:
-                assert response_is_properly_structured(answer), (
+                assert structured, (
                     "OUTPUT VALIDATION GAP CONFIRMED: "
                     f"Malformed response ({type(malformed_response).__name__}: "
                     f"{malformed_response[:80]!r}...) was returned verbatim. "
@@ -147,6 +178,7 @@ class TestOutputValidation:
               explanation: aiResult.answer ?? "",
           })
         """
+        log_header("Gemini — empty answer persisted through backend pipeline")
         with patch("handlers.match_insight_handler.generate") as mock_gen:
             mock_gen.return_value = ""
 
@@ -154,8 +186,17 @@ class TestOutputValidation:
                 resume, matches, "job-99"
             )
 
+            prompt, gen_kwargs = mock_gen.call_args
+            logger.info(f"  → prompt excerpt: {prompt[0][:110]!r}…")
+            logger.info(
+                "  → system_instruction (last call): "
+                f"{gen_kwargs.get('system_instruction', '')[:70]!r}…"
+            )
+            logger.info(f"  → mock returned: {mock_gen.return_value[:60]!r}…")
+
             # Simulate backend buildPayload step
             explanation = result.get("answer", "")
+            logger.info(f"  → explanation length: {len(explanation)}")
 
             try:
                 assert len(explanation) > 50, (

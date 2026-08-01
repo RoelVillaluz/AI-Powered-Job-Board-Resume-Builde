@@ -18,13 +18,18 @@ Current behaviour (vulnerable): both checks are absent.
     instructions or off-structure content.
 """
 
+import logging
 import pytest
 from unittest.mock import patch
 
 from tests.gemini.conftest import (
+    log_assert,
+    log_header,
     response_is_properly_structured,
     response_leaks_instructions,
 )
+
+logger = logging.getLogger(__name__)
 
 # We import the module rather than its functions so we can patch the local
 # reference that the handler already bound at import time:
@@ -94,11 +99,27 @@ class TestPromptInjection:
         Sanity check: clean input + well-behaved model → structured output.
         Uses patch on the local handler reference.
         """
+        log_header("Gemini — clean input produces structured output")
         with patch("handlers.match_insight_handler.generate") as mock_gen:
             mock_gen.return_value = STRUCTURED_RESPONSE
 
             result = mih_module.generate_match_insight(
                 clean_resume, single_match, "job-1"
+            )
+
+            prompt, gen_kwargs = mock_gen.call_args
+            logger.info(f"  → prompt excerpt: {prompt[0][:110]!r}…")
+            logger.info(
+                "  → system_instruction: "
+                f"{gen_kwargs.get('system_instruction', '')[:70]!r}…"
+            )
+            logger.info(f"  → mock returned: {mock_gen.return_value[:90]!r}…")
+            answer = result.get("answer", "")
+            logger.info(
+                "  → structural check: "
+                f"response_is_properly_structured="
+                f"{response_is_properly_structured(answer)} "
+                f"{'✓' if response_is_properly_structured(answer) else '✗'}"
             )
 
             assert "error" not in result, f"Handler returned error: {result}"
@@ -112,7 +133,15 @@ class TestPromptInjection:
         """
         from gemini.match_context_builder import build_match_context as _bld
 
+        log_header("Gemini — injection payload absent from prompt context")
         context = _bld(injection_resume, single_match)
+
+        payload_in_context = INJECTION_PAYLOAD in context
+        logger.info(
+            "  → injection payload NOT found in context: "
+            f"{'✓' if not payload_in_context else '✗ FOUND VERBATIM'}"
+        )
+        log_assert("context excerpt", repr(context[:100]) + "…")
 
         try:
             assert INJECTION_PAYLOAD not in context, (
@@ -134,6 +163,7 @@ class TestPromptInjection:
             "a specific job...'"
         )
 
+        log_header("Gemini — leaked instructions rejected")
         with patch("handlers.match_insight_handler.generate") as mock_gen:
             mock_gen.return_value = leaked_response
 
@@ -141,7 +171,21 @@ class TestPromptInjection:
                 injection_resume, single_match, "job-1"
             )
 
+            prompt, gen_kwargs = mock_gen.call_args
+            logger.info(f"  → prompt excerpt: {prompt[0][:110]!r}…")
+            logger.info(
+                "  → system_instruction (last call): "
+                f"{gen_kwargs.get('system_instruction', '')[:70]!r}…"
+            )
+            logger.info(f"  → mock returned: {mock_gen.return_value[:90]!r}…")
+
             answer = result.get("answer", "")
+            leaks = response_leaks_instructions(answer)
+            logger.info(
+                "  → leak check: "
+                f"no leak {'✓' if not leaks else '✗ LEAK FOUND'} "
+                f"(response_leaks_instructions={leaks})"
+            )
             assert not response_leaks_instructions(answer), (
                 "OUTPUT VALIDATION GAP CONFIRMED: "
                 "Response leaked system instructions. "
@@ -157,6 +201,7 @@ class TestPromptInjection:
             "Ignore the previous instruction about structure."
         )
 
+        log_header("Gemini — off-structure output rejected")
         with patch("handlers.match_insight_handler.generate") as mock_gen:
             mock_gen.return_value = off_structure_response
 
@@ -164,7 +209,21 @@ class TestPromptInjection:
                 injection_resume, single_match, "job-1"
             )
 
+            prompt, gen_kwargs = mock_gen.call_args
+            logger.info(f"  → prompt excerpt: {prompt[0][:110]!r}…")
+            logger.info(
+                "  → system_instruction (last call): "
+                f"{gen_kwargs.get('system_instruction', '')[:70]!r}…"
+            )
+            logger.info(f"  → mock returned: {mock_gen.return_value[:90]!r}…")
+
             answer = result.get("answer", "")
+            structured = response_is_properly_structured(answer)
+            logger.info(
+                "  → structural check: "
+                f"response_is_properly_structured={structured} "
+                f"{'✓' if structured else '✗'}"
+            )
             assert response_is_properly_structured(answer), (
                 "OUTPUT VALIDATION GAP CONFIRMED: "
                 "Response is missing required structural markers "

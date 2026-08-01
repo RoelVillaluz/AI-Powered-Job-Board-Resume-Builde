@@ -2,9 +2,20 @@
 Salary Prediction Smoke Test — Legazpi City, Albay (PH)
 """
 
+import logging
+
+# Logging helpers are the canonical tests/scoring/conftest.py set, imported
+# cross-domain: a second bare `conftest` module under tests/salary/ would
+# shadow tests/gemini/conftest.py (and vice versa) during multi-directory
+# pytest invocations, since pytest prepends but never re-orders sys.path
+# entries for same-named conftest modules.
+from tests.scoring.conftest import log_assert, log_header
+
 from salary_intelligence.pipeline.salary_prediction_orchestrator import (
     SalaryPredictionOrchestrator,
 )
+
+logger = logging.getLogger(__name__)
 
 
 EXCHANGE_RATES = {"$": 1.0, "₱": 0.017, "€": 1.08, "¥": 0.0065, "£": 1.27}
@@ -78,6 +89,24 @@ def test_salary_predictions_smoke():
     ]
 
     for label, seniority, resume_score, exp, skills in cases:
+        log_header(f"Salary — {label} (Legazpi City, Albay)")
+
+        logger.info(
+            f"  · seniority:          {seniority}"
+        )
+        logger.info(f"  · resume_score:       {resume_score}")
+        logger.info(f"  · experience years:   {exp}")
+        if skills:
+            logger.info("  · skills:             " + ", ".join(s["name"] for s in skills))
+        else:
+            logger.info("  · skills:             (none)")
+        logger.info(
+            "  · location:           "
+            f"{LOCATION_LEGAZPI['name']} "
+            f"(costOfLivingIndex {LOCATION_LEGAZPI['costOfLivingIndex']}, "
+            f"baselineFactor {LOCATION_LEGAZPI['baselineFactor']})"
+        )
+
         result = SalaryPredictionOrchestrator.predict(
             seniority_level=seniority,
             resume_score=resume_score,
@@ -89,13 +118,10 @@ def test_salary_predictions_smoke():
             exchange_rates=EXCHANGE_RATES,
         )
 
-        print("\n" + "=" * 80)
-        print(label)
-        print("=" * 80)
-        print("Yearly:", result.predicted_yearly)
-        print("Monthly:", result.predicted_monthly)
-        print("Range:", result.range_min, "-", result.range_max)
-        print("Confidence:", result.confidence_score)
+        log_assert("predicted_yearly", result.predicted_yearly)
+        log_assert("predicted_monthly", result.predicted_monthly)
+        log_assert("range (min - max)", f"{result.range_min} - {result.range_max}")
+        log_assert("confidence", result.confidence_score)
 
         # tiny sanity checks so pytest actually “does something”
         assert result.predicted_yearly > 0

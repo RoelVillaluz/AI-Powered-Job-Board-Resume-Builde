@@ -23,9 +23,13 @@ Test logic:
      returns 200 → assertion FAILS.
 """
 
+import logging
+
 import pytest
 from fastapi.testclient import TestClient
 from app import app
+
+logger = logging.getLogger(__name__)
 
 client = TestClient(app)
 
@@ -71,6 +75,12 @@ class TestServiceAuth:
             json=MATCH_INSIGHT_PAYLOAD,
         )
 
+        logger.info(
+            "  POST /compute/generate_match_insight  "
+            "(X-Internal-Service-Key: ABSENT)  "
+            f"→ {response.status_code}"
+        )
+
         # AUTH CHECK:
         #   Expected (with fix): response.status_code == 401
         #   Current (vulnerable): response.status_code == 200
@@ -96,6 +106,10 @@ class TestServiceAuth:
         and that auth checks are not blanket-blocking everything.
         """
         response = client.get("/health")
+        logger.info(
+            "  GET /health  (public endpoint, no auth header needed)  "
+            f"→ {response.status_code}"
+        )
         assert response.status_code == 200, (
             f"Expected /health to be public (200), got {response.status_code}"
         )

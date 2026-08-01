@@ -31,7 +31,11 @@ Shared fixtures live in `ai-service/fixtures/` and are registered via
 
 Never define a fixture inside a test file when a shared one exists — add it to
 the `fixtures/` package instead. Per-domain `conftest.py` files hold shared
-plain functions; import them with `from conftest import ...`.
+plain functions. Import helpers with the explicit package path
+(`from tests.<domain>.conftest import ...`) — bare `from conftest import ...`
+collides when multiple test directories are collected in one run, since each
+`conftest.py` resolves to the same top-level module name (`pytest.ini` uses
+`importmode = importlib`).
 
 ## Running
 
@@ -89,8 +93,8 @@ original test-class boundaries:
 
 **Shared helpers** — logging helpers (`log_header`, `log_score`, `log_compare`,
 `log_assert`) are defined ONCE in `tests/scoring/conftest.py`; import them,
-never redefine: `from conftest import log_header, log_score`. Fixtures come
-from the shared `fixtures/` package — never redefine them here.
+never redefine: `from tests.scoring.conftest import log_header, log_score`.
+Fixtures come from the shared `fixtures/` package — never redefine them here.
 
 **Fixture set:**
 

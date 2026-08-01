@@ -3,6 +3,8 @@ import axios from "axios";
 const AI_SERVICE_URL =
     process.env.AI_SERVICE_URL ?? "http://localhost:8000";
 
+const AI_SERVICE_SHARED_SECRET = process.env.AI_SERVICE_SHARED_SECRET ?? "";
+
 export interface AiServiceResponse<T = unknown> {
     data: T;
     error?: string;
@@ -13,6 +15,7 @@ const client = axios.create({
     timeout: 30000, // 30s (important for ML workloads)
     headers: {
         "Content-Type": "application/json",
+        "X-Internal-Service-Key": AI_SERVICE_SHARED_SECRET,
     },
 });
 

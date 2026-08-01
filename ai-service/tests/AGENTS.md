@@ -140,30 +140,33 @@ argument in the call.
 ## Domain: gemini (`tests/gemini/`)
 
 Tests for the Gemini RAG pipeline (`handlers/match_insight_handler.py`,
-`services/match_context_builder.py`).
+`gemini/match_context_builder.py`).
 
 | File | Concern |
 |---|---|
 | `test_prompt_injection.py` | injection payloads never appear verbatim in context; leaked / off-structure outputs are rejected |
 | `test_output_validation.py` | malformed model outputs (empty, JSON, refusal, single word, gibberish) trigger retry + structured fallback |
 
-`tests/gemini/conftest.py` holds the ONLY copies of the shared
-output-validation heuristics:
+The output-validation heuristics are the production code in
+`gemini/response_validator.py` — the handler and the tests import the SAME
+functions:
 
 - `response_is_properly_structured(text)` — requires a `X/100` score, a
   verdict/fit mention, and a gap/improvement mention (plus non-trivial length).
   This is the unified check for the 4-part structure (verdict, strength, gap,
-  next-step) the pipeline should enforce.
+  next-step) the pipeline enforces.
 - `response_leaks_instructions(text)` — flags leaked system-prompt / role text.
 
-Import them — never redefine:
-`from conftest import response_is_properly_structured`. Before changing the
-expected response shape, update the heuristics in `conftest.py`.
+`tests/gemini/conftest.py` only re-exports them. Update heuristics in
+`gemini/response_validator.py`, never in a test file.
 
 Tests mock the handler's local reference via
 `patch("handlers.match_insight_handler.generate")` and invoke the handler
 through `import handlers.match_insight_handler as mih_module` (module import,
 not function import — the handler binds `generate` at import time).
+
+Security rationale behind these tests (the two-layer prompt-injection defense
+and its OWASP LLM Top 10 coverage): `gemini/README.md`.
 
 ---
 

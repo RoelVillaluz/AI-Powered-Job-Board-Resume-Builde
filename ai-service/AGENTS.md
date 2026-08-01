@@ -40,13 +40,16 @@ Python, FastAPI, sentence-transformers (`all-mpnet-base-v2`, 768-d), Google Gemi
 │   ├── matching.py           POST /compute/score_matches, /compute/generate_match_insight
 │   ├── health.py             GET /health
 │   └── metrics.py            GET /metrics (Prometheus)
-├── services/                 Business logic
+├── gemini/                   Gemini domain package (client + pipeline stages)
 │   ├── gemini_client.py      Thin Gemini API wrapper with retry + fallback model
+│   ├── match_context_builder.py  Builds prompt context for Gemini
+│   └── response_validator.py     Output-structure + instruction-leak checks
+├── services/                 Business logic (no Gemini pipeline stages — see
+│   │                         the boundary rule under "Gemini Domain Package")
 │   ├── resume_service.py
 │   ├── scoring_service.py
 │   ├── analytics_service.py
-│   ├── job_matching_service.py
-│   └── match_context_builder.py  Builds prompt context for Gemini
+│   └── job_matching_service.py
 ├── infrastructure/
 │   └── embeddings/           Registry-driven parallel embedding pipeline
 │       ├── embedding_orchestrator.py  Single entry: extract_embeddings_parallel()
@@ -117,12 +120,28 @@ Side-effect imports in `handlers/__init__.py` trigger all `@register` decorators
 - Body extracted via `body.model_dump()`, fields passed by key to handler
 - All responses normalized through `wrap()` → `{ "data": ..., "error": ... }`
 
-## Gemini Client Wrapper
+## Gemini Domain Package (`gemini/`)
 
-**File:** `services/gemini_client.py`
+**Boundary rule** — `services/` contains ONLY modules that call the model
+directly. Pipeline stages adjacent to a model call (prompt construction,
+output validation, anything running before/after the actual API call) belong
+in a domain-scoped package (e.g. `gemini/`) alongside that domain's client
+module, not in `services/`.
+
+Concrete example: `gemini_client.py`, `match_context_builder.py`, and
+`response_validator.py` were moved from `services/` into `gemini/` — the
+client call plus the two stages adjacent to it now live together.
+`response_validator.py` stays production code (imported by
+`handlers/match_insight_handler.py` at runtime) even though the test suite
+also imports it.
+
+Package docs — what each file does, the two-layer prompt-injection defense,
+and the OWASP LLM Top 10 (2025) coverage table: `gemini/README.md`.
+
+**Client wrapper** — `gemini/gemini_client.py`:
 
 ```python
-from services.gemini_client import generate
+from gemini.gemini_client import generate
 answer = generate(
     prompt,
     system_instruction=SYSTEM_INSTRUCTION,
@@ -172,7 +191,7 @@ All tasks run concurrently via `ThreadPoolExecutor` (PyTorch releases GIL). Tota
 | FastAPI entry point | `app.py` |
 | Handler base + @register | `handlers/base_handler.py` |
 | Handler registration | `handlers/__init__.py` |
-| Gemini client | `services/gemini_client.py` |
+| Gemini domain package | `gemini/` (client + prompt builder + validator) |
 | Embedding model singleton | `models/embeddings.py` |
 | Database singleton | `config/database.py` |
 | Embedding orchestrator | `infrastructure/embeddings/embedding_orchestrator.py` |

@@ -1,4 +1,4 @@
-# services/gemini_client.py
+# gemini/gemini_client.py
 """
 Thin wrapper around the Gemini API (free tier) for RAG-style calls.
 

@@ -2,7 +2,7 @@ import logging
 
 from handlers.base_handler import register, safe_call
 from gemini.match_context_builder import build_match_context
-from services.gemini_client import generate
+from gemini.gemini_client import generate
 from gemini.response_validator import (
     response_is_properly_structured,
     response_leaks_instructions,

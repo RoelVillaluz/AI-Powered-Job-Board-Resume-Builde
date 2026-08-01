@@ -58,10 +58,12 @@ LOCATION_LEGAZPI = {
 
 def test_salary_predictions_smoke():
     cases = [
-        ("Senior Full-Stack", "Senior", 8, SKILLS_FULLSTACK),
+        # (label, seniority, resume_score, total_experience_years, skills)
+        ("Senior Full-Stack", "Senior", 85, 8, SKILLS_FULLSTACK),
         (
             "Entry IT",
             "Entry",
+            55,
             1,
             [
                 {
@@ -72,12 +74,13 @@ def test_salary_predictions_smoke():
                 }
             ],
         ),
-        ("No Skills", "Mid-Level", 0, None),
+        ("No Skills", "Mid-Level", 30, 0, None),
     ]
 
-    for label, seniority, exp, skills in cases:
+    for label, seniority, resume_score, exp, skills in cases:
         result = SalaryPredictionOrchestrator.predict(
             seniority_level=seniority,
+            resume_score=resume_score,
             total_experience_years=exp,
             job_title_data=JOB_TITLE_DEV,
             industry_data=INDUSTRY_TECH_PH,

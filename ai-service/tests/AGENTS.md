@@ -45,8 +45,9 @@ python -m pytest -v -s --log-cli-level=INFO tests/scoring/   # scoring logs
 
 ## Known failing tests (do NOT "fix" by deleting)
 
-Baseline (July 2026): **22 passed / 11 failed**. The 11 failures are
-intentional:
+Baseline (July 2026): **22 passed / 11 failed**. The 11 failures were
+intentional vulnerability-demonstration tests — they encoded the DESIRED fixed
+behavior and failed against the then-unpatched code:
 
 - 9 vulnerability-demonstration tests in `tests/gemini/` (prompt injection
   passes through, no output validation, leaked instructions).
@@ -54,9 +55,21 @@ intentional:
 - 1 salary API-drift test in `tests/salary/` (`predict()` now requires
   `resume_score`).
 
-These encode the DESIRED fixed behavior — they fail against the current
-unpatched code. Fix the pipeline, not the assertions. A reorg that changes
-these counts has broken something.
+Current (Aug 2026): **33 passed / 0 failed**. The pipeline fixes landed:
+
+- `tests/gemini/` — output validation lives in
+  `gemini/response_validator.py`; the handler validates, retries once with a
+  directive prompt, then returns a structured data-driven fallback. Prompt
+  injection is hardened via XML-style delimiters + truncation in
+  `gemini/match_context_builder.py`.
+- `test_service_auth.py` — every `/compute` router requires
+  `X-Internal-Service-Key` (env `AI_SERVICE_SHARED_SECRET`); `/health` and
+  `/metrics` stay public.
+- `tests/salary/` — the smoke test now passes `resume_score` into `predict()`.
+
+Treat these as regression tests: if they fail again, the pipeline regressed —
+fix the pipeline, not the assertions. A reorg that changes these counts has
+broken something.
 
 ---
 
@@ -114,11 +127,11 @@ deliberately does NOT use the shared `fixtures/` package. The test prints the
 yearly/monthly/range/confidence breakdown per scenario; pytest only
 sanity-checks `predicted_yearly > 0` and `predicted_monthly > 0`.
 
-**Known failure (pre-existing API drift)** — `test_salary_predictions_smoke`
-currently FAILS: `TypeError: SalaryPredictionOrchestrator.predict() missing 1
-required positional argument: 'resume_score'`. `predict()` gained a
-`resume_score` parameter that the test does not pass. Fix the test to supply a
-scoring payload when available — do NOT delete the test to make the suite green.
+**`resume_score` note** — `predict()` requires a `resume_score` argument (the
+pipeline uses it as the primary talent signal in `TalentDeviation.apply()`).
+The smoke test passes one per scenario (85 / 55 / 30). This was a stale-test
+fix (commit `8bf28c36` made the signature change intentionally); keep the
+argument in the call.
 
 ## Domain: gemini (`tests/gemini/`)
 
@@ -127,8 +140,8 @@ Tests for the Gemini RAG pipeline (`handlers/match_insight_handler.py`,
 
 | File | Concern |
 |---|---|
-| `test_prompt_injection.py` | user-controlled fields injected verbatim into the prompt; leaked / off-structure outputs pass through |
-| `test_output_validation.py` | malformed model outputs (empty, JSON, refusal, single word, gibberish) returned unchecked |
+| `test_prompt_injection.py` | injection payloads never appear verbatim in context; leaked / off-structure outputs are rejected |
+| `test_output_validation.py` | malformed model outputs (empty, JSON, refusal, single word, gibberish) trigger retry + structured fallback |
 
 `tests/gemini/conftest.py` holds the ONLY copies of the shared
 output-validation heuristics:

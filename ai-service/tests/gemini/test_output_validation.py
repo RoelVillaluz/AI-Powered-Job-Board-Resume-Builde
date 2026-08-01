@@ -31,7 +31,7 @@ Test logic:
 import pytest
 from unittest.mock import patch
 
-from conftest import response_is_properly_structured
+from tests.gemini.conftest import response_is_properly_structured
 
 import handlers.match_insight_handler as mih_module
 

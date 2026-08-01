@@ -21,7 +21,10 @@ Current behaviour (vulnerable): both checks are absent.
 import pytest
 from unittest.mock import patch
 
-from conftest import response_is_properly_structured, response_leaks_instructions
+from tests.gemini.conftest import (
+    response_is_properly_structured,
+    response_leaks_instructions,
+)
 
 # We import the module rather than its functions so we can patch the local
 # reference that the handler already bound at import time:
@@ -107,7 +110,7 @@ class TestPromptInjection:
         FAILS because: user-controlled skill names are placed verbatim into the
         prompt context with no sanitisation.
         """
-        from services.match_context_builder import build_match_context as _bld
+        from gemini.match_context_builder import build_match_context as _bld
 
         context = _bld(injection_resume, single_match)
 

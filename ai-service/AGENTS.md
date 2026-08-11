@@ -4,6 +4,14 @@
 
 Python, FastAPI, sentence-transformers (`all-mpnet-base-v2`, 768-d), Google Gemini (`gemini-2.5-flash`), PyTorch, scikit-learn.
 
+## Linting & Formatting (ruff)
+
+This codebase follows ruff's linting and formatting rules — the exact config CI enforces. `ai-service.yml` runs `ruff check .` and `ruff format --check .`, and the test job won't even run if lint fails.
+
+When writing or editing any Python code in this service, follow ruff's conventions from the start — correct import ordering, formatting, unused-import removal, etc. — rather than writing code first and relying on a separate lint-fix pass afterward.
+
+If unsure whether something is compliant, run `ruff check <file>` on the specific file being edited before considering the change done.
+
 ## Entry Points
 
 **`app.py`** — FastAPI HTTP server (primary, V2):

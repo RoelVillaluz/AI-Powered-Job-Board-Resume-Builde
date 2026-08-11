@@ -112,6 +112,34 @@ export const matchScoreDistribution = new Histogram({
     registers:  [register],
 });
 
+// ── Match insight (Gemini) metrics ────────────────────────────────────────────
+
+/**
+ * Counts match-insight lookups by whether they were served from a fresh
+ * cached explanation (Gemini skipped) or triggered a real generation.
+ *
+ * Labels:
+ *   result — 'hit' | 'miss'
+ *     hit:  getMatchInsightIfFresh found a fresh cached explanation —
+ *           Gemini was NOT called for this request
+ *     miss: a generation job was enqueued — Gemini WILL be called
+ *
+ * This is the direct proof of whether the idempotency fix is preventing
+ * duplicate AI calls in practice (not just passing its test): the ratio
+ * hit/(hit+miss) is the share of requests that never reached Gemini.
+ *
+ * Useful Grafana queries:
+ *   Cache hit ratio: sum(matchInsightCacheResultTotal{result="hit"}) /
+ *                    (sum(matchInsightCacheResultTotal{result="hit"}) +
+ *                     sum(matchInsightCacheResultTotal{result="miss"}))
+ */
+export const matchInsightCacheResultTotal = new Counter({
+    name:       'jobboard_match_insight_cache_result_total',
+    help:       'Match insight lookups by cache result: hit = Gemini skipped, miss = generation enqueued',
+    labelNames: ['result'],
+    registers:  [register],
+});
+
 // ── Pinecone metrics ──────────────────────────────────────────────────────────
 
 /**

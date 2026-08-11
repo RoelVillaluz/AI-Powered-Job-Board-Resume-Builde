@@ -1,6 +1,7 @@
 import { Types } from "mongoose";
 import logger     from "../../utils/logger.js";
 import { getSingleMatchWithRankedAtRepo } from "../../repositories/resumes/resumeJobMatchRepository.js";
+import { matchInsightCacheResultTotal } from "../../config/metrics.js";
 
 /**
  * Returns the cached insight explanation if it exists and is still fresh
@@ -20,6 +21,7 @@ export const getMatchInsightIfFresh = async (
     if (!rankedAt) return null;
 
     if (new Date(match.explanationGeneratedAt) >= new Date(rankedAt)) {
+        matchInsightCacheResultTotal.inc({ result: 'hit' }); // Gemini skipped — cached explanation served
         return { explanation: match.explanation, generatedAt: match.explanationGeneratedAt };
     }
 
@@ -43,6 +45,8 @@ export const enqueueMatchInsightService = async (
     );
 
     await pushPendingInsight(resumeId, { jobId });
+
+    matchInsightCacheResultTotal.inc({ result: 'miss' }); // real generation enqueued — Gemini will be called
 
     return resumeMatchInsightRegistry.resumeMatchInsight.queue({
         id: resumeId,

@@ -14,8 +14,15 @@ consider stripping name/contact info before it reaches the prompt).
 
 import os
 import logging
+import time
 from google import genai
 from google.genai import errors as genai_errors
+from metrics.gemini_metrics import (
+    record_generate_duration,
+    record_generate_request,
+    record_generate_tokens,
+    record_model_fallback,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -42,6 +49,7 @@ def generate(
     temperature: float = 0.55,
     max_output_tokens: int = 1500,  # ↑ from 800 — headroom even with thinking off
     thinking_budget: int = 0,  # 0 disables thinking; this task doesn't need multi-step reasoning
+    endpoint: str = "generate_match_insight",
 ) -> str:
     """
     Single-shot generation call. Falls back to the lighter free-tier model
@@ -52,6 +60,9 @@ def generate(
     budget as the visible answer. Left uncapped, a short summary can get
     silently truncated mid-sentence because the model burned its budget on
     internal reasoning before writing anything the user sees.
+
+    Instrumented: each call records duration, token usage (from
+    usage_metadata), request outcome, and 429 fallback events to Prometheus.
     """
     client = _get_client()
 
@@ -63,15 +74,20 @@ def generate(
     if system_instruction:
         config["system_instruction"] = system_instruction
 
+    start = time.perf_counter()
     try:
         response = client.models.generate_content(
             model=model,
             contents=prompt,
             config=config,
         )
+        record_generate_duration(model, endpoint, time.perf_counter() - start)
+        record_generate_tokens(model, response.usage_metadata)
+        record_generate_request(model, "success")
         return response.text or ""
 
     except genai_errors.ClientError as e:
+        record_generate_request(model, "error")
         is_rate_limit = getattr(e, "code", None) == 429 or "RESOURCE_EXHAUSTED" in str(
             e
         )
@@ -79,6 +95,7 @@ def generate(
             logger.warning(
                 f"[Gemini] {model} rate-limited, retrying once with {GEMINI_MODEL_FALLBACK}"
             )
+            record_model_fallback()
             return generate(
                 prompt,
                 system_instruction=system_instruction,
@@ -86,11 +103,13 @@ def generate(
                 temperature=temperature,
                 max_output_tokens=max_output_tokens,
                 thinking_budget=thinking_budget,
+                endpoint=endpoint,
             )
         logger.error(f"[Gemini] Generation failed (ClientError): {e}")
         raise
 
     except Exception as e:
+        record_generate_request(model, "error")
         # Catches SDK-level config/validation errors (e.g. a malformed
         # thinking_config) that aren't genai_errors.ClientError — these were
         # previously escaping as unhandled 500s instead of a diagnosable error.

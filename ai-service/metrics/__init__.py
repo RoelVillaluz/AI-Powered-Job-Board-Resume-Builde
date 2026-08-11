@@ -15,6 +15,10 @@ from .prometheus_metrics import (
     matching_candidates_scored,
     matching_score_tiers_total,
     salary_prediction_requests_total,
+    gemini_request_duration_seconds,
+    gemini_tokens_total,
+    gemini_requests_total,
+    gemini_model_fallback_total,
     handler_requests_total,
     handler_duration_seconds,
 )

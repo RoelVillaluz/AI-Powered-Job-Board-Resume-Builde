@@ -10,6 +10,7 @@ __pycache__/
 *.pyo
 *.pyd
 *.cpython-*
+*.mypy_cache
 backend/coverage
 # Prometheus binary and data
 backend/src/observability/prometheus/prometheus.exe

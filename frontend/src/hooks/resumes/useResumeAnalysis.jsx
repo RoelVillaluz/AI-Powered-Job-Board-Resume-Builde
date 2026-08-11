@@ -18,8 +18,6 @@ export const useResumeAnalysis = (jobId) => {
     const { data: matchData, isLoading: isComparing, error: matchError } =
         useResumeJobMatchQuery(resumeId, job?._id, token);
 
-    console.log('Match Data: ', matchData)
-
     const generateInsight = useGenerateMatchInsightMutation();
     const hasTriggeredInsight = useRef(false);
 
@@ -70,8 +68,8 @@ export const useResumeAnalysis = (jobId) => {
         };
         }
 
-        const skillSim = (matchData.data.components?.skillMatch ?? 0) / 100;
-        const expSim = (matchData.data.components?.experienceFit ?? 0) / 100;
+        const skillSim = (matchData.components?.skillMatch ?? 0) / 100;
+        const expSim = (matchData.components?.experienceFit ?? 0) / 100;
 
         const mapScoreToMessage = (score, analysisMessages) => {
         const thresholds = [0, 0.25, 0.5, 0.75, 1];
@@ -81,8 +79,8 @@ export const useResumeAnalysis = (jobId) => {
             return analysisMessages[closest];
         };
 
-        let newStrengths = matchData.data.strengths ?? [];
-        let newImprovements = matchData.data.improvements ?? [];
+        let newStrengths = matchData.strengths ?? [];
+        let newImprovements = matchData.improvements ?? [];
 
         if (!newStrengths.length && !newImprovements.length) {
             const skillMsg = mapScoreToMessage(skillSim, SKILL_ANALYSIS_MESSAGES);
@@ -99,8 +97,8 @@ export const useResumeAnalysis = (jobId) => {
         resumeScore: {
             skillSimilarity: skillSim,
             experienceSimilarity: expSim,
-            requirementsSimilarity: (matchData.data.components?.semanticSim ?? 0) / 100,
-            totalScore: matchData.data.finalScore ?? 0,
+            requirementsSimilarity: (matchData.components?.semanticSim ?? 0) / 100,
+            totalScore: matchData.finalScore ?? 0,
         },
             strengths: newStrengths,
             improvements: newImprovements,

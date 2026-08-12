@@ -4,6 +4,7 @@ import { STATUS_MESSAGES, sendResponse } from '../constants.js';
 import { catchAsync } from "../utils/errorUtils.js";
 import * as CompanyRepository from '../repositories/company/companyRepositories.js';
 import * as CompanyService from '../services/company/companyServices.js';
+import { sanitizeCompanyData } from '../utils/sanitizationUtilts';
 import mongoose from "mongoose";
 
 /**
@@ -62,7 +63,7 @@ export const getCompany = catchAsync(async (req, res) => {
  */
 export const createCompany = catchAsync(async (req, res) => {
     const companyData = {
-        ...req.body,
+        ...sanitizeCompanyData(req.body),
         user: req.user.id // ✅ From authenticated token, not client input
     };
     

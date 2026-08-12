@@ -60,6 +60,35 @@ describe('POST /api/companies - Create Company', () => {
       expect(saved.name).toBe(companyData.name);
     });
 
+    test('should create a company with a free-text location (empty _id)', async () => {
+      const { employer, token } = await createAuthenticatedEmployer(app);
+      dataTracker.trackUser(employer._id);
+
+      // Simulates the frontend free-text state: a location typed by the user
+      // that does not match an existing DB record, so _id is empty.
+      const companyData = await Factory('company')
+        .with({
+          user: employer._id,
+          location: { _id: "", name: "Manila Free City" },
+        })
+        .build();
+
+      const response = await request(app)
+        .post('/api/companies')
+        .set('Authorization', `Bearer ${token}`)
+        .send(companyData);
+
+      expect(response.status).toBe(201);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.location.name).toBe('Manila Free City');
+
+      dataTracker.trackCompany(response.body.data._id);
+
+      // Verify DB — the free-typed name is what's persisted
+      const saved = await Company.findById(response.body.data._id);
+      expect(saved.location.name).toBe('Manila Free City');
+    });
+
     test('should create company with optional fields', async () => {
       const { employer, token } = await createAuthenticatedEmployer(app);
       dataTracker.trackUser(employer._id);
@@ -126,6 +155,26 @@ describe('POST /api/companies - Create Company', () => {
       expect(response.status).toBe(400);
       expect(response.body.success).toBe(false);
       expect(response.body.formattedMessage).toBeDefined();
+    });
+
+    test('should block submission when location was cleared (empty _id and name)', async () => {
+      const { employer, token } = await createAuthenticatedEmployer(app);
+      dataTracker.trackUser(employer._id);
+
+      // Simulates the SearchableSelect clear (×) button state: the field was
+      // emptied, so formData.location is reset to { _id: "", name: "" }.
+      const companyData = await Factory('company')
+        .with({ user: employer._id, location: { _id: "", name: "" } })
+        .build();
+
+      const response = await request(app)
+        .post('/api/companies')
+        .set('Authorization', `Bearer ${token}`)
+        .send(companyData);
+
+      expect(response.status).toBe(400);
+      expect(response.body.success).toBe(false);
+      expect(response.body.formattedMessage).toMatch(/location/i);
     });
 
     test('should fail with invalid industry', async () => {

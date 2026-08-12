@@ -28,7 +28,10 @@ export const JOBSEEKER_INITIAL_FORM_DATA: Omit<JobseekerFormData, 'user'> = {
 export const COMPANY_INITIAL_FORM_DATA: Omit<EmployerFormData, 'user'> = {
     name: "",
     industry: [],
-    location: "",
+    location: {
+        _id: "",
+        name: "",
+    },
     website: "",
     size: "",
     description: "",

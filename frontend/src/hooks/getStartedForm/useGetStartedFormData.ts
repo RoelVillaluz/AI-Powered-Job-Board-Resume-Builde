@@ -168,29 +168,69 @@ export const useGetStartedFormData = (selectedRole: UserRole | null, userId: str
 
     // --- Handle searchable select ---
     const handleSelect = (field: "jobTitle" | "location", option: SelectOption) => {
-    setFormData((prev) => {
-        if (!prev || prev.role !== "jobseeker") return prev;
-        return {
-        ...prev,
-        data: {
-            ...prev.data,
-            [field]: { _id: option._id, name: option.name },
-        } as JobseekerFormData,
-        };
-    });
+        setFormData((prev) => {
+            if (!prev) return prev;
+            if (prev.role === "jobseeker") {
+                return {
+                    ...prev,
+                    data: {
+                        ...prev.data,
+                        [field]: { _id: option._id, name: option.name },
+                    } as JobseekerFormData,
+                };
+            }
+            return {
+                ...prev,
+                data: {
+                    ...prev.data,
+                    location: { _id: option._id, name: option.name },
+                },
+            };
+        });
     };
 
     const handleClearSelection = (field: "jobTitle" | "location") => {
-    setFormData((prev) => {
-        if (!prev || prev.role !== "jobseeker") return prev;
-        return {
-        ...prev,
-        data: {
-            ...prev.data,
-            [field]: { _id: "", name: "" },
-        } as JobseekerFormData,
-        };
-    });
+        setFormData((prev) => {
+            if (!prev) return prev;
+            if (prev.role === "jobseeker") {
+                return {
+                    ...prev,
+                    data: {
+                        ...prev.data,
+                        [field]: { _id: "", name: "" },
+                    } as JobseekerFormData,
+                };
+            }
+            return {
+                ...prev,
+                data: {
+                    ...prev.data,
+                    location: { _id: "", name: "" },
+                },
+            };
+        });
+    };
+
+    const handleFreeTextInput = (field: "jobTitle" | "location", value: string) => {
+        setFormData((prev) => {
+            if (!prev) return prev;
+            if (prev.role === "jobseeker") {
+                return {
+                    ...prev,
+                    data: {
+                        ...prev.data,
+                        [field]: { _id: "", name: value },
+                    } as JobseekerFormData,
+                };
+            }
+            return {
+                ...prev,
+                data: {
+                    ...prev.data,
+                    location: { _id: "", name: value },
+                },
+            };
+        });
     };
 
     // Add to return:
@@ -203,5 +243,6 @@ export const useGetStartedFormData = (selectedRole: UserRole | null, userId: str
         handleDragEnd,
         handleSelect,        
         handleClearSelection, 
+        handleFreeTextInput,
     };
 };

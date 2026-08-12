@@ -16,6 +16,7 @@ type GetStartedFormContextValue = {
   setSelectedRole: (role: UserRole | null) => void;
   handleSelect: (field: "jobTitle" | "location", option: SelectOption) => void;
   handleClearSelection: (field: "jobTitle" | "location") => void;
+  handleFreeTextInput: (field: "jobTitle" | "location", value: string) => void;
 };
 
 const GetStartedFormContext = createContext<GetStartedFormContextValue | null>(null);

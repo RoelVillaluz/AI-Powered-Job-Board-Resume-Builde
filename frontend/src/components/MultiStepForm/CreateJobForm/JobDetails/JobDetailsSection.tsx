@@ -7,6 +7,7 @@ import { useJobForm } from "../../../../contexts/JobFormContexts/JobPostingFormC
 import { SalaryInputField } from "./SalaryInputField";
 import { JobTypeField } from "./JobTypeField";
 import { ExperienceLevelField } from "./ExperienceLevelField";
+import { RichTextEditor } from "../../../FormComponents/RichTextEditor";
 
 /**
  * JobDetailsSection
@@ -21,7 +22,8 @@ import { ExperienceLevelField } from "./ExperienceLevelField";
  * no `useEffect` re-sync is needed.
  */
 function JobDetailsSection() {
-  const { formData, handleChange, handleSelect, handleClearSelection } = useJobForm();
+  const { formData, setFormData, handleSelect, handleClearSelection, handleFreeTextInput } =
+    useJobForm();
 
   // These seed correctly on first render because formData is already
   // populated from the draft store before this component mounts.
@@ -55,7 +57,10 @@ function JobDetailsSection() {
             label="Job Title"
             name="title"
             value={jobTitleSearch}
-            onChange={setJobTitleSearch}
+            onChange={(value) => {
+              setJobTitleSearch(value);
+              handleFreeTextInput("title", value);
+            }}
             onSelect={(opt) => {
               handleSelect("title", opt);
               setJobTitleSearch(opt.name);
@@ -68,13 +73,6 @@ function JobDetailsSection() {
               handleClearSelection("title");
               setJobTitleSearch("");
             }}
-            onBlur={() => {
-              // If user typed something but didn't select from dropdown,
-              // commit whatever is in the search input as a free-text value
-              if (jobTitleSearch && !formData.title.name) {
-                handleSelect("title", { _id: "", name: jobTitleSearch });
-              }
-            }}
             isLoading={isJobTitleLoading}
             placeholder="Search job titles..."
           />
@@ -83,7 +81,10 @@ function JobDetailsSection() {
             label="Location"
             name="location"
             value={locationSearch}
-            onChange={setLocationSearch}
+            onChange={(value) => {
+              setLocationSearch(value);
+              handleFreeTextInput("location", value);
+            }}
             onSelect={(opt) => {
               handleSelect("location", opt);
               setLocationSearch(opt.name);
@@ -96,25 +97,18 @@ function JobDetailsSection() {
               handleClearSelection("location");
               setLocationSearch("");
             }}
-            onBlur={() => {
-              // If user typed something but didn't select from dropdown,
-              // commit whatever is in the search input as a free-text value
-              if (locationSearch && !formData.location.name) {
-                handleSelect("location", { _id: "", name: locationSearch });
-              }
-            }}
             isLoading={isLocationLoading}
             placeholder="Search locations..."
           />
         </div>
 
         <div className="form-group">
-          <label htmlFor="job-description-textarea">Description</label>
-          <textarea 
-            name="description" 
+          <label htmlFor="job-description">Description</label>
+          <RichTextEditor
+            id="job-description"
             value={formData.description}
-            onChange={handleChange}
-            id="job-description-textarea"
+            onChange={(html) => setFormData((prev) => ({ ...prev, description: html }))}
+            placeholder="Describe the role, responsibilities, and what you're looking for..."
           />
         </div>
 

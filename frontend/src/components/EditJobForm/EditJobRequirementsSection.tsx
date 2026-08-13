@@ -3,6 +3,7 @@ import type { CreateJobFormData } from "../../../types/forms/createJobForm.types
 import { setDeep } from "../../utils/forms/formUtils";
 import { DropdownField } from "../FormComponents/DropdownField";
 import { EDUCATION_LEVEL_OPTIONS } from "../../../constants/jobFormConstants";
+import { RichTextEditor } from "../FormComponents/RichTextEditor";
 
 export const EditJobRequirementsSection = () => {
     const { formData, setFormData, handleChange } = useEditJobForm();
@@ -43,15 +44,13 @@ export const EditJobRequirementsSection = () => {
             {/* DESCRIPTION */}
             <div className="editor-form__field">
                 <label className="editor-form__label">Description</label>
-                <textarea
-                    className="editor-form__textarea"
-                    name="requirements.description"
-                    placeholder="Describe the requirements..."
+                <RichTextEditor
+                    id="requirements-description"
                     value={formData?.requirements?.description ?? ""}
-                    onChange={(e) =>
-                        setField("requirements.description", e.target.value)
+                    onChange={(html) =>
+                        setField("requirements.description", html)
                     }
-                    rows={4}
+                    placeholder="Describe the qualifications, duties, and expectations..."
                 />
             </div>
 

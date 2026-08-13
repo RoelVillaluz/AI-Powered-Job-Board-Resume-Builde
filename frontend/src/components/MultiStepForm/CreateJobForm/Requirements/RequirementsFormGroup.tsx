@@ -4,6 +4,7 @@ import { DropdownField } from "../../../FormComponents/DropdownField";
 import { InputField } from "../../../FormComponents/InputField";
 import { useJobForm } from "../../../../contexts/JobFormContexts/JobPostingFormContext";
 import { CertificationList } from "./CertificationList";
+import { RichTextEditor } from "../../../FormComponents/RichTextEditor";
 import { EDUCATION_LEVEL_OPTIONS } from "../../../../../constants/jobFormConstants";
 
 export const RequirementsFormGroup = () => {
@@ -39,12 +40,16 @@ export const RequirementsFormGroup = () => {
     return (
         <div className="form-group" style={{ marginTop: '1rem', width: '100%' }}>
             <h4>Requirements</h4>
-            <textarea 
-                name="requirements.description"
+            <RichTextEditor
+                id="requirements-description"
                 value={formData.requirements.description}
-                onChange={handleChange} 
-                id="requirements-textarea"
-                placeholder="Description"
+                onChange={(html) =>
+                    setFormData((prev) => ({
+                        ...prev,
+                        requirements: { ...prev.requirements, description: html },
+                    }))
+                }
+                placeholder="Describe the qualifications, duties, and expectations..."
             />
             <div className="row">
 

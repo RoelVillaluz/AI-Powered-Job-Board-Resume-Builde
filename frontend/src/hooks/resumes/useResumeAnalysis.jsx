@@ -20,9 +20,13 @@ export const useResumeAnalysis = (jobId) => {
 
     const generateInsight = useGenerateMatchInsightMutation();
     const hasTriggeredInsight = useRef(false);
+    const insightInFlight = useRef(false);
+    const socketRef = useRef(socket);
+    socketRef.current = socket;
 
     useEffect(() => {
         hasTriggeredInsight.current = false;
+        insightInFlight.current = false;
     }, [resumeId, job?._id]);
 
     useEffect(() => {
@@ -32,27 +36,72 @@ export const useResumeAnalysis = (jobId) => {
         if (hasTriggeredInsight.current) return;
 
         hasTriggeredInsight.current = true;
+        insightInFlight.current = true;
         generateInsight.mutate({ resumeId, jobId: job._id, token });
     }, [resumeId, job?._id, token, matchData, generateInsight]);
 
     useEffect(() => {
+        if (generateInsight.isError) {
+            insightInFlight.current = false;
+        }
+    }, [generateInsight.isError]);
+
+    useEffect(() => {
         if (!socket || !connected || !resumeId || !job?._id) return;
 
+        const applyExplanation = (text) => {
+            queryClient.setQueryData(
+                ['resumeJobMatch', resumeId, job._id],
+                (old) => old ? { ...old, explanation: text } : old
+            );
+        };
+
+        const handleInsightChunk = ({ data }) => {
+            if (!data) return;
+            if (data?.jobId?.toString() !== job._id?.toString()) return;
+
+            if (data.type === 'delta' && typeof data.full === 'string') {
+                applyExplanation(data.full);
+            } else if (data.type === 'restart') {
+                applyExplanation('');
+            } else if (data.type === 'fallback' && typeof data.answer === 'string') {
+                applyExplanation(data.answer);
+            } else if (data.type === 'error') {
+                insightInFlight.current = false;
+            }
+        };
+
+        const handleInsightError = () => {
+            insightInFlight.current = false;
+        };
+
         const handleInsightComplete = ({ data }) => {
+            insightInFlight.current = false;
             const updatedMatch = data?.matches?.find(
                 (m) => m.jobId?.toString() === job._id?.toString()
             );
             if (!updatedMatch?.explanation) return;
 
-            queryClient.setQueryData(
-                ['resumeJobMatch', resumeId, job._id],
-                (old) => old ? { ...old, explanation: updatedMatch.explanation } : old
-            );
+            applyExplanation(updatedMatch.explanation);
         };
 
+        socket.on('matchInsight:chunk', handleInsightChunk);
+        socket.on('matchInsight:error', handleInsightError);
         socket.on('matchInsight:complete', handleInsightComplete);
-        return () => socket.off('matchInsight:complete', handleInsightComplete);
+        return () => {
+            socket.off('matchInsight:chunk', handleInsightChunk);
+            socket.off('matchInsight:error', handleInsightError);
+            socket.off('matchInsight:complete', handleInsightComplete);
+        };
     }, [socket, connected, resumeId, job?._id, queryClient]);
+
+    useEffect(() => {
+        return () => {
+            if (insightInFlight.current && resumeId && job?._id) {
+                socketRef.current?.emit('matchInsight:cancel', { resumeId, jobId: job._id });
+            }
+        };
+    }, [resumeId, job?._id]);
 
     const { resumeScore, strengths, improvements } = useMemo(() => {
         if (!matchData) {

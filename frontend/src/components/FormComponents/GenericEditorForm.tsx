@@ -12,8 +12,10 @@ export const GenericEditorForm = ({ logo, job }: { logo?: string, job: JobPostin
   return (
     <form className="editor-form" onSubmit={handleFormSubmit}>
         <div className="editor-form__header">
-            <img src={`/${logo}`} className="header-logo" />
             <div className="row">
+                {logo && (
+                    <img src={`/${logo}`} className="header-logo" />
+                )}
                 <div>
                     <h1>{formData.title?.name ?? ""}</h1>
                     <h2>Editing Job Posting</h2>

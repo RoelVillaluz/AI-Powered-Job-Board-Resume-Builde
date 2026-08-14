@@ -105,12 +105,13 @@ ai-service/
 │   ├── market_handlers.py              generate_skill/job_title/location_embeddings
 │   ├── salary_handler.py               predict_salary
 │   ├── matching_handler.py             score_matches
-│   └── match_insight_handler.py        generate_match_insight (Gemini)
+│   └── match_insight_handler.py        generate_match_insight (Gemini) — @register only
 │
 ├── gemini/                             Gemini domain package — see gemini/README.md
 │   ├── gemini_client.py                Thin Gemini API wrapper + fallback model
 │   ├── match_context_builder.py        Prompt context with sanitize + XML delimiting
-│   └── response_validator.py           Output-structure + instruction-leak checks
+│   ├── response_validator.py           Output-structure + instruction-leak checks
+│   └── match_insight_engine.py         Shared match-insight orchestration + stream generator
 │
 ├── routers/                            FastAPI APIRouter modules
 │   ├── embeddings.py                   POST /compute/generate_* routes

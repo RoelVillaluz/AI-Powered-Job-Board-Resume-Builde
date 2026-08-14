@@ -11,7 +11,7 @@ Tests are grouped by domain into subdirectories:
 |---|---|
 | `scoring/` | `services/scoring_service.py` suites (one file per concern) |
 | `salary/` | salary prediction (`salary_intelligence/`) |
-| `gemini/` | Gemini RAG pipeline (`handlers/match_insight_handler.py`) |
+| `gemini/` | Gemini RAG pipeline (`handlers/match_insight_handler.py` + `gemini/match_insight_engine.py`) |
 | `test_service_auth.py` | HTTP auth on `/compute` endpoints (cross-cutting, stays at root) |
 | `conftest.py` | `pytest_plugins` registration only |
 
@@ -59,7 +59,7 @@ behavior and failed against the then-unpatched code:
 - 1 salary API-drift test in `tests/salary/` (`predict()` now requires
   `resume_score`).
 
-Current (Aug 2026): **33 passed / 0 failed**. The pipeline fixes landed:
+Current (Aug 2026): **40 passed / 0 failed**. The pipeline fixes landed:
 
 - `tests/gemini/` — output validation lives in
   `gemini/response_validator.py`; the handler validates, retries once with a
@@ -140,12 +140,13 @@ argument in the call.
 ## Domain: gemini (`tests/gemini/`)
 
 Tests for the Gemini RAG pipeline (`handlers/match_insight_handler.py`,
-`gemini/match_context_builder.py`).
+`gemini/match_context_builder.py`, `gemini/match_insight_engine.py`).
 
 | File | Concern |
 |---|---|
 | `test_prompt_injection.py` | injection payloads never appear verbatim in context; leaked / off-structure outputs are rejected |
 | `test_output_validation.py` | malformed model outputs (empty, JSON, refusal, single word, gibberish) trigger retry + structured fallback |
+| `test_match_insight_stream.py` | `stream_match_insight` NDJSON event sequence — deltas → restart → fallback/end/error, exercised against `gemini/match_insight_engine.py` |
 
 The output-validation heuristics are the production code in
 `gemini/response_validator.py` — the handler and the tests import the SAME
@@ -160,10 +161,17 @@ functions:
 `tests/gemini/conftest.py` only re-exports them. Update heuristics in
 `gemini/response_validator.py`, never in a test file.
 
-Tests mock the handler's local reference via
-`patch("handlers.match_insight_handler.generate")` and invoke the handler
-through `import handlers.match_insight_handler as mih_module` (module import,
-not function import — the handler binds `generate` at import time).
+Two mock targets, mirroring where each module binds its model call at import
+time:
+- Sync handler: `patch("handlers.match_insight_handler.generate")`, invoked as
+  `import handlers.match_insight_handler as mih_module` then
+  `mih_module.generate_match_insight(...)`.
+- Stream engine: `patch("gemini.match_insight_engine.generate_stream")`,
+  invoked as `import gemini.match_insight_engine as insight_engine` then
+  `insight_engine.stream_match_insight(...)`.
+
+Both use module import, not function import — never mock the client module
+itself, because the importing module re-binds the name at import time.
 
 Security rationale behind these tests (the two-layer prompt-injection defense
 and its OWASP LLM Top 10 coverage): `gemini/README.md`.

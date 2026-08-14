@@ -39,19 +39,25 @@ If unsure whether something is compliant, run `ruff check <file>` on the specifi
 │   ├── market_handlers.py    generate_skill/job_title/location_embeddings
 │   ├── salary_handler.py     predict_salary
 │   ├── matching_handler.py   score_matches
-│   └── match_insight_handler.py  generate_match_insight (Gemini)
+│   └── match_insight_handler.py  generate_match_insight (Gemini) — the only
+│       non-embedding matching handler; contains ONLY the @register function
+│       (all shared pipeline logic lives in gemini/match_insight_engine.py)
 ├── routers/                  FastAPI APIRouter modules
 │   ├── shared/               ComputeRequest (Pydantic), wrap() response envelope
 │   ├── embeddings.py         POST /compute/generate_*_embeddings
 │   ├── scoring.py            POST /compute/score_resume
 │   ├── salary.py             POST /compute/predict_salary
-│   ├── matching.py           POST /compute/score_matches, /compute/generate_match_insight
+│   ├── matching.py           POST /compute/score_matches, /compute/generate_match_insight,
+│   │                         /compute/generate_match_insight/stream (NDJSON)
 │   ├── health.py             GET /health
 │   └── metrics.py            GET /metrics (Prometheus)
 ├── gemini/                   Gemini domain package (client + pipeline stages)
 │   ├── gemini_client.py      Thin Gemini API wrapper with retry + fallback model
 │   ├── match_context_builder.py  Builds prompt context for Gemini
-│   └── response_validator.py     Output-structure + instruction-leak checks
+│   ├── response_validator.py     Output-structure + instruction-leak checks
+│   └── match_insight_engine.py   Shared match-insight orchestration: system
+│       prompts, build_prompt, is_valid_answer, build_structured_fallback,
+│       stream_match_insight (async NDJSON generator used by the stream router)
 ├── services/                 Business logic (no Gemini pipeline stages — see
 │   │                         the boundary rule under "Gemini Domain Package")
 │   ├── resume_service.py
@@ -130,18 +136,27 @@ Side-effect imports in `handlers/__init__.py` trigger all `@register` decorators
 
 ## Gemini Domain Package (`gemini/`)
 
-**Boundary rule** — `services/` contains ONLY modules that call the model
-directly. Pipeline stages adjacent to a model call (prompt construction,
-output validation, anything running before/after the actual API call) belong
-in a domain-scoped package (e.g. `gemini/`) alongside that domain's client
-module, not in `services/`.
+**Boundary rules**:
+- `services/` contains ONLY modules that call the model directly. Pipeline
+  stages adjacent to a model call (prompt construction, output validation,
+  anything running before/after the actual API call) belong in a
+  domain-scoped package (e.g. `gemini/`) alongside that domain's client
+  module, not in `services/`.
+- `handlers/` contains ONLY `@register` V2 compute handlers. Non-handler code
+  — shared prompt constants, validators, fallback builders, async streaming
+  generators — must live in a domain package (`gemini/`), never inline in a
+  handler file. A handler file with private helpers beyond the `@register`
+  function itself has already been pulled apart once; don't re-mix them.
 
-Concrete example: `gemini_client.py`, `match_context_builder.py`, and
-`response_validator.py` were moved from `services/` into `gemini/` — the
-client call plus the two stages adjacent to it now live together.
-`response_validator.py` stays production code (imported by
-`handlers/match_insight_handler.py` at runtime) even though the test suite
-also imports it.
+Concrete example: `gemini_client.py`, `match_context_builder.py`,
+`response_validator.py`, and `match_insight_engine.py` all live in `gemini/`
+— the client call plus the stages adjacent to it. `match_insight_engine.py`
+holds the system prompts, `build_prompt`, `is_valid_answer`,
+`build_structured_fallback`, and `stream_match_insight` (the async NDJSON
+generator served by the stream router); `handlers/match_insight_handler.py`
+is left as a thin `@register("generate_match_insight")` wrapper that imports
+them. `response_validator.py` stays production code (imported by the engine
+at runtime) even though the test suite also imports it.
 
 Package docs — what each file does, the two-layer prompt-injection defense,
 and the OWASP LLM Top 10 (2025) coverage table: `gemini/README.md`.
@@ -163,7 +178,8 @@ answer = generate(
 - Primary model: `gemini-2.5-flash` (env `GEMINI_MODEL`), fallback: `gemini-2.5-flash-lite` (`GEMINI_MODEL_FALLBACK`)
 - On 429/RESOURCE_EXHAUSTED: retries once with fallback model
 - Returns `response.text or ""`
-- Only used by `handlers/match_insight_handler.py`
+- `generate` used by `handlers/match_insight_handler.py`; `generate_stream`
+  (async) used by `gemini/match_insight_engine.py`
 
 ## Embedding Pipeline (4 Layers)
 
@@ -199,7 +215,7 @@ All tasks run concurrently via `ThreadPoolExecutor` (PyTorch releases GIL). Tota
 | FastAPI entry point | `app.py` |
 | Handler base + @register | `handlers/base_handler.py` |
 | Handler registration | `handlers/__init__.py` |
-| Gemini domain package | `gemini/` (client + prompt builder + validator) |
+| Gemini domain package | `gemini/` (client + prompt builder + validator + match-insight engine) |
 | Embedding model singleton | `models/embeddings.py` |
 | Database singleton | `config/database.py` |
 | Embedding orchestrator | `infrastructure/embeddings/embedding_orchestrator.py` |

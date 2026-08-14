@@ -42,6 +42,38 @@ fetcher: async (id) => {
 fetcher: async (id, secretSecondArg) => { ... };
 ```
 
+## Streaming Compute (`stream: true`)
+
+When a registry sets `stream: true`, the pipeline dispatches to
+`runStream` (`core/streamComputeRunner.ts`) instead of a one-shot
+`aiClient` call. `runStream` owns the `AbortController`, consumes the AI
+service's NDJSON stream via `aiClientStream` (`infrastructure/clients/
+aiClientHandler.ts`), forwards each event as `streamEvent` socket events
+(default `${progressEvent}:chunk`), and returns `{ answer, jobId }` for
+`buildPayload`.
+
+Event contract (mirrors the ai-service NDJSON `{ type, delta, full, answer,
+message, jobId }` envelope):
+
+| Socket event `type` | Meaning |
+|---|---|
+| `delta` | one text chunk + running `full` text |
+| `restart` | first attempt failed validation; retrying |
+| `fallback` | both attempts failed; structured answer |
+| `end` | final validated answer |
+| `error` | stream failure (throws → pipeline error path) |
+
+**Abort-on-disconnect.** The worker passes a `shouldAbort` predicate that
+`runStream` checks between chunks: true → `controller.abort()` +
+`UnrecoverableError('Match insight generation aborted by client')`. The
+predicate is wired in `createWorkerV2` to return true when the client's
+socket is gone (userId has no live socket) or when the user explicitly
+cancelled via the `matchInsight:cancel` socket handler
+(`domains/matching/insightAbortStore.ts`). Because it's an
+`UnrecoverableError`, it is treated as a terminal failure from attempt 1 —
+the pending entry cleanup runs via `onFinalFailure`, and the pipeline's
+catch skips the error socket emit (the canceling client is gone).
+
 ## Per-Request Data via Redis Pending-Store
 
 When `fetcher()` needs data beyond the entity id (e.g. which `jobId` to generate an insight for), use a **Redis pending-store side-channel**:

@@ -28,7 +28,7 @@ src/
 ├── infrastructure/
 │   ├── clients/      aiClientHandler.ts (axios → Python service), pineconeClient.ts
 │   ├── jobs/         *** CORE ARCHITECTURE ***
-│   │   ├── core/     executeComputePipelineV2, createQueueJobRunner, orchestrateComputeJob, computeRegistryTypesV2
+│   │   ├── core/     executeComputePipelineV2, streamComputeRunner, createQueueJobRunner, orchestrateComputeJob, computeRegistryTypesV2
 │   │   ├── domains/  Per-entity registries (embedding, scoring, salary, matching, matchInsight)
 │   │   ├── factories/  createEmbeddingControllerFactory, createEmbeddingServiceFactory
 │   │   ├── processes/   generateEmbeddings.ts (boot trigger)
@@ -63,6 +63,8 @@ The core architecture. Every compute capability is declared as a `ComputeConfigV
 - `onFinalFailure?(job)` — cleanup after all retries exhausted
 - `skipEmbeddingCheck?` — skip staleness check (scoring, salary, matching)
 - `progressEvent?` — Socket.IO event prefix
+- `stream?` — when set, the AI response is streamed (NDJSON) instead of one-shot; see `streamComputeRunner`
+- `streamEvent?` — Socket.IO event name emitted per stream chunk (defaults to `${progressEvent}:chunk`)
 
 **Registry files** (each exports `Record<string, ComputeConfigV2>`):
 - `domains/embedding/embeddingRegistryV2.ts` — resume, jobPosting, skill, jobTitle, location, industry
@@ -78,11 +80,17 @@ The core architecture. Every compute capability is declared as a `ComputeConfigV
 `executeComputePipelineV2` (`infrastructure/jobs/core/executeComputePipelineV2.ts`):
 1. `fetcher(entityId)` — load raw data from MongoDB
 2. Embedding freshness check (unless `skipEmbeddingCheck`)
-3. `aiClient(endpoint, payload)` — HTTP POST to Python service
+3. AI call — `aiClient(endpoint, payload)` for one-shot responses, or `runStream` (`infrastructure/jobs/core/streamComputeRunner.ts`) for streaming configs. `runStream` owns the AbortController, consumes `aiClientStream` NDJSON events, forwards each as `streamEvent` socket events, and checks `shouldAbort` between chunks (client disconnect / explicit cancel → `UnrecoverableError`).
 4. `buildPayload()` or `mapper()` — transform AI output
 5. `persist(id, document)` — save to MongoDB
 6. `afterSave` hook — chain downstream jobs
 7. Progress events at 10%, 30%, 70%, 85%, 100%
+
+Streaming is deliberately isolated from the pipeline: the stream runner is a
+standalone module (`streamComputeRunner.ts`) with a single responsibility —
+translate the AI service's NDJSON event stream into socket events + a final
+`{ answer, jobId }` — while `executeComputePipelineV2` only dispatches to it
+when `config.stream` is set.
 
 ## BullMQ Queues
 
@@ -151,6 +159,7 @@ Response shape: `{ success: boolean, formattedMessage: string, data: T, cached?:
 | Queue instances | `src/queues/index.js` |
 | ComputeConfigV2 type | `src/infrastructure/jobs/core/computeRegistryTypesV2.ts` |
 | Generic pipeline | `src/infrastructure/jobs/core/executeComputePipelineV2.ts` |
+| Stream runner | `src/infrastructure/jobs/core/streamComputeRunner.ts` |
 | Worker factory | `src/infrastructure/jobs/workers/createWorkerV2.ts` |
 | Worker registry | `src/infrastructure/jobs/workers/workerRegistryV2.ts` |
 | Boot trigger | `src/infrastructure/jobs/processes/generateEmbeddings.ts` |

@@ -41,4 +41,5 @@ Rule of thumb: "how many times did X happen?" → Counter. "how long / what spre
 ## Instrumentation Points
 
 - `gemini/gemini_client.py` — `generate()` records duration, tokens, request outcome, and fallback (`record_model_fallback` on 429).
-- `handlers/match_insight_handler.py` — `record_generate_request(GEMINI_MODEL, "validation_failed")` on rejected output.
+- `handlers/match_insight_handler.py` — `record_generate_request(GEMINI_MODEL, "validation_failed")` on rejected output (sync path).
+- `gemini/match_insight_engine.py` — `record_generate_request(GEMINI_MODEL, "validation_failed")` on rejected streamed output (first attempt + retry).

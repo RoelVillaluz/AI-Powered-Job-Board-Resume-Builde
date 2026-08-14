@@ -183,7 +183,7 @@ export function RichTextEditor({
         </ToolbarButton>
       </div>
 
-      <EditorContent editor={editor} id={id} />
+      <EditorContent editor={editor} id={id} className="rich-text-editor__scroll" />
     </div>
   );
 }

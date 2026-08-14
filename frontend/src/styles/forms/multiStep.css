@@ -105,6 +105,15 @@
     .form-panel {
         flex: 3;
         height: 100%;
+        /* Never grow taller than its container — long content (e.g. a big
+           rich-text description) scrolls inside the panel instead of pushing
+           the whole layout down. */
+        max-height: 100%;
+        min-height: 0;
+        /* Flex items default to min-width: auto (won't shrink below content).
+           Zeroing it lets the panel stay within its flex allocation even when
+           a wide child (rich text) would otherwise force it wider. */
+        min-width: 0;
         position: relative;
         display: flex;
         align-items: center;
@@ -153,7 +162,7 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        min-width: 60%;
+        width: 70%;
     }
 
     .form-panel header {
@@ -168,6 +177,15 @@
         gap: 1rem;
         margin-top: 2rem;
         width: 100%;
+    }
+
+    /* Step 1 of the create-job form. Keep its natural centered width (with the
+       space/padding on either side) — only cap it at the panel width so wide
+       content can't widen the section. */
+    .job-posting-details {
+        max-width: 100%;
+        min-width: 0;
+        overflow-x: hidden;
     }
 
     .form-panel .work-exp-entry {

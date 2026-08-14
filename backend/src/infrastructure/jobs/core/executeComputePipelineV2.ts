@@ -1,10 +1,12 @@
 import { Types } from "mongoose";
+import { UnrecoverableError } from "bullmq";
 import logger from "../../../utils/logger.js";
 import { aiClient } from "../../clients/aiClientHandler.js";
 import { QueueJob } from "../../../types/queues.types.js";
 import { ComputeConfigV2, EmitFn } from "./computeRegistryTypesV2.js";
 import { isValidEmbedding, isEmbeddingStale } from "../../../utils/embeddings/embeddingValidationUtils.js";
 import { EmbeddingVector } from "../../../types/embeddings.types.js";
+import { runStream } from "./streamComputeRunner.js";
 
 interface PipelineOptions {
     config:      ComputeConfigV2<any, any>;  // ← caller passes config, not entityKey
@@ -12,6 +14,7 @@ interface PipelineOptions {
     job?:        QueueJob | null;
     emit?:       EmitFn;
     emitSocket?: (event: string, data: any) => void;
+    shouldAbort?: () => boolean;
 }
 
 export const executeComputePipelineV2 = async ({
@@ -20,6 +23,7 @@ export const executeComputePipelineV2 = async ({
     job        = null,
     emit       = () => {},
     emitSocket = () => {},
+    shouldAbort,
 }: PipelineOptions) => {
     const entityId      = new Types.ObjectId(id);
     const logCtx        = `${config.key}:${entityId}`;
@@ -57,7 +61,9 @@ export const executeComputePipelineV2 = async ({
         // ── AI call ───────────────────────────────────────────────────────────
         const startTime = Date.now(); // ← capture before AI call
         await progress(30, 'Calling AI service');
-        const aiOutput = await aiClient(config.aiEndpoint, raw);
+        const aiOutput = config.stream
+            ? await runStream(config, raw, emitSocket, progressEvent, shouldAbort)
+            : await aiClient(config.aiEndpoint, raw);
         await progress(70, 'Building payload');
 
         // ── Payload mapping ───────────────────────────────────────────────────
@@ -87,6 +93,13 @@ export const executeComputePipelineV2 = async ({
         return { cached: false as const, data: saved };
 
     } catch (error) {
+        if (error instanceof UnrecoverableError) {
+            // Client-triggered abort — not a pipeline failure. No error event
+            // to the socket (the canceling client is gone), terminal failure
+            // cleanup (pending entry + abort flag) runs via onFinalFailure.
+            logger.info(`[PIPELINE V2 ABORT] ${logCtx}`, { message: (error as Error).message });
+            throw error;
+        }
         logger.error(`[PIPELINE V2 ERROR] ${logCtx}`, error);
         emit(`${progressEvent}:error`, {
             progress: 0,

@@ -15,6 +15,7 @@ consider stripping name/contact info before it reaches the prompt).
 import os
 import logging
 import time
+from typing import AsyncIterator
 from google import genai
 from google.genai import errors as genai_errors
 from metrics.gemini_metrics import (
@@ -115,5 +116,83 @@ def generate(
         # previously escaping as unhandled 500s instead of a diagnosable error.
         logger.exception(
             f"[Gemini] Generation failed (unexpected error type: {type(e).__name__})"
+        )
+        raise
+
+
+async def generate_stream(
+    prompt: str,
+    system_instruction: str | None = None,
+    model: str = GEMINI_MODEL,
+    temperature: float = 0.55,
+    max_output_tokens: int = 1500,
+    thinking_budget: int = 0,
+    endpoint: str = "generate_match_insight",
+) -> AsyncIterator[str]:
+    """
+    Async streaming counterpart of generate(). Yields incremental text chunks
+    as the model emits them, in order. Same 429 fallback to the lighter model,
+    but only for the request-start phase — once the stream is open, mid-stream
+    errors propagate to the caller, which decides how to recover.
+    """
+    client = _get_client()
+
+    config = {
+        "temperature": temperature,
+        "max_output_tokens": max_output_tokens,
+        "thinking_config": {"thinking_budget": thinking_budget},
+    }
+    if system_instruction:
+        config["system_instruction"] = system_instruction
+
+    start = time.perf_counter()
+    try:
+        stream = await client.aio.models.generate_content_stream(
+            model=model,
+            contents=prompt,
+            config=config,
+        )
+    except genai_errors.ClientError as e:
+        record_generate_request(model, "error")
+        is_rate_limit = getattr(e, "code", None) == 429 or "RESOURCE_EXHAUSTED" in str(
+            e
+        )
+        if is_rate_limit and model != GEMINI_MODEL_FALLBACK:
+            logger.warning(
+                f"[Gemini] {model} rate-limited at stream start, retrying once "
+                f"with {GEMINI_MODEL_FALLBACK}"
+            )
+            record_model_fallback()
+            async for text in generate_stream(
+                prompt,
+                system_instruction=system_instruction,
+                model=GEMINI_MODEL_FALLBACK,
+                temperature=temperature,
+                max_output_tokens=max_output_tokens,
+                thinking_budget=thinking_budget,
+                endpoint=endpoint,
+            ):
+                yield text
+            return
+        logger.error(f"[Gemini] Stream failed (ClientError): {e}")
+        raise
+    except Exception as e:
+        record_generate_request(model, "error")
+        logger.exception(
+            f"[Gemini] Stream failed (unexpected error type: {type(e).__name__})"
+        )
+        raise
+
+    try:
+        async for chunk in stream:
+            text = chunk.text or ""
+            record_generate_tokens(model, chunk.usage_metadata)
+            yield text
+        record_generate_duration(model, endpoint, time.perf_counter() - start)
+        record_generate_request(model, "success")
+    except Exception as e:
+        record_generate_request(model, "error")
+        logger.exception(
+            f"[Gemini] Stream failed mid-iteration (error type: {type(e).__name__})"
         )
         raise

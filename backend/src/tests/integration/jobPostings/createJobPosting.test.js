@@ -2,7 +2,7 @@ import request from 'supertest';
 import app from '../../../app.js';
 import { connectTestDB, disconnectTestDB, TestDataTracker } from '../../helpers/db.js';
 import { createAuthenticatedEmployer } from '../../helpers/authHelper.js';
-import { createTestCompany, createTestJob } from '../../helpers/testData.js';
+import { createTestCompany, createTestJob, createSkillRef } from '../../helpers/testData.js';
 
 describe('POST api/job-postings - Create Job Posting', () => {
     let dataTracker;
@@ -158,6 +158,49 @@ describe('POST api/job-postings - Create Job Posting', () => {
             expect(job.applicants).toBeDefined();
             expect(Array.isArray(job.applicants)).toBe(true);
             expect(job.applicants.length).toBe(0);
+
+            dataTracker.trackJob(job._id);
+        });
+
+        test('should create job posting with free-text skills (empty _id)', async () => {
+            const { employer, token } = await createAuthenticatedEmployer(app);
+            dataTracker.trackUser(employer._id);
+
+            const companyData = createTestCompany(employer._id);
+            const companyResponse = await request(app)
+                .post('/api/companies')
+                .set('Authorization', `Bearer ${token}`)
+                .send(companyData);
+
+            expect(companyResponse.status).toBe(201);
+            const companyId = companyResponse.body.data._id;
+            dataTracker.trackCompany(companyId);
+
+            // Simulates the frontend free-text skill state: names typed by the
+            // user that don't match a DB record, so _id is empty.
+            const jobData = createTestJob(companyId, {
+                skills: [
+                    createSkillRef({ name: 'JavaScript', requirementLevel: 'Required' }),
+                    { _id: "", name: 'Custom Skill', requirementLevel: 'Preferred' },
+                    { _id: "", name: 'Another Custom Skill', requirementLevel: 'Nice-to-Have' },
+                ],
+            });
+
+            const jobResponse = await request(app)
+                .post('/api/job-postings')
+                .set('Authorization', `Bearer ${token}`)
+                .send({ jobPostingData: jobData });
+
+            expect(jobResponse.status).toBe(201);
+            expect(jobResponse.body.success).toBe(true);
+
+            const job = jobResponse.body.data;
+            expect(job.skills).toHaveLength(3);
+
+            const dbSkill = job.skills.find((s) => s.name === 'Custom Skill');
+            expect(dbSkill).toBeTruthy();
+            expect(dbSkill._id).toBeUndefined();
+            expect(dbSkill.requirementLevel).toBe('Preferred');
 
             dataTracker.trackJob(job._id);
         });

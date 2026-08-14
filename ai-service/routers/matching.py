@@ -1,8 +1,12 @@
+import json
+
 from fastapi import APIRouter
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from routers.shared import ComputeRequest, wrap
 from handlers.matching_handler import score_matches
 from handlers.match_insight_handler import generate_match_insight
+from gemini.match_insight_engine import stream_match_insight
 
 router = APIRouter(prefix="/compute")
 
@@ -11,6 +15,19 @@ class MatchInsightRequest(BaseModel):
     resume: dict
     matches: list[dict]
     jobId: str
+
+
+@router.post("/generate_match_insight/stream")
+async def generate_match_insight_stream_endpoint(body: MatchInsightRequest):
+    async def event_stream():
+        async for event in stream_match_insight(
+            resume=body.resume,
+            matches=body.matches,
+            job_id=body.jobId,
+        ):
+            yield (json.dumps(event) + "\n").encode("utf-8")
+
+    return StreamingResponse(event_stream(), media_type="application/x-ndjson")
 
 
 @router.post("/generate_match_insight")

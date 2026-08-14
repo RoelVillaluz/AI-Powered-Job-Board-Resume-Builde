@@ -3,6 +3,7 @@ import { createQueueJobRunner }    from "../../core/createQueueJobRunner.js";
 import { matchInsightQueue }       from "../../../../queues/index.js";
 import { setMatchExplanationRepo } from "../../../../repositories/resumes/resumeJobMatchRepository.js";
 import { peekPendingInsight, removePendingInsight } from "./pendingInsightStore.js";
+import { clearInsightAbort } from "./insightAbortStore.js";
 
 export const resumeMatchInsightRegistry: Record<string, ComputeConfigV2<any, any>> = {
     resumeMatchInsight: {
@@ -18,6 +19,9 @@ export const resumeMatchInsightRegistry: Record<string, ComputeConfigV2<any, any
 
         skipEmbeddingCheck: true,
         progressEvent:      "matchInsight",
+
+        stream:      true,
+        streamEvent: "matchInsight:chunk",
 
         fetcher: async (id) => {
             const resumeId = id.toString();
@@ -56,17 +60,29 @@ export const resumeMatchInsightRegistry: Record<string, ComputeConfigV2<any, any
             jobIdPrefix: "resume-match-insight",
             attempts:    2,
             delay:       500,
-            timeout:     30000,
+            timeout:     120000,
         }),
 
         afterSave: async (saved, emitSocket, meta) => {
             // Terminal success — safe to remove the head entry now.
             const resumeId = (saved as any)?.resume?.toString?.() ?? meta?.userId; // see note below
-            if (resumeId) await removePendingInsight(resumeId);
+            if (resumeId) {
+                await removePendingInsight(resumeId);
+                clearInsightAbort(resumeId);
+            }
 
             emitSocket("matchInsight:complete", {
                 data: saved,
             });
+        },
+
+        onFinalFailure: async (job) => {
+            const data      = (job.data ?? {}) as Record<string, any>;
+            const resumeId  = data.id?.toString?.() ?? data.resumeId;
+            if (resumeId) {
+                await removePendingInsight(resumeId);
+                clearInsightAbort(resumeId);
+            }
         },
     },
 };

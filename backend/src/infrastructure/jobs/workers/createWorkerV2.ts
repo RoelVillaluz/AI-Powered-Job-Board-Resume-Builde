@@ -1,10 +1,11 @@
-import { Queue, Worker, Job } from 'bullmq';
+import { Queue, Worker, Job, UnrecoverableError } from 'bullmq';
 import { Types } from 'mongoose';
 import logger from '../../../utils/logger.js';
 import { executeComputePipelineV2 } from '../core/executeComputePipelineV2.js';
 import { ComputeConfigV2, EmitFn } from '../core/computeRegistryTypesV2.js';
 import { getSocketId } from '../../../sockets/presence.js';
 import { getIO } from '../../../sockets/index.js';
+import { isInsightAborted } from '../domains/matching/insightAbortStore.js';
 
 interface WorkerV2Config {
     config:      ComputeConfigV2<any, any>;  // registry entry passed in directly
@@ -50,6 +51,12 @@ export const createWorkerV2 = ({
 
         if (!id) throw new Error(`Missing id in job data for ${key}`);
 
+        // Streaming configs (match insight) get a per-chunk abort hook: stop
+        // as soon as the client cancelled explicitly or their socket dropped.
+        const shouldAbort = config.stream
+            ? () => isInsightAborted(id) || (!!userId && !getSocketId(userId))
+            : undefined;
+
         logger.info(`[WORKER V2 START] ${logCtx}`, {
             jobId:   job.id,
             userId:  userId ?? 'none',
@@ -76,6 +83,7 @@ export const createWorkerV2 = ({
             job,
             emit,
             emitSocket,
+            shouldAbort,
         });
 
         logger.info(`[WORKER V2 SUCCESS] ${logCtx}`, {
@@ -101,7 +109,14 @@ export const createWorkerV2 = ({
         // job.opts.attempts is undefined, which in practice it usually
         // isn't since createQueueJobRunner sets it explicitly. Leaving as-is,
         // not touching pre-existing behavior beyond what was asked.
-        const isFinalAttempt = job ? job.attemptsMade >= (job.opts.attempts ?? 3) : false;
+        //
+        // UnrecoverableError (client-aborted stream) is terminal on the first
+        // attempt — BullMQ won't retry it, so treat it as the final attempt to
+        // let onFinalFailure run its cleanup instead of leaking the pending
+        // entry until the Redis TTL expires.
+        const isFinalAttempt = job
+            ? err instanceof UnrecoverableError || job.attemptsMade >= (job.opts.attempts ?? 3)
+            : false;
 
         logger.error(`[WORKER V2 FAILED] ${key}`, {
             jobId:     job?.id,

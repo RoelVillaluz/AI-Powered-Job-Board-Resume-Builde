@@ -1,4 +1,5 @@
 import { addUser, removeUser } from "./presence.js";
+import { markInsightAborted } from "../infrastructure/jobs/domains/matching/insightAbortStore.js";
 
 export const registerSocketHandlers = (io, socket) => {
   const { userId } = socket.handshake.auth;
@@ -33,6 +34,11 @@ export const registerSocketHandlers = (io, socket) => {
       ...data,
       seenAt: data.seenAt || new Date().toISOString(),
     });
+  });
+
+  socket.on("matchInsight:cancel", ({ resumeId, jobId } = {}) => {
+    if (!resumeId) return;
+    markInsightAborted(resumeId, { jobId: jobId ?? null, userId: userId ?? null });
   });
 
   socket.on("disconnect", () => {

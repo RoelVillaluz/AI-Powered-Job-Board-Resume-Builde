@@ -43,6 +43,13 @@ export const enqueueMatchInsightService = async (
     const { pushPendingInsight } = await import(
         '../../infrastructure/jobs/domains/matching/pendingInsightStore.js'
     );
+    const { clearInsightAbort } = await import(
+        '../../infrastructure/jobs/domains/matching/insightAbortStore.js'
+    );
+
+    // A fresh user-triggered generation supersedes any stale cancel flag left
+    // behind by a previous request for the same resume.
+    clearInsightAbort(resumeId);
 
     await pushPendingInsight(resumeId, { jobId });
 

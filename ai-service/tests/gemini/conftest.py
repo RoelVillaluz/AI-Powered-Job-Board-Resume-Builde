@@ -14,10 +14,6 @@ sent to the mocked generate(), what it returned, and what validation found.
 
 import logging
 
-from gemini.response_validator import (
-    response_is_properly_structured,
-    response_leaks_instructions,
-)
 
 logger = logging.getLogger(__name__)
 

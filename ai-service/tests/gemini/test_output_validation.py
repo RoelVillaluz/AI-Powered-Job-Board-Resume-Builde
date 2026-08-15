@@ -53,22 +53,24 @@ def resume():
 
 @pytest.fixture
 def matches():
-    return [{
-        "metadata": {
-            "title": "Junior Developer",
-            "location": "Remote",
-            "salaryMin": 60000,
-            "salaryMax": 90000,
-            "salaryCurrency": "USD",
-            "salaryFrequency": "yearly",
-        },
-        "finalScore": 65.0,
-        "recommendationType": "stretch",
-        "matchedSkills": ["Python"],
-        "missingSkills": ["Django"],
-        "strengths": ["Python basics"],
-        "improvements": ["Learn Django"],
-    }]
+    return [
+        {
+            "metadata": {
+                "title": "Junior Developer",
+                "location": "Remote",
+                "salaryMin": 60000,
+                "salaryMax": 90000,
+                "salaryCurrency": "USD",
+                "salaryFrequency": "yearly",
+            },
+            "finalScore": 65.0,
+            "recommendationType": "stretch",
+            "matchedSkills": ["Python"],
+            "missingSkills": ["Django"],
+            "strengths": ["Python basics"],
+            "improvements": ["Learn Django"],
+        }
+    ]
 
 
 MALFORMED_CASES = [
@@ -105,7 +107,6 @@ def backend_expected_shape():
 
 
 class TestOutputValidation:
-
     @pytest.mark.parametrize("malformed_response", MALFORMED_CASES)
     def test_malformed_response_not_validated(
         self, resume, matches, malformed_response
@@ -122,13 +123,10 @@ class TestOutputValidation:
             mock_gen.return_value = malformed_response
 
             log_header(
-                "Gemini — malformed output rejected: "
-                f"{malformed_response[:50]!r}…"
+                f"Gemini — malformed output rejected: {malformed_response[:50]!r}…"
             )
 
-            result = mih_module.generate_match_insight(
-                resume, matches, "job-99"
-            )
+            result = mih_module.generate_match_insight(resume, matches, "job-99")
 
             prompt, gen_kwargs = mock_gen.call_args
             logger.info(f"  → prompt excerpt: {prompt[0][:110]!r}…")
@@ -164,9 +162,7 @@ class TestOutputValidation:
             except AssertionError:
                 raise
 
-    def test_empty_answer_persisted_through_backend_pipeline(
-        self, resume, matches
-    ):
+    def test_empty_answer_persisted_through_backend_pipeline(self, resume, matches):
         """
         FAILS because: even the backend's buildPayload has no validation
         on the 'answer' field — an empty string is mapped to 'explanation'
@@ -182,9 +178,7 @@ class TestOutputValidation:
         with patch("handlers.match_insight_handler.generate") as mock_gen:
             mock_gen.return_value = ""
 
-            result = mih_module.generate_match_insight(
-                resume, matches, "job-99"
-            )
+            result = mih_module.generate_match_insight(resume, matches, "job-99")
 
             prompt, gen_kwargs = mock_gen.call_args
             logger.info(f"  → prompt excerpt: {prompt[0][:110]!r}…")

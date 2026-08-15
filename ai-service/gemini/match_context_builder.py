@@ -36,18 +36,22 @@ def build_match_context(resume: dict, matches: list[dict]) -> str:
             f"{meta.get('salaryMin', '?')}-{meta.get('salaryMax', '?')} "
             f"{meta.get('salaryCurrency', '')}/{meta.get('salaryFrequency', '')}",
         )
-        matched_skills = ", ".join(
-            _delimit("skill", s) for s in m.get("matchedSkills", [])[:6]
-        ) or "none"
-        missing_skills = ", ".join(
-            _delimit("skill", s) for s in m.get("missingSkills", [])[:6]
-        ) or "none"
-        strengths = "; ".join(
-            _delimit("strength", s) for s in m.get("strengths", [])
-        ) or "none noted"
-        improvements = "; ".join(
-            _delimit("improvement", s) for s in m.get("improvements", [])
-        ) or "none noted"
+        matched_skills = (
+            ", ".join(_delimit("skill", s) for s in m.get("matchedSkills", [])[:6])
+            or "none"
+        )
+        missing_skills = (
+            ", ".join(_delimit("skill", s) for s in m.get("missingSkills", [])[:6])
+            or "none"
+        )
+        strengths = (
+            "; ".join(_delimit("strength", s) for s in m.get("strengths", []))
+            or "none noted"
+        )
+        improvements = (
+            "; ".join(_delimit("improvement", s) for s in m.get("improvements", []))
+            or "none noted"
+        )
         fit_tier = _delimit("fit_tier", str(m.get("recommendationType", "Unrated")))
         lines.append(
             f"- {title} — score {m.get('finalScore', 0)}/100 ({fit_tier}), "

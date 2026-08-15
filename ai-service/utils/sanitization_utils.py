@@ -1,6 +1,7 @@
 import html
 import re
 
+
 def strip_html(text: str) -> str:
     """
     Strip HTML tags from rich-text description fields before embedding.

@@ -91,13 +91,13 @@ def test_salary_predictions_smoke():
     for label, seniority, resume_score, exp, skills in cases:
         log_header(f"Salary — {label} (Legazpi City, Albay)")
 
-        logger.info(
-            f"  · seniority:          {seniority}"
-        )
+        logger.info(f"  · seniority:          {seniority}")
         logger.info(f"  · resume_score:       {resume_score}")
         logger.info(f"  · experience years:   {exp}")
         if skills:
-            logger.info("  · skills:             " + ", ".join(s["name"] for s in skills))
+            logger.info(
+                "  · skills:             " + ", ".join(s["name"] for s in skills)
+            )
         else:
             logger.info("  · skills:             (none)")
         logger.info(

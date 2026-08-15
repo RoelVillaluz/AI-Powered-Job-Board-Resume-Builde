@@ -37,28 +37,29 @@ MATCH_INSIGHT_PAYLOAD = {
         "skills": [{"name": "Python"}],
         "experienceLevel": "mid",
     },
-    "matches": [{
-        "metadata": {
-            "title": "Software Engineer",
-            "location": "Remote",
-            "salaryMin": 100000,
-            "salaryMax": 150000,
-            "salaryCurrency": "USD",
-            "salaryFrequency": "yearly",
-        },
-        "finalScore": 85.0,
-        "recommendationType": "good_fit",
-        "matchedSkills": ["Python"],
-        "missingSkills": ["Go"],
-        "strengths": ["Solid Python"],
-        "improvements": ["Learn Go"],
-    }],
+    "matches": [
+        {
+            "metadata": {
+                "title": "Software Engineer",
+                "location": "Remote",
+                "salaryMin": 100000,
+                "salaryMax": 150000,
+                "salaryCurrency": "USD",
+                "salaryFrequency": "yearly",
+            },
+            "finalScore": 85.0,
+            "recommendationType": "good_fit",
+            "matchedSkills": ["Python"],
+            "missingSkills": ["Go"],
+            "strengths": ["Solid Python"],
+            "improvements": ["Learn Go"],
+        }
+    ],
     "jobId": "job-test-1",
 }
 
 
 class TestServiceAuth:
-
     def test_generate_match_insight_without_auth(self):
         """
         FAILS because: the /compute/generate_match_insight endpoint has no

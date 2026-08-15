@@ -143,6 +143,69 @@
     gap: 0.75rem;
 }
 
+/* Per-word reveal — freshly streamed words fade + slide in on arrival.
+   Existing words keep their keys so the animation only plays once. */
+.ai-summary-word {
+    display: inline-block;
+    opacity: 0;
+    transform: translateY(0.18em);
+    animation: ai-summary-word-reveal 0.3s ease-out forwards;
+}
+
+@keyframes ai-summary-word-reveal {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Blinking caret shown while the summary is being generated */
+.ai-summary-caret {
+    display: inline-block;
+    width: 2px;
+    height: 1em;
+    margin-left: 2px;
+    vertical-align: text-bottom;
+    background: #7c5cff;
+    border-radius: 1px;
+    animation: ai-summary-caret-blink 0.8s steps(2, start) infinite;
+}
+
+@keyframes ai-summary-caret-blink {
+    to {
+        visibility: hidden;
+    }
+}
+
+/* Subtle "live" glow while streaming */
+.ai-summary-streaming {
+    animation: ai-summary-live-glow 1.6s ease-in-out infinite;
+}
+
+@keyframes ai-summary-live-glow {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(124, 92, 255, 0);
+        border-color: rgba(124, 92, 255, 0.12);
+    }
+    50% {
+        box-shadow: 0 0 14px 1px rgba(124, 92, 255, 0.18);
+        border-color: rgba(124, 92, 255, 0.35);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ai-summary-word {
+        opacity: 1;
+        transform: none;
+        animation: none;
+    }
+
+    .ai-summary-caret,
+    .ai-summary-streaming {
+        animation: none;
+    }
+}
+
 .ai-summary-lede {
     font-weight: 600;
     font-size: 0.95rem;

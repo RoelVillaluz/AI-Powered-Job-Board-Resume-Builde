@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuthStore } from "../../stores/authStore";
 import { useResumeStore } from "../../stores/resumeStore";
@@ -21,12 +21,14 @@ export const useResumeAnalysis = (jobId) => {
     const generateInsight = useGenerateMatchInsightMutation();
     const hasTriggeredInsight = useRef(false);
     const insightInFlight = useRef(false);
+    const [isExplanationStreaming, setIsExplanationStreaming] = useState(false);
     const socketRef = useRef(socket);
     socketRef.current = socket;
 
     useEffect(() => {
         hasTriggeredInsight.current = false;
         insightInFlight.current = false;
+        setIsExplanationStreaming(false);
     }, [resumeId, job?._id]);
 
     useEffect(() => {
@@ -61,22 +63,30 @@ export const useResumeAnalysis = (jobId) => {
             if (data?.jobId?.toString() !== job._id?.toString()) return;
 
             if (data.type === 'delta' && typeof data.full === 'string') {
+                setIsExplanationStreaming(true);
                 applyExplanation(data.full);
             } else if (data.type === 'restart') {
+                setIsExplanationStreaming(true);
                 applyExplanation('');
             } else if (data.type === 'fallback' && typeof data.answer === 'string') {
+                setIsExplanationStreaming(true);
                 applyExplanation(data.answer);
+            } else if (data.type === 'end') {
+                setIsExplanationStreaming(false);
             } else if (data.type === 'error') {
                 insightInFlight.current = false;
+                setIsExplanationStreaming(false);
             }
         };
 
         const handleInsightError = () => {
             insightInFlight.current = false;
+            setIsExplanationStreaming(false);
         };
 
         const handleInsightComplete = ({ data }) => {
             insightInFlight.current = false;
+            setIsExplanationStreaming(false);
             const updatedMatch = data?.matches?.find(
                 (m) => m.jobId?.toString() === job._id?.toString()
             );
@@ -169,6 +179,7 @@ export const useResumeAnalysis = (jobId) => {
         improvements,
         explanation: matchData?.explanation || null,
         isGeneratingExplanation: !matchData?.explanation && (generateInsight.isPending || (!!matchData && hasTriggeredInsight.current)),
+        isExplanationStreaming,
         error: normalizeError(matchError),
     };
 }

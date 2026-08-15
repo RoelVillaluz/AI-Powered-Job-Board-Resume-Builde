@@ -81,11 +81,29 @@ const ResumeList = ({ job }) => {
     )
 }
 
+// Renders text as per-word inline spans so newly streamed words can
+// animate in individually (existing spans keep their keys and don't re-run
+// their animation — only freshly appended words reveal on arrival).
+// Whitespace tokens are rendered as raw text, never wrapped, so spacing is
+// preserved exactly (inline-block spans collapse their surrounding space).
+function StreamingWords({ text }) {
+    const tokens = useMemo(() => text.split(/(\s+)/).filter(Boolean), [text]);
+    return tokens.map((token, index) =>
+        /^\s+$/.test(token)
+            ? token
+            : <span key={`w-${index}`} className="ai-summary-word">{token}</span>
+    );
+}
+
+function AiCaret() {
+    return <span className="ai-summary-caret" aria-hidden="true" />;
+}
+
 // Small helper component — splits off the opening verdict sentence as a
 // lede so the eye has an entry point instead of one dense block. Safe
 // against decimals/dollar figures ("$170,000", "43.36/100") since it only
 // splits on ". " (period + space), not on bare periods.
-function AiSummaryText({ text }) {
+function AiSummaryText({ text, isStreaming }) {
     const splitIndex = text.indexOf('. ');
     const hasLede = splitIndex > -1 && splitIndex < text.length - 2;
 
@@ -93,16 +111,24 @@ function AiSummaryText({ text }) {
     const rest = hasLede ? text.slice(splitIndex + 2) : '';
 
     return (
-        <div className="ai-summary-text">
-            <p className="ai-summary-lede">{lede}</p>
-            {rest && <p className="ai-summary-body">{rest}</p>}
+        <div className={`ai-summary-text${isStreaming ? ' ai-summary-streaming' : ''}`}>
+            <p className="ai-summary-lede">
+                <StreamingWords text={lede} />
+                {!rest && isStreaming && <AiCaret />}
+            </p>
+            {rest && (
+                <p className="ai-summary-body">
+                    <StreamingWords text={rest} />
+                    {isStreaming && <AiCaret />}
+                </p>
+            )}
         </div>
     );
 }
 
 function JobSimilarityAnalysis({ jobId }) {
     const { job, isLoading } = useJobDetails(jobId);
-    const { resumeScore, isComparing, messages, strengths, improvements, explanation, isGeneratingExplanation, error } =
+    const { resumeScore, isComparing, messages, strengths, improvements, explanation, isGeneratingExplanation, isExplanationStreaming, error } =
         useResumeAnalysis(jobId);
 
     return (
@@ -153,7 +179,7 @@ function JobSimilarityAnalysis({ jobId }) {
                         </div>
 
                         {explanation ? (
-                            <AiSummaryText text={explanation} />
+                            <AiSummaryText text={explanation} isStreaming={isExplanationStreaming} />
                         ) : isGeneratingExplanation ? (
                             <div className="ai-summary-loading">
                                 <div className="circle-spinner" aria-label="Generating summary"></div>

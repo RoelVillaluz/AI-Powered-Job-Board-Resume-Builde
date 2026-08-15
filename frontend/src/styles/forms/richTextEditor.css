@@ -129,6 +129,10 @@
     margin: 0.8rem 0 0.4rem;
 }
 
+.job-description__body strong {
+    color: black;
+}
+
 .rich-text-editor__content p,
 .job-description__body p {
     margin: 0.5rem 0;

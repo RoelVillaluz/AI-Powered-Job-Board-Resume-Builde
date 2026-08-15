@@ -162,7 +162,9 @@ export const createJobPosting = async (jobPostingData, idempotencyKey) => {
  * @returns {Promise<Object|null>}
  */
 export const updateJobPosting = async (id, updateData) => {
-    const updatedJob = await JobPostingRepository.updateJob(id, updateData);
+    const sanitizedData = sanitizeJobData(updateData);
+
+    const updatedJob = await JobPostingRepository.updateJob(id, sanitizedData);
     
     // TODO: Invalidate specific cache entries
     // await redis.del(`jobs:${id}`);

@@ -23,7 +23,7 @@ export const runStream = async (
 
     checkAbort();
 
-    for await (const event of aiClientStream(config.aiEndpoint, payload, controller.signal)) {
+    for await (const event of aiClientStream(`${config.aiEndpoint}/stream`, payload, controller.signal)) {
         checkAbort();
         switch (event.type) {
             case 'delta':

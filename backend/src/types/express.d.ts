@@ -12,6 +12,13 @@ declare global {
                 _id:  string;
                 user: string;
             };
+            jobPostingDoc?: {
+                _id:     string;
+                company: {
+                    _id:  string;
+                    user: string;
+                } | null;
+            };
         }
     }
 }

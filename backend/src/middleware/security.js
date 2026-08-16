@@ -29,7 +29,17 @@ export const apiLimiter = rateLimit({
 export const createMessageLimiter = rateLimit({
     windowMs: 1 * 60 * 1000,
     max: 15,
-    message: 'Too many messages, please slow down'
+    message: 'Too many messages, please slow down',
+    keyGenerator: (req) => req.user?.id?.toString() || req.ip,
+})
+
+export const insightLimiter = rateLimit({
+    windowMs: 1 * 60 * 1000,
+    max: 5,
+    message: 'Too many insight requests, please slow down',
+    keyGenerator: (req) => req.user?.id?.toString() || req.ip,
+    standardHeaders: true,
+    legacyHeaders: false,
 })
 
 export const embeddingLimiter = rateLimit({

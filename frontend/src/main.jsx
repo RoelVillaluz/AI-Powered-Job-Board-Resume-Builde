@@ -13,6 +13,7 @@ import './styles/forms/skills.css'
 import './styles/forms/searchableSelect.css'
 import './styles/forms/applicationForm.css'
 import './styles/forms/editor.css'
+import './styles/forms/richTextEditor.css'
 
 import './styles/animations.css'
 import './styles/analysis.css'

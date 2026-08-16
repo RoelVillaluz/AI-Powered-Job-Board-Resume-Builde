@@ -2,8 +2,11 @@ import express from "express"
 import { validate } from "../../middleware/validation.js"
 import { createJobPostingRequestSchema, createJobPostingSchema } from "../../validators/jobPostingValidators.js"
 import { getJobPostings, getJobPosting, createJobPosting, updateJobPosting, deleteJobPosting } from "../../controllers/jobPostings/jobPostingController.js"
+import { getJobCandidates } from "../../controllers/jobPostings/jobPostingCandidatesController.js"
 import { authenticate } from "../../middleware/authentication/authenticate.js"
 import { requireRole } from "../../middleware/authorization/roleAuthorization.js"
+import { checkIfJobPostingExistsById } from "../../middleware/resourceCheck/jobPosting.js"
+import { enforceJobPostingOwnership } from "../../middleware/authorization/jobPostingAuthorization.js"
 
 const router = express.Router()
 
@@ -26,6 +29,14 @@ router.patch('/:id',
 router.delete('/:id', 
     authenticate,
     deleteJobPosting
+)
+
+router.get('/:jobId/candidates',
+    authenticate,
+    requireRole('employer'),
+    checkIfJobPostingExistsById,
+    enforceJobPostingOwnership,
+    getJobCandidates
 )
 
 export default router

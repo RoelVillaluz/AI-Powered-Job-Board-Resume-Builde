@@ -10,6 +10,7 @@ type JobFormContextValue = {
   ) => void;
   handleSelect: (field: "title" | "location", option: SelectOption) => void;
   handleClearSelection: (field: "title" | "location") => void;
+  handleFreeTextInput: (field: "title" | "location", value: string) => void;
   handleKeyDown: (e: React.KeyboardEvent) => void;
   /**
    * The set of field names the user has interacted with.

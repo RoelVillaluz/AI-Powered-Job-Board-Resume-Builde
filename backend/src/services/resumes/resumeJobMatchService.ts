@@ -6,7 +6,9 @@ import { executeComputePipelineV2 } from "../../infrastructure/jobs/core/execute
 import {
     getMatchResultRepo,
     getSingleJobMatchRepo,
+    getTopMatchRepo,
 } from "../../repositories/resumes/resumeJobMatchRepository.js";
+import { findJobById } from "../../repositories/jobPostings/jobPostingRepositories.js";
 
 import {
     matchingRequestsTotal,
@@ -57,6 +59,33 @@ export const getSingleJobMatchService = async (
     }
 
     return match;
+};
+
+/**
+ * Returns the top-ranked match merged with its full JobPosting data.
+ * The match is the first entry (highest finalScore) from the ranked
+ * match list, combined with the populated job document so the client
+ * doesn't need two round-trips + manual merge.
+ *
+ * Returns null if no matches exist yet or the job posting was deleted.
+ */
+export const getTopJobService = async (
+    resumeId: string | Types.ObjectId,
+) => {
+    const match = await getTopMatchRepo(resumeId);
+    if (!match) return null;
+
+    const job = await findJobById(match.jobId.toString());
+    if (!job) return null;
+
+    return {
+        ...job,
+        similarity:        Math.round((match.vectorSimilarity ?? 0) * 100),
+        matchedSkills:     match.matchedSkills ?? [],
+        missingSkills:     match.missingSkills ?? [],
+        finalScore:        match.finalScore,
+        recommendationType: match.recommendationType,
+    };
 };
 
 /**

@@ -12,15 +12,20 @@ export const GenericEditorForm = ({ logo, job }: { logo?: string, job: JobPostin
   return (
     <form className="editor-form" onSubmit={handleFormSubmit}>
         <div className="editor-form__header">
-            <img src={`/${logo}`} className="header-logo" />
-            <div className="row">
+            {logo && (
+                <img src={`/${logo}`} className="header-logo" />
+            )}
+            <div>
+
                 <div>
-                    <h1>{formData.title?.name ?? ""}</h1>
+                    <div className="row">
+                        <h1>{formData.title?.name ?? ""}</h1>
+                            <Link to={`/job-postings/${job?._id}`}>
+                            <i className="fa fa-angle-right" aria-label="Go to job posting" aria-hidden="true"></i>
+                        </Link>
+                    </div>
                     <h2>Editing Job Posting</h2>
                 </div>
-                <Link to={`/job-postings/${job?._id}`}>
-                    <i className="fa fa-angle-right" aria-label="Go to job posting" aria-hidden="true"></i>
-                </Link>
                 
             </div>
         </div>

@@ -3,14 +3,17 @@
 ## What This Is
 
 A 3-stage intelligent matching system built on top of the existing embedding pipeline.
-Replaces binary keyword overlap with semantic vector search, structured scoring, and LLM reranking.
+Replaces binary keyword overlap with semantic vector search and structured hybrid
+scoring. An LLM **reranking** stage was evaluated and explicitly deferred (see Key
+Design Decisions); the Gemini layer in `ai-service/gemini/` is a separate
+**explanation** system that describes an already-final ranking — it does not reorder.
 
 ```
 Stage 1 — Retrieval      Stage 2 — Scoring         Stage 3 — Reranking
 ─────────────────────    ──────────────────────     ────────────────────────
-Pinecone vector search   Hybrid formula (0–100)     LLM explains + reorders
-topK=20 candidates   →   skill, exp, seniority  →   Best Fit / Good Fit /
-threshold + fallback     semantic, location          Stretch classification
+Pinecone vector search   Hybrid formula (0–100)     Evaluated, deferred —
+topK=20 candidates   →   skill, exp, seniority  →   see Key Design Decisions.
+threshold + fallback     semantic, location          NOT built; not currently planned
 ```
 
 ---
@@ -22,14 +25,14 @@ threshold + fallback     semantic, location          Stretch classification
 | 1 | Pinecone setup — index, SDK, config, bootstrap | ✅ Done |
 | 2 | Vector infrastructure — composer, upsert, query, threshold, fallback | ✅ Done |
 | 3 | Pipeline wiring — afterSave hooks, backfill script | ✅ Done |
-| 4 | Hybrid scoring layer | 🔲 Next |
-| 5 | Matching controller + route | 🔲 Pending |
-| 6 | LLM reranker | 🔲 Pending |
-| 7 | Cron gap-fill job + ops | 🔲 Pending |
+| 4 | Hybrid scoring layer | ✅ Done |
+| 5 | Matching controller + route | ✅ Done |
+| 6 | LLM reranker | 🟡 Evaluated, deferred |
+| 7 | Cron gap-fill job + ops (reconciliation) | ✅ Done |
 
 **Pinecone index:** `resume-job-matching`
-**Vectors in index:** 3 resumes · 0 jobs (job embedding pipeline not yet triggered for existing postings)
-**Free tier usage:** 1 RU · 11 WU of 1M/2M
+**Vectors in index:** 20 total — 13 resumes · 7 jobs (from `describeIndexStats`, checked Aug 2026; 13 vs. 10 resumes in MongoDB means 3 stale vectors are awaiting the delete-sync backlog item below)
+**Free tier usage:** negligible at this scale — exact RU/WU read from the Pinecone console (the "1 RU · 11 WU" figure in earlier revisions was a stale snapshot)
 
 ---
 
@@ -54,9 +57,13 @@ Pinecone (namespace: resumes | jobs)
   ▼
 queryJobsForResume() → topK=20 matches
   │
-  ├── [Phase 4] hybridScorer.ts → 0–100 score per match
+  ├── [Phase 4, done] ai-service/services/job_matching_service.py
+  │   → 0–100 score per match (weighted components + penalties)
   │
-  └── [Phase 6] LLM reranker → explanation + classification
+  └── [done] match insight — ai-service/gemini/
+      → prose explanation of the ALREADY-FINAL ranking
+      → explains only — it never reorders the ranking
+      · LLM reranking (Phase 6) evaluated, deferred — see Key Design Decisions
 ```
 
 ---
@@ -118,8 +125,8 @@ All vectors are 768-dimensional (all-mpnet-base-v2 output).
 | Field | Source | Used for |
 |-------|--------|----------|
 | `userId` | resume.user | Scoping queries to a user |
-| `jobTitle` | resume.jobTitle.name | LLM reranker context |
-| `location` | resume.location.name | Reranker context (not hard-filtered) |
+| `jobTitle` | resume.jobTitle.name | Display / retrieval context |
+| `location` | resume.location.name | Not hard-filtered — semantic proximity handled by composite vector |
 | `skills` | resume.skills[].name | Skill overlap scoring |
 | `strongSkills` | skills where level = Advanced/Expert | Strong match detection |
 | `previousJobTitles` | workExperience[].jobTitle | Career trajectory context |
@@ -131,8 +138,8 @@ All vectors are 768-dimensional (all-mpnet-base-v2 output).
 ### jobs namespace
 | Field | Source | Used for |
 |-------|--------|----------|
-| `title` | job.title.name | Display + reranker |
-| `location` | job.location.name | Reranker context |
+| `title` | job.title.name | Display / retrieval context |
+| `location` | job.location.name | Not hard-filtered — semantic proximity handled by composite vector |
 | `skills` | job.skills[].name | Full skill overlap |
 | `requiredSkills` | skills where requirementLevel = Required | Critical skill penalty |
 | `experienceLevel` | job.experienceLevel | Pre-filter (±1 adjacent level) |
@@ -165,7 +172,7 @@ If Pinecone throws at any point:
 **Backfill script always bypasses threshold** — it calls upsert functions directly.
 
 Free tier limits: 1M RUs · 2M WUs · 2GB storage.
-At current scale (3 resumes, 7 jobs): negligible usage.
+At current scale (10 resumes, 7 jobs; 20 vectors in Pinecone): negligible usage.
 At 500 jobs × daily re-embedding: ~1,500 WUs/day — well within free tier.
 
 ---
@@ -192,7 +199,10 @@ The script:
 
 ---
 
-## Hybrid Scoring Formula (Phase 4 — not yet implemented)
+## Hybrid Scoring Formula (Phase 4 — implemented)
+
+Implemented in `ai-service/services/job_matching_service.py` (called via `/compute/score_matches`
+after Pinecone retrieval or MongoDB fallback).
 
 ```
 score = (
@@ -205,17 +215,33 @@ score = (
 ) × penalty_multiplier
 
 Penalties (multiplicative):
-  experience gap > 3yr  → × 0.85
-  experience gap > 5yr  → × 0.70
-  seniority mismatch    → × 0.80
-  missing required skill → −15pts flat (applied before multiply)
+  experience gap > 3yr        → × 0.85
+  experience gap > 5yr        → × 0.70
+  seniority gap ≥ 2 levels    → × 0.80
+  domain mismatch             → × 0.35   (near-zero skill overlap on a role that lists skills)
+  missing required skill      → −15pts flat (applied before multiply)
 
 Score tiers:
-  80–100 → Strong Fit
+  80–100 → Best Fit
   60–79  → Good Fit
-  40–59  → Weak Fit
+  40–59  → Stretch
   0–39   → Poor Fit
 ```
+
+---
+
+## Match Insights (Gemini) — Explanation, Not Reranking
+
+Built and live in `ai-service/gemini/`. Given the **already-final** ranked match list, it
+generates a prose explanation of fit (verdict, strengths, gaps, suggested next step) for one
+resume-job pair.
+
+- It consumes the ranking produced by the hybrid scorer — it never reorders it.
+- It must not be conflated with a reranker: it adds explanation, not ordering decisions.
+- Generation is enqueued via the `resume-match-insight` BullMQ queue and its payload is built
+  from MongoDB (resume skills + experience level + the single match), not from Pinecone metadata.
+- Full pipeline documentation, prompt-injection defense, and the **OWASP LLM Top 10 (2025)
+  coverage table** live in [`ai-service/gemini/README.md`](../../../../ai-service/gemini/README.md).
 
 ---
 
@@ -223,15 +249,11 @@ Score tiers:
 
 | Priority | Item |
 |----------|------|
-| 🔴 High | Trigger job embedding pipeline for existing 7 job postings so job vectors exist |
-| 🔴 High | Implement hybrid scoring layer (Phase 4) |
-| 🔴 High | Build matching controller + GET /api/resumes/:id/matches route (Phase 5) |
-| 🟡 Medium | BullMQ repeat job for automated gap-fill (runs every 6hrs) |
-| 🟡 Medium | Delete sync — remove Pinecone vectors when Resume/JobPosting is deleted |
-| 🟡 Medium | LLM reranker layer (Phase 6) |
+| 🔴 High | Delete sync — remove Pinecone vectors when Resume/JobPosting is deleted (3 stale resume vectors observed Aug 2026: 13 in Pinecone vs. 10 in MongoDB) |
+| 🟡 Medium | Automated gap-fill reconciliation — now running via `src/infrastructure/reconciliation/cron/reconciliationCron.ts` (batch size 500, schedule in `.env.dev`); keep an eye on repair counts |
 | 🟢 Low | Lazy vector existence check in matching controller as edge case safety net |
 | 🟢 Low | Alert when Pinecone RU usage hits 80% of free tier |
-| 🟢 Low | Lower threshold from 500 once matching controller is validated in production |
+| 🟢 Low | Revisit LLM reranking (Phase 6) once dataset scales and an eval set exists — see Key Design Decisions |
 
 ---
 
@@ -251,3 +273,14 @@ Vector search costs Read Units per query. On small datasets (<500 jobs), a Mongo
 
 **Why backfill bypasses the threshold**
 The backfill's purpose is to populate Pinecone regardless of current job count. Respecting the threshold would defeat the entire point.
+
+**Why we deferred LLM reranking (Phase 6)**
+An LLM reranking stage was evaluated and explicitly deferred. The cost is real — every rerank
+burns Gemini tokens per candidate, and the match-insight feature already consumes one generation
+per explained match. The value at current dataset scale (10 resumes, 7 jobs — 20 vectors) is low:
+with so few candidates, formula-based top-K ordering is rarely ambiguous, so a model re-order
+almost never changes the outcome the user sees. Honest caveat: revisiting this requires an eval
+set that can measure whether reranking improves precision/recall, and that set does not exist yet.
+The deferral is a measured cost trade-off — not a claim that reranking would never help. It must
+also stay separate from the Gemini explanation layer (see Match Insights above): one explains, the
+other would reorder, and conflating them would hide ranking decisions inside prose.

@@ -1,6 +1,7 @@
 import bcrypt from 'bcrypt';
 import { registry } from '../registry';
 import { generateVerificationCode } from '../../../helpers/userHelpers.js';
+import { richMatchEntry } from './entries';
 
 /**
  * Entity factory definitions for the core Ingpo AI collections.
@@ -12,6 +13,7 @@ import { generateVerificationCode } from '../../../helpers/userHelpers.js';
  *
  * @see tests/factories/seeders.js for compound entity creation
  * @see tests/factories/definitions/refs.definition.js for embedded ref factories
+ * @see tests/factories/definitions/entries.js for subdocument-array-entry builders
  */
 
 // ─── TempUser ─────────────────────────────────────────────────────────────────
@@ -263,6 +265,65 @@ registry.define('resumeEmbedding', {
     }),
 });
 
+// ─── ResumeJobMatch ───────────────────────────────────────────────────────────
+
+/**
+ * Produces a ResumeJobMatch document.
+ *
+ * ⚠️  `resume` is not set by default — always inject via .with({ resume: resumeId })
+ *
+ * Matches array is empty by default. Use the `withRichMatches` trait to seed a
+ * full-featured match array (components, career fit, metadata, etc.) built from
+ * {@link richMatchEntry}, and the `withCachedExplanation` trait to produce a
+ * match with a pre-existing AI-generated explanation for idempotency/caching
+ * tests.
+ *
+ * @factory resumeJobMatch
+ * @traits withCachedExplanation | stale | withRichMatches
+ *
+ * @example
+ * const resume = (await seedJobseekerWithResume(app, User, Resume)).resume;
+ * await Factory('resumeJobMatch')
+ *   .with({ resume: resume._id })
+ *   .for(ResumeJobMatch)
+ *   .create();
+ */
+registry.define('resumeJobMatch', {
+  defaults: (r) => ({
+    matches: [],
+    totalMatches: 0,
+    usedPinecone: false,
+    rankedAt: new Date(),
+  }),
+  traits: {
+    /** Pre-seeds one match with explanation + explanationGeneratedAt set after
+     *  rankedAt, so the insight endpoint returns the cached explanation instead
+     *  of enqueuing a new Gemini job. Override match fields (jobId, explanation
+     *  text, etc.) via .with() at the call site. */
+    withCachedExplanation: () => ({
+      matches: [{
+        explanation: 'This is a good fit.',
+        explanationGeneratedAt: new Date(),
+      }],
+      totalMatches: 1,
+      rankedAt: new Date(Date.now() - 60000),
+    }),
+    /** rankedAt beyond the 1-day TTL — triggers stale-match regeneration */
+    stale: () => ({
+      rankedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+    }),
+    /** Seeds a single full-featured match entry via {@link richMatchEntry}.
+     *  Override match fields (jobId, finalScore, components, etc.) via .with()
+     *  at the call site, or replace the whole matches array. */
+    withRichMatches: () => ({
+      matches: [richMatchEntry()],
+      totalMatches: 1,
+      usedPinecone: true,
+      rankedAt: new Date(),
+    }),
+  },
+});
+
 /**
  * Produces a ResumeScore document.
  *
@@ -276,7 +337,7 @@ registry.define('resumeEmbedding', {
  *   C  (65-74)  | D (50-64) | F  (0-49)
  *
  * @factory resumeScore
- * @traits passing | failing | perfect | gradeA | gradeB | gradeC
+ * @traits failing | average | passing | excellent | perfect | fresh | stale | withSalary
  *
  * @example
  * await Factory('resumeScore').with({ resume: resume._id }).for(ResumeScore).create();

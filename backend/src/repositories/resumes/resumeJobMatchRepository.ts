@@ -13,6 +13,22 @@ export const getMatchResultRepo = async (
 };
 
 /**
+ * Fetch the top-ranked match for a resume (matches[0]).
+ * Matches are sorted by finalScore desc in JobMatchingService
+ * (ai-service/services/job_matching_service.py:64), so the first
+ * entry is always the best fit. Returns null if no matches exist.
+ */
+export const getTopMatchRepo = async (
+    resumeId: string | Types.ObjectId,
+) => {
+    const result = await ResumeJobMatch.findOne(
+        { resume: resumeId },
+        { matches: { $slice: 1 } }
+    ).lean();
+    return result?.matches?.[0] ?? null;
+};
+
+/**
  * Upsert match results for a resume.
  * Called by the matching pipeline after HybridScoringService returns ranked matches.
  * Replaces the entire matches array — always a fresh ranked list.
@@ -67,4 +83,36 @@ export const getSingleJobMatchRepo = async (
     ).lean();
 
     return result?.matches?.[0] ?? null;
+};
+
+/**
+ * Fetch a single match entry with its parent's rankedAt timestamp.
+ * Used by the insight freshness check to decide whether a cached
+ * explanation is still valid.
+ */
+export const getSingleMatchWithRankedAtRepo = async (
+    resumeId: string | Types.ObjectId,
+    jobId:    string | Types.ObjectId,
+) => {
+    return ResumeJobMatch.findOne(
+        { resume: resumeId, "matches.jobId": jobId },
+        { "matches.$": 1, rankedAt: 1 }
+    ).lean();
+};
+
+export const setMatchExplanationRepo = async (
+    resumeId: string | Types.ObjectId,
+    jobId: string | Types.ObjectId,
+    explanation: string,
+) => {
+    return ResumeJobMatch.findOneAndUpdate(
+        { resume: resumeId, "matches.jobId": jobId },
+        {
+            $set: {
+                "matches.$.explanation": explanation,
+                "matches.$.explanationGeneratedAt": new Date(),
+            },
+        },
+        { new: true },
+    ).lean();
 };

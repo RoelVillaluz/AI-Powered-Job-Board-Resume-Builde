@@ -31,8 +31,16 @@ PENALTY_EXP_GAP_LARGE = 0.70
 PENALTY_EXP_GAP_MEDIUM = 0.85
 PENALTY_SENIORITY = 0.80
 PENALTY_MISSING_REQUIRED_SKILL = 15.0
+PENALTY_DOMAIN_MISMATCH = (
+    0.35  # near-zero skill overlap on a skilled role — different field entirely
+)
 
 SENIORITY_LADDER = ["Intern", "Entry", "Mid-Level", "Senior"]
+SENIORITY_LADDER_NORMALIZED = [level.lower() for level in SENIORITY_LADDER]
+
+DOMAIN_MISMATCH_SKILL_THRESHOLD = (
+    15.0  # below this, treat as wrong-field, not just "weak fit"
+)
 
 
 class JobMatchingService:
@@ -99,6 +107,17 @@ class JobMatchingService:
 
         penalty = 1.0
         penalty_log = []
+
+        # Domain mismatch: near-zero skill overlap on a role that actually
+        # lists skills is a much stronger signal than "weak fit" — it usually
+        # means an entirely unrelated field (e.g. tech resume vs. Physician
+        # posting), and the weighted average alone doesn't punish that enough
+        # since skill_match is only 40% of the base score.
+        if metadata.get("skills") and skill_match < DOMAIN_MISMATCH_SKILL_THRESHOLD:
+            penalty *= PENALTY_DOMAIN_MISMATCH
+            penalty_log.append(
+                f"domain_mismatch skill_match={skill_match:.1f} → ×{PENALTY_DOMAIN_MISMATCH}"
+            )
 
         exp_gap = abs(candidate_years - metadata.get("yearsOfExperience", 0))
         if exp_gap > 5:
@@ -291,14 +310,23 @@ class JobMatchingService:
 
     @staticmethod
     def _seniority_gap(resume: dict, metadata: dict) -> int:
-        resume_level = (resume.get("experienceLevel") or "").strip()
-        job_level = (metadata.get("experienceLevel") or "").strip()
+        resume_level = (resume.get("experienceLevel") or "").strip().lower()
+        job_level = (metadata.get("experienceLevel") or "").strip().lower()
         try:
             return abs(
-                SENIORITY_LADDER.index(resume_level) - SENIORITY_LADDER.index(job_level)
+                SENIORITY_LADDER_NORMALIZED.index(resume_level)
+                - SENIORITY_LADDER_NORMALIZED.index(job_level)
             )
         except ValueError:
-            return 0
+            logger.warning(
+                f"[JobMatching] Unrecognized experience level — "
+                f"resume={resume_level!r} job={job_level!r}. "
+                f"Treating as max gap rather than assuming a perfect match."
+            )
+            # An unparseable level is NOT evidence of a match — assuming gap=0
+            # here previously let a completely unverified pairing score as if
+            # it were perfectly aligned. Worst-case gap is the safer default.
+            return len(SENIORITY_LADDER) - 1
 
     @staticmethod
     def _insights(

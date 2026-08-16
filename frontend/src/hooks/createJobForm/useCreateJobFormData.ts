@@ -80,6 +80,13 @@ export const useCreateJobFormData = () => {
     }));
   };
 
+  const handleFreeTextInput = (field: "title" | "location", value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: { _id: "", name: value },
+    }));
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") e.preventDefault();
   };
@@ -91,6 +98,7 @@ export const useCreateJobFormData = () => {
     handleKeyDown,
     handleSelect,
     handleClearSelection,
+    handleFreeTextInput,
     touched,
     setTouched,
     clearDraft,

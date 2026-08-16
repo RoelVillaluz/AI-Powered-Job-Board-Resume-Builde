@@ -86,19 +86,19 @@
     flex-direction: column-reverse;
 }
 
-.editor-form__header .column .row {
+.editor-form__header .row {
     display: flex;
     align-items: center;
     gap: 0.25rem;
 }
 
-.editor-form__header .column .row i {
+.editor-form__header .row i {
     color: gray;
     cursor: pointer;
     transition: 0.2s ease-in-out;
 }
 
-.editor-form__header .column .row i:hover {
+.editor-form__header .row i:hover {
     transform: translateX(5px);
 }
 

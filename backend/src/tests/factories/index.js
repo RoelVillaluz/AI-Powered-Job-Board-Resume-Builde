@@ -22,7 +22,9 @@
 // ─── Load definitions (side-effect imports — order matters) ───────────────────
 // refs must load before entity definitions since entities call registry.build('skillRef') etc.
 import './definitions/refs.definitions'
+// entity definitions must load for their registry.define() side effects
 import './definitions/index'
+export { richMatchEntry } from './definitions/entries';
 
 // ─── Public API ───────────────────────────────────────────────────────────────
 export { Factory }  from './builders';

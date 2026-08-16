@@ -5,7 +5,7 @@ import {
     RESUME_EMBEDDING_TTL_DAYS,
     CURRENT_EMBEDDING_MODEL,
 } from "../../infrastructure/reconciliation/constants/reconciliationConstants.js";
-import Resume from "src/models/resumes/resumeModel.js";
+import Resume from "../../models/resumes/resumeModel.js";
 
 export const getAllResumeEmbeddingsRepo = async () => {
     return await ResumeEmbedding.find()

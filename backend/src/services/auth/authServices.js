@@ -70,11 +70,7 @@ export const loginUser = async (email, password) => {
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) throw new UnauthorizedError('Invalid email or password');
 
-    const token = jwt.sign(
-        { id: user._id, email: user.email, role: user.role },
-        process.env.JWT_SECRET,
-        { expiresIn: '24h' }
-    );
+    const token = signToken(user);
 
     const { password: _, ...userWithoutPassword } = user;
 
@@ -132,4 +128,23 @@ export const verifyUser = async ({ email, verificationType, tempUser }) => {
     }
 
     throw new BadRequestError('Invalid verification type');
+};
+
+/**
+ * Signs a JWT for a user. Single source of truth for token payload shape —
+ * both login and any place that needs to re-issue a token (e.g. after
+ * onboarding changes the user's role) must use this, not duplicate the
+ * signing logic inline. Payload drift between two signing call sites is
+ * exactly how the onboarding stale-token bug happened in the first place.
+ */
+export const signToken = (user) => {
+    return jwt.sign(
+        {
+            id: user._id,
+            email: user.email,
+            role: user.role,
+        },
+        process.env.JWT_SECRET,
+        { expiresIn: '24h' }
+    );
 };

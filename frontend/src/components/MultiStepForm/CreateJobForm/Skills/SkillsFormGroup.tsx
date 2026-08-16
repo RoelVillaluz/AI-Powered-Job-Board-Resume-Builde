@@ -69,7 +69,12 @@ export const SkillsFormGroup = () => {
 
     /** Step 3: commit skillToAdd into formData.skills, then reset local state. */
     const addSkill = () => {
-        const name = skillToAdd.name || skillsSearch;
+        // A dropdown selection is only kept when the input still matches it.
+        // Anything else — a never-selected typed name or an edited selection —
+        // is a free-text skill and is saved with no _id.
+        const trimmedSearch = skillsSearch.trim();
+        const isSelected = !!skillToAdd._id && skillToAdd.name === trimmedSearch;
+        const name = isSelected ? skillToAdd.name : trimmedSearch;
 
         if (!name.trim()) return;
 
@@ -78,7 +83,7 @@ export const SkillsFormGroup = () => {
             skills: [
             ...prev.skills,
             {
-                _id: skillToAdd._id || "", // empty if custom
+                _id: isSelected ? skillToAdd._id : "", // empty if custom
                 name,
                 requirementLevel: skillToAdd.requirementLevel
             }
@@ -142,7 +147,7 @@ export const SkillsFormGroup = () => {
                         disabled={!skillsSearch.trim()}
                         aria-label="Add skill"
                     >
-                    <i className="fa fa-plus" aria-hidden="true" />
+                    <i className="fa-solid fa-plus" aria-hidden="true" />
                     </button>
                 </div>
 

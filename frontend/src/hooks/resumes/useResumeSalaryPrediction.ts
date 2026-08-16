@@ -62,7 +62,10 @@ export const useResumeSalaryPrediction = () => {
             console.error("[useResumeSalaryPrediction] Generation failed:", err);
             setIsGenerating(false);
             setStatusMessage(null);
-            hasTriggeredRef.current = false; // allow retry
+            // Do NOT reset hasTriggeredRef here — a failed generation should not
+            // auto-retry. Let it retry naturally on next resumeId change (existing
+            // reset effect already handles that), or add an explicit "Retry" action
+            // if you want the user to be able to force it.
         });
 
     }, [resumeId, token, isFetched, scoreFetched, scoreData, queryData, isGenerating]);

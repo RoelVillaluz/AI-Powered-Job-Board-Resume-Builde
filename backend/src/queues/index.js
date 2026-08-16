@@ -49,6 +49,11 @@ export const matchingQueue = new Queue("resume-job-matching", {
     connection: redisConnection
 })
 
+export const matchInsightQueue = new Queue("resume-match-insight", {
+    connection: redisConnection
+})
+
+
 /**
  * DLQs
  */
@@ -86,6 +91,7 @@ export const allQueues = [
   resumeScoringQueue,
   salaryPredictionQueue,
   matchingQueue,
+  matchInsightQueue,
 
   skillEmbeddingDLQ,
   jobTitleEmbeddingDLQ,

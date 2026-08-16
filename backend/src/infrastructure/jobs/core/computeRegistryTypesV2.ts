@@ -1,4 +1,5 @@
 import { Types } from "mongoose";
+import { Job } from "bullmq";
 import { QueueJob } from "../../../types/queues.types.js";
 
 // ─────────────────────────────────────────────
@@ -34,6 +35,12 @@ export interface ComputeConfigV2<T, TAIResult = any> {
 
     aiEndpoint: string;
 
+    // Streaming support — when set, the pipeline streams the AI response via
+    // aiClientStream instead of a single aiClient call, forwarding each chunk
+    // as `streamEvent` socket events and checking `shouldAbort` between chunks.
+    stream?: boolean;
+    streamEvent?: string; // socket event emitted per stream chunk
+
     // Optional — scoring and non-embedding entities set this to true
     // to bypass the embedding validity check in executeComputePipelineV2
     skipEmbeddingCheck?: boolean;
@@ -61,6 +68,14 @@ export interface ComputeConfigV2<T, TAIResult = any> {
         emitSocket: (event: string, data: any) => void,
         ctx:        { userId: string | null; startTime: number },
     ) => Promise<void>;
+
+    // Optional — runs once a job has exhausted all retry attempts and will
+    // not be retried again. Used for cleaning up per-request side state that
+    // fetcher() reads (e.g. a Redis pending-entry keyed by resumeId) — safe
+    // to delete only once no further attempt will try to read it. Registries
+    // that don't set per-request side state (most of them) can omit this.
+    onFinalFailure?: (job: Job) => Promise<void>;
+
 }
 
 export type EmitFn = (

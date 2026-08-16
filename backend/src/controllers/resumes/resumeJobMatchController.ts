@@ -19,6 +19,38 @@ export const getResumeJobMatchController = catchAsync(async (req: Request, res: 
     }, "Resume Job Matches");
 })
 
+export const getSingleResumeJobMatchController = catchAsync(async (req: Request, res: Response) => {
+    const { resumeId, jobId } = req.params as { resumeId: string; jobId: string };
+
+    const result = await ResumeJobMatchService.getSingleJobMatchService(resumeId, jobId);
+
+    if (!result) {
+        sendResponse(res, { ...STATUS_MESSAGES.ERROR.NOT_FOUND }, "Resume Job Match");
+        return;
+    }
+
+    (sendResponse as any)(res, {
+        ...STATUS_MESSAGES.SUCCESS.FETCH,
+        data: result,
+    }, "Resume Job Match");
+})
+
+export const getTopJobController = catchAsync(async (req: Request, res: Response) => {
+    const { resumeId } = req.params as { resumeId: string };
+
+    const result = await ResumeJobMatchService.getTopJobService(resumeId);
+
+    if (!result) {
+        sendResponse(res, { ...STATUS_MESSAGES.ERROR.NOT_FOUND }, "Top Job Match");
+        return;
+    }
+
+    (sendResponse as any)(res, {
+        ...STATUS_MESSAGES.SUCCESS.FETCH,
+        data: result,
+    }, "Top Job Match");
+})
+
 export const generateResumeJobMatchController = catchAsync(async (req: Request, res: Response) => {
     const { resumeId } = req.params as { resumeId: string };
     const userId = req.user?.id?.toString();

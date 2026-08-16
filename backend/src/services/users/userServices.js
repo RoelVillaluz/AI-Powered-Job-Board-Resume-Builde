@@ -6,6 +6,7 @@ import { transformProfilePictureUrl } from "../transformers/urlTransformers.js"
 import User from "../../models/UserModel.js"
 import { NotFoundError } from "../../middleware/errorHandler.js"
 import { enqueueResumeEmbeddingServiceV2 } from "../resumes/resumeEmbeddingServiceV2.js"
+import { sanitizeCompanyData } from "../../utils/sanitizationUtilts"
 
 /**
  * Fetches connection recommendations for a given user and transforms their profile pictures.
@@ -61,7 +62,7 @@ export const completeUserOnboardingService = async ({ userId, userRole, onboardi
         if (userRole === 'employer') {
             const newCompany = await createCompany({
                 user: user._id,
-                ...onboardingData
+                ...sanitizeCompanyData(onboardingData)
             }, { session });
             user.company = newCompany._id;
         }

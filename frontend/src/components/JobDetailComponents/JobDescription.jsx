@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types';
 import { useJobDetails } from '../../hooks/jobs/useJobDetails';
+import { RichText } from '../FormComponents/RichText';
 
 const DescriptionSkeleton = () => {
     return (
@@ -57,7 +58,7 @@ function JobDescription({ jobId, previewData }) {
             <div>
                 <h3>Description</h3>
                 {hasDescription ? (
-                    <p>{job.description}</p>
+                    <RichText content={job.description} className="job-description__body" />
                 ) : (
                     <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Perspiciatis facere laborum, impedit iusto fugit porro sequi sint vitae odio ut neque qui, esse mollitia. Corporis cumque veniam enim aliquid adipisci!</p>
                 )}
@@ -65,7 +66,7 @@ function JobDescription({ jobId, previewData }) {
 
             <div>
                 <h3>Requirements</h3>
-                <p>{job.requirements.description}</p>
+                <RichText content={job.requirements?.description} className="job-description__body" />
             </div>
 
         </section>

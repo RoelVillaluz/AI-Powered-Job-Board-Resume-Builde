@@ -17,11 +17,12 @@ Caller contract:
 """
 
 import json
-import torch
-from typing import Optional, cast
 import logging
+from typing import Optional, cast
+import torch
 from models.embeddings import embedding_model
 from utils.tensor_utils import stack_embeddings, safe_mean_embedding
+from utils.sanitization_utils import strip_html
 
 logger = logging.getLogger(__name__)
 
@@ -332,9 +333,8 @@ def extract_requirement_embeddings(requirements) -> Optional[torch.Tensor]:
         Mean requirements embedding or None.
     """
     if isinstance(requirements, dict):
-        extracted = (
-            [requirements["description"]] if requirements.get("description") else []
-        )
+        description = requirements.get("description")
+        extracted = [strip_html(description)] if description else []
 
         if isinstance(requirements.get("education"), str):
             extracted.append(requirements["education"])

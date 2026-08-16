@@ -56,16 +56,34 @@ export const fetchJobPosting = async (id) => {
     return data.data;
 };
 
+export const fetchTopJob = async (resumeId, token) => {
+    const { data } = await axios.get(
+        `${BASE_API_URL}/resumes/${resumeId}/top-job`,
+        { headers: { Authorization: `Bearer ${token}` } }
+    );
+    return data.data;
+};
+
+export const generateJobMatches = async (resumeId, token) => {
+    const { data } = await axios.post(
+        `${BASE_API_URL}/resumes/${resumeId}/job-matches`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+    );
+    return data.data; // { jobId, statusUrl }
+};
 
 /**
- * Fetches job recommendations for a specific user based on their profile.
+ * Fetches job recommendations for a specific resume based on their profile.
  *
- * @param {string} userId - The ID of the user for whom to fetch job recommendations.
+ * @param {string} resumeId - The ID of the resume for whom to fetch job recommendations.
  * @returns {Promise<Array>} A promise that resolves to an array of recommended job postings.
  */
-export const fetchJobRecommendations = async (userId) => {
+export const fetchJobRecommendations = async (resumeId, token) => {
     const { data } = await axios.get(
-      `${BASE_API_URL}/ai/job-recommendations/${userId}`
+      `${BASE_API_URL}/resumes/${resumeId}/job-matches`, {
+        headers: { Authorization: `Bearer ${token}` }
+      }
     )
     return data.data
 }
@@ -76,6 +94,14 @@ export const fetchJobRecommendations = async (userId) => {
  * @param {string} userId - The ID of the user whose interacted jobs to fetch.
  * @returns {Promise<Array>} A promise that resolves to an array of interacted job postings.
  */
+export const fetchJobCandidates = async (jobId, token) => {
+    const { data } = await axios.get(
+        `${BASE_API_URL}/job-postings/${jobId}/candidates`,
+        { headers: { Authorization: `Bearer ${token}` } }
+    );
+    return data.data;
+};
+
 export const fetchInteractedJobs = async (userId) => {
     const { data } = await axios.get(
       `${BASE_API_URL}/users/${userId}/interacted-jobs`

@@ -103,6 +103,32 @@ matching_score_tiers_total = Counter(
     labelnames=["tier"],  # Best Fit | Good Fit | Stretch | Poor Fit
 )
 
+# ── Gemini (match insight) ────────────────────────────────────────────────────
+
+gemini_request_duration_seconds = Histogram(
+    name="aiservice_gemini_request_duration_seconds",
+    documentation="Gemini generation call duration",
+    labelnames=["model", "endpoint"],  # model: gemini-2.5-flash | gemini-2.5-flash-lite
+    buckets=[0.1, 0.25, 0.5, 1, 2, 5, 10, 15],
+)
+
+gemini_tokens_total = Counter(
+    name="aiservice_gemini_tokens_total",
+    documentation="Gemini prompt/completion token usage",
+    labelnames=["model", "token_type"],  # token_type: prompt | completion
+)
+
+gemini_requests_total = Counter(
+    name="aiservice_gemini_requests_total",
+    documentation="Gemini generation requests by outcome",
+    labelnames=["model", "status"],  # status: success | error | validation_failed
+)
+
+gemini_model_fallback_total = Counter(
+    name="aiservice_gemini_model_fallback_total",
+    documentation="Times a 429 rate-limit triggered a retry on the fallback model",
+)
+
 # ── Salary prediction ─────────────────────────────────────────────────────────
 
 salary_prediction_requests_total = Counter(

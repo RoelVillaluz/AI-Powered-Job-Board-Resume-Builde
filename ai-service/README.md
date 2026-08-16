@@ -93,46 +93,62 @@ Node.js BullMQ worker picks up job
 
 ```
 ai-service/
-├── app.py                              Entry point — FastAPI app + lifespan
+├── app.py                              FastAPI entry point + lifespan
 ├── main.py                             V1 CLI entry point (kept for backwards compat)
-├── main_v2.py                          V2 functions — accept prepared payload, no DB
+├── main_v2.py                          V2 CLI (handler registry)
 ├── requirements.txt
 │
-├── routers/
+├── handlers/                           V2 compute handlers (@register pattern)
+│   ├── base_handler.py                 @register decorator, REGISTRY, safe_call()
+│   ├── resume_handlers.py              generate_resume_embeddings, score_resume
+│   ├── job_handlers.py                 generate_job_posting_embeddings
+│   ├── market_handlers.py              generate_skill/job_title/location_embeddings
+│   ├── salary_handler.py               predict_salary
+│   ├── matching_handler.py             score_matches
+│   └── match_insight_handler.py        generate_match_insight (Gemini) — @register only
+│
+├── gemini/                             Gemini domain package — see gemini/README.md
+│   ├── gemini_client.py                Thin Gemini API wrapper + fallback model
+│   ├── match_context_builder.py        Prompt context with sanitize + XML delimiting
+│   ├── response_validator.py           Output-structure + instruction-leak checks
+│   └── match_insight_engine.py         Shared match-insight orchestration + stream generator
+│
+├── routers/                            FastAPI APIRouter modules
 │   ├── embeddings.py                   POST /compute/generate_* routes
 │   ├── scoring.py                      POST /compute/score_resume route
+│   ├── salary.py                       POST /compute/predict_salary
+│   ├── matching.py                     POST /compute/score_matches, /compute/generate_match_insight
 │   ├── health.py                       GET /health
+│   ├── metrics.py                      GET /metrics (Prometheus)
 │   └── shared/
 │       ├── __init__.py
+│       ├── auth.py                     verify_internal_service_key (X-Internal-Service-Key)
 │       ├── request.py                  ComputeRequest (Pydantic BaseModel)
 │       └── response.py                 wrap() — normalizes { data, error } shape
 │
 ├── models/
 │   └── embeddings.py                   EmbeddingModel singleton (all-mpnet-base-v2)
 │
-├── services/
-│   ├── resume_service.py               V1 — fetches from DB
-│   │   └── extract_embeddings_v2()     V2 — accepts prepared dict, no DB
+├── services/                           Business logic (no Gemini pipeline stages)
+│   ├── resume_service.py               Resume extraction/scoring orchestration
 │   ├── scoring_service.py              ScoringService — pure computation
 │   ├── analytics_service.py            AnalyticsService — insights generation
-│   └── market_services/
-│       ├── skill_services.py           V1 DB cache lookups (kept)
-│       ├── job_title_services.py       V1 DB cache lookups (kept)
-│       └── location_services.py        V1 DB cache lookups (kept)
+│   ├── job_matching_service.py         Job match scoring orchestration
+│   └── market_services/                market entity lookups
+│       ├── skill_services.py
+│       ├── job_title_services.py
+│       └── location_services.py
 │
 ├── infrastructure/
-│   └── embeddings/
-│       ├── embedding_orchestrator.py   V1 — parallel execution with DB cache
-│       ├── embedding_orchestrator_v2.py V2 — parallel execution, no DB (planned)
-│       └── embedding_tasks.py          Task wrappers with metrics
+│   └── embeddings/                     Registry-driven parallel embedding pipeline
+│       ├── embedding_orchestrator.py   extract_embeddings_parallel()
+│       ├── pipeline_registry.py        { entity_type: (build_fn, unpack_fn) }
+│       ├── pipelines/                  base, resume_pipeline, job_pipeline
+│       └── tasks/                      task_registry.py + run_* shims
 │
-├── utils/
-│   ├── embedding_utils.py              V1 — DB cache-aware embedding extraction
-│   ├── embedding_utils_v2.py           V2 — accepts pre-resolved data (planned)
-│   ├── date_utils.py                   Experience year calculations
-│   ├── tensor_utils.py                 PyTorch tensor helpers
-│   └── websocket_utils.py              V1 progress emitter (subprocess only)
-│
+├── metrics/                            Prometheus counters/histograms
+├── observability/                      Emitters
+├── utils/                              embedding_utils, tensor_utils, date_utils
 └── config/
     └── database.py                     MongoDB connection (V1 only)
 ```
@@ -167,6 +183,12 @@ Response: { "data": { ...result }, "error": null }
 | Endpoint | Body | Response |
 |---|---|---|
 | `POST /compute/score_resume` | Full resume + `totalExperienceYears` | `{ overall_score, grade, breakdown, strengths, improvements, recommendations }` |
+
+### Match insight endpoint
+
+| Endpoint | Body | Response |
+|---|---|---|
+| `POST /compute/generate_match_insight` | `{ resume, matches, jobId }` | `{ answer, jobId }` (Gemini-generated fit summary, or structured fallback) |
 
 ### Health
 
@@ -416,6 +438,21 @@ All endpoints return `{ data, error }` — never raw exceptions:
 ```
 
 Individual embedding sections that fail inside the orchestrator are isolated — one failing section does not abort the rest. The failed section returns `None` and the error is logged.
+
+---
+
+## Security
+
+All `/compute` routers require the `X-Internal-Service-Key` header (env
+`AI_SERVICE_SHARED_SECRET`), the shared secret the Node.js backend signs
+requests with; `/health` and `/metrics` stay public. Routers enforce this via
+`routers/shared/auth.py` (`verify_internal_service_key`), wired in `app.py`
+as a FastAPI dependency.
+
+The Gemini match-insight pipeline is assessed against all 10 OWASP LLM Top 10
+(2025) categories — 3 addressed, 5 partially addressed, 2 not applicable —
+see [`gemini/README.md`](./gemini/README.md) for the full coverage table with
+file + test references and the open gaps.
 
 ---
 

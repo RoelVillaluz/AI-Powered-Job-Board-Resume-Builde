@@ -47,6 +47,15 @@ export const useGetStartedFormSubmission = ({
                 data: formData
             }, { headers: { Authorization: `Bearer ${token}` }})
 
+            // The onboarding response now carries a freshly-signed token reflecting
+            // the new role — without persisting it, every request after this point
+            // keeps using the stale pre-onboarding token and keeps failing role
+            // checks, even though refreshUser() makes the UI *look* correct.
+            const newToken = response.data?.data?.token;
+            if (newToken) {
+                useAuthStore.getState().setToken(newToken); // adjust to your actual store action name
+            }
+
             await refreshUser();
 
             // Use store's getState() to read fresh value synchronously after refresh

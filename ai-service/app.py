@@ -1,7 +1,7 @@
 import logging
 import sys
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI
 from transformers import logging as hf_logging
 from routers.embeddings import router as embeddings_router
 from routers.scoring import router as scoring_router
@@ -9,6 +9,7 @@ from routers.health import router as health_router
 from routers.salary import router as salary_router
 from routers.matching import router as matching_router
 from routers.metrics import router as metrics_router
+from routers.shared.auth import verify_internal_service_key
 from dotenv import load_dotenv
 from metrics.prometheus_metrics import model_loaded as model_loaded_prometheus_metric
 
@@ -64,9 +65,12 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-app.include_router(embeddings_router)
-app.include_router(scoring_router)
-app.include_router(salary_router)
+# /compute routers require the internal service key; /health and /metrics stay public
+COMPUTE_DEPENDENCIES = [Depends(verify_internal_service_key)]
+
+app.include_router(embeddings_router, dependencies=COMPUTE_DEPENDENCIES)
+app.include_router(scoring_router, dependencies=COMPUTE_DEPENDENCIES)
+app.include_router(salary_router, dependencies=COMPUTE_DEPENDENCIES)
 app.include_router(health_router)
-app.include_router(matching_router)
+app.include_router(matching_router, dependencies=COMPUTE_DEPENDENCIES)
 app.include_router(metrics_router)

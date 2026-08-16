@@ -16,6 +16,7 @@ import ChatsPage from "./pages/ChatsPage";
 import { Navigate } from "react-router-dom";
 import CreateJobForm from "./pages/CreateJobForm";
 import EditJobDetailPage from "./pages/EditJobDetailPage";
+import CandidatesPage from "./pages/CandidatesPage";
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -53,6 +54,7 @@ function App() {
                   <Route path="/job-postings" element={<JobPostingsList /> }/>
                   <Route path="/job-postings/:jobId" element={<JobDetailPage />} />
                   <Route path="/job-postings/:jobId/edit" element={<EditJobDetailPage />} />
+                  <Route path="/job-postings/:jobId/candidates" element={<CandidatesPage />} />
 
                   <Route path="/change-password" element={<ChangePasswordForm />} />
 
